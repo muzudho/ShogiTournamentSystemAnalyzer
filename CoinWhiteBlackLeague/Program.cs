@@ -13,6 +13,7 @@ var blackAdvantageRating = ConvertBlackAdvantagePercentToRating(blackAdvantagePe
 Console.WriteLine();
 var players = ReadPlayersFromCsv();
 var matches = ReadMatchesFromCsv(players);
+PrintMatchesCsv(players, matches);
 
 Console.WriteLine($"\n総対局数: {matches.Count}");
 
@@ -217,13 +218,18 @@ static List<Match> ReadMatchesFromCsv(IReadOnlyList<Player> players)
 {
     while (true)
     {
-        Console.WriteLine("\n対局CSVを貼り付けてください。入力終了は空行です。\n");
+        Console.WriteLine("\n対局CSVまたは Round/Black-White/Players 表を貼り付けてください。入力終了は END 行です。\n");
 
         var lines = new List<string>();
         while (true)
         {
             var line = Console.ReadLine();
-            if (string.IsNullOrWhiteSpace(line))
+            if (line is null)
+            {
+                break;
+            }
+
+            if (line.Trim().Equals("END", StringComparison.OrdinalIgnoreCase))
             {
                 break;
             }
@@ -360,6 +366,11 @@ static bool TryParsePlayers(IReadOnlyList<string> lines, out List<Player> player
 
 static bool TryParseMatches(IReadOnlyList<string> lines, IReadOnlyList<Player> players, out List<Match> matches, out string errorMessage)
 {
+    if (LooksLikeRoundMatrixInput(lines))
+    {
+        return TryParseMatchesFromRoundMatrix(lines, players, out matches, out errorMessage);
+    }
+
     matches = new List<Match>();
     errorMessage = string.Empty;
 
@@ -422,10 +433,269 @@ static bool TryParseMatches(IReadOnlyList<string> lines, IReadOnlyList<Player> p
     return true;
 }
 
+static bool TryParseMatchesFromRoundMatrix(IReadOnlyList<string> lines, IReadOnlyList<Player> players, out List<Match> matches, out string errorMessage)
+{
+    matches = new List<Match>();
+    errorMessage = string.Empty;
+
+    var nonEmptyLines = lines.Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
+    if (nonEmptyLines.Count == 0 || !nonEmptyLines[0].Trim().Equals("Round", StringComparison.OrdinalIgnoreCase))
+    {
+        errorMessage = "先頭行に Round が必要です。";
+        return false;
+    }
+
+    var blackWhiteIndex = nonEmptyLines.FindIndex(1, x => x.Trim().Equals("Black/White", StringComparison.OrdinalIgnoreCase));
+    if (blackWhiteIndex < 0)
+    {
+        errorMessage = "Black/White セクションが見つかりません。";
+        return false;
+    }
+
+    var playersSectionIndex = nonEmptyLines.FindIndex(1, x => x.Trim().Equals("Players", StringComparison.OrdinalIgnoreCase));
+    if (playersSectionIndex >= 0 && playersSectionIndex < blackWhiteIndex)
+    {
+        errorMessage = "Players セクションは Black/White セクションの後ろに置いてください。";
+        return false;
+    }
+
+    var roundLines = nonEmptyLines.Skip(1).Take(blackWhiteIndex - 1).ToList();
+    var blackWhiteLines = playersSectionIndex >= 0
+        ? nonEmptyLines.Skip(blackWhiteIndex + 1).Take(playersSectionIndex - blackWhiteIndex - 1).ToList()
+        : nonEmptyLines.Skip(blackWhiteIndex + 1).ToList();
+
+    if (!TryParseSquareMatrix(roundLines, "Round", out var roundNames, out var roundValues, out errorMessage))
+    {
+        return false;
+    }
+
+    if (!TryParseSquareMatrix(blackWhiteLines, "Black/White", out var colorNames, out var colorValues, out errorMessage))
+    {
+        return false;
+    }
+
+    if (roundNames.Count != colorNames.Count || !roundNames.SequenceEqual(colorNames, StringComparer.OrdinalIgnoreCase))
+    {
+        errorMessage = "Round と Black/White のプレイヤー並びが一致していません。";
+        return false;
+    }
+
+    var resolvedNames = roundNames;
+    if (playersSectionIndex >= 0)
+    {
+        var playerAliasLines = nonEmptyLines.Skip(playersSectionIndex + 1).ToList();
+        if (!TryParsePlayerAliases(playerAliasLines, roundNames, out resolvedNames, out errorMessage))
+        {
+            return false;
+        }
+    }
+
+    var playerIndexes = players
+        .Select((player, index) => new { player.Name, Index = index })
+        .ToDictionary(x => x.Name, x => x.Index, StringComparer.OrdinalIgnoreCase);
+
+    var orderedMatches = new List<(int Round, Match Match, int Order)>();
+    for (var i = 0; i < resolvedNames.Count; i++)
+    {
+        if (!playerIndexes.ContainsKey(resolvedNames[i]))
+        {
+            errorMessage = $"プレイヤー '{resolvedNames[i]}' はプレイヤーCSVに存在しません。";
+            return false;
+        }
+
+        for (var j = i + 1; j < resolvedNames.Count; j++)
+        {
+            var roundForward = NormalizeMatrixCell(roundValues[i, j]);
+            var roundBackward = NormalizeMatrixCell(roundValues[j, i]);
+
+            if (string.IsNullOrEmpty(roundForward) && string.IsNullOrEmpty(roundBackward))
+            {
+                continue;
+            }
+
+            if (!string.Equals(roundForward, roundBackward, StringComparison.OrdinalIgnoreCase))
+            {
+                errorMessage = $"Round 表の '{roundNames[i]}' と '{roundNames[j]}' の値が一致していません。";
+                return false;
+            }
+
+            if (!int.TryParse(roundForward, NumberStyles.Integer, CultureInfo.InvariantCulture, out var roundNumber) || roundNumber <= 0)
+            {
+                errorMessage = $"Round 表の '{roundNames[i]}' と '{roundNames[j]}' の値は 1 以上の整数で入力してください。";
+                return false;
+            }
+
+            var colorForward = NormalizeMatrixCell(colorValues[i, j]).ToLowerInvariant();
+            var colorBackward = NormalizeMatrixCell(colorValues[j, i]).ToLowerInvariant();
+
+            Match match;
+            if (colorForward == "b" && colorBackward == "w")
+            {
+                match = new Match(playerIndexes[resolvedNames[i]], playerIndexes[resolvedNames[j]]);
+            }
+            else if (colorForward == "w" && colorBackward == "b")
+            {
+                match = new Match(playerIndexes[resolvedNames[j]], playerIndexes[resolvedNames[i]]);
+            }
+            else
+            {
+                errorMessage = $"Black/White 表の '{roundNames[i]}' と '{roundNames[j]}' は b/w の組み合わせで入力してください。";
+                return false;
+            }
+
+            orderedMatches.Add((roundNumber, match, orderedMatches.Count));
+        }
+    }
+
+    if (orderedMatches.Count == 0)
+    {
+        errorMessage = "対局は 1 局以上必要です。";
+        return false;
+    }
+
+    matches = orderedMatches
+        .OrderBy(x => x.Round)
+        .ThenBy(x => x.Order)
+        .Select(x => x.Match)
+        .ToList();
+
+    return true;
+}
+
+static bool TryParsePlayerAliases(IReadOnlyList<string> lines, IReadOnlyList<string> aliases, out List<string> resolvedNames, out string errorMessage)
+{
+    resolvedNames = new List<string>();
+    errorMessage = string.Empty;
+
+    if (lines.Count == 0)
+    {
+        errorMessage = "Players セクションの内容がありません。";
+        return false;
+    }
+
+    var aliasMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+    foreach (var line in lines)
+    {
+        var columns = SplitCsvLine(line);
+        if (columns.Count < 2)
+        {
+            errorMessage = "Players セクションは 2 列以上で入力してください。";
+            return false;
+        }
+
+        var alias = columns[0].Trim();
+        var playerName = columns[1].Trim();
+
+        if (string.IsNullOrWhiteSpace(alias) || string.IsNullOrWhiteSpace(playerName))
+        {
+            errorMessage = "Players セクションの記号またはプレイヤー名が空です。";
+            return false;
+        }
+
+        if (aliasMap.ContainsKey(alias))
+        {
+            errorMessage = $"Players セクションの記号 '{alias}' が重複しています。";
+            return false;
+        }
+
+        aliasMap.Add(alias, playerName);
+    }
+
+    foreach (var alias in aliases)
+    {
+        if (!aliasMap.TryGetValue(alias, out var playerName))
+        {
+            errorMessage = $"Players セクションに記号 '{alias}' の対応表がありません。";
+            return false;
+        }
+
+        resolvedNames.Add(playerName);
+    }
+
+    return true;
+}
+
 static bool TryParseDouble(string? input, out double value)
 {
     return double.TryParse(input, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.CurrentCulture, out value)
         || double.TryParse(input, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out value);
+}
+
+static bool TryParseSquareMatrix(IReadOnlyList<string> lines, string sectionName, out List<string> names, out string[,] values, out string errorMessage)
+{
+    names = new List<string>();
+    values = new string[0, 0];
+    errorMessage = string.Empty;
+
+    if (lines.Count < 2)
+    {
+        errorMessage = $"{sectionName} セクションの行数が不足しています。";
+        return false;
+    }
+
+    var headerColumns = SplitCsvLine(lines[0]).Select(x => x.Trim()).ToList();
+    if (headerColumns.Count < 2)
+    {
+        errorMessage = $"{sectionName} セクションのヘッダーが不正です。";
+        return false;
+    }
+
+    names = headerColumns.Skip(1).ToList();
+    if (names.Any(string.IsNullOrWhiteSpace) || names.Distinct(StringComparer.OrdinalIgnoreCase).Count() != names.Count)
+    {
+        errorMessage = $"{sectionName} セクションのプレイヤー名ヘッダーが不正です。";
+        return false;
+    }
+
+    var nameToRowIndex = names
+        .Select((name, index) => new { name, index })
+        .ToDictionary(x => x.name, x => x.index, StringComparer.OrdinalIgnoreCase);
+
+    values = new string[names.Count, names.Count];
+    var seenRows = new bool[names.Count];
+
+    for (var lineIndex = 1; lineIndex < lines.Count; lineIndex++)
+    {
+        var columns = SplitCsvLine(lines[lineIndex]);
+        if (columns.Count < names.Count + 1)
+        {
+            errorMessage = $"{sectionName} セクションの {lineIndex + 1} 行目の列数が不足しています。";
+            return false;
+        }
+
+        var rowName = columns[0].Trim();
+        if (!nameToRowIndex.TryGetValue(rowName, out var rowIndex))
+        {
+            errorMessage = $"{sectionName} セクションの {lineIndex + 1} 行目のプレイヤー名 '{rowName}' がヘッダーにありません。";
+            return false;
+        }
+
+        if (seenRows[rowIndex])
+        {
+            errorMessage = $"{sectionName} セクションの行 '{rowName}' が重複しています。";
+            return false;
+        }
+
+        seenRows[rowIndex] = true;
+        for (var columnIndex = 0; columnIndex < names.Count; columnIndex++)
+        {
+            values[rowIndex, columnIndex] = columns[columnIndex + 1].Trim();
+        }
+    }
+
+    if (seenRows.Any(x => !x))
+    {
+        errorMessage = $"{sectionName} セクションに不足している行があります。";
+        return false;
+    }
+
+    return true;
+}
+
+static string NormalizeMatrixCell(string? value)
+{
+    var normalized = value?.Trim() ?? string.Empty;
+    return normalized == "-" ? string.Empty : normalized;
 }
 
 static List<string> SplitCsvLine(string line)
@@ -502,13 +772,20 @@ static bool IsMatchHeaderRow(IReadOnlyList<string> columns)
         || second.Equals("白番", StringComparison.OrdinalIgnoreCase);
 }
 
+static bool LooksLikeRoundMatrixInput(IReadOnlyList<string> lines)
+{
+    var firstNonEmptyLine = lines.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x));
+    return firstNonEmptyLine is not null
+        && firstNonEmptyLine.Trim().Equals("Round", StringComparison.OrdinalIgnoreCase);
+}
+
 static void PrintInputSample()
 {
     Console.WriteLine("入力形式:");
     Console.WriteLine("1. 黒番有利率 (%)");
     Console.WriteLine("2. プレイヤーCSV (1列目=名前, 2列目=Elo レーティング)");
-    Console.WriteLine("3. 対局CSV (1列目=黒番, 2列目=白番)");
-    Console.WriteLine("どちらのCSVも 1 行目のヘッダーは省略可能です。\n");
+    Console.WriteLine("3. 対局CSV (1列目=黒番, 2列目=白番) または Round/Black-White/Players 表");
+    Console.WriteLine("プレイヤーCSVは空行で入力終了、対局入力は END 行で入力終了です。\n");
     Console.WriteLine("入力サンプル:");
     Console.WriteLine("黒番有利率(%): 51\n");
     Console.WriteLine("プレイヤーCSV:");
@@ -524,7 +801,52 @@ static void PrintInputSample()
     Console.WriteLine("Dave,Alice");
     Console.WriteLine("Bob,Carol");
     Console.WriteLine("Bob,Dave");
-    Console.WriteLine("Dave,Carol\n");
+    Console.WriteLine("Dave,Carol");
+    Console.WriteLine("END\n");
+    Console.WriteLine("Round/Black-White 表の例:");
+    Console.WriteLine("Round");
+    Console.WriteLine(" , A, B, C, D");
+    Console.WriteLine("A, -, 3, 2, 1");
+    Console.WriteLine("B, 3, -, 1, 2");
+    Console.WriteLine("C, 2, 1, -, 3");
+    Console.WriteLine("D, 1, 2, 3, -");
+    Console.WriteLine();
+    Console.WriteLine("Black/White");
+    Console.WriteLine(" , A, B, C, D");
+    Console.WriteLine("A, -, b, b, b");
+    Console.WriteLine("B, w, -, b, b");
+    Console.WriteLine("C, w, w, -, b");
+    Console.WriteLine("D, w, w, w, -");
+    Console.WriteLine();
+    Console.WriteLine("Players");
+    Console.WriteLine("A, \"Alice\"");
+    Console.WriteLine("B, \"Bob\"");
+    Console.WriteLine("C, \"Carol\"");
+    Console.WriteLine("D, \"Dave\"");
+    Console.WriteLine("END\n");
+}
+
+static void PrintMatchesCsv(IReadOnlyList<Player> players, IReadOnlyList<Match> matches)
+{
+    Console.WriteLine("生成された対局CSV:");
+    Console.WriteLine("black,white");
+
+    foreach (var match in matches)
+    {
+        Console.WriteLine($"{EscapeCsv(players[match.Black].Name)},{EscapeCsv(players[match.White].Name)}");
+    }
+
+    Console.WriteLine();
+}
+
+static string EscapeCsv(string value)
+{
+    if (!value.Contains(',') && !value.Contains('"') && !value.Contains('\n') && !value.Contains('\r'))
+    {
+        return value;
+    }
+
+    return $"\"{value.Replace("\"", "\"\"")}\"";
 }
 
 static double ConvertBlackAdvantagePercentToRating(double blackAdvantagePercent)
