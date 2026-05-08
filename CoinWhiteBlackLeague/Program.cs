@@ -34,7 +34,7 @@ else
     result = CalculateBySimulation(players, matches, blackAdvantageRating, simulationCount);
 }
 
-PrintResult(players, result, blackAdvantagePercent);
+PrintResult(players, matches, result, blackAdvantagePercent);
 
 static CalculationResult CalculateExactly(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, double blackAdvantageRating)
 {
@@ -132,13 +132,25 @@ static double GetWinProbability(Player black, Player white, double blackAdvantag
     return 1.0 / (1.0 + Math.Pow(10.0, (white.Rating - (black.Rating + blackAdvantageRating)) / 400.0));
 }
 
-static void PrintResult(IReadOnlyList<Player> players, CalculationResult result, double blackAdvantagePercent)
+static void PrintResult(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, CalculationResult result, double blackAdvantagePercent)
 {
     Console.WriteLine($"計算方法: {result.Mode}\n");
     Console.WriteLine($"同Elo対局時の黒番勝率: {blackAdvantagePercent.ToString("F2", CultureInfo.InvariantCulture)}%\n");
 
+    var blackCounts = new int[players.Count];
+    var whiteCounts = new int[players.Count];
+    foreach (var match in matches)
+    {
+        blackCounts[match.Black]++;
+        whiteCounts[match.White]++;
+    }
+
     var nameWidth = Math.Max(6, players.Max(x => x.Name.Length) + 2);
-    var header = "対局者".PadRight(nameWidth) + "優勝確率".PadLeft(12) + "平均順位".PadLeft(12);
+    var header = "対局者".PadRight(nameWidth)
+        + "黒番".PadLeft(8)
+        + "白番".PadLeft(8)
+        + "優勝確率".PadLeft(12)
+        + "平均順位".PadLeft(12);
     for (var place = 0; place < players.Count; place++)
     {
         header += $"{(place + 1).ToString(CultureInfo.InvariantCulture) + "位",10}";
@@ -153,6 +165,8 @@ static void PrintResult(IReadOnlyList<Player> players, CalculationResult result,
             .Sum(place => (place + 1) * result.PlaceProbabilities[playerIndex, place]);
 
         var line = players[playerIndex].Name.PadRight(nameWidth)
+            + blackCounts[playerIndex].ToString(CultureInfo.InvariantCulture).PadLeft(8)
+            + whiteCounts[playerIndex].ToString(CultureInfo.InvariantCulture).PadLeft(8)
             + FormatPercent(result.PlaceProbabilities[playerIndex, 0]).PadLeft(12)
             + expectedPlace.ToString("F3", CultureInfo.InvariantCulture).PadLeft(12);
 
