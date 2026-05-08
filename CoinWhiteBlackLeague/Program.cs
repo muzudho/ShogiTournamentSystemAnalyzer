@@ -170,16 +170,23 @@ static void PrintResult(IReadOnlyList<Player> players, IReadOnlyList<Match> matc
 
     var blackCounts = new int[players.Count];
     var whiteCounts = new int[players.Count];
+    var blackWinProbabilitySums = new double[players.Count];
+    var whiteWinProbabilitySums = new double[players.Count];
     foreach (var match in matches)
     {
+        var blackWinProbability = GetWinProbability(players[match.Black], players[match.White], ConvertBlackAdvantagePercentToRating(blackAdvantagePercent));
         blackCounts[match.Black]++;
         whiteCounts[match.White]++;
+        blackWinProbabilitySums[match.Black] += blackWinProbability;
+        whiteWinProbabilitySums[match.White] += 1.0 - blackWinProbability;
     }
 
     var nameWidth = Math.Max(6, players.Max(x => x.Name.Length) + 2);
     var header = "対局者".PadRight(nameWidth)
         + "黒番".PadLeft(8)
         + "白番".PadLeft(8)
+        + "黒番勝率".PadLeft(12)
+        + "白番勝率".PadLeft(12)
         + "優勝確率".PadLeft(12)
         + "平均順位".PadLeft(12);
     for (var place = 0; place < players.Count; place++)
@@ -194,10 +201,18 @@ static void PrintResult(IReadOnlyList<Player> players, IReadOnlyList<Match> matc
     {
         var expectedPlace = Enumerable.Range(0, players.Count)
             .Sum(place => (place + 1) * result.PlaceProbabilities[playerIndex, place]);
+        var blackWinRate = blackCounts[playerIndex] == 0
+            ? (double?)null
+            : blackWinProbabilitySums[playerIndex] / blackCounts[playerIndex];
+        var whiteWinRate = whiteCounts[playerIndex] == 0
+            ? (double?)null
+            : whiteWinProbabilitySums[playerIndex] / whiteCounts[playerIndex];
 
         var line = players[playerIndex].Name.PadRight(nameWidth)
             + blackCounts[playerIndex].ToString(CultureInfo.InvariantCulture).PadLeft(8)
             + whiteCounts[playerIndex].ToString(CultureInfo.InvariantCulture).PadLeft(8)
+            + FormatOptionalPercent(blackWinRate).PadLeft(12)
+            + FormatOptionalPercent(whiteWinRate).PadLeft(12)
             + FormatPercent(result.PlaceProbabilities[playerIndex, 0]).PadLeft(12)
             + expectedPlace.ToString("F3", CultureInfo.InvariantCulture).PadLeft(12);
 
@@ -889,6 +904,11 @@ static double ConvertBlackAdvantagePercentToRating(double blackAdvantagePercent)
 static string FormatPercent(double value)
 {
     return (value * 100).ToString("F2", CultureInfo.InvariantCulture) + "%";
+}
+
+static string FormatOptionalPercent(double? value)
+{
+    return value.HasValue ? FormatPercent(value.Value) : "-";
 }
 
 readonly record struct Player(string Name, double Rating);
