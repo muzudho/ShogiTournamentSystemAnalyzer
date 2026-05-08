@@ -11,8 +11,15 @@ var blackAdvantagePercent = ReadDoubleWithDefaultInRange("同Elo対局時の黒�
 var blackAdvantageRating = ConvertBlackAdvantagePercentToRating(blackAdvantagePercent);
 
 Console.WriteLine();
-var players = ReadPlayersFromCsv();
-var matches = ReadMatchesFromCsv(players);
+var allPlayers = ReadPlayersFromCsv();
+var allMatches = ReadMatchesFromCsv(allPlayers);
+var (players, matches) = FilterToScheduledPlayers(allPlayers, allMatches);
+
+if (players.Count != allPlayers.Count)
+{
+    Console.WriteLine($"未対局プレイヤー {allPlayers.Count - players.Count} 人を結果から除外します。\n");
+}
+
 PrintMatchesCsv(players, matches);
 
 Console.WriteLine($"\n総対局数: {matches.Count}");
@@ -64,6 +71,29 @@ static CalculationResult CalculateExactly(IReadOnlyList<Player> players, IReadOn
 
     Explore(0, 1.0);
     return new CalculationResult(placeProbabilities, "厳密計算");
+}
+
+static (List<Player> Players, List<Match> Matches) FilterToScheduledPlayers(IReadOnlyList<Player> players, IReadOnlyList<Match> matches)
+{
+    var activeIndexes = matches
+        .SelectMany(match => new[] { match.Black, match.White })
+        .Distinct()
+        .OrderBy(index => index)
+        .ToList();
+
+    var indexMap = activeIndexes
+        .Select((oldIndex, newIndex) => new { oldIndex, newIndex })
+        .ToDictionary(x => x.oldIndex, x => x.newIndex);
+
+    var filteredPlayers = activeIndexes
+        .Select(index => players[index])
+        .ToList();
+
+    var filteredMatches = matches
+        .Select(match => new Match(indexMap[match.Black], indexMap[match.White]))
+        .ToList();
+
+    return (filteredPlayers, filteredMatches);
 }
 
 static CalculationResult CalculateBySimulation(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, double blackAdvantageRating, int simulationCount)
