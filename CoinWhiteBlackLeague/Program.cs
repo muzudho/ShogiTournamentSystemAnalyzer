@@ -6,16 +6,9 @@ Console.OutputEncoding = Encoding.UTF8;
 Console.WriteLine("総当たり戦の順位分布を計算します。");
 Console.WriteLine("前提: 各組み合わせは1局、勝率は strengthA / (strengthA + strengthB) で計算します。\n");
 
-var playerCount = ReadInt("対局者数を入力してください: ", min: 2);
-var players = new List<Player>();
-
-for (var i = 0; i < playerCount; i++)
-{
-    Console.WriteLine($"\n対局者 {i + 1}");
-    var name = ReadRequiredText("名前: ");
-    var strength = ReadDouble("強さ (> 0): ", minExclusive: 0);
-    players.Add(new Player(name, strength));
-}
+PrintCsvSample();
+var players = ReadPlayersFromCsv();
+var playerCount = players.Count;
 
 var matches = BuildMatches(playerCount);
 Console.WriteLine($"\n総対局数: {matches.Count}");
@@ -183,18 +176,37 @@ static void PrintResult(IReadOnlyList<Player> players, CalculationResult result)
     }
 }
 
-static string ReadRequiredText(string prompt)
+static List<Player> ReadPlayersFromCsv()
 {
     while (true)
     {
-        Console.Write(prompt);
-        var input = Console.ReadLine()?.Trim();
-        if (!string.IsNullOrWhiteSpace(input))
+        Console.WriteLine("CSVを貼り付けてください。入力終了は空行です。\n");
+
+        var lines = new List<string>();
+        while (true)
         {
-            return input;
+            var line = Console.ReadLine();
+            if (string.IsNullOrWhiteSpace(line))
+            {
+                break;
+            }
+
+            lines.Add(line);
         }
 
-        Console.WriteLine("空では入力できません。");
+        if (lines.Count == 0)
+        {
+            Console.WriteLine("CSVが入力されていません。再入力してください。\n");
+            continue;
+        }
+
+        if (TryParsePlayers(lines, out var players, out var errorMessage))
+        {
+            return players;
+        }
+
+        Console.WriteLine($"CSVの読み取りに失敗しました: {errorMessage}");
+        Console.WriteLine("もう一度入力してください。\n");
     }
 }
 
@@ -234,26 +246,126 @@ static int ReadIntWithDefault(string prompt, int defaultValue, int min)
     }
 }
 
-static double ReadDouble(string prompt, double minExclusive)
+static bool TryParsePlayers(IReadOnlyList<string> lines, out List<Player> players, out string errorMessage)
 {
-    while (true)
-    {
-        Console.Write(prompt);
-        var input = Console.ReadLine()?.Trim();
+    players = new List<Player>();
+    errorMessage = string.Empty;
 
-        if (TryParseDouble(input, out var value) && value > minExclusive)
+    var startIndex = 0;
+    var firstColumns = SplitCsvLine(lines[0]);
+    if (IsHeaderRow(firstColumns))
+    {
+        startIndex = 1;
+    }
+
+    for (var i = startIndex; i < lines.Count; i++)
+    {
+        var columns = SplitCsvLine(lines[i]);
+        if (columns.Count < 2)
         {
-            return value;
+            errorMessage = $"{i + 1} 行目は 2 列以上必要です。";
+            return false;
         }
 
-        Console.WriteLine($"{minExclusive} より大きい数値を入力してください。");
+        var name = columns[0].Trim();
+        var strengthText = columns[1].Trim();
+
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            errorMessage = $"{i + 1} 行目の名前が空です。";
+            return false;
+        }
+
+        if (!TryParseDouble(strengthText, out var strength) || strength <= 0)
+        {
+            errorMessage = $"{i + 1} 行目の強さは 0 より大きい数値で入力してください。";
+            return false;
+        }
+
+        players.Add(new Player(name, strength));
     }
+
+    if (players.Count < 2)
+    {
+        errorMessage = "対局者は 2 人以上必要です。";
+        return false;
+    }
+
+    return true;
 }
 
 static bool TryParseDouble(string? input, out double value)
 {
     return double.TryParse(input, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.CurrentCulture, out value)
         || double.TryParse(input, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out value);
+}
+
+static List<string> SplitCsvLine(string line)
+{
+    var columns = new List<string>();
+    var field = new StringBuilder();
+    var inQuotes = false;
+
+    for (var i = 0; i < line.Length; i++)
+    {
+        var ch = line[i];
+
+        if (ch == '"')
+        {
+            if (inQuotes && i + 1 < line.Length && line[i + 1] == '"')
+            {
+                field.Append('"');
+                i++;
+            }
+            else
+            {
+                inQuotes = !inQuotes;
+            }
+
+            continue;
+        }
+
+        if (ch == ',' && !inQuotes)
+        {
+            columns.Add(field.ToString());
+            field.Clear();
+            continue;
+        }
+
+        field.Append(ch);
+    }
+
+    columns.Add(field.ToString());
+    return columns;
+}
+
+static bool IsHeaderRow(IReadOnlyList<string> columns)
+{
+    if (columns.Count < 2)
+    {
+        return false;
+    }
+
+    var first = columns[0].Trim();
+    var second = columns[1].Trim();
+
+    return first.Equals("name", StringComparison.OrdinalIgnoreCase)
+        || first.Equals("名前", StringComparison.OrdinalIgnoreCase)
+        || second.Equals("strength", StringComparison.OrdinalIgnoreCase)
+        || second.Equals("強さ", StringComparison.OrdinalIgnoreCase);
+}
+
+static void PrintCsvSample()
+{
+    Console.WriteLine("入力形式: CSV");
+    Console.WriteLine("1列目=名前, 2列目=強さ");
+    Console.WriteLine("1行目のヘッダーは省略可能です。\n");
+    Console.WriteLine("入力サンプル:");
+    Console.WriteLine("name,strength");
+    Console.WriteLine("Alice,1.0");
+    Console.WriteLine("Bob,1.4");
+    Console.WriteLine("Carol,0.8");
+    Console.WriteLine("Dave,2.0\n");
 }
 
 static string FormatPercent(double value)
