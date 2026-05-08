@@ -1,5 +1,5 @@
-name , strength
-Alice, 1.0
-Bob  , 1.4
-Carol, 0.8
-Dave , 2.0
+name, elo
+Alice, 1500
+Bob, 1650
+Carol, 1420
+Dave, 1800

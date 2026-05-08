@@ -4,7 +4,7 @@ using System.Text;
 Console.OutputEncoding = Encoding.UTF8;
 
 Console.WriteLine("総当たり戦の順位分布を計算します。");
-Console.WriteLine("前提: 各組み合わせは1局、勝率は strengthA / (strengthA + strengthB) で計算します。\n");
+Console.WriteLine("前提: 各組み合わせは1局、勝率は Elo レーティング差から計算します。\n");
 
 PrintCsvSample();
 var players = ReadPlayersFromCsv();
@@ -141,7 +141,7 @@ static void AccumulatePlaceProbabilities(int[] wins, double scenarioProbability,
 
 static double GetWinProbability(Player first, Player second)
 {
-    return first.Strength / (first.Strength + second.Strength);
+    return 1.0 / (1.0 + Math.Pow(10.0, (second.Rating - first.Rating) / 400.0));
 }
 
 static void PrintResult(IReadOnlyList<Player> players, CalculationResult result)
@@ -268,7 +268,7 @@ static bool TryParsePlayers(IReadOnlyList<string> lines, out List<Player> player
         }
 
         var name = columns[0].Trim();
-        var strengthText = columns[1].Trim();
+        var ratingText = columns[1].Trim();
 
         if (string.IsNullOrWhiteSpace(name))
         {
@@ -276,13 +276,13 @@ static bool TryParsePlayers(IReadOnlyList<string> lines, out List<Player> player
             return false;
         }
 
-        if (!TryParseDouble(strengthText, out var strength) || strength <= 0)
+        if (!TryParseDouble(ratingText, out var rating))
         {
-            errorMessage = $"{i + 1} 行目の強さは 0 より大きい数値で入力してください。";
+            errorMessage = $"{i + 1} 行目の Elo レーティングは数値で入力してください。";
             return false;
         }
 
-        players.Add(new Player(name, strength));
+        players.Add(new Player(name, rating));
     }
 
     if (players.Count < 2)
@@ -351,21 +351,24 @@ static bool IsHeaderRow(IReadOnlyList<string> columns)
 
     return first.Equals("name", StringComparison.OrdinalIgnoreCase)
         || first.Equals("名前", StringComparison.OrdinalIgnoreCase)
-        || second.Equals("strength", StringComparison.OrdinalIgnoreCase)
-        || second.Equals("強さ", StringComparison.OrdinalIgnoreCase);
+        || second.Equals("elo", StringComparison.OrdinalIgnoreCase)
+        || second.Equals("rating", StringComparison.OrdinalIgnoreCase)
+        || second.Equals("eloRating", StringComparison.OrdinalIgnoreCase)
+        || second.Equals("eloレーティング", StringComparison.OrdinalIgnoreCase)
+        || second.Equals("レーティング", StringComparison.OrdinalIgnoreCase);
 }
 
 static void PrintCsvSample()
 {
     Console.WriteLine("入力形式: CSV");
-    Console.WriteLine("1列目=名前, 2列目=強さ");
+    Console.WriteLine("1列目=名前, 2列目=Elo レーティング");
     Console.WriteLine("1行目のヘッダーは省略可能です。\n");
     Console.WriteLine("入力サンプル:");
-    Console.WriteLine("name,strength");
-    Console.WriteLine("Alice,1.0");
-    Console.WriteLine("Bob,1.4");
-    Console.WriteLine("Carol,0.8");
-    Console.WriteLine("Dave,2.0\n");
+    Console.WriteLine("name,elo");
+    Console.WriteLine("Alice,1500");
+    Console.WriteLine("Bob,1650");
+    Console.WriteLine("Carol,1420");
+    Console.WriteLine("Dave,1800\n");
 }
 
 static string FormatPercent(double value)
@@ -373,7 +376,7 @@ static string FormatPercent(double value)
     return (value * 100).ToString("F2", CultureInfo.InvariantCulture) + "%";
 }
 
-readonly record struct Player(string Name, double Strength);
+readonly record struct Player(string Name, double Rating);
 readonly record struct Match(int First, int Second);
 readonly record struct PlayerScore(int PlayerIndex, int Wins);
 readonly record struct CalculationResult(double[,] PlaceProbabilities, string Mode);
