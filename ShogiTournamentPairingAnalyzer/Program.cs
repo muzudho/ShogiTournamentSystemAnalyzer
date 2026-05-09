@@ -17,7 +17,7 @@ var (players, matches) = FilterToScheduledPlayers(allPlayers, allMatches);
 
 if (players.Count != allPlayers.Count)
 {
-    Console.WriteLine($"未対局プレイヤー {allPlayers.Count - players.Count} 人を結果から除外します。\n");
+    Console.WriteLine($"未対局の選手 {allPlayers.Count - players.Count} 人を結果から除外します。\n");
 }
 
 PrintMatchesCsv(players, matches);
@@ -350,7 +350,7 @@ static List<Player> ReadPlayersFromCsv()
 {
     while (true)
     {
-        Console.WriteLine("プレイヤーCSVを貼り付けてください。入力終了は空行です。\n");
+        Console.WriteLine("選手一覧CSVを貼り付けてください。入力終了は空行です。\n");
 
         var lines = new List<string>();
         while (true)
@@ -414,7 +414,7 @@ static List<Match> ReadMatchesFromCsv(IReadOnlyList<Player> players)
 {
     while (true)
     {
-        Console.WriteLine("\n対局CSVまたは Round/Black-White/Players 表を貼り付けてください。入力終了は END 行です。\n");
+        Console.WriteLine("\n対局CSVまたは Round/Black-White/対局記号表を貼り付けてください。入力終了は END 行です。\n");
 
         var lines = new List<string>();
         while (true)
@@ -435,7 +435,7 @@ static List<Match> ReadMatchesFromCsv(IReadOnlyList<Player> players)
 
         if (lines.Count == 0)
         {
-            Console.WriteLine("対局CSVが入力されていません。再入力してください。\n");
+            Console.WriteLine("対局入力が入力されていません。再入力してください。\n");
             continue;
         }
 
@@ -444,7 +444,7 @@ static List<Match> ReadMatchesFromCsv(IReadOnlyList<Player> players)
             return matches;
         }
 
-        Console.WriteLine($"対局CSVの読み取りに失敗しました: {errorMessage}");
+        Console.WriteLine($"対局入力の読み取りに失敗しました: {errorMessage}");
         Console.WriteLine("もう一度入力してください。\n");
     }
 }
@@ -553,7 +553,7 @@ static bool TryParsePlayers(IReadOnlyList<string> lines, out List<Player> player
 
     if (players.Count < 2)
     {
-        errorMessage = "対局者は 2 人以上必要です。";
+        errorMessage = "選手は 2 人以上必要です。";
         return false;
     }
 
@@ -601,19 +601,19 @@ static bool TryParseMatches(IReadOnlyList<string> lines, IReadOnlyList<Player> p
 
         if (!playerIndexes.TryGetValue(blackName, out var blackIndex))
         {
-            errorMessage = $"{i + 1} 行目の黒番 '{blackName}' はプレイヤーCSVに存在しません。";
+            errorMessage = $"{i + 1} 行目の黒番 '{blackName}' は選手一覧CSVに存在しません。";
             return false;
         }
 
         if (!playerIndexes.TryGetValue(whiteName, out var whiteIndex))
         {
-            errorMessage = $"{i + 1} 行目の白番 '{whiteName}' はプレイヤーCSVに存在しません。";
+            errorMessage = $"{i + 1} 行目の白番 '{whiteName}' は選手一覧CSVに存在しません。";
             return false;
         }
 
         if (blackIndex == whiteIndex)
         {
-            errorMessage = $"{i + 1} 行目で同じプレイヤーが黒番と白番の両方に指定されています。";
+            errorMessage = $"{i + 1} 行目で同じ選手が黒番と白番の両方に指定されています。";
             return false;
         }
 
@@ -672,7 +672,7 @@ static bool TryParseMatchesFromRoundMatrix(IReadOnlyList<string> lines, IReadOnl
 
     if (roundNames.Count != colorNames.Count || !roundNames.SequenceEqual(colorNames, StringComparer.OrdinalIgnoreCase))
     {
-        errorMessage = "Round と Black/White のプレイヤー並びが一致していません。";
+        errorMessage = "Round と Black/White の記号並びが一致していません。";
         return false;
     }
 
@@ -695,7 +695,7 @@ static bool TryParseMatchesFromRoundMatrix(IReadOnlyList<string> lines, IReadOnl
     {
         if (!playerIndexes.ContainsKey(resolvedNames[i]))
         {
-            errorMessage = $"プレイヤー '{resolvedNames[i]}' はプレイヤーCSVに存在しません。";
+            errorMessage = $"選手 '{resolvedNames[i]}' は選手一覧CSVに存在しません。";
             return false;
         }
 
@@ -784,7 +784,7 @@ static bool TryParsePlayerAliases(IReadOnlyList<string> lines, IReadOnlyList<str
 
         if (string.IsNullOrWhiteSpace(alias) || string.IsNullOrWhiteSpace(playerName))
         {
-            errorMessage = "対局記号表セクションの記号またはプレイヤー名が空です。";
+            errorMessage = "対局記号表セクションの記号または選手名が空です。";
             return false;
         }
 
@@ -839,7 +839,7 @@ static bool TryParseSquareMatrix(IReadOnlyList<string> lines, string sectionName
     names = headerColumns.Skip(1).ToList();
     if (names.Any(string.IsNullOrWhiteSpace) || names.Distinct(StringComparer.OrdinalIgnoreCase).Count() != names.Count)
     {
-        errorMessage = $"{sectionName} セクションのプレイヤー名ヘッダーが不正です。";
+        errorMessage = $"{sectionName} セクションの見出しが不正です。";
         return false;
     }
 
@@ -862,7 +862,7 @@ static bool TryParseSquareMatrix(IReadOnlyList<string> lines, string sectionName
         var rowName = columns[0].Trim();
         if (!nameToRowIndex.TryGetValue(rowName, out var rowIndex))
         {
-            errorMessage = $"{sectionName} セクションの {lineIndex + 1} 行目のプレイヤー名 '{rowName}' がヘッダーにありません。";
+            errorMessage = $"{sectionName} セクションの {lineIndex + 1} 行目の記号 '{rowName}' がヘッダーにありません。";
             return false;
         }
 
@@ -986,12 +986,12 @@ static void PrintInputSample()
 {
     Console.WriteLine("入力形式:");
     Console.WriteLine("1. 黒番有利率 (%)");
-    Console.WriteLine("2. プレイヤーCSV (1列目=名前, 2列目=Elo レーティング)");
+    Console.WriteLine("2. 選手一覧CSV (1列目=名前, 2列目=Elo レーティング)");
     Console.WriteLine("3. 対局CSV (1列目=黒番, 2列目=白番) または Round/Black-White/対局記号表");
-    Console.WriteLine("プレイヤーCSVは空行で入力終了、対局入力は END 行で入力終了です。\n");
+    Console.WriteLine("選手一覧CSVは空行で入力終了、対局入力は END 行で入力終了です。\n");
     Console.WriteLine("入力サンプル:");
     Console.WriteLine("黒番有利率(%): 51\n");
-    Console.WriteLine("プレイヤーCSV:");
+    Console.WriteLine("選手一覧CSV:");
     Console.WriteLine("name,elo");
     Console.WriteLine("Alice,1500");
     Console.WriteLine("Bob,1650");
