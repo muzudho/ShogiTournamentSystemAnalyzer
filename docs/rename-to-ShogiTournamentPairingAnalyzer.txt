@@ -1,0 +1,49 @@
+ShogiTournamentPairingAnalyzer への名称変更手順
+
+1. Visual Studio を閉じる
+   - 親フォルダー名を変更するために必要。
+
+2. ローカルフォルダー名を変更する
+   変更前:
+   E:\github.com\muzudho\CoinWhiteBlackLeague\
+
+   変更後:
+   E:\github.com\muzudho\ShogiTournamentPairingAnalyzer\
+
+3. GitHub のリポジトリー名を変更する
+   - GitHub の repository settings を開く
+   - Repository name を変更する
+
+   変更前:
+   CoinWhiteBlackLeague
+
+   変更後:
+   ShogiTournamentPairingAnalyzer
+
+4. origin の URL を更新する
+   PowerShell で実行:
+
+   git -C "E:\github.com\muzudho\ShogiTournamentPairingAnalyzer" remote set-url origin https://github.com/muzudho/ShogiTournamentPairingAnalyzer.git
+
+5. リモート設定を確認する
+   PowerShell で実行:
+
+   git -C "E:\github.com\muzudho\ShogiTournamentPairingAnalyzer" remote -v
+
+6. Visual Studio で開き直す
+   開く候補:
+   E:\github.com\muzudho\ShogiTournamentPairingAnalyzer\CoinWhiteBlackLeague\ShogiTournamentPairingAnalyzer.csproj
+
+7. ビルド確認を行う
+   PowerShell で実行:
+
+   dotnet build "E:\github.com\muzudho\ShogiTournamentPairingAnalyzer\CoinWhiteBlackLeague\ShogiTournamentPairingAnalyzer.csproj"
+
+8. 問題なければ旧互換用 csproj を削除する
+   削除候補:
+   E:\github.com\muzudho\ShogiTournamentPairingAnalyzer\CoinWhiteBlackLeague\CoinWhiteBlackLeague.csproj
+
+補足
+- 現在の実際の出力アセンブリ名は ShogiTournamentPairingAnalyzer に設定済み。
+- README.md と docs\notes.md の表記も更新済み。
+- 旧 CoinWhiteBlackLeague.csproj は、現環境の互換用として一時的に残してある。
