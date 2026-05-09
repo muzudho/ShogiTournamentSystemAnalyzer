@@ -42,7 +42,13 @@ else
     result = CalculateBySimulation(players, matches, blackAdvantageRating, simulationCount);
 }
 
-PrintResult(players, matches, result, blackAdvantagePercent);
+var resultRows = BuildResultRows(players, matches, result, blackAdvantagePercent);
+PrintResult(players.Count, result, blackAdvantagePercent, resultRows);
+
+var defaultOutputCsvPath = Path.GetFullPath($"result_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
+var outputCsvPath = ReadTextWithDefault($"\n結果CSVの出力先パスを入力してください [{defaultOutputCsvPath}]: ", defaultOutputCsvPath);
+WriteResultCsv(outputCsvPath, result.Mode, blackAdvantagePercent, resultRows);
+Console.WriteLine($"結果CSVを出力しました: {outputCsvPath}");
 
 static CalculationResult CalculateExactly(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, double blackAdvantageRating)
 {
@@ -163,40 +169,32 @@ static double GetWinProbability(Player black, Player white, double blackAdvantag
     return 1.0 / (1.0 + Math.Pow(10.0, (white.Rating - (black.Rating + blackAdvantageRating)) / 400.0));
 }
 
-static void PrintResult(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, CalculationResult result, double blackAdvantagePercent)
+static List<ResultRow> BuildResultRows(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, CalculationResult result, double blackAdvantagePercent)
 {
-    Console.WriteLine($"計算方法: {result.Mode}\n");
-    Console.WriteLine($"同Elo対局時の黒番勝率: {blackAdvantagePercent.ToString("F2", CultureInfo.InvariantCulture)}%\n");
-
+    var blackAdvantageRating = ConvertBlackAdvantagePercentToRating(blackAdvantagePercent);
     var blackCounts = new int[players.Count];
     var whiteCounts = new int[players.Count];
     var blackWinProbabilitySums = new double[players.Count];
     var whiteWinProbabilitySums = new double[players.Count];
+    var totalWinProbabilitySums = new double[players.Count];
+    var opponentRatings = Enumerable.Range(0, players.Count)
+        .Select(_ => new List<double>())
+        .ToArray();
+
     foreach (var match in matches)
     {
-        var blackWinProbability = GetWinProbability(players[match.Black], players[match.White], ConvertBlackAdvantagePercentToRating(blackAdvantagePercent));
+        var blackWinProbability = GetWinProbability(players[match.Black], players[match.White], blackAdvantageRating);
         blackCounts[match.Black]++;
         whiteCounts[match.White]++;
         blackWinProbabilitySums[match.Black] += blackWinProbability;
         whiteWinProbabilitySums[match.White] += 1.0 - blackWinProbability;
+        totalWinProbabilitySums[match.Black] += blackWinProbability;
+        totalWinProbabilitySums[match.White] += 1.0 - blackWinProbability;
+        opponentRatings[match.Black].Add(players[match.White].Rating);
+        opponentRatings[match.White].Add(players[match.Black].Rating);
     }
 
-    var nameWidth = Math.Max(6, players.Max(x => x.Name.Length) + 2);
-    var header = "対局者".PadRight(nameWidth)
-        + "黒番".PadLeft(8)
-        + "白番".PadLeft(8)
-        + "黒番勝率".PadLeft(12)
-        + "白番勝率".PadLeft(12)
-        + "優勝確率".PadLeft(12)
-        + "平均順位".PadLeft(12);
-    for (var place = 0; place < players.Count; place++)
-    {
-        header += $"{(place + 1).ToString(CultureInfo.InvariantCulture) + "位",10}";
-    }
-
-    Console.WriteLine(header);
-    Console.WriteLine(new string('-', header.Length));
-
+    var rows = new List<ResultRow>(players.Count);
     for (var playerIndex = 0; playerIndex < players.Count; playerIndex++)
     {
         var expectedPlace = Enumerable.Range(0, players.Count)
@@ -207,22 +205,136 @@ static void PrintResult(IReadOnlyList<Player> players, IReadOnlyList<Match> matc
         var whiteWinRate = whiteCounts[playerIndex] == 0
             ? (double?)null
             : whiteWinProbabilitySums[playerIndex] / whiteCounts[playerIndex];
+        var matchCount = blackCounts[playerIndex] + whiteCounts[playerIndex];
+        var totalWinRate = matchCount == 0
+            ? 0.0
+            : totalWinProbabilitySums[playerIndex] / matchCount;
+        var effectiveRating = CalculateEquivalentNeutralRating(opponentRatings[playerIndex], totalWinRate);
+        var placeProbabilities = Enumerable.Range(0, players.Count)
+            .Select(place => result.PlaceProbabilities[playerIndex, place])
+            .ToArray();
 
-        var line = players[playerIndex].Name.PadRight(nameWidth)
-            + blackCounts[playerIndex].ToString(CultureInfo.InvariantCulture).PadLeft(8)
-            + whiteCounts[playerIndex].ToString(CultureInfo.InvariantCulture).PadLeft(8)
-            + FormatOptionalPercent(blackWinRate).PadLeft(12)
-            + FormatOptionalPercent(whiteWinRate).PadLeft(12)
-            + FormatPercent(result.PlaceProbabilities[playerIndex, 0]).PadLeft(12)
-            + expectedPlace.ToString("F3", CultureInfo.InvariantCulture).PadLeft(12);
+        rows.Add(new ResultRow(
+            players[playerIndex].Name,
+            players[playerIndex].Rating,
+            effectiveRating,
+            effectiveRating - players[playerIndex].Rating,
+            blackCounts[playerIndex],
+            whiteCounts[playerIndex],
+            blackWinRate,
+            whiteWinRate,
+            result.PlaceProbabilities[playerIndex, 0],
+            expectedPlace,
+            placeProbabilities));
+    }
 
-        for (var place = 0; place < players.Count; place++)
+    return rows;
+}
+
+static void PrintResult(int playerCount, CalculationResult result, double blackAdvantagePercent, IReadOnlyList<ResultRow> resultRows)
+{
+    Console.WriteLine($"計算方法: {result.Mode}\n");
+    Console.WriteLine($"同Elo対局時の黒番勝率: {blackAdvantagePercent.ToString("F2", CultureInfo.InvariantCulture)}%\n");
+
+    var nameWidth = Math.Max(6, resultRows.Max(x => x.Name.Length) + 2);
+    var header = "対局者".PadRight(nameWidth)
+        + "元Elo".PadLeft(10)
+        + "実効Elo".PadLeft(10)
+        + "差分".PadLeft(10)
+        + "黒番".PadLeft(8)
+        + "白番".PadLeft(8)
+        + "黒番勝率".PadLeft(12)
+        + "白番勝率".PadLeft(12)
+        + "優勝確率".PadLeft(12)
+        + "平均順位".PadLeft(12);
+    for (var place = 0; place < playerCount; place++)
+    {
+        header += $"{(place + 1).ToString(CultureInfo.InvariantCulture) + "位",10}";
+    }
+
+    Console.WriteLine(header);
+    Console.WriteLine(new string('-', header.Length));
+
+    foreach (var row in resultRows)
+    {
+        var line = row.Name.PadRight(nameWidth)
+            + FormatRating(row.OriginalRating).PadLeft(10)
+            + FormatRating(row.EffectiveRating).PadLeft(10)
+            + FormatSignedRating(row.RatingDelta).PadLeft(10)
+            + row.BlackCount.ToString(CultureInfo.InvariantCulture).PadLeft(8)
+            + row.WhiteCount.ToString(CultureInfo.InvariantCulture).PadLeft(8)
+            + FormatOptionalPercent(row.BlackWinRate).PadLeft(12)
+            + FormatOptionalPercent(row.WhiteWinRate).PadLeft(12)
+            + FormatPercent(row.ChampionshipProbability).PadLeft(12)
+            + row.AveragePlace.ToString("F3", CultureInfo.InvariantCulture).PadLeft(12);
+
+        for (var place = 0; place < playerCount; place++)
         {
-            line += FormatPercent(result.PlaceProbabilities[playerIndex, place]).PadLeft(10);
+            line += FormatPercent(row.PlaceProbabilities[place]).PadLeft(10);
         }
 
         Console.WriteLine(line);
     }
+}
+
+static void WriteResultCsv(string outputCsvPath, string mode, double blackAdvantagePercent, IReadOnlyList<ResultRow> resultRows)
+{
+    var directoryPath = Path.GetDirectoryName(outputCsvPath);
+    if (!string.IsNullOrWhiteSpace(directoryPath))
+    {
+        Directory.CreateDirectory(directoryPath);
+    }
+
+    var lines = new List<string>();
+    var headerColumns = new List<string>
+    {
+        "calculationMode",
+        "blackAdvantagePercent",
+        "playerName",
+        "originalElo",
+        "effectiveElo",
+        "eloDelta",
+        "blackCount",
+        "whiteCount",
+        "blackWinRatePercent",
+        "whiteWinRatePercent",
+        "championshipProbabilityPercent",
+        "averagePlace"
+    };
+
+    if (resultRows.Count > 0)
+    {
+        for (var place = 0; place < resultRows[0].PlaceProbabilities.Length; place++)
+        {
+            headerColumns.Add($"place{place + 1}Percent");
+        }
+    }
+
+    lines.Add(string.Join(",", headerColumns.Select(EscapeCsv)));
+
+    foreach (var row in resultRows)
+    {
+        var columns = new List<string>
+        {
+            mode,
+            blackAdvantagePercent.ToString("F2", CultureInfo.InvariantCulture),
+            row.Name,
+            FormatRating(row.OriginalRating),
+            FormatRating(row.EffectiveRating),
+            FormatSignedRating(row.RatingDelta),
+            row.BlackCount.ToString(CultureInfo.InvariantCulture),
+            row.WhiteCount.ToString(CultureInfo.InvariantCulture),
+            FormatOptionalPercentValue(row.BlackWinRate),
+            FormatOptionalPercentValue(row.WhiteWinRate),
+            (row.ChampionshipProbability * 100).ToString("F2", CultureInfo.InvariantCulture),
+            row.AveragePlace.ToString("F3", CultureInfo.InvariantCulture)
+        };
+
+        columns.AddRange(row.PlaceProbabilities.Select(value => (value * 100).ToString("F2", CultureInfo.InvariantCulture)));
+        lines.Add(string.Join(",", columns.Select(EscapeCsv)));
+    }
+
+    File.WriteAllLines(outputCsvPath, lines, new UTF8Encoding(false));
 }
 
 static List<Player> ReadPlayersFromCsv()
@@ -257,6 +369,13 @@ static List<Player> ReadPlayersFromCsv()
         Console.WriteLine($"CSVの読み取りに失敗しました: {errorMessage}");
         Console.WriteLine("もう一度入力してください。\n");
     }
+}
+
+static string ReadTextWithDefault(string prompt, string defaultValue)
+{
+    Console.Write(prompt);
+    var input = Console.ReadLine()?.Trim();
+    return string.IsNullOrEmpty(input) ? defaultValue : input;
 }
 
 static List<Match> ReadMatchesFromCsv(IReadOnlyList<Player> players)
@@ -911,7 +1030,71 @@ static string FormatOptionalPercent(double? value)
     return value.HasValue ? FormatPercent(value.Value) : "-";
 }
 
+static string FormatOptionalPercentValue(double? value)
+{
+    return value.HasValue
+        ? (value.Value * 100).ToString("F2", CultureInfo.InvariantCulture)
+        : string.Empty;
+}
+
+static double CalculateEquivalentNeutralRating(IReadOnlyList<double> opponentRatings, double targetAverageScore)
+{
+    if (opponentRatings.Count == 0)
+    {
+        return 0.0;
+    }
+
+    const double epsilon = 1e-9;
+    var clampedScore = Math.Clamp(targetAverageScore, epsilon, 1.0 - epsilon);
+    var lowerBound = opponentRatings.Min() - 4000.0;
+    var upperBound = opponentRatings.Max() + 4000.0;
+
+    for (var i = 0; i < 80; i++)
+    {
+        var mid = (lowerBound + upperBound) / 2.0;
+        var averageScore = opponentRatings.Average(opponentRating => GetNeutralWinProbability(mid, opponentRating));
+
+        if (averageScore < clampedScore)
+        {
+            lowerBound = mid;
+        }
+        else
+        {
+            upperBound = mid;
+        }
+    }
+
+    return (lowerBound + upperBound) / 2.0;
+}
+
+static double GetNeutralWinProbability(double playerRating, double opponentRating)
+{
+    return 1.0 / (1.0 + Math.Pow(10.0, (opponentRating - playerRating) / 400.0));
+}
+
+static string FormatRating(double value)
+{
+    return Math.Round(value).ToString("F0", CultureInfo.InvariantCulture);
+}
+
+static string FormatSignedRating(double value)
+{
+    return Math.Round(value).ToString("+0;-0;0", CultureInfo.InvariantCulture);
+}
+
 readonly record struct Player(string Name, double Rating);
 readonly record struct Match(int Black, int White);
 readonly record struct PlayerScore(int PlayerIndex, int Wins);
 readonly record struct CalculationResult(double[,] PlaceProbabilities, string Mode);
+readonly record struct ResultRow(
+    string Name,
+    double OriginalRating,
+    double EffectiveRating,
+    double RatingDelta,
+    int BlackCount,
+    int WhiteCount,
+    double? BlackWinRate,
+    double? WhiteWinRate,
+    double ChampionshipProbability,
+    double AveragePlace,
+    double[] PlaceProbabilities);
