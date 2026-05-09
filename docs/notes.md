@@ -1,4 +1,4 @@
-# CoinWhiteBlackLeague メモ
+# ShogiTournamentPairingAnalyzer メモ
 
 ## 目的
 - 大会参加者の Elo レーティング、対局表、黒番有利率を入力し、総当たり戦または指定対局における順位分布を計算する。

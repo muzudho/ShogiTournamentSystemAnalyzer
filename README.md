@@ -1,4 +1,4 @@
-# CoinWhiteBlackLeague
+# ShogiTournamentPairingAnalyzer
 
 大会の対局表と Elo レーティングから、順位分布を計算する .NET コンソールアプリです。  
 黒番有利なゲームを想定しており、黒番・白番の偏りや、対局表による有利不利を確認できます。
@@ -24,7 +24,7 @@
 Visual Studio から実行するか、プロジェクトディレクトリーで次を実行します。
 
 ```powershell
-dotnet run --project .\CoinWhiteBlackLeague\CoinWhiteBlackLeague.csproj
+dotnet run --project .\CoinWhiteBlackLeague\ShogiTournamentPairingAnalyzer.csproj
 ```
 
 ## 入力
