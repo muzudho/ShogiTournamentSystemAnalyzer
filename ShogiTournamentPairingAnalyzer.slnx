@@ -1,4 +1,3 @@
 <Solution>
-  <Project Path="CoinWhiteBlackLeague/CoinWhiteBlackLeague.csproj" />
-  <Project Path="CoinWhiteBlackLeague/ShogiTournamentPairingAnalyzer.csproj" />
+  <Project Path="ShogiTournamentPairingAnalyzer/ShogiTournamentPairingAnalyzer.csproj" />
 </Solution>
