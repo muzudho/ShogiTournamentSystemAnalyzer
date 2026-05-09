@@ -11,16 +11,16 @@ var blackAdvantagePercent = ReadDoubleWithDefaultInRange("同Elo対局時の黒�
 var blackAdvantageRating = ConvertBlackAdvantagePercentToRating(blackAdvantagePercent);
 
 Console.WriteLine();
-var allPlayers = ReadPlayersFromCsv();
-var allMatches = ReadMatchesFromCsv(allPlayers);
-var (players, matches) = FilterToScheduledPlayers(allPlayers, allMatches);
+var allParticipants = ReadParticipantsFromCsv();
+var allMatches = ReadMatchesFromCsv(allParticipants);
+var (participants, matches) = FilterToScheduledParticipants(allParticipants, allMatches);
 
-if (players.Count != allPlayers.Count)
+if (participants.Count != allParticipants.Count)
 {
-    Console.WriteLine($"未対局の選手 {allPlayers.Count - players.Count} 人を結果から除外します。\n");
+    Console.WriteLine($"未対局の選手 {allParticipants.Count - participants.Count} 人を結果から除外します。\n");
 }
 
-PrintMatchesCsv(players, matches);
+PrintMatchesCsv(participants, matches);
 
 Console.WriteLine($"\n総対局数: {matches.Count}");
 
@@ -28,7 +28,7 @@ CalculationResult result;
 if (matches.Count <= 20)
 {
     Console.WriteLine("厳密計算を行います。\n");
-    result = CalculateExactly(players, matches, blackAdvantageRating);
+    result = CalculateExactly(participants, matches, blackAdvantageRating);
 }
 else
 {
@@ -39,11 +39,11 @@ else
         min: 1);
 
     Console.WriteLine();
-    result = CalculateBySimulation(players, matches, blackAdvantageRating, simulationCount);
+    result = CalculateBySimulation(participants, matches, blackAdvantageRating, simulationCount);
 }
 
-var resultRows = BuildResultRows(players, matches, result, blackAdvantagePercent);
-PrintResult(players.Count, result, blackAdvantagePercent, resultRows);
+var resultRows = BuildResultRows(participants, matches, result, blackAdvantagePercent);
+PrintResult(participants.Count, result, blackAdvantagePercent, resultRows);
 
 var defaultOutputCsvPath = Path.GetFullPath($"result_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
 var outputCsvPath = ResolveOutputCsvPath(ReadTextWithDefault(
@@ -52,10 +52,10 @@ var outputCsvPath = ResolveOutputCsvPath(ReadTextWithDefault(
 WriteResultCsv(outputCsvPath, result.Mode, blackAdvantagePercent, resultRows);
 Console.WriteLine($"結果CSVを出力しました: {outputCsvPath}");
 
-static CalculationResult CalculateExactly(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, double blackAdvantageRating)
+static CalculationResult CalculateExactly(IReadOnlyList<Participant> participants, IReadOnlyList<Match> matches, double blackAdvantageRating)
 {
-    var placeProbabilities = new double[players.Count, players.Count];
-    var wins = new int[players.Count];
+    var placeProbabilities = new double[participants.Count, participants.Count];
+    var wins = new int[participants.Count];
 
     void Explore(int matchIndex, double scenarioProbability)
     {
@@ -66,7 +66,7 @@ static CalculationResult CalculateExactly(IReadOnlyList<Player> players, IReadOn
         }
 
         var match = matches[matchIndex];
-        var blackWinsProbability = GetWinProbability(players[match.Black], players[match.White], blackAdvantageRating);
+        var blackWinsProbability = GetWinProbability(participants[match.Black], participants[match.White], blackAdvantageRating);
 
         wins[match.Black]++;
         Explore(matchIndex + 1, scenarioProbability * blackWinsProbability);
@@ -81,7 +81,7 @@ static CalculationResult CalculateExactly(IReadOnlyList<Player> players, IReadOn
     return new CalculationResult(placeProbabilities, "厳密計算", null);
 }
 
-static (List<Player> Players, List<Match> Matches) FilterToScheduledPlayers(IReadOnlyList<Player> players, IReadOnlyList<Match> matches)
+static (List<Participant> Participants, List<Match> Matches) FilterToScheduledParticipants(IReadOnlyList<Participant> participants, IReadOnlyList<Match> matches)
 {
     var activeIndexes = matches
         .SelectMany(match => new[] { match.Black, match.White })
@@ -93,21 +93,21 @@ static (List<Player> Players, List<Match> Matches) FilterToScheduledPlayers(IRea
         .Select((oldIndex, newIndex) => new { oldIndex, newIndex })
         .ToDictionary(x => x.oldIndex, x => x.newIndex);
 
-    var filteredPlayers = activeIndexes
-        .Select(index => players[index])
+    var filteredParticipants = activeIndexes
+        .Select(index => participants[index])
         .ToList();
 
     var filteredMatches = matches
         .Select(match => new Match(indexMap[match.Black], indexMap[match.White]))
         .ToList();
 
-    return (filteredPlayers, filteredMatches);
+    return (filteredParticipants, filteredMatches);
 }
 
-static CalculationResult CalculateBySimulation(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, double blackAdvantageRating, int simulationCount)
+static CalculationResult CalculateBySimulation(IReadOnlyList<Participant> participants, IReadOnlyList<Match> matches, double blackAdvantageRating, int simulationCount)
 {
-    var placeProbabilities = new double[players.Count, players.Count];
-    var wins = new int[players.Count];
+    var placeProbabilities = new double[participants.Count, participants.Count];
+    var wins = new int[participants.Count];
     var scenarioWeight = 1.0 / simulationCount;
 
     for (var simulation = 0; simulation < simulationCount; simulation++)
@@ -116,7 +116,7 @@ static CalculationResult CalculateBySimulation(IReadOnlyList<Player> players, IR
 
         foreach (var match in matches)
         {
-            var blackWinsProbability = GetWinProbability(players[match.Black], players[match.White], blackAdvantageRating);
+            var blackWinsProbability = GetWinProbability(participants[match.Black], participants[match.White], blackAdvantageRating);
             if (Random.Shared.NextDouble() < blackWinsProbability)
             {
                 wins[match.Black]++;
@@ -136,9 +136,9 @@ static CalculationResult CalculateBySimulation(IReadOnlyList<Player> players, IR
 static void AccumulatePlaceProbabilities(int[] wins, double scenarioProbability, double[,] placeProbabilities)
 {
     var ranking = wins
-        .Select((winCount, index) => new PlayerScore(index, winCount))
+        .Select((winCount, index) => new ParticipantScore(index, winCount))
         .OrderByDescending(x => x.Wins)
-        .ThenBy(x => x.PlayerIndex)
+        .ThenBy(x => x.ParticipantIndex)
         .ToArray();
 
     var currentPlace = 0;
@@ -155,10 +155,10 @@ static void AccumulatePlaceProbabilities(int[] wins, double scenarioProbability,
 
         for (var i = currentPlace; i < groupEnd; i++)
         {
-            var playerIndex = ranking[i].PlayerIndex;
+            var participantIndex = ranking[i].ParticipantIndex;
             for (var place = currentPlace; place < groupEnd; place++)
             {
-                placeProbabilities[playerIndex, place] += splitProbability;
+                placeProbabilities[participantIndex, place] += splitProbability;
             }
         }
 
@@ -166,69 +166,69 @@ static void AccumulatePlaceProbabilities(int[] wins, double scenarioProbability,
     }
 }
 
-static double GetWinProbability(Player black, Player white, double blackAdvantageRating)
+static double GetWinProbability(Participant black, Participant white, double blackAdvantageRating)
 {
     return 1.0 / (1.0 + Math.Pow(10.0, (white.Rating - (black.Rating + blackAdvantageRating)) / 400.0));
 }
 
-static List<ResultRow> BuildResultRows(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, CalculationResult result, double blackAdvantagePercent)
+static List<ResultRow> BuildResultRows(IReadOnlyList<Participant> participants, IReadOnlyList<Match> matches, CalculationResult result, double blackAdvantagePercent)
 {
     var blackAdvantageRating = ConvertBlackAdvantagePercentToRating(blackAdvantagePercent);
-    var blackCounts = new int[players.Count];
-    var whiteCounts = new int[players.Count];
-    var blackWinProbabilitySums = new double[players.Count];
-    var whiteWinProbabilitySums = new double[players.Count];
-    var totalWinProbabilitySums = new double[players.Count];
-    var opponentRatings = Enumerable.Range(0, players.Count)
+    var blackCounts = new int[participants.Count];
+    var whiteCounts = new int[participants.Count];
+    var blackWinProbabilitySums = new double[participants.Count];
+    var whiteWinProbabilitySums = new double[participants.Count];
+    var totalWinProbabilitySums = new double[participants.Count];
+    var opponentRatings = Enumerable.Range(0, participants.Count)
         .Select(_ => new List<double>())
         .ToArray();
 
     foreach (var match in matches)
     {
-        var blackWinProbability = GetWinProbability(players[match.Black], players[match.White], blackAdvantageRating);
+        var blackWinProbability = GetWinProbability(participants[match.Black], participants[match.White], blackAdvantageRating);
         blackCounts[match.Black]++;
         whiteCounts[match.White]++;
         blackWinProbabilitySums[match.Black] += blackWinProbability;
         whiteWinProbabilitySums[match.White] += 1.0 - blackWinProbability;
         totalWinProbabilitySums[match.Black] += blackWinProbability;
         totalWinProbabilitySums[match.White] += 1.0 - blackWinProbability;
-        opponentRatings[match.Black].Add(players[match.White].Rating);
-        opponentRatings[match.White].Add(players[match.Black].Rating);
+        opponentRatings[match.Black].Add(participants[match.White].Rating);
+        opponentRatings[match.White].Add(participants[match.Black].Rating);
     }
 
-    var rows = new List<ResultRow>(players.Count);
-    for (var playerIndex = 0; playerIndex < players.Count; playerIndex++)
+    var rows = new List<ResultRow>(participants.Count);
+    for (var participantIndex = 0; participantIndex < participants.Count; participantIndex++)
     {
-        var expectedPlace = Enumerable.Range(0, players.Count)
-            .Sum(place => (place + 1) * result.PlaceProbabilities[playerIndex, place]);
-        var blackWinRate = blackCounts[playerIndex] == 0
+        var expectedPlace = Enumerable.Range(0, participants.Count)
+            .Sum(place => (place + 1) * result.PlaceProbabilities[participantIndex, place]);
+        var blackWinRate = blackCounts[participantIndex] == 0
             ? (double?)null
-            : blackWinProbabilitySums[playerIndex] / blackCounts[playerIndex];
-        var whiteWinRate = whiteCounts[playerIndex] == 0
+            : blackWinProbabilitySums[participantIndex] / blackCounts[participantIndex];
+        var whiteWinRate = whiteCounts[participantIndex] == 0
             ? (double?)null
-            : whiteWinProbabilitySums[playerIndex] / whiteCounts[playerIndex];
-        var matchCount = blackCounts[playerIndex] + whiteCounts[playerIndex];
+            : whiteWinProbabilitySums[participantIndex] / whiteCounts[participantIndex];
+        var matchCount = blackCounts[participantIndex] + whiteCounts[participantIndex];
         var totalWinRate = matchCount == 0
             ? 0.0
-            : totalWinProbabilitySums[playerIndex] / matchCount;
-        var effectiveRating = CalculateEquivalentNeutralRating(opponentRatings[playerIndex], totalWinRate);
-        var placeProbabilities = Enumerable.Range(0, players.Count)
-            .Select(place => result.PlaceProbabilities[playerIndex, place])
+            : totalWinProbabilitySums[participantIndex] / matchCount;
+        var effectiveRating = CalculateEquivalentNeutralRating(opponentRatings[participantIndex], totalWinRate);
+        var placeProbabilities = Enumerable.Range(0, participants.Count)
+            .Select(place => result.PlaceProbabilities[participantIndex, place])
             .ToArray();
         var placeCounts = result.SimulationCount.HasValue
             ? placeProbabilities.Select(value => value * result.SimulationCount.Value).ToArray()
             : null;
 
         rows.Add(new ResultRow(
-            players[playerIndex].Name,
-            players[playerIndex].Rating,
+            participants[participantIndex].Name,
+            participants[participantIndex].Rating,
             effectiveRating,
-            effectiveRating - players[playerIndex].Rating,
-            blackCounts[playerIndex],
-            whiteCounts[playerIndex],
+            effectiveRating - participants[participantIndex].Rating,
+            blackCounts[participantIndex],
+            whiteCounts[participantIndex],
             blackWinRate,
             whiteWinRate,
-            result.PlaceProbabilities[playerIndex, 0],
+            result.PlaceProbabilities[participantIndex, 0],
             expectedPlace,
             placeProbabilities,
             placeCounts));
@@ -346,7 +346,7 @@ static void WriteResultCsv(string outputCsvPath, string mode, double blackAdvant
     File.WriteAllLines(outputCsvPath, lines, new UTF8Encoding(false));
 }
 
-static List<Player> ReadPlayersFromCsv()
+static List<Participant> ReadParticipantsFromCsv()
 {
     while (true)
     {
@@ -370,9 +370,9 @@ static List<Player> ReadPlayersFromCsv()
             continue;
         }
 
-        if (TryParsePlayers(lines, out var players, out var errorMessage))
+        if (TryParseParticipants(lines, out var participants, out var errorMessage))
         {
-            return players;
+            return participants;
         }
 
         Console.WriteLine($"CSVの読み取りに失敗しました: {errorMessage}");
@@ -410,7 +410,7 @@ static bool LooksLikeDirectoryPath(string path)
         || string.IsNullOrEmpty(Path.GetExtension(path));
 }
 
-static List<Match> ReadMatchesFromCsv(IReadOnlyList<Player> players)
+static List<Match> ReadMatchesFromCsv(IReadOnlyList<Participant> participants)
 {
     while (true)
     {
@@ -439,7 +439,7 @@ static List<Match> ReadMatchesFromCsv(IReadOnlyList<Player> players)
             continue;
         }
 
-        if (TryParseMatches(lines, players, out var matches, out var errorMessage))
+        if (TryParseMatches(lines, participants, out var matches, out var errorMessage))
         {
             return matches;
         }
@@ -506,9 +506,9 @@ static double ReadDoubleWithDefaultInRange(string prompt, double defaultValue, d
     }
 }
 
-static bool TryParsePlayers(IReadOnlyList<string> lines, out List<Player> players, out string errorMessage)
+static bool TryParseParticipants(IReadOnlyList<string> lines, out List<Participant> participants, out string errorMessage)
 {
-    players = new List<Player>();
+    participants = new List<Participant>();
     errorMessage = string.Empty;
 
     var startIndex = 0;
@@ -536,7 +536,7 @@ static bool TryParsePlayers(IReadOnlyList<string> lines, out List<Player> player
             return false;
         }
 
-        if (players.Any(x => string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase)))
+        if (participants.Any(x => string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase)))
         {
             errorMessage = $"{i + 1} 行目の名前 '{name}' は重複しています。";
             return false;
@@ -548,10 +548,10 @@ static bool TryParsePlayers(IReadOnlyList<string> lines, out List<Player> player
             return false;
         }
 
-        players.Add(new Player(name, rating));
+        participants.Add(new Participant(name, rating));
     }
 
-    if (players.Count < 2)
+    if (participants.Count < 2)
     {
         errorMessage = "選手は 2 人以上必要です。";
         return false;
@@ -560,18 +560,18 @@ static bool TryParsePlayers(IReadOnlyList<string> lines, out List<Player> player
     return true;
 }
 
-static bool TryParseMatches(IReadOnlyList<string> lines, IReadOnlyList<Player> players, out List<Match> matches, out string errorMessage)
+static bool TryParseMatches(IReadOnlyList<string> lines, IReadOnlyList<Participant> participants, out List<Match> matches, out string errorMessage)
 {
     if (LooksLikeRoundMatrixInput(lines))
     {
-        return TryParseMatchesFromRoundMatrix(lines, players, out matches, out errorMessage);
+        return TryParseMatchesFromRoundMatrix(lines, participants, out matches, out errorMessage);
     }
 
     matches = new List<Match>();
     errorMessage = string.Empty;
 
-    var playerIndexes = players
-        .Select((player, index) => new { player.Name, Index = index })
+    var participantIndexes = participants
+        .Select((participant, index) => new { participant.Name, Index = index })
         .ToDictionary(x => x.Name, x => x.Index, StringComparer.OrdinalIgnoreCase);
 
     var startIndex = 0;
@@ -599,13 +599,13 @@ static bool TryParseMatches(IReadOnlyList<string> lines, IReadOnlyList<Player> p
             return false;
         }
 
-        if (!playerIndexes.TryGetValue(blackName, out var blackIndex))
+        if (!participantIndexes.TryGetValue(blackName, out var blackIndex))
         {
             errorMessage = $"{i + 1} 行目の黒番 '{blackName}' は選手一覧CSVに存在しません。";
             return false;
         }
 
-        if (!playerIndexes.TryGetValue(whiteName, out var whiteIndex))
+        if (!participantIndexes.TryGetValue(whiteName, out var whiteIndex))
         {
             errorMessage = $"{i + 1} 行目の白番 '{whiteName}' は選手一覧CSVに存在しません。";
             return false;
@@ -629,7 +629,7 @@ static bool TryParseMatches(IReadOnlyList<string> lines, IReadOnlyList<Player> p
     return true;
 }
 
-static bool TryParseMatchesFromRoundMatrix(IReadOnlyList<string> lines, IReadOnlyList<Player> players, out List<Match> matches, out string errorMessage)
+static bool TryParseMatchesFromRoundMatrix(IReadOnlyList<string> lines, IReadOnlyList<Participant> participants, out List<Match> matches, out string errorMessage)
 {
     matches = new List<Match>();
     errorMessage = string.Empty;
@@ -679,21 +679,21 @@ static bool TryParseMatchesFromRoundMatrix(IReadOnlyList<string> lines, IReadOnl
     var resolvedNames = roundNames;
     if (playersSectionIndex >= 0)
     {
-        var playerAliasLines = nonEmptyLines.Skip(playersSectionIndex + 1).ToList();
-        if (!TryParsePlayerAliases(playerAliasLines, roundNames, out resolvedNames, out errorMessage))
+    var participantAliasLines = nonEmptyLines.Skip(playersSectionIndex + 1).ToList();
+    if (!TryParseParticipantAliases(participantAliasLines, roundNames, out resolvedNames, out errorMessage))
         {
             return false;
         }
     }
 
-    var playerIndexes = players
-        .Select((player, index) => new { player.Name, Index = index })
+    var participantIndexes = participants
+        .Select((participant, index) => new { participant.Name, Index = index })
         .ToDictionary(x => x.Name, x => x.Index, StringComparer.OrdinalIgnoreCase);
 
     var orderedMatches = new List<(int Round, Match Match, int Order)>();
     for (var i = 0; i < resolvedNames.Count; i++)
     {
-        if (!playerIndexes.ContainsKey(resolvedNames[i]))
+        if (!participantIndexes.ContainsKey(resolvedNames[i]))
         {
             errorMessage = $"選手 '{resolvedNames[i]}' は選手一覧CSVに存在しません。";
             return false;
@@ -727,11 +727,11 @@ static bool TryParseMatchesFromRoundMatrix(IReadOnlyList<string> lines, IReadOnl
             Match match;
             if (colorForward == "b" && colorBackward == "w")
             {
-                match = new Match(playerIndexes[resolvedNames[i]], playerIndexes[resolvedNames[j]]);
+                match = new Match(participantIndexes[resolvedNames[i]], participantIndexes[resolvedNames[j]]);
             }
             else if (colorForward == "w" && colorBackward == "b")
             {
-                match = new Match(playerIndexes[resolvedNames[j]], playerIndexes[resolvedNames[i]]);
+                match = new Match(participantIndexes[resolvedNames[j]], participantIndexes[resolvedNames[i]]);
             }
             else
             {
@@ -758,7 +758,7 @@ static bool TryParseMatchesFromRoundMatrix(IReadOnlyList<string> lines, IReadOnl
     return true;
 }
 
-static bool TryParsePlayerAliases(IReadOnlyList<string> lines, IReadOnlyList<string> aliases, out List<string> resolvedNames, out string errorMessage)
+static bool TryParseParticipantAliases(IReadOnlyList<string> lines, IReadOnlyList<string> aliases, out List<string> resolvedNames, out string errorMessage)
 {
     resolvedNames = new List<string>();
     errorMessage = string.Empty;
@@ -780,9 +780,9 @@ static bool TryParsePlayerAliases(IReadOnlyList<string> lines, IReadOnlyList<str
         }
 
         var alias = columns[0].Trim();
-        var playerName = columns[1].Trim();
+        var participantName = columns[1].Trim();
 
-        if (string.IsNullOrWhiteSpace(alias) || string.IsNullOrWhiteSpace(playerName))
+        if (string.IsNullOrWhiteSpace(alias) || string.IsNullOrWhiteSpace(participantName))
         {
             errorMessage = "対局記号表セクションの記号または選手名が空です。";
             return false;
@@ -794,18 +794,18 @@ static bool TryParsePlayerAliases(IReadOnlyList<string> lines, IReadOnlyList<str
             return false;
         }
 
-        aliasMap.Add(alias, playerName);
+        aliasMap.Add(alias, participantName);
     }
 
     foreach (var alias in aliases)
     {
-        if (!aliasMap.TryGetValue(alias, out var playerName))
+        if (!aliasMap.TryGetValue(alias, out var participantName))
         {
             errorMessage = $"対局記号表セクションに記号 '{alias}' の対応表がありません。";
             return false;
         }
 
-        resolvedNames.Add(playerName);
+        resolvedNames.Add(participantName);
     }
 
     return true;
@@ -1029,14 +1029,14 @@ static void PrintInputSample()
     Console.WriteLine("END\n");
 }
 
-static void PrintMatchesCsv(IReadOnlyList<Player> players, IReadOnlyList<Match> matches)
+static void PrintMatchesCsv(IReadOnlyList<Participant> participants, IReadOnlyList<Match> matches)
 {
     Console.WriteLine("生成された対局CSV:");
     Console.WriteLine("black,white");
 
     foreach (var match in matches)
     {
-        Console.WriteLine($"{EscapeCsv(players[match.Black].Name)},{EscapeCsv(players[match.White].Name)}");
+        Console.WriteLine($"{EscapeCsv(participants[match.Black].Name)},{EscapeCsv(participants[match.White].Name)}");
     }
 
     Console.WriteLine();
@@ -1121,9 +1121,9 @@ static string FormatSignedRating(double value)
     return Math.Round(value).ToString("+0;-0;0", CultureInfo.InvariantCulture);
 }
 
-readonly record struct Player(string Name, double Rating);
+readonly record struct Participant(string Name, double Rating);
 readonly record struct Match(int Black, int White);
-readonly record struct PlayerScore(int PlayerIndex, int Wins);
+readonly record struct ParticipantScore(int ParticipantIndex, int Wins);
 readonly record struct CalculationResult(double[,] PlaceProbabilities, string Mode, int? SimulationCount);
 readonly record struct ResultRow(
     string Name,
