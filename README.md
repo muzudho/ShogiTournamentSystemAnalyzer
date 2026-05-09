@@ -118,6 +118,7 @@ END
 - コンソール表示の内容
 - 各順位の確率
 - シミュレーション時は各順位の出現相当回数
+- 主なヘッダー名: `calculationMode`, `blackAdvantagePercent`, `participantName`, `originalElo`, `effectiveElo`, `eloDelta`
 
 フォルダーパスを指定した場合は、その中に自動ファイル名で結果CSVを作成します。
 

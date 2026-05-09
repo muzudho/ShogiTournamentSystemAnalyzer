@@ -287,7 +287,7 @@ static void WriteResultCsv(string outputCsvPath, string mode, double blackAdvant
     {
         "calculationMode",
         "blackAdvantagePercent",
-        "playerName",
+        "participantName",
         "originalElo",
         "effectiveElo",
         "eloDelta",
