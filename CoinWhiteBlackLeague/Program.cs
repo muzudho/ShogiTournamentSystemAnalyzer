@@ -253,10 +253,6 @@ static void PrintResult(int playerCount, CalculationResult result, double blackA
         + "白番勝率".PadLeft(12)
         + "優勝確率".PadLeft(12)
         + "平均順位".PadLeft(12);
-    for (var place = 0; place < playerCount; place++)
-    {
-        header += $"{(place + 1).ToString(CultureInfo.InvariantCulture) + "位",10}";
-    }
 
     Console.WriteLine(header);
     Console.WriteLine(new string('-', header.Length));
@@ -273,11 +269,6 @@ static void PrintResult(int playerCount, CalculationResult result, double blackA
             + FormatOptionalPercent(row.WhiteWinRate).PadLeft(12)
             + FormatPercent(row.ChampionshipProbability).PadLeft(12)
             + row.AveragePlace.ToString("F3", CultureInfo.InvariantCulture).PadLeft(12);
-
-        for (var place = 0; place < playerCount; place++)
-        {
-            line += FormatPercent(row.PlaceProbabilities[place]).PadLeft(10);
-        }
 
         Console.WriteLine(line);
     }
