@@ -24,7 +24,7 @@
 Visual Studio から実行するか、プロジェクトディレクトリーで次を実行します。
 
 ```powershell
-dotnet run --project .\CoinWhiteBlackLeague\ShogiTournamentPairingAnalyzer.csproj
+dotnet run --project .\ShogiTournamentPairingAnalyzer\ShogiTournamentPairingAnalyzer.csproj
 ```
 
 ## 入力
@@ -32,7 +32,7 @@ dotnet run --project .\CoinWhiteBlackLeague\ShogiTournamentPairingAnalyzer.cspro
 
 1. 黒番有利率 (%)
 2. プレイヤーCSV
-3. 対局CSV または Round/Black-White/Players 表
+3. 対局CSV または Round/Black-White/対局記号表
 4. 必要に応じてシミュレーション試行回数
 5. 結果CSVの出力先パスまたはフォルダーパス
 
@@ -71,9 +71,10 @@ Dave,Carol
 END
 ```
 
-### Round / Black-White / Players 表
+### Round / Black-White / 対局記号表
 横長になる実名の代わりに、`A`, `B`, `C` のような記号を使えます。  
-必要なら `Players` セクションで記号と実名を対応付けます。
+必要なら `対局記号表` セクションで記号と実名を対応付けます。  
+互換性のため、旧ヘッダー `Players` でも読み取れます。
 
 例:
 
@@ -92,7 +93,7 @@ B, w, -, b, b
 C, w, w, -, b
 D, w, w, w, -
 
-Players
+対局記号表
 A, "Alice"
 B, "Bob"
 C, "Carol"
@@ -135,4 +136,4 @@ END
 
 ## 関連メモ
 - `docs/notes.md`
-- `CoinWhiteBlackLeague/Examples/*.memo.md`
+- `ShogiTournamentPairingAnalyzer/Examples/*.memo.md`

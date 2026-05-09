@@ -47,10 +47,11 @@ Bob,Dave
 Dave,Carol
 ```
 
-#### 2-2. Round / Black-White / Players 表
+#### 2-2. Round / Black-White / 対局記号表
 - `Round` セクション
 - `Black/White` セクション
-- 必要なら `Players` セクションで記号を実名へ対応付け
+- 必要なら `対局記号表` セクションで記号を実名へ対応付け
+- 旧ヘッダー `Players` も互換で読み取る
 - 対局入力の終了は `END` 行
 
 例:
@@ -70,7 +71,7 @@ B, w, -, b, b
 C, w, w, -, b
 D, w, w, w, -
 
-Players
+対局記号表
 A, "Alice"
 B, "Bob"
 C, "Carol"
@@ -117,7 +118,7 @@ END
 - 会話ログ全文ではなく、決まった仕様・方針・未決事項を要約して残す
 
 例:
-- `[黒8x白8]対局表.csv`
+- `【対局表】[黒8x白8].csv`
 - `[黒8x白8]対局表.memo.md`
 
 ## 今後の候補

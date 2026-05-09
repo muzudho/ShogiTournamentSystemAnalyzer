@@ -648,10 +648,10 @@ static bool TryParseMatchesFromRoundMatrix(IReadOnlyList<string> lines, IReadOnl
         return false;
     }
 
-    var playersSectionIndex = nonEmptyLines.FindIndex(1, x => x.Trim().Equals("Players", StringComparison.OrdinalIgnoreCase));
+    var playersSectionIndex = nonEmptyLines.FindIndex(1, IsPlayerAliasSectionHeader);
     if (playersSectionIndex >= 0 && playersSectionIndex < blackWhiteIndex)
     {
-        errorMessage = "Players セクションは Black/White セクションの後ろに置いてください。";
+        errorMessage = "対局記号表セクションは Black/White セクションの後ろに置いてください。";
         return false;
     }
 
@@ -765,7 +765,7 @@ static bool TryParsePlayerAliases(IReadOnlyList<string> lines, IReadOnlyList<str
 
     if (lines.Count == 0)
     {
-        errorMessage = "Players セクションの内容がありません。";
+        errorMessage = "対局記号表セクションの内容がありません。";
         return false;
     }
 
@@ -775,7 +775,7 @@ static bool TryParsePlayerAliases(IReadOnlyList<string> lines, IReadOnlyList<str
         var columns = SplitCsvLine(line);
         if (columns.Count < 2)
         {
-            errorMessage = "Players セクションは 2 列以上で入力してください。";
+            errorMessage = "対局記号表セクションは 2 列以上で入力してください。";
             return false;
         }
 
@@ -784,13 +784,13 @@ static bool TryParsePlayerAliases(IReadOnlyList<string> lines, IReadOnlyList<str
 
         if (string.IsNullOrWhiteSpace(alias) || string.IsNullOrWhiteSpace(playerName))
         {
-            errorMessage = "Players セクションの記号またはプレイヤー名が空です。";
+            errorMessage = "対局記号表セクションの記号またはプレイヤー名が空です。";
             return false;
         }
 
         if (aliasMap.ContainsKey(alias))
         {
-            errorMessage = $"Players セクションの記号 '{alias}' が重複しています。";
+            errorMessage = $"対局記号表セクションの記号 '{alias}' が重複しています。";
             return false;
         }
 
@@ -801,7 +801,7 @@ static bool TryParsePlayerAliases(IReadOnlyList<string> lines, IReadOnlyList<str
     {
         if (!aliasMap.TryGetValue(alias, out var playerName))
         {
-            errorMessage = $"Players セクションに記号 '{alias}' の対応表がありません。";
+            errorMessage = $"対局記号表セクションに記号 '{alias}' の対応表がありません。";
             return false;
         }
 
@@ -975,12 +975,19 @@ static bool LooksLikeRoundMatrixInput(IReadOnlyList<string> lines)
         && firstNonEmptyLine.Trim().Equals("Round", StringComparison.OrdinalIgnoreCase);
 }
 
+static bool IsPlayerAliasSectionHeader(string line)
+{
+    var header = line.Trim();
+    return header.Equals("Players", StringComparison.OrdinalIgnoreCase)
+        || header.Equals("対局記号表", StringComparison.OrdinalIgnoreCase);
+}
+
 static void PrintInputSample()
 {
     Console.WriteLine("入力形式:");
     Console.WriteLine("1. 黒番有利率 (%)");
     Console.WriteLine("2. プレイヤーCSV (1列目=名前, 2列目=Elo レーティング)");
-    Console.WriteLine("3. 対局CSV (1列目=黒番, 2列目=白番) または Round/Black-White/Players 表");
+    Console.WriteLine("3. 対局CSV (1列目=黒番, 2列目=白番) または Round/Black-White/対局記号表");
     Console.WriteLine("プレイヤーCSVは空行で入力終了、対局入力は END 行で入力終了です。\n");
     Console.WriteLine("入力サンプル:");
     Console.WriteLine("黒番有利率(%): 51\n");
@@ -1014,7 +1021,7 @@ static void PrintInputSample()
     Console.WriteLine("C, w, w, -, b");
     Console.WriteLine("D, w, w, w, -");
     Console.WriteLine();
-    Console.WriteLine("Players");
+    Console.WriteLine("対局記号表");
     Console.WriteLine("A, \"Alice\"");
     Console.WriteLine("B, \"Bob\"");
     Console.WriteLine("C, \"Carol\"");
