@@ -135,6 +135,9 @@ END
 - コメントは CSV に埋め込まず、`.memo.md` や `.memo.txt` で別管理する想定です
 - シミュレーション 1 回でも、同点順位の等分配により 33.33% のような値が出ることがあります
 
+## 関連リンク
+- [白黒対抗ルール案](https://note.com/muzudho/n/n311536fd1812?app_launch=false)
+
 ## 関連メモ
 - `docs/notes.md`
 - `ShogiTournamentPairingAnalyzer/Examples/*.memo.md`

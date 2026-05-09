@@ -1,0 +1,5 @@
+calculationMode,blackAdvantagePercent,participantName,originalElo,effectiveElo,eloDelta,blackCount,whiteCount,blackWinRatePercent,whiteWinRatePercent,championshipProbabilityPercent,averagePlace,place1Percent,place2Percent,place3Percent,place4Percent
+厳密計算,51.00,Alice,1500,1507,+7,3,0,36.13,,8.20,2.946,8.20,20.68,39.50,31.63
+厳密計算,51.00,Bob,1650,1652,+2,2,1,55.07,69.50,25.43,2.180,25.43,41.80,22.09,10.68
+厳密計算,51.00,Carol,1420,1416,-4,1,2,10.46,29.05,3.58,3.364,3.58,11.41,30.03,54.97
+厳密計算,51.00,Dave,1800,1793,-7,0,3,,81.14,62.79,1.510,62.79,26.11,8.38,2.72
