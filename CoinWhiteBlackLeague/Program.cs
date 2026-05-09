@@ -46,7 +46,9 @@ var resultRows = BuildResultRows(players, matches, result, blackAdvantagePercent
 PrintResult(players.Count, result, blackAdvantagePercent, resultRows);
 
 var defaultOutputCsvPath = Path.GetFullPath($"result_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
-var outputCsvPath = ReadTextWithDefault($"\n結果CSVの出力先パスを入力してください [{defaultOutputCsvPath}]: ", defaultOutputCsvPath);
+var outputCsvPath = ResolveOutputCsvPath(ReadTextWithDefault(
+    $"\n結果CSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
+    defaultOutputCsvPath));
 WriteResultCsv(outputCsvPath, result.Mode, blackAdvantagePercent, resultRows);
 Console.WriteLine($"結果CSVを出力しました: {outputCsvPath}");
 
@@ -76,7 +78,7 @@ static CalculationResult CalculateExactly(IReadOnlyList<Player> players, IReadOn
     }
 
     Explore(0, 1.0);
-    return new CalculationResult(placeProbabilities, "厳密計算");
+    return new CalculationResult(placeProbabilities, "厳密計算", null);
 }
 
 static (List<Player> Players, List<Match> Matches) FilterToScheduledPlayers(IReadOnlyList<Player> players, IReadOnlyList<Match> matches)
@@ -128,7 +130,7 @@ static CalculationResult CalculateBySimulation(IReadOnlyList<Player> players, IR
         AccumulatePlaceProbabilities(wins, scenarioWeight, placeProbabilities);
     }
 
-    return new CalculationResult(placeProbabilities, $"シミュレーション ({simulationCount:N0}回)");
+    return new CalculationResult(placeProbabilities, $"シミュレーション ({simulationCount:N0}回)", simulationCount);
 }
 
 static void AccumulatePlaceProbabilities(int[] wins, double scenarioProbability, double[,] placeProbabilities)
@@ -213,6 +215,9 @@ static List<ResultRow> BuildResultRows(IReadOnlyList<Player> players, IReadOnlyL
         var placeProbabilities = Enumerable.Range(0, players.Count)
             .Select(place => result.PlaceProbabilities[playerIndex, place])
             .ToArray();
+        var placeCounts = result.SimulationCount.HasValue
+            ? placeProbabilities.Select(value => value * result.SimulationCount.Value).ToArray()
+            : null;
 
         rows.Add(new ResultRow(
             players[playerIndex].Name,
@@ -225,7 +230,8 @@ static List<ResultRow> BuildResultRows(IReadOnlyList<Player> players, IReadOnlyL
             whiteWinRate,
             result.PlaceProbabilities[playerIndex, 0],
             expectedPlace,
-            placeProbabilities));
+            placeProbabilities,
+            placeCounts));
     }
 
     return rows;
@@ -307,6 +313,10 @@ static void WriteResultCsv(string outputCsvPath, string mode, double blackAdvant
         for (var place = 0; place < resultRows[0].PlaceProbabilities.Length; place++)
         {
             headerColumns.Add($"place{place + 1}Percent");
+            if (resultRows[0].PlaceCounts is not null)
+            {
+                headerColumns.Add($"place{place + 1}Count");
+            }
         }
     }
 
@@ -330,7 +340,15 @@ static void WriteResultCsv(string outputCsvPath, string mode, double blackAdvant
             row.AveragePlace.ToString("F3", CultureInfo.InvariantCulture)
         };
 
-        columns.AddRange(row.PlaceProbabilities.Select(value => (value * 100).ToString("F2", CultureInfo.InvariantCulture)));
+        for (var place = 0; place < row.PlaceProbabilities.Length; place++)
+        {
+            columns.Add((row.PlaceProbabilities[place] * 100).ToString("F2", CultureInfo.InvariantCulture));
+            if (row.PlaceCounts is not null)
+            {
+                columns.Add(row.PlaceCounts[place].ToString("F3", CultureInfo.InvariantCulture));
+            }
+        }
+
         lines.Add(string.Join(",", columns.Select(EscapeCsv)));
     }
 
@@ -376,6 +394,29 @@ static string ReadTextWithDefault(string prompt, string defaultValue)
     Console.Write(prompt);
     var input = Console.ReadLine()?.Trim();
     return string.IsNullOrEmpty(input) ? defaultValue : input;
+}
+
+static string ResolveOutputCsvPath(string inputPath)
+{
+    var fullPath = Path.GetFullPath(inputPath);
+    if (Directory.Exists(fullPath))
+    {
+        return Path.Combine(fullPath, $"result_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
+    }
+
+    if (LooksLikeDirectoryPath(inputPath))
+    {
+        return Path.Combine(fullPath, $"result_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
+    }
+
+    return fullPath;
+}
+
+static bool LooksLikeDirectoryPath(string path)
+{
+    return path.EndsWith(Path.DirectorySeparatorChar)
+        || path.EndsWith(Path.AltDirectorySeparatorChar)
+        || string.IsNullOrEmpty(Path.GetExtension(path));
 }
 
 static List<Match> ReadMatchesFromCsv(IReadOnlyList<Player> players)
@@ -1085,7 +1126,7 @@ static string FormatSignedRating(double value)
 readonly record struct Player(string Name, double Rating);
 readonly record struct Match(int Black, int White);
 readonly record struct PlayerScore(int PlayerIndex, int Wins);
-readonly record struct CalculationResult(double[,] PlaceProbabilities, string Mode);
+readonly record struct CalculationResult(double[,] PlaceProbabilities, string Mode, int? SimulationCount);
 readonly record struct ResultRow(
     string Name,
     double OriginalRating,
@@ -1097,4 +1138,5 @@ readonly record struct ResultRow(
     double? WhiteWinRate,
     double ChampionshipProbability,
     double AveragePlace,
-    double[] PlaceProbabilities);
+    double[] PlaceProbabilities,
+    double[]? PlaceCounts);
