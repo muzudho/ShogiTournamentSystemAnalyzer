@@ -128,14 +128,14 @@ static void RunFinalStageMode()
         result = CalculateFinalStageBySimulation(participants, matches, groupMap, blackAdvantageRating, simulationCount);
     }
 
-    var resultRows = BuildResultRows(participants, matches, result, blackAdvantagePercent);
-    PrintResult(participants.Count, result, blackAdvantagePercent, resultRows);
+    var resultRows = BuildFinalStageResultRows(participants, matches, result, blackAdvantagePercent, groupMap);
+    PrintFinalStageResult(result, blackAdvantagePercent, resultRows);
 
     var defaultOutputCsvPath = Path.GetFullPath($"final_stage_result_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
     var outputCsvPath = ResolveOutputCsvPath(ReadTextWithDefault(
         $"\n結果CSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
         defaultOutputCsvPath));
-    WriteResultCsv(outputCsvPath, result.Mode, blackAdvantagePercent, resultRows);
+    WriteFinalStageResultCsv(outputCsvPath, result.Mode, blackAdvantagePercent, resultRows);
     Console.WriteLine($"結果CSVを出力しました: {outputCsvPath}");
 }
 
@@ -661,6 +661,41 @@ static List<ResultRow> BuildResultRows(IReadOnlyList<Participant> participants, 
     return rows;
 }
 
+static List<FinalStageResultRow> BuildFinalStageResultRows(IReadOnlyList<Participant> participants, IReadOnlyList<Match> matches, CalculationResult result, double blackAdvantagePercent, IReadOnlyDictionary<string, FinalStageGroup> groupMap)
+{
+    var standardRows = BuildResultRows(participants, matches, result, blackAdvantagePercent);
+    var apexCount = groupMap.Count(x => x.Value == FinalStageGroup.Apex);
+    var innovCount = participants.Count - apexCount;
+
+    return standardRows
+        .Select(row =>
+        {
+            var group = groupMap[row.Name];
+            var groupStartIndex = group == FinalStageGroup.Apex ? 0 : apexCount;
+            var groupSize = group == FinalStageGroup.Apex ? apexCount : innovCount;
+            var groupPlaceAverage = Enumerable.Range(0, groupSize)
+                .Sum(offset => (offset + 1) * row.PlaceProbabilities[groupStartIndex + offset]);
+
+            return new FinalStageResultRow(
+                row.Name,
+                group.ToString(),
+                row.OriginalRating,
+                row.EffectiveRating,
+                row.RatingDelta,
+                row.BlackCount,
+                row.WhiteCount,
+                row.BlackWinRate,
+                row.WhiteWinRate,
+                row.PlaceProbabilities[groupStartIndex],
+                groupPlaceAverage,
+                row.PlaceProbabilities[0],
+                row.AveragePlace,
+                row.PlaceProbabilities,
+                row.PlaceCounts);
+        })
+        .ToList();
+}
+
 static List<QualityParticipantRow> BuildQualityParticipantRows(IReadOnlyList<ResultRow> resultRows, IReadOnlyDictionary<string, FinalStageGroup> groupMap)
 {
     var eloRanks = resultRows
@@ -903,6 +938,45 @@ static void PrintResult(int playerCount, CalculationResult result, double blackA
     }
 }
 
+static void PrintFinalStageResult(CalculationResult result, double blackAdvantagePercent, IReadOnlyList<FinalStageResultRow> resultRows)
+{
+    Console.WriteLine($"計算方法: {result.Mode}\n");
+    Console.WriteLine($"同Elo対局時の先手勝率: {blackAdvantagePercent.ToString("F2", CultureInfo.InvariantCulture)}%\n");
+
+    var nameWidth = Math.Max(6, resultRows.Max(x => x.Name.Length) + 2);
+    var header = "対局者".PadRight(nameWidth)
+        + "群".PadLeft(8)
+        + "元Elo".PadLeft(10)
+        + "実効Elo".PadLeft(10)
+        + "差分".PadLeft(10)
+        + "黒番".PadLeft(8)
+        + "白番".PadLeft(8)
+        + "群1位".PadLeft(10)
+        + "群平均".PadLeft(10)
+        + "総合1位".PadLeft(10)
+        + "総合平均".PadLeft(10);
+
+    Console.WriteLine(header);
+    Console.WriteLine(new string('-', header.Length));
+
+    foreach (var row in resultRows)
+    {
+        var line = row.Name.PadRight(nameWidth)
+            + row.Group.PadLeft(8)
+            + FormatRating(row.OriginalRating).PadLeft(10)
+            + FormatRating(row.EffectiveRating).PadLeft(10)
+            + FormatSignedRating(row.RatingDelta).PadLeft(10)
+            + row.BlackCount.ToString(CultureInfo.InvariantCulture).PadLeft(8)
+            + row.WhiteCount.ToString(CultureInfo.InvariantCulture).PadLeft(8)
+            + FormatPercent(row.GroupPlace1Probability).PadLeft(10)
+            + row.GroupPlaceAverage.ToString("F3", CultureInfo.InvariantCulture).PadLeft(10)
+            + FormatPercent(row.OverallPlace1Probability).PadLeft(10)
+            + row.OverallPlaceAverage.ToString("F3", CultureInfo.InvariantCulture).PadLeft(10);
+
+        Console.WriteLine(line);
+    }
+}
+
 static void WriteResultCsv(string outputCsvPath, string mode, double blackAdvantagePercent, IReadOnlyList<ResultRow> resultRows)
 {
     var directoryPath = Path.GetDirectoryName(outputCsvPath);
@@ -958,6 +1032,84 @@ static void WriteResultCsv(string outputCsvPath, string mode, double blackAdvant
             FormatOptionalPercentValue(row.WhiteWinRate),
             (row.ChampionshipProbability * 100).ToString("F2", CultureInfo.InvariantCulture),
             row.AveragePlace.ToString("F3", CultureInfo.InvariantCulture)
+        };
+
+        for (var place = 0; place < row.PlaceProbabilities.Length; place++)
+        {
+            columns.Add((row.PlaceProbabilities[place] * 100).ToString("F2", CultureInfo.InvariantCulture));
+            if (row.PlaceCounts is not null)
+            {
+                columns.Add(row.PlaceCounts[place].ToString("F3", CultureInfo.InvariantCulture));
+            }
+        }
+
+        lines.Add(string.Join(",", columns.Select(EscapeCsv)));
+    }
+
+    File.WriteAllLines(outputCsvPath, lines, new UTF8Encoding(false));
+}
+
+static void WriteFinalStageResultCsv(string outputCsvPath, string mode, double blackAdvantagePercent, IReadOnlyList<FinalStageResultRow> resultRows)
+{
+    var directoryPath = Path.GetDirectoryName(outputCsvPath);
+    if (!string.IsNullOrWhiteSpace(directoryPath))
+    {
+        Directory.CreateDirectory(directoryPath);
+    }
+
+    var lines = new List<string>();
+    var headerColumns = new List<string>
+    {
+        "calculationMode",
+        "blackAdvantagePercent",
+        "participantName",
+        "group",
+        "originalElo",
+        "effectiveElo",
+        "eloDelta",
+        "blackCount",
+        "whiteCount",
+        "blackWinRatePercent",
+        "whiteWinRatePercent",
+        "groupPlace1ProbabilityPercent",
+        "groupPlaceAverage",
+        "overallPlace1ProbabilityPercent",
+        "overallPlaceAverage"
+    };
+
+    if (resultRows.Count > 0)
+    {
+        for (var place = 0; place < resultRows[0].PlaceProbabilities.Length; place++)
+        {
+            headerColumns.Add($"place{place + 1}Percent");
+            if (resultRows[0].PlaceCounts is not null)
+            {
+                headerColumns.Add($"place{place + 1}Count");
+            }
+        }
+    }
+
+    lines.Add(string.Join(",", headerColumns.Select(EscapeCsv)));
+
+    foreach (var row in resultRows)
+    {
+        var columns = new List<string>
+        {
+            mode,
+            blackAdvantagePercent.ToString("F2", CultureInfo.InvariantCulture),
+            row.Name,
+            row.Group,
+            FormatRating(row.OriginalRating),
+            FormatRating(row.EffectiveRating),
+            FormatSignedRating(row.RatingDelta),
+            row.BlackCount.ToString(CultureInfo.InvariantCulture),
+            row.WhiteCount.ToString(CultureInfo.InvariantCulture),
+            FormatOptionalPercentValue(row.BlackWinRate),
+            FormatOptionalPercentValue(row.WhiteWinRate),
+            (row.GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture),
+            row.GroupPlaceAverage.ToString("F3", CultureInfo.InvariantCulture),
+            (row.OverallPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture),
+            row.OverallPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)
         };
 
         for (var place = 0; place < row.PlaceProbabilities.Length; place++)
@@ -1854,6 +2006,23 @@ readonly record struct ResultRow(
     double? WhiteWinRate,
     double ChampionshipProbability,
     double AveragePlace,
+    double[] PlaceProbabilities,
+    double[]? PlaceCounts);
+
+readonly record struct FinalStageResultRow(
+    string Name,
+    string Group,
+    double OriginalRating,
+    double EffectiveRating,
+    double RatingDelta,
+    int BlackCount,
+    int WhiteCount,
+    double? BlackWinRate,
+    double? WhiteWinRate,
+    double GroupPlace1Probability,
+    double GroupPlaceAverage,
+    double OverallPlace1Probability,
+    double OverallPlaceAverage,
     double[] PlaceProbabilities,
     double[]? PlaceCounts);
 
