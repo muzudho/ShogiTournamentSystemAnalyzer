@@ -78,6 +78,13 @@ Innov,Dave
 - 対局は `Innov` が黒番、`Apex` が白番
 - 総合順位は、まず本戦出場 `Apex` 内で順位づけし、その後ろに本戦出場 `Innov` を並べる
 
+サンプル:
+
+- `ShogiTournamentPairingAnalyzer/Examples/【選手一覧】[黒8x白8].csv`
+- `ShogiTournamentPairingAnalyzer/Examples/【グループ対応表】[本戦専用_黒8x白8].csv`
+- `ShogiTournamentPairingAnalyzer/Examples/【対局表】[黒8x白8].csv`
+- `ShogiTournamentPairingAnalyzer/Examples/【本戦専用モード】[黒8x白8].memo.md`
+
 ### 品質評価モード
 
 入力は本戦専用モードと同じです。
@@ -89,6 +96,8 @@ Innov,Dave
 - Elo上位8名の総合上位8位残留人数（平均）
 - Elo1位の総合1位確率
 - 最大不利益 / 最大利益
+
+品質評価モードでも、上記の本戦専用モード用サンプルをそのまま使えます。
 
 ### 選手一覧CSV
 - 1列目: 名前
