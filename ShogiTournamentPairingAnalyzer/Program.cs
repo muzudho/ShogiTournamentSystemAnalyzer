@@ -814,13 +814,12 @@ static void AccumulateBoundaryRescueOutcome(
     double[,] placeProbabilities)
 {
     var apexGroupSize = apexRanking.Count;
-    var innovGroupSize = innovRanking.Count;
-    var rescuedApexRanking = innovWins
-        ? apexRanking.Where(x => x.ParticipantIndex != apexBoundaryIndex).ToArray()
-        : apexRanking.ToArray();
-    var rescuedInnovRanking = innovWins
-        ? innovRanking.ToArray()
-        : innovRanking.Where(x => x.ParticipantIndex != innovBoundaryIndex).ToArray();
+    var rescuedApexRanking = apexRanking
+        .Where(x => x.ParticipantIndex != apexBoundaryIndex)
+        .ToArray();
+    var rescuedInnovRanking = innovRanking
+        .Where(x => x.ParticipantIndex != innovBoundaryIndex)
+        .ToArray();
 
     AccumulateRankingProbabilities(rescuedApexRanking, 0, scenarioProbability, placeProbabilities);
 

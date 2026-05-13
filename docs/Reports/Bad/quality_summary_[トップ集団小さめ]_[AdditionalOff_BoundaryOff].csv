@@ -1,0 +1,7 @@
+metricName,metricValue,note
+spearmanCorrelation,0.997059,Elo順位と期待総合順位の相関
+meanAbsoluteRankError,1.359531,期待総合順位とElo順位のずれの絶対値平均
+averageTop8Retention,8.000000,Elo上位8名が総合上位8位に残る人数の期待値
+eloTop1OverallTop1Probability,23.890464,Elo1位が総合1位になる確率(%)
+mostPenalizedParticipantDelta,2.637700,いぬ
+mostAdvantagedParticipantDelta,-2.493675,小ハム
