@@ -92,6 +92,14 @@ static void RunFinalStageMode()
         return;
     }
 
+    Console.WriteLine();
+    var additionalApexParticipants = ReadOptionalParticipantsFromCsv("本戦不出場Apex一覧CSVを貼り付けてください。");
+    if (!ValidateAdditionalApexParticipants(participants, groupMap, additionalApexParticipants, out errorMessage))
+    {
+        Console.WriteLine($"本戦不出場Apex一覧の検証に失敗しました: {errorMessage}\n");
+        return;
+    }
+
     var apexCount = groupMap.Count(x => x.Value == FinalStageGroup.Apex);
     var innovCount = groupMap.Count - apexCount;
 
@@ -106,6 +114,7 @@ static void RunFinalStageMode()
 
     Console.WriteLine($"Apex: {apexCount} 名");
     Console.WriteLine($"Innov: {innovCount} 名\n");
+    Console.WriteLine($"本戦不出場Apex: {additionalApexParticipants.Count} 名\n");
 
     PrintMatchesCsv(participants, matches);
     Console.WriteLine($"本戦対局数: {matches.Count}\n");
@@ -114,7 +123,7 @@ static void RunFinalStageMode()
     if (matches.Count <= 20)
     {
         Console.WriteLine("本戦専用の厳密計算を行います。\n");
-        result = CalculateFinalStageExactly(participants, matches, groupMap, blackAdvantageRating);
+        result = CalculateFinalStageExactly(participants, matches, groupMap, additionalApexParticipants.Count, blackAdvantageRating);
     }
     else
     {
@@ -125,10 +134,10 @@ static void RunFinalStageMode()
             min: 1);
 
         Console.WriteLine();
-        result = CalculateFinalStageBySimulation(participants, matches, groupMap, blackAdvantageRating, simulationCount);
+        result = CalculateFinalStageBySimulation(participants, matches, groupMap, additionalApexParticipants.Count, blackAdvantageRating, simulationCount);
     }
 
-    var resultRows = BuildFinalStageResultRows(participants, matches, result, blackAdvantagePercent, groupMap);
+    var resultRows = BuildFinalStageResultRows(participants, matches, result, blackAdvantagePercent, groupMap, additionalApexParticipants.Count);
     PrintFinalStageResult(result, blackAdvantagePercent, resultRows);
 
     var defaultOutputCsvPath = Path.GetFullPath($"final_stage_result_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
@@ -159,6 +168,14 @@ static void RunQualityEvaluationMode()
         return;
     }
 
+    Console.WriteLine();
+    var additionalApexParticipants = ReadOptionalParticipantsFromCsv("本戦不出場Apex一覧CSVを貼り付けてください。");
+    if (!ValidateAdditionalApexParticipants(participants, groupMap, additionalApexParticipants, out errorMessage))
+    {
+        Console.WriteLine($"本戦不出場Apex一覧の検証に失敗しました: {errorMessage}\n");
+        return;
+    }
+
     var matches = ReadMatchesFromCsv(participants);
     if (!ValidateFinalStageMatches(participants, groupMap, matches, out errorMessage))
     {
@@ -170,7 +187,7 @@ static void RunQualityEvaluationMode()
     if (matches.Count <= 20)
     {
         Console.WriteLine("品質評価用の厳密計算を行います。\n");
-        result = CalculateFinalStageExactly(participants, matches, groupMap, blackAdvantageRating);
+        result = CalculateFinalStageExactly(participants, matches, groupMap, additionalApexParticipants.Count, blackAdvantageRating);
     }
     else
     {
@@ -181,11 +198,11 @@ static void RunQualityEvaluationMode()
             min: 1);
 
         Console.WriteLine();
-        result = CalculateFinalStageBySimulation(participants, matches, groupMap, blackAdvantageRating, simulationCount);
+        result = CalculateFinalStageBySimulation(participants, matches, groupMap, additionalApexParticipants.Count, blackAdvantageRating, simulationCount);
     }
 
     var resultRows = BuildResultRows(participants, matches, result, blackAdvantagePercent);
-    var qualityParticipantRows = BuildQualityParticipantRows(resultRows, groupMap);
+    var qualityParticipantRows = BuildQualityParticipantRows(resultRows, groupMap, additionalApexParticipants);
     var qualitySummary = BuildQualitySummary(qualityParticipantRows);
 
     PrintQualitySummary(qualitySummary);
@@ -242,7 +259,8 @@ static void PrintFinalStageInputSample()
     Console.WriteLine("本戦専用モードの入力形式:");
     Console.WriteLine("1. 選手一覧CSV");
     Console.WriteLine("2. グループ対応CSV");
-    Console.WriteLine("3. 対局CSV または Round/Black-White/対局記号表\n");
+    Console.WriteLine("3. 本戦不出場Apex一覧CSV（省略可）");
+    Console.WriteLine("4. 対局CSV または Round/Black-White/対局記号表\n");
     Console.WriteLine("選手一覧CSVの例:");
     Console.WriteLine("name,elo");
     Console.WriteLine("Alice,5000");
@@ -255,6 +273,10 @@ static void PrintFinalStageInputSample()
     Console.WriteLine("Apex,Bob");
     Console.WriteLine("Innov,Carol");
     Console.WriteLine("Innov,Dave\n");
+    Console.WriteLine("本戦不出場Apex一覧CSVの例（省略可）:");
+    Console.WriteLine("name,elo");
+    Console.WriteLine("Eve,4920");
+    Console.WriteLine("Frank,4900\n");
     Console.WriteLine("対局CSVの例:");
     Console.WriteLine("black,white");
     Console.WriteLine("Carol,Alice");
@@ -343,9 +365,9 @@ static CalculationResult CalculateBySimulation(IReadOnlyList<Participant> partic
     return new CalculationResult(placeProbabilities, $"シミュレーション ({simulationCount:N0}回)", simulationCount);
 }
 
-static CalculationResult CalculateFinalStageExactly(IReadOnlyList<Participant> participants, IReadOnlyList<Match> matches, IReadOnlyDictionary<string, FinalStageGroup> groupMap, double blackAdvantageRating)
+static CalculationResult CalculateFinalStageExactly(IReadOnlyList<Participant> participants, IReadOnlyList<Match> matches, IReadOnlyDictionary<string, FinalStageGroup> groupMap, int additionalApexCount, double blackAdvantageRating)
 {
-    var placeProbabilities = new double[participants.Count, participants.Count];
+    var placeProbabilities = new double[participants.Count, participants.Count + additionalApexCount];
     var wins = new int[participants.Count];
     var apexParticipantIndexes = GetParticipantIndexesByGroup(participants, groupMap, FinalStageGroup.Apex);
     var innovParticipantIndexes = GetParticipantIndexesByGroup(participants, groupMap, FinalStageGroup.Innov);
@@ -354,7 +376,7 @@ static CalculationResult CalculateFinalStageExactly(IReadOnlyList<Participant> p
     {
         if (matchIndex == matches.Count)
         {
-            AccumulateFinalStagePlaceProbabilities(wins, apexParticipantIndexes, innovParticipantIndexes, scenarioProbability, placeProbabilities);
+            AccumulateFinalStagePlaceProbabilities(wins, apexParticipantIndexes, innovParticipantIndexes, additionalApexCount, scenarioProbability, placeProbabilities);
             return;
         }
 
@@ -374,9 +396,9 @@ static CalculationResult CalculateFinalStageExactly(IReadOnlyList<Participant> p
     return new CalculationResult(placeProbabilities, "本戦専用 厳密計算", null);
 }
 
-static CalculationResult CalculateFinalStageBySimulation(IReadOnlyList<Participant> participants, IReadOnlyList<Match> matches, IReadOnlyDictionary<string, FinalStageGroup> groupMap, double blackAdvantageRating, int simulationCount)
+static CalculationResult CalculateFinalStageBySimulation(IReadOnlyList<Participant> participants, IReadOnlyList<Match> matches, IReadOnlyDictionary<string, FinalStageGroup> groupMap, int additionalApexCount, double blackAdvantageRating, int simulationCount)
 {
-    var placeProbabilities = new double[participants.Count, participants.Count];
+    var placeProbabilities = new double[participants.Count, participants.Count + additionalApexCount];
     var wins = new int[participants.Count];
     var scenarioWeight = 1.0 / simulationCount;
     var apexParticipantIndexes = GetParticipantIndexesByGroup(participants, groupMap, FinalStageGroup.Apex);
@@ -399,7 +421,7 @@ static CalculationResult CalculateFinalStageBySimulation(IReadOnlyList<Participa
             }
         }
 
-        AccumulateFinalStagePlaceProbabilities(wins, apexParticipantIndexes, innovParticipantIndexes, scenarioWeight, placeProbabilities);
+        AccumulateFinalStagePlaceProbabilities(wins, apexParticipantIndexes, innovParticipantIndexes, additionalApexCount, scenarioWeight, placeProbabilities);
     }
 
     return new CalculationResult(placeProbabilities, $"本戦専用 シミュレーション ({simulationCount:N0}回)", simulationCount);
@@ -432,6 +454,39 @@ static Dictionary<string, FinalStageGroup> ReadFinalStageGroupMap()
         if (TryParseFinalStageGroups(lines, out var groupMap, out var errorMessage))
         {
             return groupMap;
+        }
+
+        Console.WriteLine($"CSVの読み取りに失敗しました: {errorMessage}");
+        Console.WriteLine("もう一度入力してください。\n");
+    }
+}
+
+static List<Participant> ReadOptionalParticipantsFromCsv(string prompt)
+{
+    while (true)
+    {
+        Console.WriteLine($"{prompt} 入力終了は空行です。空のまま Enter で省略できます。\n");
+
+        var lines = new List<string>();
+        while (true)
+        {
+            var line = Console.ReadLine();
+            if (string.IsNullOrWhiteSpace(line))
+            {
+                break;
+            }
+
+            lines.Add(line);
+        }
+
+        if (lines.Count == 0)
+        {
+            return new List<Participant>();
+        }
+
+        if (TryParseParticipants(lines, out var participants, out var errorMessage))
+        {
+            return participants;
         }
 
         Console.WriteLine($"CSVの読み取りに失敗しました: {errorMessage}");
@@ -474,6 +529,29 @@ static bool ValidateFinalStageParticipants(IReadOnlyList<Participant> participan
     return true;
 }
 
+static bool ValidateAdditionalApexParticipants(IReadOnlyList<Participant> participants, IReadOnlyDictionary<string, FinalStageGroup> groupMap, IReadOnlyList<Participant> additionalApexParticipants, out string errorMessage)
+{
+    errorMessage = string.Empty;
+
+    var knownNames = new HashSet<string>(participants.Select(x => x.Name), StringComparer.OrdinalIgnoreCase);
+    foreach (var participant in additionalApexParticipants)
+    {
+        if (knownNames.Contains(participant.Name))
+        {
+            errorMessage = $"本戦不出場Apex一覧の選手 '{participant.Name}' は本戦参加者と重複しています。";
+            return false;
+        }
+
+        if (groupMap.ContainsKey(participant.Name))
+        {
+            errorMessage = $"本戦不出場Apex一覧の選手 '{participant.Name}' はグループ対応CSVにも含まれています。";
+            return false;
+        }
+    }
+
+    return true;
+}
+
 static List<int> GetParticipantIndexesByGroup(IReadOnlyList<Participant> participants, IReadOnlyDictionary<string, FinalStageGroup> groupMap, FinalStageGroup targetGroup)
 {
     return participants
@@ -483,10 +561,10 @@ static List<int> GetParticipantIndexesByGroup(IReadOnlyList<Participant> partici
         .ToList();
 }
 
-static void AccumulateFinalStagePlaceProbabilities(int[] wins, IReadOnlyList<int> apexParticipantIndexes, IReadOnlyList<int> innovParticipantIndexes, double scenarioProbability, double[,] placeProbabilities)
+static void AccumulateFinalStagePlaceProbabilities(int[] wins, IReadOnlyList<int> apexParticipantIndexes, IReadOnlyList<int> innovParticipantIndexes, int additionalApexCount, double scenarioProbability, double[,] placeProbabilities)
 {
     AccumulateGroupPlaceProbabilities(wins, apexParticipantIndexes, 0, scenarioProbability, placeProbabilities);
-    AccumulateGroupPlaceProbabilities(wins, innovParticipantIndexes, apexParticipantIndexes.Count, scenarioProbability, placeProbabilities);
+    AccumulateGroupPlaceProbabilities(wins, innovParticipantIndexes, apexParticipantIndexes.Count + additionalApexCount, scenarioProbability, placeProbabilities);
 }
 
 static void AccumulateGroupPlaceProbabilities(int[] wins, IReadOnlyList<int> participantIndexes, int placeOffset, double scenarioProbability, double[,] placeProbabilities)
@@ -661,7 +739,7 @@ static List<ResultRow> BuildResultRows(IReadOnlyList<Participant> participants, 
     return rows;
 }
 
-static List<FinalStageResultRow> BuildFinalStageResultRows(IReadOnlyList<Participant> participants, IReadOnlyList<Match> matches, CalculationResult result, double blackAdvantagePercent, IReadOnlyDictionary<string, FinalStageGroup> groupMap)
+static List<FinalStageResultRow> BuildFinalStageResultRows(IReadOnlyList<Participant> participants, IReadOnlyList<Match> matches, CalculationResult result, double blackAdvantagePercent, IReadOnlyDictionary<string, FinalStageGroup> groupMap, int additionalApexCount)
 {
     var standardRows = BuildResultRows(participants, matches, result, blackAdvantagePercent);
     var apexCount = groupMap.Count(x => x.Value == FinalStageGroup.Apex);
@@ -671,7 +749,7 @@ static List<FinalStageResultRow> BuildFinalStageResultRows(IReadOnlyList<Partici
         .Select(row =>
         {
             var group = groupMap[row.Name];
-            var groupStartIndex = group == FinalStageGroup.Apex ? 0 : apexCount;
+            var groupStartIndex = group == FinalStageGroup.Apex ? 0 : apexCount + additionalApexCount;
             var groupSize = group == FinalStageGroup.Apex ? apexCount : innovCount;
             var groupPlaceAverage = Enumerable.Range(0, groupSize)
                 .Sum(offset => (offset + 1) * row.PlaceProbabilities[groupStartIndex + offset]);
@@ -696,12 +774,17 @@ static List<FinalStageResultRow> BuildFinalStageResultRows(IReadOnlyList<Partici
         .ToList();
 }
 
-static List<QualityParticipantRow> BuildQualityParticipantRows(IReadOnlyList<ResultRow> resultRows, IReadOnlyDictionary<string, FinalStageGroup> groupMap)
+static List<QualityParticipantRow> BuildQualityParticipantRows(IReadOnlyList<ResultRow> resultRows, IReadOnlyDictionary<string, FinalStageGroup> groupMap, IReadOnlyList<Participant> additionalApexParticipants)
 {
-    var eloRanks = resultRows
-        .OrderByDescending(x => x.OriginalRating)
+    var allParticipants = resultRows
+        .Select(row => new Participant(row.Name, row.OriginalRating))
+        .Concat(additionalApexParticipants)
+        .ToList();
+
+    var eloRanks = allParticipants
+        .OrderByDescending(x => x.Rating)
         .ThenBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
-        .Select((row, index) => new { row.Name, Rank = index + 1 })
+        .Select((participant, index) => new { participant.Name, Rank = index + 1 })
         .ToDictionary(x => x.Name, x => x.Rank, StringComparer.OrdinalIgnoreCase);
 
     return resultRows
@@ -717,8 +800,7 @@ static List<QualityParticipantRow> BuildQualityParticipantRows(IReadOnlyList<Res
                 row.AveragePlace,
                 row.AveragePlace - eloRank,
                 row.ChampionshipProbability,
-                overallTop8Probability,
-                row.PlaceProbabilities);
+                overallTop8Probability);
         })
         .OrderBy(x => x.EloRank)
         .ToList();
@@ -2034,8 +2116,7 @@ readonly record struct QualityParticipantRow(
     double ExpectedOverallPlace,
     double OverallPlaceDeltaFromEloRank,
     double OverallTop1Probability,
-    double OverallTop8Probability,
-    double[] PlaceProbabilities);
+    double OverallTop8Probability);
 
 readonly record struct QualitySummary(
     double SpearmanCorrelation,
