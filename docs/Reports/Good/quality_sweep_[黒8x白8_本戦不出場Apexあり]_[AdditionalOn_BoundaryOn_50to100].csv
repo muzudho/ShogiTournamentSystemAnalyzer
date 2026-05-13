@@ -1,0 +1,8 @@
+blackAdvantagePercent,spearmanCorrelation,meanAbsoluteRankError,averageTop8Retention,eloTop1OverallTop1ProbabilityPercent,mostPenalizedParticipant,mostPenalizedDelta,mostAdvantagedParticipant,mostAdvantagedDelta
+50.00,1.000000,1.355850,7.650986,22.500012,飛,2.485162,ひよこ,-2.424446
+60.00,1.000000,1.302295,7.554362,24.614500,飛,2.358150,ひよこ,-2.383171
+70.00,1.000000,1.285544,7.448101,24.372327,飛,2.374275,ひよこ,-2.365097
+80.00,1.000000,1.293792,7.327946,25.081310,飛,2.347181,ひよこ,-2.379770
+90.00,1.000000,1.387606,7.188900,23.839345,飛,2.524716,ひよこ,-2.501923
+100.00,1.000000,2.000000,7.000000,12.500000,飛,3.625000,ひよこ,-3.625000
+evaluationMemo,,,,,,,かなり良い組み合わせの極端先手有利スイープ,
