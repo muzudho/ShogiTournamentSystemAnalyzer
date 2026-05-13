@@ -32,6 +32,32 @@ static void RunApp()
     }
 }
 
+static BoundaryRescueMode ReadBoundaryRescueMode()
+{
+    Console.WriteLine("境界救済戦を使いますか？");
+    Console.WriteLine("1. Off: 使わない");
+    Console.WriteLine("2. On: Apex最下位相当とInnov最上位相当で救済戦を行う\n");
+
+    while (true)
+    {
+        Console.Write("モード番号を入力してください [1]: ");
+        var input = Console.ReadLine()?.Trim();
+        if (string.IsNullOrEmpty(input) || input == "1")
+        {
+            Console.WriteLine();
+            return BoundaryRescueMode.Off;
+        }
+
+        if (input == "2")
+        {
+            Console.WriteLine();
+            return BoundaryRescueMode.On;
+        }
+
+        Console.WriteLine("1 か 2 を入力してください。\n");
+    }
+}
+
 static AdditionalApexPlacementMode ReadAdditionalApexPlacementMode()
 {
     Console.WriteLine("本戦不出場Apexの扱いを選んでください。");
@@ -123,9 +149,16 @@ static string GetAdditionalApexPlacementModeLabel(AdditionalApexPlacementMode pl
         : "Off（現行案: Innov より前に順位帯を確保する）";
 }
 
-static string BuildQualitySummaryDefaultOutputPath(AdditionalApexPlacementMode placementMode, ExperimentalReportGroupingOptions options)
+static string GetBoundaryRescueModeLabel(BoundaryRescueMode boundaryRescueMode)
 {
-    var fileName = $"quality_summary_{placementMode}_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
+    return boundaryRescueMode == BoundaryRescueMode.On
+        ? "On（境界救済戦あり）"
+        : "Off（境界救済戦なし）";
+}
+
+static string BuildQualitySummaryDefaultOutputPath(AdditionalApexPlacementMode placementMode, BoundaryRescueMode boundaryRescueMode, ExperimentalReportGroupingOptions options)
+{
+    var fileName = $"quality_summary_{placementMode}_{boundaryRescueMode}_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
     if (!options.IsEnabled)
     {
         return Path.GetFullPath(fileName);
@@ -219,6 +252,7 @@ static void RunFinalStageMode()
 
     var additionalApexPlacementMode = ReadAdditionalApexPlacementMode();
     var effectiveAdditionalApexCount = GetEffectiveAdditionalApexCount(additionalApexParticipants.Count, additionalApexPlacementMode);
+    var boundaryRescueMode = ReadBoundaryRescueMode();
 
     var apexCount = groupMap.Count(x => x.Value == FinalStageGroup.Apex);
     var innovCount = groupMap.Count - apexCount;
@@ -236,6 +270,7 @@ static void RunFinalStageMode()
     Console.WriteLine($"Innov: {innovCount} 名\n");
     Console.WriteLine($"本戦不出場Apex: {additionalApexParticipants.Count} 名\n");
     Console.WriteLine($"本戦不出場Apexの扱い: {GetAdditionalApexPlacementModeLabel(additionalApexPlacementMode)}\n");
+    Console.WriteLine($"境界救済戦: {GetBoundaryRescueModeLabel(boundaryRescueMode)}\n");
 
     PrintMatchesCsv(participants, matches);
     Console.WriteLine($"本戦対局数: {matches.Count}\n");
@@ -244,7 +279,7 @@ static void RunFinalStageMode()
     if (matches.Count <= 20)
     {
         Console.WriteLine("本戦専用の厳密計算を行います。\n");
-        result = CalculateFinalStageExactly(participants, matches, groupMap, effectiveAdditionalApexCount, blackAdvantageRating);
+        result = CalculateFinalStageExactly(participants, matches, groupMap, effectiveAdditionalApexCount, boundaryRescueMode, blackAdvantageRating);
     }
     else
     {
@@ -255,7 +290,7 @@ static void RunFinalStageMode()
             min: 1);
 
         Console.WriteLine();
-        result = CalculateFinalStageBySimulation(participants, matches, groupMap, effectiveAdditionalApexCount, blackAdvantageRating, simulationCount);
+        result = CalculateFinalStageBySimulation(participants, matches, groupMap, effectiveAdditionalApexCount, boundaryRescueMode, blackAdvantageRating, simulationCount);
     }
 
     var resultRows = BuildFinalStageResultRows(participants, matches, result, blackAdvantagePercent, groupMap, effectiveAdditionalApexCount);
@@ -299,6 +334,7 @@ static void RunQualityEvaluationMode()
 
     var additionalApexPlacementMode = ReadAdditionalApexPlacementMode();
     var effectiveAdditionalApexCount = GetEffectiveAdditionalApexCount(additionalApexParticipants.Count, additionalApexPlacementMode);
+    var boundaryRescueMode = ReadBoundaryRescueMode();
 
     var matches = ReadMatchesFromCsv(participants);
     if (!ValidateFinalStageMatches(participants, groupMap, matches, out errorMessage))
@@ -311,7 +347,7 @@ static void RunQualityEvaluationMode()
     if (matches.Count <= 20)
     {
         Console.WriteLine("品質評価用の厳密計算を行います。\n");
-        result = CalculateFinalStageExactly(participants, matches, groupMap, effectiveAdditionalApexCount, blackAdvantageRating);
+        result = CalculateFinalStageExactly(participants, matches, groupMap, effectiveAdditionalApexCount, boundaryRescueMode, blackAdvantageRating);
     }
     else
     {
@@ -322,7 +358,7 @@ static void RunQualityEvaluationMode()
             min: 1);
 
         Console.WriteLine();
-        result = CalculateFinalStageBySimulation(participants, matches, groupMap, effectiveAdditionalApexCount, blackAdvantageRating, simulationCount);
+        result = CalculateFinalStageBySimulation(participants, matches, groupMap, effectiveAdditionalApexCount, boundaryRescueMode, blackAdvantageRating, simulationCount);
     }
 
     var resultRows = BuildResultRows(participants, matches, result, blackAdvantagePercent);
@@ -330,11 +366,12 @@ static void RunQualityEvaluationMode()
     var qualitySummary = BuildQualitySummary(qualityParticipantRows);
 
     Console.WriteLine($"本戦不出場Apexの扱い: {GetAdditionalApexPlacementModeLabel(additionalApexPlacementMode)}\n");
+    Console.WriteLine($"境界救済戦: {GetBoundaryRescueModeLabel(boundaryRescueMode)}\n");
     PrintQualitySummary(qualitySummary);
     PrintQualityParticipantHighlights(qualityParticipantRows);
 
     var reportGroupingOptions = ReadExperimentalReportGroupingOptions();
-    var defaultOutputCsvPath = BuildQualitySummaryDefaultOutputPath(additionalApexPlacementMode, reportGroupingOptions);
+    var defaultOutputCsvPath = BuildQualitySummaryDefaultOutputPath(additionalApexPlacementMode, boundaryRescueMode, reportGroupingOptions);
     var summaryCsvPath = ResolveOutputCsvPath(ReadTextWithDefault(
         $"\n品質評価サマリーCSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
         defaultOutputCsvPath));
@@ -491,7 +528,7 @@ static CalculationResult CalculateBySimulation(IReadOnlyList<Participant> partic
     return new CalculationResult(placeProbabilities, $"シミュレーション ({simulationCount:N0}回)", simulationCount);
 }
 
-static CalculationResult CalculateFinalStageExactly(IReadOnlyList<Participant> participants, IReadOnlyList<Match> matches, IReadOnlyDictionary<string, FinalStageGroup> groupMap, int additionalApexCount, double blackAdvantageRating)
+static CalculationResult CalculateFinalStageExactly(IReadOnlyList<Participant> participants, IReadOnlyList<Match> matches, IReadOnlyDictionary<string, FinalStageGroup> groupMap, int additionalApexCount, BoundaryRescueMode boundaryRescueMode, double blackAdvantageRating)
 {
     var placeProbabilities = new double[participants.Count, participants.Count + additionalApexCount];
     var wins = new int[participants.Count];
@@ -502,7 +539,7 @@ static CalculationResult CalculateFinalStageExactly(IReadOnlyList<Participant> p
     {
         if (matchIndex == matches.Count)
         {
-            AccumulateFinalStagePlaceProbabilities(wins, apexParticipantIndexes, innovParticipantIndexes, additionalApexCount, scenarioProbability, placeProbabilities);
+            AccumulateFinalStagePlaceProbabilities(wins, participants, apexParticipantIndexes, innovParticipantIndexes, additionalApexCount, boundaryRescueMode, blackAdvantageRating, scenarioProbability, placeProbabilities);
             return;
         }
 
@@ -522,7 +559,7 @@ static CalculationResult CalculateFinalStageExactly(IReadOnlyList<Participant> p
     return new CalculationResult(placeProbabilities, "本戦専用 厳密計算", null);
 }
 
-static CalculationResult CalculateFinalStageBySimulation(IReadOnlyList<Participant> participants, IReadOnlyList<Match> matches, IReadOnlyDictionary<string, FinalStageGroup> groupMap, int additionalApexCount, double blackAdvantageRating, int simulationCount)
+static CalculationResult CalculateFinalStageBySimulation(IReadOnlyList<Participant> participants, IReadOnlyList<Match> matches, IReadOnlyDictionary<string, FinalStageGroup> groupMap, int additionalApexCount, BoundaryRescueMode boundaryRescueMode, double blackAdvantageRating, int simulationCount)
 {
     var placeProbabilities = new double[participants.Count, participants.Count + additionalApexCount];
     var wins = new int[participants.Count];
@@ -547,7 +584,7 @@ static CalculationResult CalculateFinalStageBySimulation(IReadOnlyList<Participa
             }
         }
 
-        AccumulateFinalStagePlaceProbabilities(wins, apexParticipantIndexes, innovParticipantIndexes, additionalApexCount, scenarioWeight, placeProbabilities);
+        AccumulateFinalStagePlaceProbabilities(wins, participants, apexParticipantIndexes, innovParticipantIndexes, additionalApexCount, boundaryRescueMode, blackAdvantageRating, scenarioWeight, placeProbabilities);
     }
 
     return new CalculationResult(placeProbabilities, $"本戦専用 シミュレーション ({simulationCount:N0}回)", simulationCount);
@@ -687,10 +724,149 @@ static List<int> GetParticipantIndexesByGroup(IReadOnlyList<Participant> partici
         .ToList();
 }
 
-static void AccumulateFinalStagePlaceProbabilities(int[] wins, IReadOnlyList<int> apexParticipantIndexes, IReadOnlyList<int> innovParticipantIndexes, int additionalApexCount, double scenarioProbability, double[,] placeProbabilities)
+static void AccumulateFinalStagePlaceProbabilities(int[] wins, IReadOnlyList<Participant> participants, IReadOnlyList<int> apexParticipantIndexes, IReadOnlyList<int> innovParticipantIndexes, int additionalApexCount, BoundaryRescueMode boundaryRescueMode, double blackAdvantageRating, double scenarioProbability, double[,] placeProbabilities)
 {
-    AccumulateGroupPlaceProbabilities(wins, apexParticipantIndexes, 0, scenarioProbability, placeProbabilities);
-    AccumulateGroupPlaceProbabilities(wins, innovParticipantIndexes, apexParticipantIndexes.Count + additionalApexCount, scenarioProbability, placeProbabilities);
+    if (boundaryRescueMode == BoundaryRescueMode.Off)
+    {
+        AccumulateGroupPlaceProbabilities(wins, apexParticipantIndexes, 0, scenarioProbability, placeProbabilities);
+        AccumulateGroupPlaceProbabilities(wins, innovParticipantIndexes, apexParticipantIndexes.Count + additionalApexCount, scenarioProbability, placeProbabilities);
+        return;
+    }
+
+    var apexRanking = BuildRankingForParticipantIndexes(wins, apexParticipantIndexes);
+    var innovRanking = BuildRankingForParticipantIndexes(wins, innovParticipantIndexes);
+
+    var apexBoundaryIndexes = GetTiedParticipantIndexesAtPosition(apexRanking, apexRanking.Length - 1);
+    var innovBoundaryIndexes = GetTiedParticipantIndexesAtPosition(innovRanking, 0);
+
+    var rescueScenarioProbability = scenarioProbability / (apexBoundaryIndexes.Count * innovBoundaryIndexes.Count);
+    foreach (var apexBoundaryIndex in apexBoundaryIndexes)
+    {
+        foreach (var innovBoundaryIndex in innovBoundaryIndexes)
+        {
+            var blackWinsProbability = GetWinProbability(participants[innovBoundaryIndex], participants[apexBoundaryIndex], blackAdvantageRating);
+            AccumulateFinalStagePlaceProbabilitiesWithBoundaryRescue(
+                wins,
+                apexRanking,
+                innovRanking,
+                additionalApexCount,
+                apexBoundaryIndex,
+                innovBoundaryIndex,
+                rescueScenarioProbability,
+                blackWinsProbability,
+                placeProbabilities);
+        }
+    }
+}
+
+static ParticipantScore[] BuildRankingForParticipantIndexes(int[] wins, IReadOnlyList<int> participantIndexes)
+{
+    return participantIndexes
+        .Select(index => new ParticipantScore(index, wins[index]))
+        .OrderByDescending(x => x.Wins)
+        .ThenBy(x => x.ParticipantIndex)
+        .ToArray();
+}
+
+static List<int> GetTiedParticipantIndexesAtPosition(IReadOnlyList<ParticipantScore> ranking, int position)
+{
+    var tiedParticipantIndexes = new List<int>();
+    var targetWins = ranking[position].Wins;
+    var index = position;
+    while (index > 0 && ranking[index - 1].Wins == targetWins)
+    {
+        index--;
+    }
+
+    while (index < ranking.Count && ranking[index].Wins == targetWins)
+    {
+        tiedParticipantIndexes.Add(ranking[index].ParticipantIndex);
+        index++;
+    }
+
+    return tiedParticipantIndexes;
+}
+
+static void AccumulateFinalStagePlaceProbabilitiesWithBoundaryRescue(
+    int[] wins,
+    IReadOnlyList<ParticipantScore> apexRanking,
+    IReadOnlyList<ParticipantScore> innovRanking,
+    int additionalApexCount,
+    int apexBoundaryIndex,
+    int innovBoundaryIndex,
+    double rescueScenarioProbability,
+    double innovWinsProbability,
+    double[,] placeProbabilities)
+{
+    AccumulateBoundaryRescueOutcome(wins, apexRanking, innovRanking, additionalApexCount, apexBoundaryIndex, innovBoundaryIndex, rescueScenarioProbability * innovWinsProbability, innovWins: true, placeProbabilities);
+    AccumulateBoundaryRescueOutcome(wins, apexRanking, innovRanking, additionalApexCount, apexBoundaryIndex, innovBoundaryIndex, rescueScenarioProbability * (1.0 - innovWinsProbability), innovWins: false, placeProbabilities);
+}
+
+static void AccumulateBoundaryRescueOutcome(
+    int[] wins,
+    IReadOnlyList<ParticipantScore> apexRanking,
+    IReadOnlyList<ParticipantScore> innovRanking,
+    int additionalApexCount,
+    int apexBoundaryIndex,
+    int innovBoundaryIndex,
+    double scenarioProbability,
+    bool innovWins,
+    double[,] placeProbabilities)
+{
+    var apexGroupSize = apexRanking.Count;
+    var innovGroupSize = innovRanking.Count;
+    var rescuedApexRanking = innovWins
+        ? apexRanking.Where(x => x.ParticipantIndex != apexBoundaryIndex).ToArray()
+        : apexRanking.ToArray();
+    var rescuedInnovRanking = innovWins
+        ? innovRanking.ToArray()
+        : innovRanking.Where(x => x.ParticipantIndex != innovBoundaryIndex).ToArray();
+
+    AccumulateRankingProbabilities(rescuedApexRanking, 0, scenarioProbability, placeProbabilities);
+
+    if (innovWins)
+    {
+        placeProbabilities[innovBoundaryIndex, apexGroupSize - 1] += scenarioProbability;
+        placeProbabilities[apexBoundaryIndex, apexGroupSize + additionalApexCount] += scenarioProbability;
+    }
+    else
+    {
+        placeProbabilities[apexBoundaryIndex, apexGroupSize - 1] += scenarioProbability;
+        placeProbabilities[innovBoundaryIndex, apexGroupSize + additionalApexCount] += scenarioProbability;
+    }
+
+    AccumulateRankingProbabilities(
+        rescuedInnovRanking,
+        apexGroupSize + additionalApexCount + 1,
+        scenarioProbability,
+        placeProbabilities);
+}
+
+static void AccumulateRankingProbabilities(IReadOnlyList<ParticipantScore> ranking, int placeOffset, double scenarioProbability, double[,] placeProbabilities)
+{
+    var currentPlace = 0;
+    while (currentPlace < ranking.Count)
+    {
+        var groupEnd = currentPlace + 1;
+        while (groupEnd < ranking.Count && ranking[groupEnd].Wins == ranking[currentPlace].Wins)
+        {
+            groupEnd++;
+        }
+
+        var groupSize = groupEnd - currentPlace;
+        var splitProbability = scenarioProbability / groupSize;
+
+        for (var i = currentPlace; i < groupEnd; i++)
+        {
+            var participantIndex = ranking[i].ParticipantIndex;
+            for (var place = currentPlace; place < groupEnd; place++)
+            {
+                placeProbabilities[participantIndex, placeOffset + place] += splitProbability;
+            }
+        }
+
+        currentPlace = groupEnd;
+    }
 }
 
 static void AccumulateGroupPlaceProbabilities(int[] wins, IReadOnlyList<int> participantIndexes, int placeOffset, double scenarioProbability, double[,] placeProbabilities)
@@ -1448,20 +1624,20 @@ static List<Match> ReadMatchesFromCsv(IReadOnlyList<Participant> participants)
     }
 }
 
-static int ReadInt(string prompt, int min)
-{
-    while (true)
-    {
-        Console.Write(prompt);
-        var input = Console.ReadLine();
-        if (int.TryParse(input, out var value) && value >= min)
-        {
-            return value;
-        }
+//static int ReadInt(string prompt, int min)
+//{
+//    while (true)
+//    {
+//        Console.Write(prompt);
+//        var input = Console.ReadLine();
+//        if (int.TryParse(input, out var value) && value >= min)
+//        {
+//            return value;
+//        }
 
-        Console.WriteLine($"{min} 以上の整数を入力してください。");
-    }
-}
+//        Console.WriteLine($"{min} 以上の整数を入力してください。");
+//    }
+//}
 
 static int ReadIntWithDefault(string prompt, int defaultValue, int min)
 {
@@ -2283,6 +2459,12 @@ enum FinalStageGroup
 }
 
 enum AdditionalApexPlacementMode
+{
+    Off,
+    On,
+}
+
+enum BoundaryRescueMode
 {
     Off,
     On,
