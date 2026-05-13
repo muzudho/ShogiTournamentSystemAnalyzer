@@ -7,6 +7,15 @@ Console.WriteLine("将棋大会の順位分布を計算します。\n");
 
 try
 {
+    RunApp();
+}
+catch (OperationCanceledException ex)
+{
+    Console.WriteLine($"入力を中断しました: {ex.Message}");
+}
+
+static void RunApp()
+{
     switch (ReadMode())
     {
         case 1:
@@ -22,9 +31,110 @@ try
             throw new InvalidOperationException("未対応のモードです。");
     }
 }
-catch (OperationCanceledException ex)
+
+static AdditionalApexPlacementMode ReadAdditionalApexPlacementMode()
 {
-    Console.WriteLine($"入力を中断しました: {ex.Message}");
+    Console.WriteLine("本戦不出場Apexの扱いを選んでください。");
+    Console.WriteLine("1. Off: Innov より前に順位帯を確保する（現行案）");
+    Console.WriteLine("2. On: 総合順位へ挿入しない（改善案A）\n");
+
+    while (true)
+    {
+        Console.Write("モード番号を入力してください [1]: ");
+        var input = Console.ReadLine()?.Trim();
+        if (string.IsNullOrEmpty(input) || input == "1")
+        {
+            Console.WriteLine();
+            return AdditionalApexPlacementMode.Off;
+        }
+
+        if (input == "2")
+        {
+            Console.WriteLine();
+            return AdditionalApexPlacementMode.On;
+        }
+
+        Console.WriteLine("1 か 2 を入力してください。\n");
+    }
+}
+
+static ExperimentalReportGroupingOptions ReadExperimentalReportGroupingOptions()
+{
+    Console.WriteLine("実験レポートの Good / Bad 分離を使いますか？");
+    Console.WriteLine("1. Off: 分離しない");
+    Console.WriteLine("2. On: Good / Bad フォルダーに分離する\n");
+
+    while (true)
+    {
+        Console.Write("モード番号を入力してください [1]: ");
+        var input = Console.ReadLine()?.Trim();
+        if (string.IsNullOrEmpty(input) || input == "1")
+        {
+            Console.WriteLine();
+            return new ExperimentalReportGroupingOptions(false, null);
+        }
+
+        if (input == "2")
+        {
+            Console.WriteLine();
+            var outcome = ReadExperimentalReportOutcome();
+            return new ExperimentalReportGroupingOptions(true, outcome);
+        }
+
+        Console.WriteLine("1 か 2 を入力してください。\n");
+    }
+}
+
+static ExperimentalReportOutcome ReadExperimentalReportOutcome()
+{
+    Console.WriteLine("今回の案の評価を選んでください。");
+    Console.WriteLine("1. Good");
+    Console.WriteLine("2. Bad\n");
+
+    while (true)
+    {
+        Console.Write("評価番号を入力してください [1]: ");
+        var input = Console.ReadLine()?.Trim();
+        if (string.IsNullOrEmpty(input) || input == "1")
+        {
+            Console.WriteLine();
+            return ExperimentalReportOutcome.Good;
+        }
+
+        if (input == "2")
+        {
+            Console.WriteLine();
+            return ExperimentalReportOutcome.Bad;
+        }
+
+        Console.WriteLine("1 か 2 を入力してください。\n");
+    }
+}
+
+static int GetEffectiveAdditionalApexCount(int additionalApexCount, AdditionalApexPlacementMode placementMode)
+{
+    return placementMode == AdditionalApexPlacementMode.On ? 0 : additionalApexCount;
+}
+
+static string GetAdditionalApexPlacementModeLabel(AdditionalApexPlacementMode placementMode)
+{
+    return placementMode == AdditionalApexPlacementMode.On
+        ? "On（改善案A: 総合順位へ挿入しない）"
+        : "Off（現行案: Innov より前に順位帯を確保する）";
+}
+
+static string BuildQualitySummaryDefaultOutputPath(AdditionalApexPlacementMode placementMode, ExperimentalReportGroupingOptions options)
+{
+    var fileName = $"quality_summary_{placementMode}_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
+    if (!options.IsEnabled)
+    {
+        return Path.GetFullPath(fileName);
+    }
+
+    var outcomeFolderName = options.Outcome == ExperimentalReportOutcome.Bad ? "Bad" : "Good";
+    var baseDirectory = Path.Combine(Path.GetFullPath("."), "docs", "Reports", outcomeFolderName);
+    Directory.CreateDirectory(baseDirectory);
+    return Path.Combine(baseDirectory, fileName);
 }
 
 static void RunStandardMode()
@@ -107,6 +217,9 @@ static void RunFinalStageMode()
         return;
     }
 
+    var additionalApexPlacementMode = ReadAdditionalApexPlacementMode();
+    var effectiveAdditionalApexCount = GetEffectiveAdditionalApexCount(additionalApexParticipants.Count, additionalApexPlacementMode);
+
     var apexCount = groupMap.Count(x => x.Value == FinalStageGroup.Apex);
     var innovCount = groupMap.Count - apexCount;
 
@@ -122,6 +235,7 @@ static void RunFinalStageMode()
     Console.WriteLine($"Apex: {apexCount} 名");
     Console.WriteLine($"Innov: {innovCount} 名\n");
     Console.WriteLine($"本戦不出場Apex: {additionalApexParticipants.Count} 名\n");
+    Console.WriteLine($"本戦不出場Apexの扱い: {GetAdditionalApexPlacementModeLabel(additionalApexPlacementMode)}\n");
 
     PrintMatchesCsv(participants, matches);
     Console.WriteLine($"本戦対局数: {matches.Count}\n");
@@ -130,7 +244,7 @@ static void RunFinalStageMode()
     if (matches.Count <= 20)
     {
         Console.WriteLine("本戦専用の厳密計算を行います。\n");
-        result = CalculateFinalStageExactly(participants, matches, groupMap, additionalApexParticipants.Count, blackAdvantageRating);
+        result = CalculateFinalStageExactly(participants, matches, groupMap, effectiveAdditionalApexCount, blackAdvantageRating);
     }
     else
     {
@@ -141,10 +255,10 @@ static void RunFinalStageMode()
             min: 1);
 
         Console.WriteLine();
-        result = CalculateFinalStageBySimulation(participants, matches, groupMap, additionalApexParticipants.Count, blackAdvantageRating, simulationCount);
+        result = CalculateFinalStageBySimulation(participants, matches, groupMap, effectiveAdditionalApexCount, blackAdvantageRating, simulationCount);
     }
 
-    var resultRows = BuildFinalStageResultRows(participants, matches, result, blackAdvantagePercent, groupMap, additionalApexParticipants.Count);
+    var resultRows = BuildFinalStageResultRows(participants, matches, result, blackAdvantagePercent, groupMap, effectiveAdditionalApexCount);
     PrintFinalStageResult(result, blackAdvantagePercent, resultRows);
 
     var defaultOutputCsvPath = Path.GetFullPath($"final_stage_result_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
@@ -183,6 +297,9 @@ static void RunQualityEvaluationMode()
         return;
     }
 
+    var additionalApexPlacementMode = ReadAdditionalApexPlacementMode();
+    var effectiveAdditionalApexCount = GetEffectiveAdditionalApexCount(additionalApexParticipants.Count, additionalApexPlacementMode);
+
     var matches = ReadMatchesFromCsv(participants);
     if (!ValidateFinalStageMatches(participants, groupMap, matches, out errorMessage))
     {
@@ -194,7 +311,7 @@ static void RunQualityEvaluationMode()
     if (matches.Count <= 20)
     {
         Console.WriteLine("品質評価用の厳密計算を行います。\n");
-        result = CalculateFinalStageExactly(participants, matches, groupMap, additionalApexParticipants.Count, blackAdvantageRating);
+        result = CalculateFinalStageExactly(participants, matches, groupMap, effectiveAdditionalApexCount, blackAdvantageRating);
     }
     else
     {
@@ -205,17 +322,19 @@ static void RunQualityEvaluationMode()
             min: 1);
 
         Console.WriteLine();
-        result = CalculateFinalStageBySimulation(participants, matches, groupMap, additionalApexParticipants.Count, blackAdvantageRating, simulationCount);
+        result = CalculateFinalStageBySimulation(participants, matches, groupMap, effectiveAdditionalApexCount, blackAdvantageRating, simulationCount);
     }
 
     var resultRows = BuildResultRows(participants, matches, result, blackAdvantagePercent);
-    var qualityParticipantRows = BuildQualityParticipantRows(resultRows, groupMap, additionalApexParticipants);
+    var qualityParticipantRows = BuildQualityParticipantRows(resultRows, groupMap, additionalApexParticipants, additionalApexPlacementMode);
     var qualitySummary = BuildQualitySummary(qualityParticipantRows);
 
+    Console.WriteLine($"本戦不出場Apexの扱い: {GetAdditionalApexPlacementModeLabel(additionalApexPlacementMode)}\n");
     PrintQualitySummary(qualitySummary);
     PrintQualityParticipantHighlights(qualityParticipantRows);
 
-    var defaultOutputCsvPath = Path.GetFullPath($"quality_summary_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
+    var reportGroupingOptions = ReadExperimentalReportGroupingOptions();
+    var defaultOutputCsvPath = BuildQualitySummaryDefaultOutputPath(additionalApexPlacementMode, reportGroupingOptions);
     var summaryCsvPath = ResolveOutputCsvPath(ReadTextWithDefault(
         $"\n品質評価サマリーCSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
         defaultOutputCsvPath));
@@ -781,11 +900,11 @@ static List<FinalStageResultRow> BuildFinalStageResultRows(IReadOnlyList<Partici
         .ToList();
 }
 
-static List<QualityParticipantRow> BuildQualityParticipantRows(IReadOnlyList<ResultRow> resultRows, IReadOnlyDictionary<string, FinalStageGroup> groupMap, IReadOnlyList<Participant> additionalApexParticipants)
+static List<QualityParticipantRow> BuildQualityParticipantRows(IReadOnlyList<ResultRow> resultRows, IReadOnlyDictionary<string, FinalStageGroup> groupMap, IReadOnlyList<Participant> additionalApexParticipants, AdditionalApexPlacementMode placementMode)
 {
     var allParticipants = resultRows
         .Select(row => new Participant(row.Name, row.OriginalRating))
-        .Concat(additionalApexParticipants)
+        .Concat(placementMode == AdditionalApexPlacementMode.Off ? additionalApexParticipants : Enumerable.Empty<Participant>())
         .ToList();
 
     var eloRanks = allParticipants
@@ -2153,8 +2272,24 @@ readonly record struct QualitySummary(
     string MostAdvantagedParticipantName,
     double MostAdvantagedDelta);
 
+readonly record struct ExperimentalReportGroupingOptions(
+    bool IsEnabled,
+    ExperimentalReportOutcome? Outcome);
+
 enum FinalStageGroup
 {
     Apex,
     Innov,
+}
+
+enum AdditionalApexPlacementMode
+{
+    Off,
+    On,
+}
+
+enum ExperimentalReportOutcome
+{
+    Good,
+    Bad,
 }
