@@ -8,6 +8,7 @@
 - 通常モード（総当たり戦分析）
 - 本戦専用モード（Apex / Innov 定先戦分析）
 - 品質評価モード（本戦ルールの実力反映性評価）
+- `Domain/Modes` へのモード分離
 - 選手ごとの Elo レーティング入力
 - 黒番有利率 (%) の指定
 - 対局CSV入力
@@ -57,9 +58,12 @@ dotnet run --project .\ShogiTournamentPairingAnalyzer\ShogiTournamentPairingAnal
 1. 同Elo対局時の先手勝率 (%)
 2. 選手一覧CSV
 3. グループ対応CSV
-4. 対局CSV または Round/Black-White/対局記号表
-5. 必要に応じてシミュレーション試行回数
-6. 結果CSVの出力先パスまたはフォルダーパス
+4. 本戦不出場Apex一覧CSV（省略可）
+5. 本戦不出場Apexの扱い（Off / On）
+6. 境界救済戦の有無（Off / On）
+7. 対局CSV または Round/Black-White/対局記号表
+8. 必要に応じてシミュレーション試行回数
+9. 結果CSVの出力先パスまたはフォルダーパス
 
 グループ対応CSVの例:
 
@@ -77,6 +81,8 @@ Innov,Dave
 - `Apex` は 8 名以下
 - 対局は `Innov` が黒番、`Apex` が白番
 - 総合順位は、まず本戦出場 `Apex` 内で順位づけし、その後ろに本戦出場 `Innov` を並べる
+- 本戦不出場Apexは、実験用の On / Off 切り替えで扱いを変えられる
+- 境界救済戦は、実験用の On / Off 切り替えで扱いを変えられる
 
 サンプル:
 
@@ -98,6 +104,23 @@ Innov,Dave
 - 最大不利益 / 最大利益
 
 品質評価モードでも、上記の本戦専用モード用サンプルをそのまま使えます。
+
+さらに、実験用に次を切り替えられます。
+
+- 本戦不出場Apexの扱い
+  - `Off`: Innov より前に順位帯を確保する（現行案）
+  - `On`: 総合順位へ挿入しない（改善案A）
+- 境界救済戦
+  - `Off`: 使わない
+  - `On`: Apex最下位相当とInnov最上位相当で救済戦を行う
+
+品質評価レポート運用:
+
+- `docs/Reports/Good`
+- `docs/Reports/Bad`
+
+に分けて保存できます。  
+Good / Bad は二元論で厳密に決めるのではなく、必要なら**評価メモ**を 1 行残して運用します。
 
 ### 選手一覧CSV
 - 1列目: 名前
@@ -194,6 +217,7 @@ END
   - `meanAbsoluteRankError`
   - `averageTop8Retention`
   - `eloTop1OverallTop1Probability`
+  - 必要なら `evaluationMemo`
 - 参加者別CSV
   - `participantName`
   - `group`
@@ -216,7 +240,7 @@ END
 - 未対局の選手は結果から自動除外されます
 - コメントは CSV に埋め込まず、`.memo.md` や `.memo.txt` で別管理する想定です
 - シミュレーション 1 回でも、同点順位の等分配により 33.33% のような値が出ることがあります
-- 本戦専用モードの現状実装は MVP であり、まだ「本戦不出場 Apex を Innov より前へ挿入する」規則には未対応です
+- 本戦専用モード / 品質評価モードは MVP を超えて実験運用中であり、改善案の On / Off を含む比較を行えます
 
 ## 関連リンク
 - [白黒対抗ルール案](https://note.com/muzudho/n/n311536fd1812?app_launch=false)

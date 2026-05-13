@@ -1,0 +1,8 @@
+metricName,metricValue,note
+spearmanCorrelation,1.000000,Elo順位と期待総合順位の相関
+meanAbsoluteRankError,1.356554,期待総合順位とElo順位のずれの絶対値平均
+averageTop8Retention,7.642915,Elo上位8名が総合上位8位に残る人数の期待値
+eloTop1OverallTop1Probability,22.690708,Elo1位が総合1位になる確率(%)
+mostPenalizedParticipantDelta,2.445878,飛
+mostAdvantagedParticipantDelta,-2.463017,ひよこ
+evaluationMemo,,かなり良いが、上位8完全残留は少し落ちる

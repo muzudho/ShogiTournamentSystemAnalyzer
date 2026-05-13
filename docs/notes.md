@@ -90,6 +90,9 @@ END
 - グループ対応CSVを別入力で受け付ける
 - `group,name` 形式
 - `Apex` と `Innov` を使用する
+- 本戦不出場Apex一覧CSV（省略可）を別入力で受け付ける
+- 本戦不出場Apexの扱いを Off / On で切り替えられる
+- 境界救済戦を Off / On で切り替えられる
 
 例:
 
@@ -106,6 +109,14 @@ Innov,Dave
 - `Apex` は 8 名以下
 - 対局は `Innov` が黒番、`Apex` が白番
 - 同グループ同士の対局は禁止
+
+実験運用では、さらに次を切り替える。
+- 本戦不出場Apexの扱い
+  - Off: Innov より前に順位帯を確保する
+  - On: 総合順位へ挿入しない
+- 境界救済戦
+  - Off: なし
+  - On: Apex最下位相当とInnov最上位相当で救済戦を行う
 
 サンプルファイル:
 - `【選手一覧】[黒8x白8].csv`
@@ -141,6 +152,7 @@ Innov,Dave
   - `meanAbsoluteRankError`
   - `averageTop8Retention`
   - `eloTop1OverallTop1Probability`
+  - 必要なら `evaluationMemo`
 - 参加者別CSV
   - `participantName`
   - `group`
@@ -161,7 +173,9 @@ Innov,Dave
 - 同点順位は乱数で決めず、等分配で扱う。
 - シミュレーション 1 回でも、同点時には 33.33% などの分数確率が出ることがある。
 - コメントは CSV に埋め込まず、別ファイルで管理する。
-- 本戦専用モードの現状実装は MVP であり、本戦不出場 Apex の順位挿入規則はまだ未対応。
+- 改善案比較では `docs/Reports/Good` と `docs/Reports/Bad` を使い分ける。
+- Good / Bad は厳密な二元論ではなく、必要に応じて評価メモを 1 行残して運用する。
+- `Program.cs` の肥大化対策として、モード実装は `Domain/Modes` に分離した。
 
 ## メモ運用方針
 - データ本体は `.csv`
