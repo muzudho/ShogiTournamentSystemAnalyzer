@@ -88,9 +88,18 @@ static void RunFinalStageMode()
     var apexCount = groupMap.Count(x => x.Value == FinalStageGroup.Apex);
     var innovCount = groupMap.Count - apexCount;
 
-    Console.WriteLine("本戦参加者の入力を受け付けました。");
+    Console.WriteLine("本戦参加者の入力を受け付けました。\n");
+
+    var matches = ReadMatchesFromCsv(participants);
+    if (!ValidateFinalStageMatches(participants, groupMap, matches, out errorMessage))
+    {
+        Console.WriteLine($"本戦対局の検証に失敗しました: {errorMessage}\n");
+        return;
+    }
+
     Console.WriteLine($"Apex: {apexCount} 名");
     Console.WriteLine($"Innov: {innovCount} 名\n");
+    Console.WriteLine($"本戦対局数: {matches.Count}\n");
     Console.WriteLine("対局入力とシミュレーション本体は次の段階で実装します。\n");
 }
 
@@ -124,7 +133,8 @@ static void PrintFinalStageInputSample()
 {
     Console.WriteLine("本戦専用モードの入力形式:");
     Console.WriteLine("1. 選手一覧CSV");
-    Console.WriteLine("2. グループ対応CSV\n");
+    Console.WriteLine("2. グループ対応CSV");
+    Console.WriteLine("3. 対局CSV または Round/Black-White/対局記号表\n");
     Console.WriteLine("選手一覧CSVの例:");
     Console.WriteLine("name,elo");
     Console.WriteLine("Alice,5000");
@@ -137,6 +147,11 @@ static void PrintFinalStageInputSample()
     Console.WriteLine("Apex,Bob");
     Console.WriteLine("Innov,Carol");
     Console.WriteLine("Innov,Dave\n");
+    Console.WriteLine("対局CSVの例:");
+    Console.WriteLine("black,white");
+    Console.WriteLine("Carol,Alice");
+    Console.WriteLine("Dave,Bob");
+    Console.WriteLine("END\n");
 }
 
 static CalculationResult CalculateExactly(IReadOnlyList<Participant> participants, IReadOnlyList<Match> matches, double blackAdvantageRating)
@@ -284,6 +299,41 @@ static bool ValidateFinalStageParticipants(IReadOnlyList<Participant> participan
     {
         errorMessage = $"Apex は 8 名以下で入力してください。現在は {apexCount} 名です。";
         return false;
+    }
+
+    return true;
+}
+
+static bool ValidateFinalStageMatches(IReadOnlyList<Participant> participants, IReadOnlyDictionary<string, FinalStageGroup> groupMap, IReadOnlyList<Match> matches, out string errorMessage)
+{
+    errorMessage = string.Empty;
+
+    for (var matchIndex = 0; matchIndex < matches.Count; matchIndex++)
+    {
+        var match = matches[matchIndex];
+        var blackParticipant = participants[match.Black];
+        var whiteParticipant = participants[match.White];
+
+        var blackGroup = groupMap[blackParticipant.Name];
+        var whiteGroup = groupMap[whiteParticipant.Name];
+
+        if (blackGroup == whiteGroup)
+        {
+            errorMessage = $"{matchIndex + 1} 局目の対局 '{blackParticipant.Name} vs {whiteParticipant.Name}' は同グループ同士です。";
+            return false;
+        }
+
+        if (blackGroup != FinalStageGroup.Innov)
+        {
+            errorMessage = $"{matchIndex + 1} 局目の黒番 '{blackParticipant.Name}' は Innov である必要があります。";
+            return false;
+        }
+
+        if (whiteGroup != FinalStageGroup.Apex)
+        {
+            errorMessage = $"{matchIndex + 1} 局目の白番 '{whiteParticipant.Name}' は Apex である必要があります。";
+            return false;
+        }
     }
 
     return true;
