@@ -1,36 +1,41 @@
 ﻿using System.Globalization;
 using System.Text;
 
-Console.OutputEncoding = Encoding.UTF8;
-
-Console.WriteLine("将棋大会の順位分布を計算します。\n");
-
-try
+internal static partial class Program
 {
-    RunApp();
-}
-catch (OperationCanceledException ex)
-{
-    Console.WriteLine($"入力を中断しました: {ex.Message}");
-}
-
-static void RunApp()
-{
-    switch (ReadMode())
+    private static void Main()
     {
-        case 1:
-            RunStandardMode();
-            break;
-        case 2:
-            RunFinalStageMode();
-            break;
-        case 3:
-            RunQualityEvaluationMode();
-            break;
-        default:
-            throw new InvalidOperationException("未対応のモードです。");
+        Console.OutputEncoding = Encoding.UTF8;
+
+        Console.WriteLine("将棋大会の順位分布を計算します。\n");
+
+        try
+        {
+            RunApp();
+        }
+        catch (OperationCanceledException ex)
+        {
+            Console.WriteLine($"入力を中断しました: {ex.Message}");
+        }
     }
-}
+
+    static void RunApp()
+    {
+        switch (ReadMode())
+        {
+            case 1:
+                RunStandardMode();
+                break;
+            case 2:
+                RunFinalStageMode();
+                break;
+            case 3:
+                RunQualityEvaluationMode();
+                break;
+            default:
+                throw new InvalidOperationException("未対応のモードです。");
+        }
+    }
 
 static BoundaryRescueMode ReadBoundaryRescueMode()
 {
@@ -168,220 +173,6 @@ static string BuildQualitySummaryDefaultOutputPath(AdditionalApexPlacementMode p
     var baseDirectory = Path.Combine(Path.GetFullPath("."), "docs", "Reports", outcomeFolderName);
     Directory.CreateDirectory(baseDirectory);
     return Path.Combine(baseDirectory, fileName);
-}
-
-static void RunStandardMode()
-{
-    Console.WriteLine("通常モード: 総当たり戦の順位分布を計算します。");
-    Console.WriteLine("前提: 各対局は黒番・白番を持ち、勝率は Elo レーティング差と黒番有利率から計算します。\n");
-
-    PrintInputSample();
-    var blackAdvantagePercent = ReadDoubleWithDefaultInRange("同Elo対局時の黒番勝率(%)を入力してください [51]: ", 51.0, 0.0, 100.0);
-    var blackAdvantageRating = ConvertBlackAdvantagePercentToRating(blackAdvantagePercent);
-
-    Console.WriteLine();
-    var allParticipants = ReadParticipantsFromCsv();
-    var allMatches = ReadMatchesFromCsv(allParticipants);
-    var (participants, matches) = FilterToScheduledParticipants(allParticipants, allMatches);
-
-    if (participants.Count != allParticipants.Count)
-    {
-        Console.WriteLine($"未対局の選手 {allParticipants.Count - participants.Count} 人を結果から除外します。\n");
-    }
-
-    PrintMatchesCsv(participants, matches);
-
-    Console.WriteLine($"\n総対局数: {matches.Count}");
-
-    CalculationResult result;
-    if (matches.Count <= 20)
-    {
-        Console.WriteLine("厳密計算を行います。\n");
-        result = CalculateExactly(participants, matches, blackAdvantageRating);
-    }
-    else
-    {
-        const int defaultSimulationCount = 200_000;
-        var simulationCount = ReadIntWithDefault(
-            $"局数が多いためシミュレーションで近似します。試行回数を入力してください [{defaultSimulationCount}]: ",
-            defaultSimulationCount,
-            min: 1);
-
-        Console.WriteLine();
-        result = CalculateBySimulation(participants, matches, blackAdvantageRating, simulationCount);
-    }
-
-    var resultRows = BuildResultRows(participants, matches, result, blackAdvantagePercent);
-    PrintResult(participants.Count, result, blackAdvantagePercent, resultRows);
-
-    var defaultOutputCsvPath = Path.GetFullPath($"result_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
-    var outputCsvPath = ResolveOutputCsvPath(ReadTextWithDefault(
-        $"\n結果CSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
-        defaultOutputCsvPath));
-    WriteResultCsv(outputCsvPath, result.Mode, blackAdvantagePercent, resultRows);
-    Console.WriteLine($"結果CSVを出力しました: {outputCsvPath}");
-}
-
-static void RunFinalStageMode()
-{
-    Console.WriteLine("本戦専用モード: Apex / Innov 定先戦を分析します。\n");
-
-    PrintFinalStageInputSample();
-
-    var blackAdvantagePercent = ReadDoubleWithDefaultInRange("同Elo対局時の先手勝率(%)を入力してください [51]: ", 51.0, 0.0, 100.0);
-    var blackAdvantageRating = ConvertBlackAdvantagePercentToRating(blackAdvantagePercent);
-    Console.WriteLine();
-
-    var participants = ReadParticipantsFromCsv();
-    Console.WriteLine();
-
-    var groupMap = ReadFinalStageGroupMap();
-    if (!ValidateFinalStageParticipants(participants, groupMap, out var errorMessage))
-    {
-        Console.WriteLine($"本戦参加者の検証に失敗しました: {errorMessage}\n");
-        return;
-    }
-
-    Console.WriteLine();
-    var additionalApexParticipants = ReadOptionalParticipantsFromCsv("本戦不出場Apex一覧CSVを貼り付けてください。");
-    if (!ValidateAdditionalApexParticipants(participants, groupMap, additionalApexParticipants, out errorMessage))
-    {
-        Console.WriteLine($"本戦不出場Apex一覧の検証に失敗しました: {errorMessage}\n");
-        return;
-    }
-
-    var additionalApexPlacementMode = ReadAdditionalApexPlacementMode();
-    var effectiveAdditionalApexCount = GetEffectiveAdditionalApexCount(additionalApexParticipants.Count, additionalApexPlacementMode);
-    var boundaryRescueMode = ReadBoundaryRescueMode();
-
-    var apexCount = groupMap.Count(x => x.Value == FinalStageGroup.Apex);
-    var innovCount = groupMap.Count - apexCount;
-
-    Console.WriteLine("本戦参加者の入力を受け付けました。\n");
-
-    var matches = ReadMatchesFromCsv(participants);
-    if (!ValidateFinalStageMatches(participants, groupMap, matches, out errorMessage))
-    {
-        Console.WriteLine($"本戦対局の検証に失敗しました: {errorMessage}\n");
-        return;
-    }
-
-    Console.WriteLine($"Apex: {apexCount} 名");
-    Console.WriteLine($"Innov: {innovCount} 名\n");
-    Console.WriteLine($"本戦不出場Apex: {additionalApexParticipants.Count} 名\n");
-    Console.WriteLine($"本戦不出場Apexの扱い: {GetAdditionalApexPlacementModeLabel(additionalApexPlacementMode)}\n");
-    Console.WriteLine($"境界救済戦: {GetBoundaryRescueModeLabel(boundaryRescueMode)}\n");
-
-    PrintMatchesCsv(participants, matches);
-    Console.WriteLine($"本戦対局数: {matches.Count}\n");
-
-    CalculationResult result;
-    if (matches.Count <= 20)
-    {
-        Console.WriteLine("本戦専用の厳密計算を行います。\n");
-        result = CalculateFinalStageExactly(participants, matches, groupMap, effectiveAdditionalApexCount, boundaryRescueMode, blackAdvantageRating);
-    }
-    else
-    {
-        const int defaultSimulationCount = 200_000;
-        var simulationCount = ReadIntWithDefault(
-            $"局数が多いため本戦専用シミュレーションで近似します。試行回数を入力してください [{defaultSimulationCount}]: ",
-            defaultSimulationCount,
-            min: 1);
-
-        Console.WriteLine();
-        result = CalculateFinalStageBySimulation(participants, matches, groupMap, effectiveAdditionalApexCount, boundaryRescueMode, blackAdvantageRating, simulationCount);
-    }
-
-    var resultRows = BuildFinalStageResultRows(participants, matches, result, blackAdvantagePercent, groupMap, effectiveAdditionalApexCount);
-    PrintFinalStageResult(result, blackAdvantagePercent, resultRows);
-
-    var defaultOutputCsvPath = Path.GetFullPath($"final_stage_result_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
-    var outputCsvPath = ResolveOutputCsvPath(ReadTextWithDefault(
-        $"\n結果CSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
-        defaultOutputCsvPath));
-    WriteFinalStageResultCsv(outputCsvPath, result.Mode, blackAdvantagePercent, resultRows);
-    Console.WriteLine($"結果CSVを出力しました: {outputCsvPath}");
-}
-
-static void RunQualityEvaluationMode()
-{
-    Console.WriteLine("品質評価モード: 本戦ルールの実力反映性を評価します。\n");
-
-    PrintFinalStageInputSample();
-
-    var blackAdvantagePercent = ReadDoubleWithDefaultInRange("同Elo対局時の先手勝率(%)を入力してください [51]: ", 51.0, 0.0, 100.0);
-    var blackAdvantageRating = ConvertBlackAdvantagePercentToRating(blackAdvantagePercent);
-    Console.WriteLine();
-
-    var participants = ReadParticipantsFromCsv();
-    Console.WriteLine();
-
-    var groupMap = ReadFinalStageGroupMap();
-    if (!ValidateFinalStageParticipants(participants, groupMap, out var errorMessage))
-    {
-        Console.WriteLine($"本戦参加者の検証に失敗しました: {errorMessage}\n");
-        return;
-    }
-
-    Console.WriteLine();
-    var additionalApexParticipants = ReadOptionalParticipantsFromCsv("本戦不出場Apex一覧CSVを貼り付けてください。");
-    if (!ValidateAdditionalApexParticipants(participants, groupMap, additionalApexParticipants, out errorMessage))
-    {
-        Console.WriteLine($"本戦不出場Apex一覧の検証に失敗しました: {errorMessage}\n");
-        return;
-    }
-
-    var additionalApexPlacementMode = ReadAdditionalApexPlacementMode();
-    var effectiveAdditionalApexCount = GetEffectiveAdditionalApexCount(additionalApexParticipants.Count, additionalApexPlacementMode);
-    var boundaryRescueMode = ReadBoundaryRescueMode();
-
-    var matches = ReadMatchesFromCsv(participants);
-    if (!ValidateFinalStageMatches(participants, groupMap, matches, out errorMessage))
-    {
-        Console.WriteLine($"本戦対局の検証に失敗しました: {errorMessage}\n");
-        return;
-    }
-
-    CalculationResult result;
-    if (matches.Count <= 20)
-    {
-        Console.WriteLine("品質評価用の厳密計算を行います。\n");
-        result = CalculateFinalStageExactly(participants, matches, groupMap, effectiveAdditionalApexCount, boundaryRescueMode, blackAdvantageRating);
-    }
-    else
-    {
-        const int defaultSimulationCount = 200_000;
-        var simulationCount = ReadIntWithDefault(
-            $"局数が多いため品質評価用シミュレーションで近似します。試行回数を入力してください [{defaultSimulationCount}]: ",
-            defaultSimulationCount,
-            min: 1);
-
-        Console.WriteLine();
-        result = CalculateFinalStageBySimulation(participants, matches, groupMap, effectiveAdditionalApexCount, boundaryRescueMode, blackAdvantageRating, simulationCount);
-    }
-
-    var resultRows = BuildResultRows(participants, matches, result, blackAdvantagePercent);
-    var qualityParticipantRows = BuildQualityParticipantRows(resultRows, groupMap, additionalApexParticipants, additionalApexPlacementMode);
-    var qualitySummary = BuildQualitySummary(qualityParticipantRows);
-
-    Console.WriteLine($"本戦不出場Apexの扱い: {GetAdditionalApexPlacementModeLabel(additionalApexPlacementMode)}\n");
-    Console.WriteLine($"境界救済戦: {GetBoundaryRescueModeLabel(boundaryRescueMode)}\n");
-    PrintQualitySummary(qualitySummary);
-    PrintQualityParticipantHighlights(qualityParticipantRows);
-
-    var reportGroupingOptions = ReadExperimentalReportGroupingOptions();
-    var defaultOutputCsvPath = BuildQualitySummaryDefaultOutputPath(additionalApexPlacementMode, boundaryRescueMode, reportGroupingOptions);
-    var summaryCsvPath = ResolveOutputCsvPath(ReadTextWithDefault(
-        $"\n品質評価サマリーCSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
-        defaultOutputCsvPath));
-    WriteQualitySummaryCsv(summaryCsvPath, qualitySummary);
-
-    var participantCsvPath = BuildSiblingOutputCsvPath(summaryCsvPath, "quality_participants");
-    WriteQualityParticipantCsv(participantCsvPath, qualityParticipantRows);
-
-    Console.WriteLine($"品質評価サマリーCSVを出力しました: {summaryCsvPath}");
-    Console.WriteLine($"品質評価参加者別CSVを出力しました: {participantCsvPath}");
 }
 
 static int ReadMode()
@@ -2390,6 +2181,8 @@ static string FormatRating(double value)
 static string FormatSignedRating(double value)
 {
     return Math.Round(value).ToString("+0;-0;0", CultureInfo.InvariantCulture);
+}
+
 }
 
 readonly record struct Participant(string Name, double Rating);
