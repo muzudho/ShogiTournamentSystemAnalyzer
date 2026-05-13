@@ -1,0 +1,37 @@
+【品質評価モード】実行手順メモ [黒8x白8]
+
+今回使うサンプル
+- 選手一覧CSV: E:\github.com\muzudho\ShogiTournamentPairingAnalyzer\ShogiTournamentPairingAnalyzer\Examples\【選手一覧】[黒8x白8].csv
+- グループ対応CSV: E:\github.com\muzudho\ShogiTournamentPairingAnalyzer\ShogiTournamentPairingAnalyzer\Examples\【グループ対応表】[本戦専用_黒8x白8].csv
+- 対局表: E:\github.com\muzudho\ShogiTournamentPairingAnalyzer\ShogiTournamentPairingAnalyzer\Examples\【対局表】[黒8x白8].csv
+
+入力順
+1. モード番号
+   - 品質評価モードは `3`
+2. 同Elo対局時の先手勝率(%)
+   - 今回は `51`
+3. 選手一覧CSV
+   - ファイル内容を貼り付ける
+   - 最後は空行で終了
+4. グループ対応CSV
+   - ファイル内容を貼り付ける
+   - 最後は空行で終了
+5. 本戦不出場Apex一覧CSV（省略可）
+   - 今回は空行だけ入れて省略
+6. 対局CSV または Round/Black-White/対局記号表
+   - 今回は `【対局表】[黒8x白8].csv` をそのまま使う
+   - 最後は `END` 行で終了
+7. シミュレーション試行回数
+   - このケースは 8x8 の多数局面なので厳密計算ではなくシミュレーションになる
+   - ここで数値入力が 1 回必要
+8. 品質評価サマリーCSVの出力先
+   - 例: `E:\github.com\muzudho\ShogiTournamentPairingAnalyzer\docs\Reports\quality_summary_[黒8x白8].csv`
+
+前回つまずきやすかった点
+- `END` のあとに、すぐ出力先パスではなく、先にシミュレーション試行回数を入れる必要がある
+- グループ対応CSVのあとに、本戦不出場Apex一覧CSVの入力枠があるので、今回は空行 1 回で省略する必要がある
+
+今回の実行方針
+- 本戦不出場Apex一覧CSVは省略
+- シミュレーション回数は 20000 回
+- 結果は `docs\Reports` に保存する
