@@ -5,19 +5,26 @@ Console.OutputEncoding = Encoding.UTF8;
 
 Console.WriteLine("将棋大会の順位分布を計算します。\n");
 
-switch (ReadMode())
+try
 {
-    case 1:
-        RunStandardMode();
-        break;
-    case 2:
-        RunFinalStageMode();
-        break;
-    case 3:
-        RunQualityEvaluationMode();
-        break;
-    default:
-        throw new InvalidOperationException("未対応のモードです。");
+    switch (ReadMode())
+    {
+        case 1:
+            RunStandardMode();
+            break;
+        case 2:
+            RunFinalStageMode();
+            break;
+        case 3:
+            RunQualityEvaluationMode();
+            break;
+        default:
+            throw new InvalidOperationException("未対応のモードです。");
+    }
+}
+catch (OperationCanceledException ex)
+{
+    Console.WriteLine($"入力を中断しました: {ex.Message}");
 }
 
 static void RunStandardMode()
@@ -1219,6 +1226,11 @@ static List<Participant> ReadParticipantsFromCsv()
         while (true)
         {
             var line = Console.ReadLine();
+            if (line is null)
+            {
+                throw new OperationCanceledException("選手一覧CSVの入力中に入力ストリームが終了しました。");
+            }
+
             if (string.IsNullOrWhiteSpace(line))
             {
                 break;
@@ -1247,6 +1259,11 @@ static string ReadTextWithDefault(string prompt, string defaultValue)
 {
     Console.Write(prompt);
     var input = Console.ReadLine()?.Trim();
+    if (input is null)
+    {
+        throw new OperationCanceledException("文字列入力中に入力ストリームが終了しました。");
+    }
+
     return string.IsNullOrEmpty(input) ? defaultValue : input;
 }
 
@@ -1285,7 +1302,7 @@ static List<Match> ReadMatchesFromCsv(IReadOnlyList<Participant> participants)
             var line = Console.ReadLine();
             if (line is null)
             {
-                break;
+                throw new OperationCanceledException("対局入力中に入力ストリームが終了しました。");
             }
 
             if (line.Trim().Equals("END", StringComparison.OrdinalIgnoreCase))
@@ -1333,6 +1350,10 @@ static int ReadIntWithDefault(string prompt, int defaultValue, int min)
     {
         Console.Write(prompt);
         var input = Console.ReadLine()?.Trim();
+        if (input is null)
+        {
+            throw new OperationCanceledException("整数入力中に入力ストリームが終了しました。");
+        }
 
         if (string.IsNullOrEmpty(input))
         {
@@ -1354,6 +1375,10 @@ static double ReadDoubleWithDefaultInRange(string prompt, double defaultValue, d
     {
         Console.Write(prompt);
         var input = Console.ReadLine()?.Trim();
+        if (input is null)
+        {
+            throw new OperationCanceledException("数値入力中に入力ストリームが終了しました。");
+        }
 
         if (string.IsNullOrEmpty(input))
         {
