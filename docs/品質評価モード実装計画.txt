@@ -9,6 +9,40 @@
 ルールの良し悪しを説得材料として示すための分析機能である。
 
 
+現状の実装メモ
+================
+2026-05 時点で、MVP 相当の品質評価モードは実装済み。
+
+実装済み:
+- 起動時のモード選択
+- 品質評価モードの実行入口
+- 本戦専用モードと同じ入力
+  - 選手一覧CSV
+  - グループ対応CSV
+  - 本戦不出場Apex一覧CSV（省略可）
+  - 対局CSV または Round/Black-White/対局記号表
+- 本戦専用の順位計算結果を使った品質指標の算出
+- コンソール要約表示
+- サマリーCSV出力
+- 参加者別CSV出力
+
+現在出している主な指標:
+- Spearman 相関
+- 平均順位ずれ
+- Elo 上位 8 名の総合上位 8 位残留人数（平均）
+- Elo 1 位の総合 1 位確率
+- 最大不利益 / 最大利益
+
+現在の簡略化:
+- 本戦不出場Apexは「Innovの順位開始位置を後ろへずらす要因」として扱っている
+- 本戦不出場Apex自身の順位分布を個別行としてはまだ出力していない
+- 境界ペナルティは MVP として `期待総合順位 - Elo順位` ベースで見ている
+- Kendall 相関や通常モードとの比較は未実装
+
+したがって、この文書は「未実装の計画書」であると同時に、
+「次にどこを拡張するかの計画書」として読むのがよい。
+
+
 このモードで答えたい問い
 ========================
 - 高 Elo のソフトほど、制度上の総合順位でも上位になりやすいか？
@@ -130,10 +164,12 @@ CSV で出す明細:
 - originalElo
 - eloRank
 - expectedOverallPlace
-- expectedGroupPlace
 - overallPlaceDeltaFromEloRank
-- overallTop1Probability
-- overallTop8Probability
+- overallTop1ProbabilityPercent
+- overallTop8ProbabilityPercent
+
+将来拡張候補の列:
+- expectedGroupPlace
 - groupTop1Probability
 - boundaryPenaltyIndex
 
@@ -141,6 +177,8 @@ CSV で出す明細:
 - metricName
 - metricValue
 - note
+
+現状の実装では、上記のうち MVP に必要な列を優先して出している。
 
 
 品質評価モードの操作案
@@ -153,6 +191,10 @@ CSV で出す明細:
 
 品質評価モードでは、入力としては本戦専用モードとほぼ同じものを受け付ける。
 ただし出力が「順位分布中心」ではなく「品質指標中心」になる。
+
+補足:
+現在は、本戦不出場Apex一覧CSVも入力できる。
+この入力は、Innov の制度上順位開始位置を後ろへずらすために使っている。
 
 
 本戦専用モードとの関係
@@ -194,9 +236,15 @@ MVP では案Bが現実的。
 - OriginalElo
 - EloRank
 - ExpectedOverallPlace
-- ExpectedGroupPlace
-- OverallPlaceProbabilities
-- GroupPlaceProbabilities
+
+MVP 実装で実際に使っている主なデータ:
+- Name
+- Group
+- OriginalElo
+- EloRank
+- ExpectedOverallPlace
+- OverallTop1Probability
+- OverallTop8Probability
 
 また、ルール全体の集約値として次を作る。
 - SpearmanCorrelation
@@ -283,6 +331,19 @@ MVP では比較機能までは入れなくてもよいが、
 第5段階: ドキュメント整備
 - README に品質評価モードを追記
 - 具体例を Examples / Docs に追加
+
+進捗メモ:
+- 第1段階: 実施済み
+- 第2段階: 実施済み（本戦不出場Apexも Elo 順位へ含める形に拡張済み）
+- 第3段階: MVP 分は実施済み
+- 第4段階: MVP 分は実施済み
+- 第5段階: 実施済み
+
+今後の主な拡張先:
+- 本戦不出場Apex を参加者別出力へ個別行として含める
+- Kendall 相関の追加
+- 通常モードや別ルールとの比較出力
+- 境界ペナルティの定義を高度化
 
 
 テスト観点
