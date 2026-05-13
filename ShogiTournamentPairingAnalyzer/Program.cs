@@ -3,54 +3,102 @@ using System.Text;
 
 Console.OutputEncoding = Encoding.UTF8;
 
-Console.WriteLine("総当たり戦の順位分布を計算します。");
-Console.WriteLine("前提: 各対局は黒番・白番を持ち、勝率は Elo レーティング差と黒番有利率から計算します。\n");
+Console.WriteLine("将棋大会の順位分布を計算します。\n");
 
-PrintInputSample();
-var blackAdvantagePercent = ReadDoubleWithDefaultInRange("同Elo対局時の黒番勝率(%)を入力してください [51]: ", 51.0, 0.0, 100.0);
-var blackAdvantageRating = ConvertBlackAdvantagePercentToRating(blackAdvantagePercent);
-
-Console.WriteLine();
-var allParticipants = ReadParticipantsFromCsv();
-var allMatches = ReadMatchesFromCsv(allParticipants);
-var (participants, matches) = FilterToScheduledParticipants(allParticipants, allMatches);
-
-if (participants.Count != allParticipants.Count)
+switch (ReadMode())
 {
-    Console.WriteLine($"未対局の選手 {allParticipants.Count - participants.Count} 人を結果から除外します。\n");
+    case 1:
+        RunStandardMode();
+        break;
+    case 2:
+        RunFinalStageMode();
+        break;
+    default:
+        throw new InvalidOperationException("未対応のモードです。");
 }
 
-PrintMatchesCsv(participants, matches);
-
-Console.WriteLine($"\n総対局数: {matches.Count}");
-
-CalculationResult result;
-if (matches.Count <= 20)
+static void RunStandardMode()
 {
-    Console.WriteLine("厳密計算を行います。\n");
-    result = CalculateExactly(participants, matches, blackAdvantageRating);
-}
-else
-{
-    const int defaultSimulationCount = 200_000;
-    var simulationCount = ReadIntWithDefault(
-        $"局数が多いためシミュレーションで近似します。試行回数を入力してください [{defaultSimulationCount}]: ",
-        defaultSimulationCount,
-        min: 1);
+    Console.WriteLine("通常モード: 総当たり戦の順位分布を計算します。");
+    Console.WriteLine("前提: 各対局は黒番・白番を持ち、勝率は Elo レーティング差と黒番有利率から計算します。\n");
+
+    PrintInputSample();
+    var blackAdvantagePercent = ReadDoubleWithDefaultInRange("同Elo対局時の黒番勝率(%)を入力してください [51]: ", 51.0, 0.0, 100.0);
+    var blackAdvantageRating = ConvertBlackAdvantagePercentToRating(blackAdvantagePercent);
 
     Console.WriteLine();
-    result = CalculateBySimulation(participants, matches, blackAdvantageRating, simulationCount);
+    var allParticipants = ReadParticipantsFromCsv();
+    var allMatches = ReadMatchesFromCsv(allParticipants);
+    var (participants, matches) = FilterToScheduledParticipants(allParticipants, allMatches);
+
+    if (participants.Count != allParticipants.Count)
+    {
+        Console.WriteLine($"未対局の選手 {allParticipants.Count - participants.Count} 人を結果から除外します。\n");
+    }
+
+    PrintMatchesCsv(participants, matches);
+
+    Console.WriteLine($"\n総対局数: {matches.Count}");
+
+    CalculationResult result;
+    if (matches.Count <= 20)
+    {
+        Console.WriteLine("厳密計算を行います。\n");
+        result = CalculateExactly(participants, matches, blackAdvantageRating);
+    }
+    else
+    {
+        const int defaultSimulationCount = 200_000;
+        var simulationCount = ReadIntWithDefault(
+            $"局数が多いためシミュレーションで近似します。試行回数を入力してください [{defaultSimulationCount}]: ",
+            defaultSimulationCount,
+            min: 1);
+
+        Console.WriteLine();
+        result = CalculateBySimulation(participants, matches, blackAdvantageRating, simulationCount);
+    }
+
+    var resultRows = BuildResultRows(participants, matches, result, blackAdvantagePercent);
+    PrintResult(participants.Count, result, blackAdvantagePercent, resultRows);
+
+    var defaultOutputCsvPath = Path.GetFullPath($"result_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
+    var outputCsvPath = ResolveOutputCsvPath(ReadTextWithDefault(
+        $"\n結果CSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
+        defaultOutputCsvPath));
+    WriteResultCsv(outputCsvPath, result.Mode, blackAdvantagePercent, resultRows);
+    Console.WriteLine($"結果CSVを出力しました: {outputCsvPath}");
 }
 
-var resultRows = BuildResultRows(participants, matches, result, blackAdvantagePercent);
-PrintResult(participants.Count, result, blackAdvantagePercent, resultRows);
+static void RunFinalStageMode()
+{
+    Console.WriteLine("本戦専用モードはこれから実装します。\n");
+}
 
-var defaultOutputCsvPath = Path.GetFullPath($"result_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
-var outputCsvPath = ResolveOutputCsvPath(ReadTextWithDefault(
-    $"\n結果CSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
-    defaultOutputCsvPath));
-WriteResultCsv(outputCsvPath, result.Mode, blackAdvantagePercent, resultRows);
-Console.WriteLine($"結果CSVを出力しました: {outputCsvPath}");
+static int ReadMode()
+{
+    Console.WriteLine("モードを選んでください。");
+    Console.WriteLine("1. 通常モード（総当たり戦分析）");
+    Console.WriteLine("2. 本戦専用モード（Apex / Innov 定先戦分析）\n");
+
+    while (true)
+    {
+        Console.Write("モード番号を入力してください [1]: ");
+        var input = Console.ReadLine()?.Trim();
+        if (string.IsNullOrEmpty(input) || input == "1")
+        {
+            Console.WriteLine();
+            return 1;
+        }
+
+        if (input == "2")
+        {
+            Console.WriteLine();
+            return 2;
+        }
+
+        Console.WriteLine("1 か 2 を入力してください。\n");
+    }
+}
 
 static CalculationResult CalculateExactly(IReadOnlyList<Participant> participants, IReadOnlyList<Match> matches, double blackAdvantageRating)
 {
