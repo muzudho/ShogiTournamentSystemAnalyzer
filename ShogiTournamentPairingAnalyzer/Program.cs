@@ -262,7 +262,7 @@ static CalculationResult CalculateBySimulation(IReadOnlyList<Participant> partic
     return new CalculationResult(placeProbabilities, $"シミュレーション ({simulationCount:N0}回)", simulationCount);
 }
 
-static CalculationResult CalculateFinalStageExactly(IReadOnlyList<Participant> participants, IReadOnlyList<Match> matches, IReadOnlyDictionary<string, FinalStageGroup> groupMap, int additionalApexCount, BoundaryRescueMode boundaryRescueMode, double blackAdvantageRating)
+static CalculationResult CalculateFinalStageExactly(IReadOnlyList<Participant> participants, IReadOnlyList<Match> matches, IReadOnlyDictionary<string, FinalStageGroup> groupMap, int additionalApexCount, BoundaryRescueMode boundaryRescueMode, double blackAdvantageRating, int promotedInnovCount = 0)
 {
     var placeProbabilities = new double[participants.Count, participants.Count + additionalApexCount];
     var wins = new int[participants.Count];
@@ -273,7 +273,7 @@ static CalculationResult CalculateFinalStageExactly(IReadOnlyList<Participant> p
     {
         if (matchIndex == matches.Count)
         {
-            AccumulateFinalStagePlaceProbabilities(wins, participants, apexParticipantIndexes, innovParticipantIndexes, additionalApexCount, boundaryRescueMode, blackAdvantageRating, scenarioProbability, placeProbabilities);
+            AccumulateFinalStagePlaceProbabilities(wins, participants, apexParticipantIndexes, innovParticipantIndexes, additionalApexCount, boundaryRescueMode, blackAdvantageRating, scenarioProbability, placeProbabilities, promotedInnovCount);
             return;
         }
 
@@ -293,7 +293,7 @@ static CalculationResult CalculateFinalStageExactly(IReadOnlyList<Participant> p
     return new CalculationResult(placeProbabilities, "本戦専用 厳密計算", null);
 }
 
-static CalculationResult CalculateFinalStageBySimulation(IReadOnlyList<Participant> participants, IReadOnlyList<Match> matches, IReadOnlyDictionary<string, FinalStageGroup> groupMap, int additionalApexCount, BoundaryRescueMode boundaryRescueMode, double blackAdvantageRating, int simulationCount)
+static CalculationResult CalculateFinalStageBySimulation(IReadOnlyList<Participant> participants, IReadOnlyList<Match> matches, IReadOnlyDictionary<string, FinalStageGroup> groupMap, int additionalApexCount, BoundaryRescueMode boundaryRescueMode, double blackAdvantageRating, int simulationCount, int promotedInnovCount = 0)
 {
     var placeProbabilities = new double[participants.Count, participants.Count + additionalApexCount];
     var wins = new int[participants.Count];
@@ -318,7 +318,7 @@ static CalculationResult CalculateFinalStageBySimulation(IReadOnlyList<Participa
             }
         }
 
-        AccumulateFinalStagePlaceProbabilities(wins, participants, apexParticipantIndexes, innovParticipantIndexes, additionalApexCount, boundaryRescueMode, blackAdvantageRating, scenarioWeight, placeProbabilities);
+        AccumulateFinalStagePlaceProbabilities(wins, participants, apexParticipantIndexes, innovParticipantIndexes, additionalApexCount, boundaryRescueMode, blackAdvantageRating, scenarioWeight, placeProbabilities, promotedInnovCount);
     }
 
     return new CalculationResult(placeProbabilities, $"本戦専用 シミュレーション ({simulationCount:N0}回)", simulationCount);
@@ -458,8 +458,14 @@ static List<int> GetParticipantIndexesByGroup(IReadOnlyList<Participant> partici
         .ToList();
 }
 
-static void AccumulateFinalStagePlaceProbabilities(int[] wins, IReadOnlyList<Participant> participants, IReadOnlyList<int> apexParticipantIndexes, IReadOnlyList<int> innovParticipantIndexes, int additionalApexCount, BoundaryRescueMode boundaryRescueMode, double blackAdvantageRating, double scenarioProbability, double[,] placeProbabilities)
+static void AccumulateFinalStagePlaceProbabilities(int[] wins, IReadOnlyList<Participant> participants, IReadOnlyList<int> apexParticipantIndexes, IReadOnlyList<int> innovParticipantIndexes, int additionalApexCount, BoundaryRescueMode boundaryRescueMode, double blackAdvantageRating, double scenarioProbability, double[,] placeProbabilities, int promotedInnovCount = 0)
 {
+    if (promotedInnovCount > 0)
+    {
+        AccumulateVariableTop8PlaceProbabilities(wins, apexParticipantIndexes, innovParticipantIndexes, additionalApexCount, promotedInnovCount, scenarioProbability, placeProbabilities);
+        return;
+    }
+
     if (boundaryRescueMode == BoundaryRescueMode.Off)
     {
         AccumulateGroupPlaceProbabilities(wins, apexParticipantIndexes, 0, scenarioProbability, placeProbabilities);
@@ -491,6 +497,24 @@ static void AccumulateFinalStagePlaceProbabilities(int[] wins, IReadOnlyList<Par
                 placeProbabilities);
         }
     }
+
+static void AccumulateVariableTop8PlaceProbabilities(int[] wins, IReadOnlyList<int> apexParticipantIndexes, IReadOnlyList<int> innovParticipantIndexes, int additionalApexCount, int promotedInnovCount, double scenarioProbability, double[,] placeProbabilities)
+{
+    var apexRanking = BuildRankingForParticipantIndexes(wins, apexParticipantIndexes);
+    var innovRanking = BuildRankingForParticipantIndexes(wins, innovParticipantIndexes);
+    var actualPromotedInnovCount = Math.Min(promotedInnovCount, Math.Min(apexRanking.Length, innovRanking.Length));
+    var leadingApexCount = Math.Max(0, apexRanking.Length - actualPromotedInnovCount);
+
+    var leadingApexRanking = apexRanking.Take(leadingApexCount).ToArray();
+    var trailingApexRanking = apexRanking.Skip(leadingApexCount).ToArray();
+    var promotedInnovRanking = innovRanking.Take(actualPromotedInnovCount).ToArray();
+    var remainingInnovRanking = innovRanking.Skip(actualPromotedInnovCount).ToArray();
+
+    AccumulateRankingProbabilities(leadingApexRanking, 0, scenarioProbability, placeProbabilities);
+    AccumulateRankingProbabilities(promotedInnovRanking, leadingApexCount, scenarioProbability, placeProbabilities);
+    AccumulateRankingProbabilities(trailingApexRanking, leadingApexCount + actualPromotedInnovCount, scenarioProbability, placeProbabilities);
+    AccumulateRankingProbabilities(remainingInnovRanking, apexRanking.Length + actualPromotedInnovCount + additionalApexCount, scenarioProbability, placeProbabilities);
+}
 }
 
 static ParticipantScore[] BuildRankingForParticipantIndexes(int[] wins, IReadOnlyList<int> participantIndexes)
@@ -2273,6 +2297,12 @@ enum AdditionalApexPlacementMode
 }
 
 enum BoundaryRescueMode
+{
+    Off,
+    On,
+}
+
+enum VariableTop8Mode
 {
     Off,
     On,

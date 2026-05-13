@@ -1,0 +1,8 @@
+metricName,metricValue,note
+spearmanCorrelation,1.000000,Elo順位と期待総合順位の相関
+meanAbsoluteRankError,1.021350,期待総合順位とElo順位のずれの絶対値平均
+averageTop8Retention,6.000000,Elo上位8名が総合上位8位に残る人数の期待値
+eloTop1OverallTop1Probability,23.310917,Elo1位が総合1位になる確率(%)
+mostPenalizedParticipantDelta,2.468225,飛
+mostAdvantagedParticipantDelta,-2.478450,ひよこ
+evaluationMemo,,定員8を可変にしてInnovを引っ張り上げる案

@@ -29,6 +29,8 @@ internal static partial class Program
         var additionalApexPlacementMode = AdditionalApexPlacementRule.ReadMode();
         var effectiveAdditionalApexCount = AdditionalApexPlacementRule.GetEffectiveAdditionalApexCount(additionalApexParticipants.Count, additionalApexPlacementMode);
         var boundaryRescueMode = BoundaryRescueRule.ReadMode();
+        var variableTop8Mode = VariableTop8Rule.ReadMode();
+        var promotedInnovCount = VariableTop8Rule.GetPromotedInnovCount(variableTop8Mode, additionalApexParticipants.Count);
 
         var matches = ReadMatchesFromCsv(participants);
         if (!ValidateFinalStageMatches(participants, groupMap, matches, out errorMessage))
@@ -57,6 +59,7 @@ internal static partial class Program
 
         Console.WriteLine($"本戦不出場Apexの扱い: {AdditionalApexPlacementRule.GetLabel(additionalApexPlacementMode)}\n");
         Console.WriteLine($"境界救済戦: {BoundaryRescueRule.GetLabel(boundaryRescueMode)}\n");
+        Console.WriteLine($"可変定員8ルール: {VariableTop8Rule.GetLabel(variableTop8Mode)}\n");
 
         if (sweepOptions.IsEnabled)
         {
@@ -68,6 +71,7 @@ internal static partial class Program
                 additionalApexPlacementMode,
                 effectiveAdditionalApexCount,
                 boundaryRescueMode,
+                promotedInnovCount,
                 simulationCount,
                 sweepOptions);
             return;
@@ -84,6 +88,7 @@ internal static partial class Program
             additionalApexPlacementMode,
             effectiveAdditionalApexCount,
             boundaryRescueMode,
+            promotedInnovCount,
             blackAdvantagePercent,
             simulationCount);
 
@@ -112,6 +117,7 @@ internal static partial class Program
         AdditionalApexPlacementMode additionalApexPlacementMode,
         int effectiveAdditionalApexCount,
         BoundaryRescueMode boundaryRescueMode,
+        int promotedInnovCount,
         int? simulationCount,
         QualitySweepOptions sweepOptions)
     {
@@ -126,6 +132,7 @@ internal static partial class Program
                 additionalApexPlacementMode,
                 effectiveAdditionalApexCount,
                 boundaryRescueMode,
+                promotedInnovCount,
                 blackAdvantagePercent,
                 simulationCount);
 
@@ -161,13 +168,14 @@ internal static partial class Program
         AdditionalApexPlacementMode additionalApexPlacementMode,
         int effectiveAdditionalApexCount,
         BoundaryRescueMode boundaryRescueMode,
+        int promotedInnovCount,
         double blackAdvantagePercent,
         int? simulationCount)
     {
         var blackAdvantageRating = ConvertBlackAdvantagePercentToRating(blackAdvantagePercent);
         var result = simulationCount.HasValue
-            ? CalculateFinalStageBySimulation(participants, matches, groupMap, effectiveAdditionalApexCount, boundaryRescueMode, blackAdvantageRating, simulationCount.Value)
-            : CalculateFinalStageExactly(participants, matches, groupMap, effectiveAdditionalApexCount, boundaryRescueMode, blackAdvantageRating);
+            ? CalculateFinalStageBySimulation(participants, matches, groupMap, effectiveAdditionalApexCount, boundaryRescueMode, blackAdvantageRating, simulationCount.Value, promotedInnovCount)
+            : CalculateFinalStageExactly(participants, matches, groupMap, effectiveAdditionalApexCount, boundaryRescueMode, blackAdvantageRating, promotedInnovCount);
 
         var resultRows = BuildResultRows(participants, matches, result, blackAdvantagePercent);
         var qualityParticipantRows = BuildQualityParticipantRows(resultRows, groupMap, additionalApexParticipants, additionalApexPlacementMode);
