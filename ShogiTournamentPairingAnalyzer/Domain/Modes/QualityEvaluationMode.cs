@@ -71,7 +71,7 @@ internal static partial class Program
         var summaryCsvPath = ResolveOutputCsvPath(ReadTextWithDefault(
             $"\n品質評価サマリーCSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
             defaultOutputCsvPath));
-        WriteQualitySummaryCsv(summaryCsvPath, qualitySummary);
+        WriteQualitySummaryCsv(summaryCsvPath, qualitySummary, reportGroupingOptions);
 
         var participantCsvPath = BuildSiblingOutputCsvPath(summaryCsvPath, "quality_participants");
         WriteQualityParticipantCsv(participantCsvPath, qualityParticipantRows);

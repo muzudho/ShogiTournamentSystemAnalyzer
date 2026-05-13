@@ -102,18 +102,32 @@ static ExperimentalReportGroupingOptions ReadExperimentalReportGroupingOptions()
         if (string.IsNullOrEmpty(input) || input == "1")
         {
             Console.WriteLine();
-            return new ExperimentalReportGroupingOptions(false, null);
+            return new ExperimentalReportGroupingOptions(false, null, string.Empty);
         }
 
         if (input == "2")
         {
             Console.WriteLine();
             var outcome = ReadExperimentalReportOutcome();
-            return new ExperimentalReportGroupingOptions(true, outcome);
+            var evaluationMemo = ReadOptionalEvaluationMemo();
+            return new ExperimentalReportGroupingOptions(true, outcome, evaluationMemo);
         }
 
         Console.WriteLine("1 か 2 を入力してください。\n");
     }
+}
+
+static string ReadOptionalEvaluationMemo()
+{
+    Console.Write("評価メモを1行で入力してください（省略可）: ");
+    var input = Console.ReadLine();
+    if (input is null)
+    {
+        throw new OperationCanceledException("評価メモ入力中に入力ストリームが終了しました。");
+    }
+
+    Console.WriteLine();
+    return input.Trim();
 }
 
 static ExperimentalReportOutcome ReadExperimentalReportOutcome()
@@ -1021,7 +1035,7 @@ static void PrintQualityParticipantHighlights(IReadOnlyList<QualityParticipantRo
     Console.WriteLine();
 }
 
-static void WriteQualitySummaryCsv(string outputCsvPath, QualitySummary summary)
+static void WriteQualitySummaryCsv(string outputCsvPath, QualitySummary summary, ExperimentalReportGroupingOptions options)
 {
     var directoryPath = Path.GetDirectoryName(outputCsvPath);
     if (!string.IsNullOrWhiteSpace(directoryPath))
@@ -1039,6 +1053,11 @@ static void WriteQualitySummaryCsv(string outputCsvPath, QualitySummary summary)
         $"mostPenalizedParticipantDelta,{summary.MostPenalizedDelta.ToString("F6", CultureInfo.InvariantCulture)},{EscapeCsv(summary.MostPenalizedParticipantName)}",
         $"mostAdvantagedParticipantDelta,{summary.MostAdvantagedDelta.ToString("F6", CultureInfo.InvariantCulture)},{EscapeCsv(summary.MostAdvantagedParticipantName)}"
     };
+
+    if (!string.IsNullOrWhiteSpace(options.EvaluationMemo))
+    {
+        lines.Add($"evaluationMemo,,{EscapeCsv(options.EvaluationMemo)}");
+    }
 
     File.WriteAllLines(outputCsvPath, lines, new UTF8Encoding(false));
 }
@@ -2242,7 +2261,8 @@ readonly record struct QualitySummary(
 
 readonly record struct ExperimentalReportGroupingOptions(
     bool IsEnabled,
-    ExperimentalReportOutcome? Outcome);
+    ExperimentalReportOutcome? Outcome,
+    string EvaluationMemo);
 
 enum FinalStageGroup
 {
