@@ -991,6 +991,52 @@ static void WriteQualitySummaryCsv(string outputCsvPath, QualitySummary summary,
     File.WriteAllLines(outputCsvPath, lines, new UTF8Encoding(false));
 }
 
+static string BuildQualitySweepDefaultOutputPath(AdditionalApexPlacementMode placementMode, BoundaryRescueMode boundaryRescueMode, ExperimentalReportGroupingOptions options)
+{
+    var fileName = $"quality_sweep_{placementMode}_{boundaryRescueMode}_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
+    if (!options.IsEnabled)
+    {
+        return Path.GetFullPath(fileName);
+    }
+
+    var outcomeFolderName = options.Outcome == ExperimentalReportOutcome.Bad ? "Bad" : "Good";
+    var baseDirectory = Path.Combine(Path.GetFullPath("."), "docs", "Reports", outcomeFolderName);
+    Directory.CreateDirectory(baseDirectory);
+    return Path.Combine(baseDirectory, fileName);
+}
+
+static void WriteQualitySweepCsv(string outputCsvPath, IReadOnlyList<QualitySweepRow> sweepRows, ExperimentalReportGroupingOptions options)
+{
+    var directoryPath = Path.GetDirectoryName(outputCsvPath);
+    if (!string.IsNullOrWhiteSpace(directoryPath))
+    {
+        Directory.CreateDirectory(directoryPath);
+    }
+
+    var lines = new List<string>
+    {
+        "blackAdvantagePercent,spearmanCorrelation,meanAbsoluteRankError,averageTop8Retention,eloTop1OverallTop1ProbabilityPercent,mostPenalizedParticipant,mostPenalizedDelta,mostAdvantagedParticipant,mostAdvantagedDelta"
+    };
+
+    lines.AddRange(sweepRows.Select(row => string.Join(",",
+        row.BlackAdvantagePercent.ToString("F2", CultureInfo.InvariantCulture),
+        row.SpearmanCorrelation.ToString("F6", CultureInfo.InvariantCulture),
+        row.MeanAbsoluteRankError.ToString("F6", CultureInfo.InvariantCulture),
+        row.AverageTop8Retention.ToString("F6", CultureInfo.InvariantCulture),
+        (row.EloTop1OverallTop1Probability * 100).ToString("F6", CultureInfo.InvariantCulture),
+        EscapeCsv(row.MostPenalizedParticipantName),
+        row.MostPenalizedDelta.ToString("F6", CultureInfo.InvariantCulture),
+        EscapeCsv(row.MostAdvantagedParticipantName),
+        row.MostAdvantagedDelta.ToString("F6", CultureInfo.InvariantCulture))));
+
+    if (!string.IsNullOrWhiteSpace(options.EvaluationMemo))
+    {
+        lines.Add($"evaluationMemo,,,,,,,{EscapeCsv(options.EvaluationMemo)},");
+    }
+
+    File.WriteAllLines(outputCsvPath, lines, new UTF8Encoding(false));
+}
+
 static void WriteQualityParticipantCsv(string outputCsvPath, IReadOnlyList<QualityParticipantRow> participantRows)
 {
     var directoryPath = Path.GetDirectoryName(outputCsvPath);
@@ -2179,6 +2225,27 @@ readonly record struct QualityParticipantRow(
     double OverallTop8Probability);
 
 readonly record struct QualitySummary(
+    double SpearmanCorrelation,
+    double MeanAbsoluteRankError,
+    double AverageTop8Retention,
+    double EloTop1OverallTop1Probability,
+    string MostPenalizedParticipantName,
+    double MostPenalizedDelta,
+    string MostAdvantagedParticipantName,
+    double MostAdvantagedDelta);
+
+readonly record struct QualityEvaluationRun(
+    IReadOnlyList<QualityParticipantRow> ParticipantRows,
+    QualitySummary Summary);
+
+readonly record struct QualitySweepOptions(
+    bool IsEnabled,
+    double StartPercent,
+    double EndPercent,
+    double StepPercent);
+
+readonly record struct QualitySweepRow(
+    double BlackAdvantagePercent,
     double SpearmanCorrelation,
     double MeanAbsoluteRankError,
     double AverageTop8Retention,

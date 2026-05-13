@@ -1,3 +1,5 @@
+using System.Globalization;
+
 internal static partial class Program
 {
     static void RunQualityEvaluationMode()
@@ -5,10 +7,6 @@ internal static partial class Program
         Console.WriteLine("品質評価モード: 本戦ルールの実力反映性を評価します。\n");
 
         PrintFinalStageInputSample();
-
-        var blackAdvantagePercent = ReadDoubleWithDefaultInRange("同Elo対局時の先手勝率(%)を入力してください [51]: ", 51.0, 0.0, 100.0);
-        var blackAdvantageRating = ConvertBlackAdvantagePercentToRating(blackAdvantagePercent);
-        Console.WriteLine();
 
         var participants = ReadParticipantsFromCsv();
         Console.WriteLine();
@@ -39,44 +37,200 @@ internal static partial class Program
             return;
         }
 
-        CalculationResult result;
+        var sweepOptions = ReadQualitySweepOptions();
+
+        int? simulationCount = null;
         if (matches.Count <= 20)
         {
             Console.WriteLine("品質評価用の厳密計算を行います。\n");
-            result = CalculateFinalStageExactly(participants, matches, groupMap, effectiveAdditionalApexCount, boundaryRescueMode, blackAdvantageRating);
         }
         else
         {
             const int defaultSimulationCount = 200_000;
-            var simulationCount = ReadIntWithDefault(
+            simulationCount = ReadIntWithDefault(
                 $"局数が多いため品質評価用シミュレーションで近似します。試行回数を入力してください [{defaultSimulationCount}]: ",
                 defaultSimulationCount,
                 min: 1);
 
             Console.WriteLine();
-            result = CalculateFinalStageBySimulation(participants, matches, groupMap, effectiveAdditionalApexCount, boundaryRescueMode, blackAdvantageRating, simulationCount);
         }
-
-        var resultRows = BuildResultRows(participants, matches, result, blackAdvantagePercent);
-        var qualityParticipantRows = BuildQualityParticipantRows(resultRows, groupMap, additionalApexParticipants, additionalApexPlacementMode);
-        var qualitySummary = BuildQualitySummary(qualityParticipantRows);
 
         Console.WriteLine($"本戦不出場Apexの扱い: {AdditionalApexPlacementRule.GetLabel(additionalApexPlacementMode)}\n");
         Console.WriteLine($"境界救済戦: {BoundaryRescueRule.GetLabel(boundaryRescueMode)}\n");
-        PrintQualitySummary(qualitySummary);
-        PrintQualityParticipantHighlights(qualityParticipantRows);
+
+        if (sweepOptions.IsEnabled)
+        {
+            RunQualitySweepExperiment(
+                participants,
+                matches,
+                groupMap,
+                additionalApexParticipants,
+                additionalApexPlacementMode,
+                effectiveAdditionalApexCount,
+                boundaryRescueMode,
+                simulationCount,
+                sweepOptions);
+            return;
+        }
+
+        var blackAdvantagePercent = ReadDoubleWithDefaultInRange("同Elo対局時の先手勝率(%)を入力してください [51]: ", 51.0, 0.0, 100.0);
+        Console.WriteLine();
+
+        var qualityEvaluationRun = ExecuteQualityEvaluationRun(
+            participants,
+            matches,
+            groupMap,
+            additionalApexParticipants,
+            additionalApexPlacementMode,
+            effectiveAdditionalApexCount,
+            boundaryRescueMode,
+            blackAdvantagePercent,
+            simulationCount);
+
+        PrintQualitySummary(qualityEvaluationRun.Summary);
+        PrintQualityParticipantHighlights(qualityEvaluationRun.ParticipantRows);
 
         var reportGroupingOptions = ReadExperimentalReportGroupingOptions();
         var defaultOutputCsvPath = BuildQualitySummaryDefaultOutputPath(additionalApexPlacementMode, boundaryRescueMode, reportGroupingOptions);
         var summaryCsvPath = ResolveOutputCsvPath(ReadTextWithDefault(
             $"\n品質評価サマリーCSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
             defaultOutputCsvPath));
-        WriteQualitySummaryCsv(summaryCsvPath, qualitySummary, reportGroupingOptions);
+        WriteQualitySummaryCsv(summaryCsvPath, qualityEvaluationRun.Summary, reportGroupingOptions);
 
         var participantCsvPath = BuildSiblingOutputCsvPath(summaryCsvPath, "quality_participants");
-        WriteQualityParticipantCsv(participantCsvPath, qualityParticipantRows);
+        WriteQualityParticipantCsv(participantCsvPath, qualityEvaluationRun.ParticipantRows);
 
         Console.WriteLine($"品質評価サマリーCSVを出力しました: {summaryCsvPath}");
         Console.WriteLine($"品質評価参加者別CSVを出力しました: {participantCsvPath}");
+    }
+
+    static void RunQualitySweepExperiment(
+        IReadOnlyList<Participant> participants,
+        IReadOnlyList<Match> matches,
+        IReadOnlyDictionary<string, FinalStageGroup> groupMap,
+        IReadOnlyList<Participant> additionalApexParticipants,
+        AdditionalApexPlacementMode additionalApexPlacementMode,
+        int effectiveAdditionalApexCount,
+        BoundaryRescueMode boundaryRescueMode,
+        int? simulationCount,
+        QualitySweepOptions sweepOptions)
+    {
+        var sweepRows = new List<QualitySweepRow>();
+        for (var blackAdvantagePercent = sweepOptions.StartPercent; blackAdvantagePercent <= sweepOptions.EndPercent + 1e-9; blackAdvantagePercent += sweepOptions.StepPercent)
+        {
+            var qualityEvaluationRun = ExecuteQualityEvaluationRun(
+                participants,
+                matches,
+                groupMap,
+                additionalApexParticipants,
+                additionalApexPlacementMode,
+                effectiveAdditionalApexCount,
+                boundaryRescueMode,
+                blackAdvantagePercent,
+                simulationCount);
+
+            sweepRows.Add(new QualitySweepRow(
+                blackAdvantagePercent,
+                qualityEvaluationRun.Summary.SpearmanCorrelation,
+                qualityEvaluationRun.Summary.MeanAbsoluteRankError,
+                qualityEvaluationRun.Summary.AverageTop8Retention,
+                qualityEvaluationRun.Summary.EloTop1OverallTop1Probability,
+                qualityEvaluationRun.Summary.MostPenalizedParticipantName,
+                qualityEvaluationRun.Summary.MostPenalizedDelta,
+                qualityEvaluationRun.Summary.MostAdvantagedParticipantName,
+                qualityEvaluationRun.Summary.MostAdvantagedDelta));
+        }
+
+        PrintQualitySweepRows(sweepRows);
+
+        var reportGroupingOptions = ReadExperimentalReportGroupingOptions();
+        var defaultOutputCsvPath = BuildQualitySweepDefaultOutputPath(additionalApexPlacementMode, boundaryRescueMode, reportGroupingOptions);
+        var sweepCsvPath = ResolveOutputCsvPath(ReadTextWithDefault(
+            $"\nn%スイープ結果CSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
+            defaultOutputCsvPath));
+        WriteQualitySweepCsv(sweepCsvPath, sweepRows, reportGroupingOptions);
+
+        Console.WriteLine($"n%スイープ結果CSVを出力しました: {sweepCsvPath}");
+    }
+
+    static QualityEvaluationRun ExecuteQualityEvaluationRun(
+        IReadOnlyList<Participant> participants,
+        IReadOnlyList<Match> matches,
+        IReadOnlyDictionary<string, FinalStageGroup> groupMap,
+        IReadOnlyList<Participant> additionalApexParticipants,
+        AdditionalApexPlacementMode additionalApexPlacementMode,
+        int effectiveAdditionalApexCount,
+        BoundaryRescueMode boundaryRescueMode,
+        double blackAdvantagePercent,
+        int? simulationCount)
+    {
+        var blackAdvantageRating = ConvertBlackAdvantagePercentToRating(blackAdvantagePercent);
+        var result = simulationCount.HasValue
+            ? CalculateFinalStageBySimulation(participants, matches, groupMap, effectiveAdditionalApexCount, boundaryRescueMode, blackAdvantageRating, simulationCount.Value)
+            : CalculateFinalStageExactly(participants, matches, groupMap, effectiveAdditionalApexCount, boundaryRescueMode, blackAdvantageRating);
+
+        var resultRows = BuildResultRows(participants, matches, result, blackAdvantagePercent);
+        var qualityParticipantRows = BuildQualityParticipantRows(resultRows, groupMap, additionalApexParticipants, additionalApexPlacementMode);
+        var qualitySummary = BuildQualitySummary(qualityParticipantRows);
+        return new QualityEvaluationRun(qualityParticipantRows, qualitySummary);
+    }
+
+    static QualitySweepOptions ReadQualitySweepOptions()
+    {
+        Console.WriteLine("品質評価の実行方法を選んでください。");
+        Console.WriteLine("1. 単発評価");
+        Console.WriteLine("2. n% スイープ実験\n");
+
+        while (true)
+        {
+            Console.Write("実行方法を入力してください [1]: ");
+            var input = Console.ReadLine()?.Trim();
+            if (string.IsNullOrEmpty(input) || input == "1")
+            {
+                Console.WriteLine();
+                return new QualitySweepOptions(false, 0.0, 0.0, 0.0);
+            }
+
+            if (input == "2")
+            {
+                Console.WriteLine();
+                while (true)
+                {
+                    var startPercent = ReadDoubleWithDefaultInRange("開始する先手勝率(%)を入力してください [50]: ", 50.0, 0.0, 100.0);
+                    var endPercent = ReadDoubleWithDefaultInRange("終了する先手勝率(%)を入力してください [55]: ", 55.0, 0.0, 100.0);
+                    var stepPercent = ReadDoubleWithDefaultInRange("刻み幅(%)を入力してください [1]: ", 1.0, 0.000001, 100.0);
+                    Console.WriteLine();
+
+                    if (endPercent < startPercent)
+                    {
+                        Console.WriteLine("終了する先手勝率は開始する先手勝率以上で入力してください。\n");
+                        continue;
+                    }
+
+                    return new QualitySweepOptions(true, startPercent, endPercent, stepPercent);
+                }
+            }
+
+            Console.WriteLine("1 か 2 を入力してください。\n");
+        }
+    }
+
+    static void PrintQualitySweepRows(IReadOnlyList<QualitySweepRow> sweepRows)
+    {
+        Console.WriteLine("n%スイープ結果:");
+        Console.WriteLine("先手勝率    Spearman   平均順位ずれ   上位8残留   Elo1位総合1位");
+
+        foreach (var row in sweepRows)
+        {
+            Console.WriteLine(
+                row.BlackAdvantagePercent.ToString("F2", CultureInfo.InvariantCulture).PadLeft(8)
+                + "%"
+                + row.SpearmanCorrelation.ToString("F4", CultureInfo.InvariantCulture).PadLeft(12)
+                + row.MeanAbsoluteRankError.ToString("F3", CultureInfo.InvariantCulture).PadLeft(14)
+                + row.AverageTop8Retention.ToString("F3", CultureInfo.InvariantCulture).PadLeft(12)
+                + ((row.EloTop1OverallTop1Probability * 100).ToString("F2", CultureInfo.InvariantCulture) + "%").PadLeft(16));
+        }
+
+        Console.WriteLine();
     }
 }
