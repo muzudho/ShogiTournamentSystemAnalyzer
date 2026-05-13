@@ -39,6 +39,9 @@ internal static partial class Program
             return;
         }
 
+        Console.WriteLine();
+        var referenceMatches = ReadOptionalMatchesFromCsv(participants, "参考対局CSVまたは Round/Black-White/対局記号表を貼り付けてください。大会記録に含めない場合だけ使います。");
+
         var sweepOptions = ReadQualitySweepOptions();
 
         int? simulationCount = null;
@@ -60,6 +63,12 @@ internal static partial class Program
         Console.WriteLine($"本戦不出場Apexの扱い: {AdditionalApexPlacementRule.GetLabel(additionalApexPlacementMode)}\n");
         Console.WriteLine($"境界救済戦: {BoundaryRescueRule.GetLabel(boundaryRescueMode)}\n");
         Console.WriteLine($"可変定員8ルール: {VariableTop8Rule.GetLabel(variableTop8Mode)}\n");
+        if (referenceMatches.Count > 0)
+        {
+            PrintMatchesCsv(participants, referenceMatches, "参考対局CSV:");
+            Console.WriteLine($"参考対局数: {referenceMatches.Count}");
+            Console.WriteLine("参考対局は品質評価に含めません。\n");
+        }
 
         if (sweepOptions.IsEnabled)
         {

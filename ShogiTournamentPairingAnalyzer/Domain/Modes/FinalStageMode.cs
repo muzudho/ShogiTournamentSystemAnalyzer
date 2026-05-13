@@ -44,6 +44,9 @@ internal static partial class Program
             return;
         }
 
+        Console.WriteLine();
+        var referenceMatches = ReadOptionalMatchesFromCsv(participants, "参考対局CSVまたは Round/Black-White/対局記号表を貼り付けてください。大会記録に含めない場合だけ使います。");
+
         Console.WriteLine($"Apex: {apexCount} 名");
         Console.WriteLine($"Innov: {innovCount} 名\n");
         Console.WriteLine($"本戦不出場Apex: {additionalApexParticipants.Count} 名\n");
@@ -52,6 +55,12 @@ internal static partial class Program
 
         PrintMatchesCsv(participants, matches);
         Console.WriteLine($"本戦対局数: {matches.Count}\n");
+        if (referenceMatches.Count > 0)
+        {
+            PrintMatchesCsv(participants, referenceMatches, "参考対局CSV:");
+            Console.WriteLine($"参考対局数: {referenceMatches.Count}");
+            Console.WriteLine("参考対局は順位計算に含めません。\n");
+        }
 
         CalculationResult result;
         if (matches.Count <= 20)
@@ -80,5 +89,12 @@ internal static partial class Program
             defaultOutputCsvPath));
         WriteFinalStageResultCsv(outputCsvPath, result.Mode, blackAdvantagePercent, resultRows);
         Console.WriteLine($"結果CSVを出力しました: {outputCsvPath}");
+
+        if (referenceMatches.Count > 0)
+        {
+            var referenceMatchesCsvPath = BuildSiblingOutputCsvPath(outputCsvPath, "reference_matches");
+            WriteReferenceMatchCsv(referenceMatchesCsvPath, participants, referenceMatches);
+            Console.WriteLine($"参考対局CSVを出力しました: {referenceMatchesCsvPath}");
+        }
     }
 }

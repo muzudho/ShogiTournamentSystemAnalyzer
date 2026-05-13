@@ -61,9 +61,11 @@ dotnet run --project .\ShogiTournamentPairingAnalyzer\ShogiTournamentPairingAnal
 4. 本戦不出場Apex一覧CSV（省略可）
 5. 本戦不出場Apexの扱い（Off / On）
 6. 境界救済戦の有無（Off / On）
-7. 対局CSV または Round/Black-White/対局記号表
-8. 必要に応じてシミュレーション試行回数
-9. 結果CSVの出力先パスまたはフォルダーパス
+7. 可変定員8ルールの有無（品質評価モードのみ）
+8. 対局CSV または Round/Black-White/対局記号表
+9. 参考対局CSV または Round/Black-White/対局記号表（省略可）
+10. 必要に応じてシミュレーション試行回数
+11. 結果CSVの出力先パスまたはフォルダーパス
 
 グループ対応CSVの例:
 
@@ -116,6 +118,15 @@ Innov,Dave
 - 境界救済戦
   - `Off`: 使わない
   - `On`: Apex最下位相当とInnov最上位相当で救済戦を行う
+- 可変定員8ルール
+  - `Off`: 定員8固定
+  - `On`: 本戦不出場Apex人数ぶんだけ Innov 上位を総合上位8へ引き上げる
+
+参考対局:
+
+- 本戦専用モード / 品質評価モードでは、**参考対局** を別入力で受け付けられます
+- 参考対局は表示・CSV保存されます
+- **大会記録や品質評価には含めません**
 
 品質評価レポート運用:
 

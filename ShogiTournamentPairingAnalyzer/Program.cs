@@ -19,6 +19,44 @@ internal static partial class Program
         }
     }
 
+static List<Match> ReadOptionalMatchesFromCsv(IReadOnlyList<Participant> participants, string prompt)
+{
+    while (true)
+    {
+        Console.WriteLine($"\n{prompt} 入力終了は END 行です。空のまま END で省略できます。\n");
+
+        var lines = new List<string>();
+        while (true)
+        {
+            var line = Console.ReadLine();
+            if (line is null)
+            {
+                throw new OperationCanceledException("参考対局入力中に入力ストリームが終了しました。");
+            }
+
+            if (line.Trim().Equals("END", StringComparison.OrdinalIgnoreCase))
+            {
+                break;
+            }
+
+            lines.Add(line);
+        }
+
+        if (lines.All(string.IsNullOrWhiteSpace))
+        {
+            return new List<Match>();
+        }
+
+        if (TryParseMatches(lines, participants, out var matches, out var errorMessage))
+        {
+            return matches;
+        }
+
+        Console.WriteLine($"参考対局入力の読み取りに失敗しました: {errorMessage}");
+        Console.WriteLine("もう一度入力してください。\n");
+    }
+}
+
     static void RunApp()
     {
         switch (ReadMode())
@@ -2111,7 +2149,12 @@ static void PrintInputSample()
 
 static void PrintMatchesCsv(IReadOnlyList<Participant> participants, IReadOnlyList<Match> matches)
 {
-    Console.WriteLine("生成された対局CSV:");
+    PrintMatchesCsv(participants, matches, "生成された対局CSV:");
+}
+
+static void PrintMatchesCsv(IReadOnlyList<Participant> participants, IReadOnlyList<Match> matches, string title)
+{
+    Console.WriteLine(title);
     Console.WriteLine("black,white");
 
     foreach (var match in matches)
@@ -2120,6 +2163,23 @@ static void PrintMatchesCsv(IReadOnlyList<Participant> participants, IReadOnlyLi
     }
 
     Console.WriteLine();
+}
+
+static void WriteReferenceMatchCsv(string outputCsvPath, IReadOnlyList<Participant> participants, IReadOnlyList<Match> matches)
+{
+    var directoryPath = Path.GetDirectoryName(outputCsvPath);
+    if (!string.IsNullOrWhiteSpace(directoryPath))
+    {
+        Directory.CreateDirectory(directoryPath);
+    }
+
+    var lines = new List<string>
+    {
+        "black,white"
+    };
+
+    lines.AddRange(matches.Select(match => $"{EscapeCsv(participants[match.Black].Name)},{EscapeCsv(participants[match.White].Name)}"));
+    File.WriteAllLines(outputCsvPath, lines, new UTF8Encoding(false));
 }
 
 static string EscapeCsv(string value)
