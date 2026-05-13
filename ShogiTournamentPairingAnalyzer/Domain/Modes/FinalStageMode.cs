@@ -28,9 +28,9 @@ internal static partial class Program
             return;
         }
 
-        var additionalApexPlacementMode = ReadAdditionalApexPlacementMode();
-        var effectiveAdditionalApexCount = GetEffectiveAdditionalApexCount(additionalApexParticipants.Count, additionalApexPlacementMode);
-        var boundaryRescueMode = ReadBoundaryRescueMode();
+        var additionalApexPlacementMode = AdditionalApexPlacementRule.ReadMode();
+        var effectiveAdditionalApexCount = AdditionalApexPlacementRule.GetEffectiveAdditionalApexCount(additionalApexParticipants.Count, additionalApexPlacementMode);
+        var boundaryRescueMode = BoundaryRescueRule.ReadMode();
 
         var apexCount = groupMap.Count(x => x.Value == FinalStageGroup.Apex);
         var innovCount = groupMap.Count - apexCount;
@@ -47,8 +47,8 @@ internal static partial class Program
         Console.WriteLine($"Apex: {apexCount} 名");
         Console.WriteLine($"Innov: {innovCount} 名\n");
         Console.WriteLine($"本戦不出場Apex: {additionalApexParticipants.Count} 名\n");
-        Console.WriteLine($"本戦不出場Apexの扱い: {GetAdditionalApexPlacementModeLabel(additionalApexPlacementMode)}\n");
-        Console.WriteLine($"境界救済戦: {GetBoundaryRescueModeLabel(boundaryRescueMode)}\n");
+        Console.WriteLine($"本戦不出場Apexの扱い: {AdditionalApexPlacementRule.GetLabel(additionalApexPlacementMode)}\n");
+        Console.WriteLine($"境界救済戦: {BoundaryRescueRule.GetLabel(boundaryRescueMode)}\n");
 
         PrintMatchesCsv(participants, matches);
         Console.WriteLine($"本戦対局数: {matches.Count}\n");

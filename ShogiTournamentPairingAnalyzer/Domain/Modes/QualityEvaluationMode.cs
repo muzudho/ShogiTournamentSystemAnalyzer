@@ -28,9 +28,9 @@ internal static partial class Program
             return;
         }
 
-        var additionalApexPlacementMode = ReadAdditionalApexPlacementMode();
-        var effectiveAdditionalApexCount = GetEffectiveAdditionalApexCount(additionalApexParticipants.Count, additionalApexPlacementMode);
-        var boundaryRescueMode = ReadBoundaryRescueMode();
+        var additionalApexPlacementMode = AdditionalApexPlacementRule.ReadMode();
+        var effectiveAdditionalApexCount = AdditionalApexPlacementRule.GetEffectiveAdditionalApexCount(additionalApexParticipants.Count, additionalApexPlacementMode);
+        var boundaryRescueMode = BoundaryRescueRule.ReadMode();
 
         var matches = ReadMatchesFromCsv(participants);
         if (!ValidateFinalStageMatches(participants, groupMap, matches, out errorMessage))
@@ -61,8 +61,8 @@ internal static partial class Program
         var qualityParticipantRows = BuildQualityParticipantRows(resultRows, groupMap, additionalApexParticipants, additionalApexPlacementMode);
         var qualitySummary = BuildQualitySummary(qualityParticipantRows);
 
-        Console.WriteLine($"本戦不出場Apexの扱い: {GetAdditionalApexPlacementModeLabel(additionalApexPlacementMode)}\n");
-        Console.WriteLine($"境界救済戦: {GetBoundaryRescueModeLabel(boundaryRescueMode)}\n");
+        Console.WriteLine($"本戦不出場Apexの扱い: {AdditionalApexPlacementRule.GetLabel(additionalApexPlacementMode)}\n");
+        Console.WriteLine($"境界救済戦: {BoundaryRescueRule.GetLabel(boundaryRescueMode)}\n");
         PrintQualitySummary(qualitySummary);
         PrintQualityParticipantHighlights(qualityParticipantRows);
 
