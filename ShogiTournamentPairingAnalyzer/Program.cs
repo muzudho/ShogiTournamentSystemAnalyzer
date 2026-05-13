@@ -71,7 +71,27 @@ static void RunStandardMode()
 
 static void RunFinalStageMode()
 {
-    Console.WriteLine("本戦専用モードはこれから実装します。\n");
+    Console.WriteLine("本戦専用モード: Apex / Innov 定先戦を分析します。\n");
+
+    PrintFinalStageInputSample();
+
+    var participants = ReadParticipantsFromCsv();
+    Console.WriteLine();
+
+    var groupMap = ReadFinalStageGroupMap();
+    if (!ValidateFinalStageParticipants(participants, groupMap, out var errorMessage))
+    {
+        Console.WriteLine($"本戦参加者の検証に失敗しました: {errorMessage}\n");
+        return;
+    }
+
+    var apexCount = groupMap.Count(x => x.Value == FinalStageGroup.Apex);
+    var innovCount = groupMap.Count - apexCount;
+
+    Console.WriteLine("本戦参加者の入力を受け付けました。");
+    Console.WriteLine($"Apex: {apexCount} 名");
+    Console.WriteLine($"Innov: {innovCount} 名\n");
+    Console.WriteLine("対局入力とシミュレーション本体は次の段階で実装します。\n");
 }
 
 static int ReadMode()
@@ -98,6 +118,25 @@ static int ReadMode()
 
         Console.WriteLine("1 か 2 を入力してください。\n");
     }
+}
+
+static void PrintFinalStageInputSample()
+{
+    Console.WriteLine("本戦専用モードの入力形式:");
+    Console.WriteLine("1. 選手一覧CSV");
+    Console.WriteLine("2. グループ対応CSV\n");
+    Console.WriteLine("選手一覧CSVの例:");
+    Console.WriteLine("name,elo");
+    Console.WriteLine("Alice,5000");
+    Console.WriteLine("Bob,4980");
+    Console.WriteLine("Carol,4960");
+    Console.WriteLine("Dave,4940\n");
+    Console.WriteLine("グループ対応CSVの例:");
+    Console.WriteLine("group,name");
+    Console.WriteLine("Apex,Alice");
+    Console.WriteLine("Apex,Bob");
+    Console.WriteLine("Innov,Carol");
+    Console.WriteLine("Innov,Dave\n");
 }
 
 static CalculationResult CalculateExactly(IReadOnlyList<Participant> participants, IReadOnlyList<Match> matches, double blackAdvantageRating)
@@ -179,6 +218,75 @@ static CalculationResult CalculateBySimulation(IReadOnlyList<Participant> partic
     }
 
     return new CalculationResult(placeProbabilities, $"シミュレーション ({simulationCount:N0}回)", simulationCount);
+}
+
+static Dictionary<string, FinalStageGroup> ReadFinalStageGroupMap()
+{
+    while (true)
+    {
+        Console.WriteLine("グループ対応CSVを貼り付けてください。入力終了は空行です。\n");
+
+        var lines = new List<string>();
+        while (true)
+        {
+            var line = Console.ReadLine();
+            if (string.IsNullOrWhiteSpace(line))
+            {
+                break;
+            }
+
+            lines.Add(line);
+        }
+
+        if (lines.Count == 0)
+        {
+            Console.WriteLine("CSVが入力されていません。再入力してください。\n");
+            continue;
+        }
+
+        if (TryParseFinalStageGroups(lines, out var groupMap, out var errorMessage))
+        {
+            return groupMap;
+        }
+
+        Console.WriteLine($"CSVの読み取りに失敗しました: {errorMessage}");
+        Console.WriteLine("もう一度入力してください。\n");
+    }
+}
+
+static bool ValidateFinalStageParticipants(IReadOnlyList<Participant> participants, IReadOnlyDictionary<string, FinalStageGroup> groupMap, out string errorMessage)
+{
+    errorMessage = string.Empty;
+
+    if (participants.Count != 16)
+    {
+        errorMessage = $"本戦参加者は 16 名で入力してください。現在は {participants.Count} 名です。";
+        return false;
+    }
+
+    if (groupMap.Count != participants.Count)
+    {
+        errorMessage = $"グループ対応CSVの人数が一致していません。選手一覧CSVは {participants.Count} 名、グループ対応CSVは {groupMap.Count} 名です。";
+        return false;
+    }
+
+    foreach (var participant in participants)
+    {
+        if (!groupMap.ContainsKey(participant.Name))
+        {
+            errorMessage = $"選手 '{participant.Name}' のグループが指定されていません。";
+            return false;
+        }
+    }
+
+    var apexCount = groupMap.Count(x => x.Value == FinalStageGroup.Apex);
+    if (apexCount > 8)
+    {
+        errorMessage = $"Apex は 8 名以下で入力してください。現在は {apexCount} 名です。";
+        return false;
+    }
+
+    return true;
 }
 
 static void AccumulatePlaceProbabilities(int[] wins, double scenarioProbability, double[,] placeProbabilities)
@@ -608,6 +716,59 @@ static bool TryParseParticipants(IReadOnlyList<string> lines, out List<Participa
     return true;
 }
 
+static bool TryParseFinalStageGroups(IReadOnlyList<string> lines, out Dictionary<string, FinalStageGroup> groupMap, out string errorMessage)
+{
+    groupMap = new Dictionary<string, FinalStageGroup>(StringComparer.OrdinalIgnoreCase);
+    errorMessage = string.Empty;
+
+    var startIndex = 0;
+    var firstColumns = SplitCsvLine(lines[0]);
+    if (IsFinalStageGroupHeaderRow(firstColumns))
+    {
+        startIndex = 1;
+    }
+
+    for (var i = startIndex; i < lines.Count; i++)
+    {
+        var columns = SplitCsvLine(lines[i]);
+        if (columns.Count < 2)
+        {
+            errorMessage = $"{i + 1} 行目は 2 列以上必要です。";
+            return false;
+        }
+
+        var groupText = columns[0].Trim();
+        var name = columns[1].Trim();
+        if (string.IsNullOrWhiteSpace(groupText) || string.IsNullOrWhiteSpace(name))
+        {
+            errorMessage = $"{i + 1} 行目のグループ名または選手名が空です。";
+            return false;
+        }
+
+        if (!TryParseFinalStageGroup(groupText, out var group))
+        {
+            errorMessage = $"{i + 1} 行目のグループ名 '{groupText}' は Apex または Innov で入力してください。";
+            return false;
+        }
+
+        if (groupMap.ContainsKey(name))
+        {
+            errorMessage = $"{i + 1} 行目の選手名 '{name}' は重複しています。";
+            return false;
+        }
+
+        groupMap.Add(name, group);
+    }
+
+    if (groupMap.Count == 0)
+    {
+        errorMessage = "グループ対応CSVに 1 行以上のデータが必要です。";
+        return false;
+    }
+
+    return true;
+}
+
 static bool TryParseMatches(IReadOnlyList<string> lines, IReadOnlyList<Participant> participants, out List<Match> matches, out string errorMessage)
 {
     if (LooksLikeRoundMatrixInput(lines))
@@ -1000,6 +1161,42 @@ static bool IsHeaderRow(IReadOnlyList<string> columns)
         || second.Equals("レーティング", StringComparison.OrdinalIgnoreCase);
 }
 
+static bool IsFinalStageGroupHeaderRow(IReadOnlyList<string> columns)
+{
+    if (columns.Count < 2)
+    {
+        return false;
+    }
+
+    var first = columns[0].Trim();
+    var second = columns[1].Trim();
+
+    return (first.Equals("group", StringComparison.OrdinalIgnoreCase)
+            || first.Equals("グループ", StringComparison.OrdinalIgnoreCase))
+        && (second.Equals("name", StringComparison.OrdinalIgnoreCase)
+            || second.Equals("名前", StringComparison.OrdinalIgnoreCase)
+            || second.Equals("participantName", StringComparison.OrdinalIgnoreCase)
+            || second.Equals("選手名", StringComparison.OrdinalIgnoreCase));
+}
+
+static bool TryParseFinalStageGroup(string value, out FinalStageGroup group)
+{
+    if (value.Equals("Apex", StringComparison.OrdinalIgnoreCase))
+    {
+        group = FinalStageGroup.Apex;
+        return true;
+    }
+
+    if (value.Equals("Innov", StringComparison.OrdinalIgnoreCase))
+    {
+        group = FinalStageGroup.Innov;
+        return true;
+    }
+
+    group = default;
+    return false;
+}
+
 static bool IsMatchHeaderRow(IReadOnlyList<string> columns)
 {
     if (columns.Count < 2)
@@ -1186,3 +1383,9 @@ readonly record struct ResultRow(
     double AveragePlace,
     double[] PlaceProbabilities,
     double[]? PlaceCounts);
+
+enum FinalStageGroup
+{
+    Apex,
+    Innov,
+}
