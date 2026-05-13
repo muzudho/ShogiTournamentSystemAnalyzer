@@ -13,6 +13,9 @@ switch (ReadMode())
     case 2:
         RunFinalStageMode();
         break;
+    case 3:
+        RunQualityEvaluationMode();
+        break;
     default:
         throw new InvalidOperationException("未対応のモードです。");
 }
@@ -136,11 +139,77 @@ static void RunFinalStageMode()
     Console.WriteLine($"結果CSVを出力しました: {outputCsvPath}");
 }
 
+static void RunQualityEvaluationMode()
+{
+    Console.WriteLine("品質評価モード: 本戦ルールの実力反映性を評価します。\n");
+
+    PrintFinalStageInputSample();
+
+    var blackAdvantagePercent = ReadDoubleWithDefaultInRange("同Elo対局時の先手勝率(%)を入力してください [51]: ", 51.0, 0.0, 100.0);
+    var blackAdvantageRating = ConvertBlackAdvantagePercentToRating(blackAdvantagePercent);
+    Console.WriteLine();
+
+    var participants = ReadParticipantsFromCsv();
+    Console.WriteLine();
+
+    var groupMap = ReadFinalStageGroupMap();
+    if (!ValidateFinalStageParticipants(participants, groupMap, out var errorMessage))
+    {
+        Console.WriteLine($"本戦参加者の検証に失敗しました: {errorMessage}\n");
+        return;
+    }
+
+    var matches = ReadMatchesFromCsv(participants);
+    if (!ValidateFinalStageMatches(participants, groupMap, matches, out errorMessage))
+    {
+        Console.WriteLine($"本戦対局の検証に失敗しました: {errorMessage}\n");
+        return;
+    }
+
+    CalculationResult result;
+    if (matches.Count <= 20)
+    {
+        Console.WriteLine("品質評価用の厳密計算を行います。\n");
+        result = CalculateFinalStageExactly(participants, matches, groupMap, blackAdvantageRating);
+    }
+    else
+    {
+        const int defaultSimulationCount = 200_000;
+        var simulationCount = ReadIntWithDefault(
+            $"局数が多いため品質評価用シミュレーションで近似します。試行回数を入力してください [{defaultSimulationCount}]: ",
+            defaultSimulationCount,
+            min: 1);
+
+        Console.WriteLine();
+        result = CalculateFinalStageBySimulation(participants, matches, groupMap, blackAdvantageRating, simulationCount);
+    }
+
+    var resultRows = BuildResultRows(participants, matches, result, blackAdvantagePercent);
+    var qualityParticipantRows = BuildQualityParticipantRows(resultRows, groupMap);
+    var qualitySummary = BuildQualitySummary(qualityParticipantRows);
+
+    PrintQualitySummary(qualitySummary);
+    PrintQualityParticipantHighlights(qualityParticipantRows);
+
+    var defaultOutputCsvPath = Path.GetFullPath($"quality_summary_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
+    var summaryCsvPath = ResolveOutputCsvPath(ReadTextWithDefault(
+        $"\n品質評価サマリーCSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
+        defaultOutputCsvPath));
+    WriteQualitySummaryCsv(summaryCsvPath, qualitySummary);
+
+    var participantCsvPath = BuildSiblingOutputCsvPath(summaryCsvPath, "quality_participants");
+    WriteQualityParticipantCsv(participantCsvPath, qualityParticipantRows);
+
+    Console.WriteLine($"品質評価サマリーCSVを出力しました: {summaryCsvPath}");
+    Console.WriteLine($"品質評価参加者別CSVを出力しました: {participantCsvPath}");
+}
+
 static int ReadMode()
 {
     Console.WriteLine("モードを選んでください。");
     Console.WriteLine("1. 通常モード（総当たり戦分析）");
-    Console.WriteLine("2. 本戦専用モード（Apex / Innov 定先戦分析）\n");
+    Console.WriteLine("2. 本戦専用モード（Apex / Innov 定先戦分析）");
+    Console.WriteLine("3. 品質評価モード（本戦ルールの実力反映性評価）\n");
 
     while (true)
     {
@@ -158,7 +227,13 @@ static int ReadMode()
             return 2;
         }
 
-        Console.WriteLine("1 か 2 を入力してください。\n");
+        if (input == "3")
+        {
+            Console.WriteLine();
+            return 3;
+        }
+
+        Console.WriteLine("1、2、3 のいずれかを入力してください。\n");
     }
 }
 
@@ -584,6 +659,211 @@ static List<ResultRow> BuildResultRows(IReadOnlyList<Participant> participants, 
     }
 
     return rows;
+}
+
+static List<QualityParticipantRow> BuildQualityParticipantRows(IReadOnlyList<ResultRow> resultRows, IReadOnlyDictionary<string, FinalStageGroup> groupMap)
+{
+    var eloRanks = resultRows
+        .OrderByDescending(x => x.OriginalRating)
+        .ThenBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
+        .Select((row, index) => new { row.Name, Rank = index + 1 })
+        .ToDictionary(x => x.Name, x => x.Rank, StringComparer.OrdinalIgnoreCase);
+
+    return resultRows
+        .Select(row =>
+        {
+            var eloRank = eloRanks[row.Name];
+            var overallTop8Probability = row.PlaceProbabilities.Take(Math.Min(8, row.PlaceProbabilities.Length)).Sum();
+            return new QualityParticipantRow(
+                row.Name,
+                groupMap[row.Name].ToString(),
+                row.OriginalRating,
+                eloRank,
+                row.AveragePlace,
+                row.AveragePlace - eloRank,
+                row.ChampionshipProbability,
+                overallTop8Probability,
+                row.PlaceProbabilities);
+        })
+        .OrderBy(x => x.EloRank)
+        .ToList();
+}
+
+static QualitySummary BuildQualitySummary(IReadOnlyList<QualityParticipantRow> participantRows)
+{
+    var spearmanCorrelation = CalculateSpearmanCorrelation(participantRows);
+    var meanAbsoluteRankError = participantRows.Average(x => Math.Abs(x.OverallPlaceDeltaFromEloRank));
+    var averageTop8Retention = participantRows
+        .Where(x => x.EloRank <= 8)
+        .Sum(x => x.OverallTop8Probability);
+
+    var topEloParticipant = participantRows.OrderBy(x => x.EloRank).First();
+    var mostPenalizedParticipant = participantRows.OrderByDescending(x => x.OverallPlaceDeltaFromEloRank).First();
+    var mostAdvantagedParticipant = participantRows.OrderBy(x => x.OverallPlaceDeltaFromEloRank).First();
+
+    return new QualitySummary(
+        spearmanCorrelation,
+        meanAbsoluteRankError,
+        averageTop8Retention,
+        topEloParticipant.OverallTop1Probability,
+        mostPenalizedParticipant.Name,
+        mostPenalizedParticipant.OverallPlaceDeltaFromEloRank,
+        mostAdvantagedParticipant.Name,
+        mostAdvantagedParticipant.OverallPlaceDeltaFromEloRank);
+}
+
+static double CalculateSpearmanCorrelation(IReadOnlyList<QualityParticipantRow> participantRows)
+{
+    if (participantRows.Count <= 1)
+    {
+        return 1.0;
+    }
+
+    var eloRanks = participantRows
+        .OrderBy(x => x.EloRank)
+        .Select(x => (double)x.EloRank)
+        .ToArray();
+    var overallPlaceRanks = GetAverageRanks(participantRows.Select(x => x.ExpectedOverallPlace).ToArray());
+
+    return CalculatePearsonCorrelation(eloRanks, overallPlaceRanks);
+}
+
+static double[] GetAverageRanks(IReadOnlyList<double> values)
+{
+    var ordered = values
+        .Select((value, index) => new { Value = value, Index = index })
+        .OrderBy(x => x.Value)
+        .ToArray();
+
+    var ranks = new double[values.Count];
+    var current = 0;
+    while (current < ordered.Length)
+    {
+        var end = current + 1;
+        while (end < ordered.Length && ordered[end].Value.Equals(ordered[current].Value))
+        {
+            end++;
+        }
+
+        var averageRank = (current + 1 + end) / 2.0;
+        for (var i = current; i < end; i++)
+        {
+            ranks[ordered[i].Index] = averageRank;
+        }
+
+        current = end;
+    }
+
+    return ranks;
+}
+
+static double CalculatePearsonCorrelation(IReadOnlyList<double> xs, IReadOnlyList<double> ys)
+{
+    var meanX = xs.Average();
+    var meanY = ys.Average();
+    var covariance = 0.0;
+    var varianceX = 0.0;
+    var varianceY = 0.0;
+
+    for (var i = 0; i < xs.Count; i++)
+    {
+        var dx = xs[i] - meanX;
+        var dy = ys[i] - meanY;
+        covariance += dx * dy;
+        varianceX += dx * dx;
+        varianceY += dy * dy;
+    }
+
+    if (varianceX <= 0.0 || varianceY <= 0.0)
+    {
+        return 1.0;
+    }
+
+    return covariance / Math.Sqrt(varianceX * varianceY);
+}
+
+static void PrintQualitySummary(QualitySummary summary)
+{
+    Console.WriteLine("品質評価サマリー:");
+    Console.WriteLine($"- Spearman 相関: {summary.SpearmanCorrelation.ToString("F4", CultureInfo.InvariantCulture)}");
+    Console.WriteLine($"- 平均順位ずれ: {summary.MeanAbsoluteRankError.ToString("F3", CultureInfo.InvariantCulture)}");
+    Console.WriteLine($"- Elo上位8名の総合上位8位残留人数（平均）: {summary.AverageTop8Retention.ToString("F3", CultureInfo.InvariantCulture)}");
+    Console.WriteLine($"- Elo1位の総合1位確率: {FormatPercent(summary.EloTop1OverallTop1Probability)}");
+    Console.WriteLine($"- 最大不利益: {summary.MostPenalizedParticipantName} ({summary.MostPenalizedDelta.ToString("+0.000;-0.000;0.000", CultureInfo.InvariantCulture)})");
+    Console.WriteLine($"- 最大利益: {summary.MostAdvantagedParticipantName} ({summary.MostAdvantagedDelta.ToString("+0.000;-0.000;0.000", CultureInfo.InvariantCulture)})\n");
+}
+
+static void PrintQualityParticipantHighlights(IReadOnlyList<QualityParticipantRow> participantRows)
+{
+    Console.WriteLine("品質評価 参加者別ハイライト:");
+    Console.WriteLine("Elo順位  名前                 期待総合順位   ずれ      総合1位確率   総合上位8確率");
+
+    foreach (var row in participantRows.Take(8))
+    {
+        Console.WriteLine(
+            row.EloRank.ToString(CultureInfo.InvariantCulture).PadLeft(6)
+            + "  " + row.Name.PadRight(20)
+            + row.ExpectedOverallPlace.ToString("F3", CultureInfo.InvariantCulture).PadLeft(12)
+            + row.OverallPlaceDeltaFromEloRank.ToString("+0.000;-0.000;0.000", CultureInfo.InvariantCulture).PadLeft(10)
+            + FormatPercent(row.OverallTop1Probability).PadLeft(14)
+            + FormatPercent(row.OverallTop8Probability).PadLeft(14));
+    }
+
+    Console.WriteLine();
+}
+
+static void WriteQualitySummaryCsv(string outputCsvPath, QualitySummary summary)
+{
+    var directoryPath = Path.GetDirectoryName(outputCsvPath);
+    if (!string.IsNullOrWhiteSpace(directoryPath))
+    {
+        Directory.CreateDirectory(directoryPath);
+    }
+
+    var lines = new List<string>
+    {
+        "metricName,metricValue,note",
+        $"spearmanCorrelation,{summary.SpearmanCorrelation.ToString("F6", CultureInfo.InvariantCulture)},Elo順位と期待総合順位の相関",
+        $"meanAbsoluteRankError,{summary.MeanAbsoluteRankError.ToString("F6", CultureInfo.InvariantCulture)},期待総合順位とElo順位のずれの絶対値平均",
+        $"averageTop8Retention,{summary.AverageTop8Retention.ToString("F6", CultureInfo.InvariantCulture)},Elo上位8名が総合上位8位に残る人数の期待値",
+        $"eloTop1OverallTop1Probability,{(summary.EloTop1OverallTop1Probability * 100).ToString("F6", CultureInfo.InvariantCulture)},Elo1位が総合1位になる確率(%)",
+        $"mostPenalizedParticipantDelta,{summary.MostPenalizedDelta.ToString("F6", CultureInfo.InvariantCulture)},{EscapeCsv(summary.MostPenalizedParticipantName)}",
+        $"mostAdvantagedParticipantDelta,{summary.MostAdvantagedDelta.ToString("F6", CultureInfo.InvariantCulture)},{EscapeCsv(summary.MostAdvantagedParticipantName)}"
+    };
+
+    File.WriteAllLines(outputCsvPath, lines, new UTF8Encoding(false));
+}
+
+static void WriteQualityParticipantCsv(string outputCsvPath, IReadOnlyList<QualityParticipantRow> participantRows)
+{
+    var directoryPath = Path.GetDirectoryName(outputCsvPath);
+    if (!string.IsNullOrWhiteSpace(directoryPath))
+    {
+        Directory.CreateDirectory(directoryPath);
+    }
+
+    var lines = new List<string>
+    {
+        "participantName,group,originalElo,eloRank,expectedOverallPlace,overallPlaceDeltaFromEloRank,overallTop1ProbabilityPercent,overallTop8ProbabilityPercent"
+    };
+
+    lines.AddRange(participantRows.Select(row => string.Join(",",
+        EscapeCsv(row.Name),
+        EscapeCsv(row.Group),
+        FormatRating(row.OriginalRating),
+        row.EloRank.ToString(CultureInfo.InvariantCulture),
+        row.ExpectedOverallPlace.ToString("F3", CultureInfo.InvariantCulture),
+        row.OverallPlaceDeltaFromEloRank.ToString("F3", CultureInfo.InvariantCulture),
+        (row.OverallTop1Probability * 100).ToString("F2", CultureInfo.InvariantCulture),
+        (row.OverallTop8Probability * 100).ToString("F2", CultureInfo.InvariantCulture))));
+
+    File.WriteAllLines(outputCsvPath, lines, new UTF8Encoding(false));
+}
+
+static string BuildSiblingOutputCsvPath(string baseCsvPath, string fileNamePrefix)
+{
+    var directoryPath = Path.GetDirectoryName(baseCsvPath) ?? Path.GetFullPath(".");
+    return Path.Combine(directoryPath, $"{fileNamePrefix}_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
 }
 
 static void PrintResult(int playerCount, CalculationResult result, double blackAdvantagePercent, IReadOnlyList<ResultRow> resultRows)
@@ -1576,6 +1856,27 @@ readonly record struct ResultRow(
     double AveragePlace,
     double[] PlaceProbabilities,
     double[]? PlaceCounts);
+
+readonly record struct QualityParticipantRow(
+    string Name,
+    string Group,
+    double OriginalRating,
+    int EloRank,
+    double ExpectedOverallPlace,
+    double OverallPlaceDeltaFromEloRank,
+    double OverallTop1Probability,
+    double OverallTop8Probability,
+    double[] PlaceProbabilities);
+
+readonly record struct QualitySummary(
+    double SpearmanCorrelation,
+    double MeanAbsoluteRankError,
+    double AverageTop8Retention,
+    double EloTop1OverallTop1Probability,
+    string MostPenalizedParticipantName,
+    double MostPenalizedDelta,
+    string MostAdvantagedParticipantName,
+    double MostAdvantagedDelta);
 
 enum FinalStageGroup
 {
