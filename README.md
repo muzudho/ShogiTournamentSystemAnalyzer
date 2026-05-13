@@ -4,6 +4,10 @@
 黒番有利なゲームを想定しており、黒番・白番の偏りや、対局表による有利不利を確認できます。
 
 ## 主な機能
+- 起動時のモード選択
+- 通常モード（総当たり戦分析）
+- 本戦専用モード（Apex / Innov 定先戦分析）
+- 品質評価モード（本戦ルールの実力反映性評価）
 - 選手ごとの Elo レーティング入力
 - 黒番有利率 (%) の指定
 - 対局CSV入力
@@ -28,13 +32,63 @@ dotnet run --project .\ShogiTournamentPairingAnalyzer\ShogiTournamentPairingAnal
 ```
 
 ## 入力
-アプリ実行後、次の順に入力します。
+アプリ実行後、まずモードを選びます。
+
+- `1`: 通常モード（総当たり戦分析）
+- `2`: 本戦専用モード（Apex / Innov 定先戦分析）
+- `3`: 品質評価モード（本戦ルールの実力反映性評価）
+
+その後、モードごとに必要な入力を行います。
+
+### 通常モード
+
+次の順に入力します。
 
 1. 黒番有利率 (%)
 2. 選手一覧CSV
 3. 対局CSV または Round/Black-White/対局記号表
 4. 必要に応じてシミュレーション試行回数
 5. 結果CSVの出力先パスまたはフォルダーパス
+
+### 本戦専用モード
+
+次の順に入力します。
+
+1. 同Elo対局時の先手勝率 (%)
+2. 選手一覧CSV
+3. グループ対応CSV
+4. 対局CSV または Round/Black-White/対局記号表
+5. 必要に応じてシミュレーション試行回数
+6. 結果CSVの出力先パスまたはフォルダーパス
+
+グループ対応CSVの例:
+
+```csv
+group,name
+Apex,Alice
+Apex,Bob
+Innov,Carol
+Innov,Dave
+```
+
+現状の MVP 実装では、次を前提にしています。
+
+- 本戦参加者は 16 名
+- `Apex` は 8 名以下
+- 対局は `Innov` が黒番、`Apex` が白番
+- 総合順位は、まず本戦出場 `Apex` 内で順位づけし、その後ろに本戦出場 `Innov` を並べる
+
+### 品質評価モード
+
+入力は本戦専用モードと同じです。
+
+出力では、順位分布そのものに加えて、次の品質指標を表示・CSV出力します。
+
+- Spearman 相関
+- 平均順位ずれ
+- Elo上位8名の総合上位8位残留人数（平均）
+- Elo1位の総合1位確率
+- 最大不利益 / 最大利益
 
 ### 選手一覧CSV
 - 1列目: 名前
@@ -122,6 +176,25 @@ END
 
 フォルダーパスを指定した場合は、その中に自動ファイル名で結果CSVを作成します。
 
+### 品質評価CSV
+
+品質評価モードでは、次の 2 種類の CSV を出力します。
+
+- サマリーCSV
+  - `spearmanCorrelation`
+  - `meanAbsoluteRankError`
+  - `averageTop8Retention`
+  - `eloTop1OverallTop1Probability`
+- 参加者別CSV
+  - `participantName`
+  - `group`
+  - `originalElo`
+  - `eloRank`
+  - `expectedOverallPlace`
+  - `overallPlaceDeltaFromEloRank`
+  - `overallTop1ProbabilityPercent`
+  - `overallTop8ProbabilityPercent`
+
 ## 実効Eloとは
 実効Eloは、対戦相手構成と黒白割り当てを含めた期待勝率を、  
 色補正なしの通常 Elo 戦に置き換えたときのレーティング相当値です。
@@ -134,6 +207,7 @@ END
 - 未対局の選手は結果から自動除外されます
 - コメントは CSV に埋め込まず、`.memo.md` や `.memo.txt` で別管理する想定です
 - シミュレーション 1 回でも、同点順位の等分配により 33.33% のような値が出ることがあります
+- 本戦専用モードの現状実装は MVP であり、まだ「本戦不出場 Apex を Innov より前へ挿入する」規則には未対応です
 
 ## 関連リンク
 - [白黒対抗ルール案](https://note.com/muzudho/n/n311536fd1812?app_launch=false)

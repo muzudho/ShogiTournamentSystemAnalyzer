@@ -3,6 +3,7 @@
 ## 目的
 - 大会参加者の Elo レーティング、対局表、黒番有利率を入力し、総当たり戦または指定対局における順位分布を計算する。
 - 大会ルール調整時に、黒白の偏りや対局表の有利不利を確認しやすくする。
+- 本戦専用ルールや、そのルールが Elo 順をどれだけ保つかの品質評価にも使う。
 
 ## 現在の前提ルール
 - 各対局は黒番・白番を持つ。
@@ -13,6 +14,11 @@
 - 同点順位は、該当順位帯に等分配する。
 
 ## 入力形式
+### モード
+- `1`: 通常モード（総当たり戦分析）
+- `2`: 本戦専用モード（Apex / Innov 定先戦分析）
+- `3`: 品質評価モード（本戦ルールの実力反映性評価）
+
 ### 1. 選手一覧CSV
 - 1列目: 選手名
 - 2列目: Elo レーティング
@@ -80,6 +86,27 @@ D, "Dave"
 END
 ```
 
+### 本戦専用モード追加入力
+- グループ対応CSVを別入力で受け付ける
+- `group,name` 形式
+- `Apex` と `Innov` を使用する
+
+例:
+
+```csv
+group,name
+Apex,Alice
+Apex,Bob
+Innov,Carol
+Innov,Dave
+```
+
+現状の MVP 実装では、次を検証する。
+- 本戦参加者は 16 名
+- `Apex` は 8 名以下
+- 対局は `Innov` が黒番、`Apex` が白番
+- 同グループ同士の対局は禁止
+
 ## 出力
 ### コンソール表示
 - 元Elo
@@ -102,6 +129,22 @@ END
 - 出力先はファイルパスまたはフォルダーパスを指定可能
 - フォルダーパス指定時は自動ファイル名を付与する
 
+### 品質評価CSV
+- サマリーCSV
+  - `spearmanCorrelation`
+  - `meanAbsoluteRankError`
+  - `averageTop8Retention`
+  - `eloTop1OverallTop1Probability`
+- 参加者別CSV
+  - `participantName`
+  - `group`
+  - `originalElo`
+  - `eloRank`
+  - `expectedOverallPlace`
+  - `overallPlaceDeltaFromEloRank`
+  - `overallTop1ProbabilityPercent`
+  - `overallTop8ProbabilityPercent`
+
 ## 実効Elo の意味
 - 対戦相手構成と黒白割り当てを踏まえた期待勝率から、色補正なしの通常 Elo 戦で同等の期待勝率になるレーティングを逆算したもの。
 - `差分 = 実効Elo - 元Elo`
@@ -112,6 +155,7 @@ END
 - 同点順位は乱数で決めず、等分配で扱う。
 - シミュレーション 1 回でも、同点時には 33.33% などの分数確率が出ることがある。
 - コメントは CSV に埋め込まず、別ファイルで管理する。
+- 本戦専用モードの現状実装は MVP であり、本戦不出場 Apex の順位挿入規則はまだ未対応。
 
 ## メモ運用方針
 - データ本体は `.csv`
