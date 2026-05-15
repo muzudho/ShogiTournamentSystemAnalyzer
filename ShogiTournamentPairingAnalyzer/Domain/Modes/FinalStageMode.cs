@@ -5,7 +5,6 @@ internal static partial class Program
         Console.WriteLine("本戦専用モード: Apex / Innov 分割またはニュートラルな対局表を分析します。\n");
 
         PrintFinalStageInputSample();
-        var tournamentRuleSetMode = TournamentRuleSetRule.ReadMode();
 
         var blackAdvantagePercent = ReadDoubleWithDefaultInRange("同Elo対局時の先手勝率(%)を入力してください [51]: ", 51.0, 0.0, 100.0);
         var blackAdvantageRating = ConvertBlackAdvantagePercentToRating(blackAdvantagePercent);
@@ -15,6 +14,9 @@ internal static partial class Program
         Console.WriteLine();
 
         var groupingMode = FinalStageGroupingRule.ReadMode();
+        var tournamentRuleSetMode = groupingMode == FinalStageGroupingMode.Off
+            ? TournamentRuleSetRule.ReadMode()
+            : TournamentRuleSetMode.Neutral;
         var groupMap = ReadOptionalFinalStageGroupMap(groupingMode, participants);
         string errorMessage;
         var participantsAreValid = groupingMode == FinalStageGroupingMode.On
@@ -98,14 +100,14 @@ internal static partial class Program
         {
             if (matches.Count <= 20)
             {
-                Console.WriteLine("ニュートラルな厳密計算を行います。\n");
+                Console.WriteLine($"{TournamentRuleSetRule.GetLabel(tournamentRuleSetMode)} の厳密計算を行います。\n");
                 result = CalculateExactly(participants, matches, blackAdvantageRating, tournamentRuleSetMode);
             }
             else
             {
                 const int defaultSimulationCount = 200_000;
                 var simulationCount = ReadIntWithDefault(
-                    $"局数が多いためニュートラルなシミュレーションで近似します。試行回数を入力してください [{defaultSimulationCount}]: ",
+                    $"局数が多いため {TournamentRuleSetRule.GetLabel(tournamentRuleSetMode)} のシミュレーションで近似します。試行回数を入力してください [{defaultSimulationCount}]: ",
                     defaultSimulationCount,
                     min: 1);
 

@@ -7,12 +7,14 @@ internal static partial class Program
         Console.WriteLine("品質評価モード: 本戦ルールの実力反映性を評価します。\n");
 
         PrintFinalStageInputSample();
-        var tournamentRuleSetMode = TournamentRuleSetRule.ReadMode();
 
         var participants = ReadParticipantsFromCsv();
         Console.WriteLine();
 
         var groupingMode = FinalStageGroupingRule.ReadMode();
+        var tournamentRuleSetMode = groupingMode == FinalStageGroupingMode.Off
+            ? TournamentRuleSetRule.ReadMode()
+            : TournamentRuleSetMode.Neutral;
         var groupMap = ReadOptionalFinalStageGroupMap(groupingMode, participants);
         string errorMessage;
         var participantsAreValid = groupingMode == FinalStageGroupingMode.On
@@ -71,13 +73,13 @@ internal static partial class Program
         {
             if (matches.Count <= 20)
             {
-                Console.WriteLine("ニュートラルな品質評価用厳密計算を行います。\n");
+                Console.WriteLine($"{TournamentRuleSetRule.GetLabel(tournamentRuleSetMode)} の品質評価用厳密計算を行います。\n");
             }
             else
             {
                 const int defaultSimulationCount = 200_000;
                 simulationCount = ReadIntWithDefault(
-                    $"局数が多いためニュートラルな品質評価用シミュレーションで近似します。試行回数を入力してください [{defaultSimulationCount}]: ",
+                    $"局数が多いため {TournamentRuleSetRule.GetLabel(tournamentRuleSetMode)} の品質評価用シミュレーションで近似します。試行回数を入力してください [{defaultSimulationCount}]: ",
                     defaultSimulationCount,
                     min: 1);
 
@@ -153,7 +155,7 @@ internal static partial class Program
         PrintQualityParticipantHighlights(qualityEvaluationRun.ParticipantRows);
 
         var reportGroupingOptions = ReadExperimentalReportGroupingOptions();
-        var defaultOutputCsvPath = BuildQualitySummaryDefaultOutputPath(groupingMode, additionalApexPlacementMode, boundaryRescueMode, reportGroupingOptions);
+        var defaultOutputCsvPath = BuildQualitySummaryDefaultOutputPath(groupingMode, additionalApexPlacementMode, boundaryRescueMode, reportGroupingOptions, tournamentRuleSetMode);
         var summaryCsvPath = ResolveOutputCsvPath(ReadTextWithDefault(
             $"\n品質評価サマリーCSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
             defaultOutputCsvPath));
@@ -212,7 +214,7 @@ internal static partial class Program
         PrintQualitySweepRows(sweepRows);
 
         var reportGroupingOptions = ReadExperimentalReportGroupingOptions();
-        var defaultOutputCsvPath = BuildQualitySweepDefaultOutputPath(groupingMode, additionalApexPlacementMode, boundaryRescueMode, reportGroupingOptions);
+        var defaultOutputCsvPath = BuildQualitySweepDefaultOutputPath(groupingMode, additionalApexPlacementMode, boundaryRescueMode, reportGroupingOptions, tournamentRuleSetMode);
         var sweepCsvPath = ResolveOutputCsvPath(ReadTextWithDefault(
             $"\nn%スイープ結果CSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
             defaultOutputCsvPath));
