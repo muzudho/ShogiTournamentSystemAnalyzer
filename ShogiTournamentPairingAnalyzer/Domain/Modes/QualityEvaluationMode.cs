@@ -11,29 +11,50 @@ internal static partial class Program
         var participants = ReadParticipantsFromCsv();
         Console.WriteLine();
 
-        var groupMap = ReadFinalStageGroupMap();
-        if (!ValidateFinalStageParticipants(participants, groupMap, out var errorMessage))
+        var groupingMode = FinalStageGroupingRule.ReadMode();
+        var groupMap = ReadOptionalFinalStageGroupMap(groupingMode, participants);
+        string errorMessage;
+        var participantsAreValid = groupingMode == FinalStageGroupingMode.On
+            ? ValidateFinalStageParticipants(participants, groupMap!, out errorMessage)
+            : ValidateFinalStageParticipants(participants, out errorMessage);
+        if (!participantsAreValid)
         {
             Console.WriteLine($"本戦参加者の検証に失敗しました: {errorMessage}\n");
             return;
         }
 
-        Console.WriteLine();
-        var additionalApexParticipants = ReadOptionalParticipantsFromCsv("本戦不出場Apex一覧CSVを貼り付けてください。");
-        if (!ValidateAdditionalApexParticipants(participants, groupMap, additionalApexParticipants, out errorMessage))
+        List<Participant> additionalApexParticipants;
+        var additionalApexPlacementMode = AdditionalApexPlacementMode.Off;
+        var effectiveAdditionalApexCount = 0;
+        var boundaryRescueMode = BoundaryRescueMode.Off;
+        var variableTop8Mode = VariableTop8Mode.Off;
+        var promotedInnovCount = 0;
+        if (groupingMode == FinalStageGroupingMode.On)
         {
-            Console.WriteLine($"本戦不出場Apex一覧の検証に失敗しました: {errorMessage}\n");
-            return;
+            Console.WriteLine();
+            additionalApexParticipants = ReadOptionalParticipantsFromCsv("本戦不出場Apex一覧CSVを貼り付けてください。");
+            if (!ValidateAdditionalApexParticipants(participants, groupMap!, additionalApexParticipants, out errorMessage))
+            {
+                Console.WriteLine($"本戦不出場Apex一覧の検証に失敗しました: {errorMessage}\n");
+                return;
+            }
+
+            additionalApexPlacementMode = AdditionalApexPlacementRule.ReadMode();
+            effectiveAdditionalApexCount = AdditionalApexPlacementRule.GetEffectiveAdditionalApexCount(additionalApexParticipants.Count, additionalApexPlacementMode);
+            boundaryRescueMode = BoundaryRescueRule.ReadMode();
+            variableTop8Mode = VariableTop8Rule.ReadMode();
+            promotedInnovCount = VariableTop8Rule.GetPromotedInnovCount(variableTop8Mode, additionalApexParticipants.Count);
+        }
+        else
+        {
+            additionalApexParticipants = new List<Participant>();
         }
 
-        var additionalApexPlacementMode = AdditionalApexPlacementRule.ReadMode();
-        var effectiveAdditionalApexCount = AdditionalApexPlacementRule.GetEffectiveAdditionalApexCount(additionalApexParticipants.Count, additionalApexPlacementMode);
-        var boundaryRescueMode = BoundaryRescueRule.ReadMode();
-        var variableTop8Mode = VariableTop8Rule.ReadMode();
-        var promotedInnovCount = VariableTop8Rule.GetPromotedInnovCount(variableTop8Mode, additionalApexParticipants.Count);
-
         var matches = ReadMatchesFromCsv(participants);
-        if (!ValidateFinalStageMatches(participants, groupMap, matches, out errorMessage))
+        var matchesAreValid = groupingMode == FinalStageGroupingMode.On
+            ? ValidateFinalStageMatches(participants, groupMap!, matches, out errorMessage)
+            : ValidateFinalStageMatches(participants, matches, out errorMessage);
+        if (!matchesAreValid)
         {
             Console.WriteLine($"本戦対局の検証に失敗しました: {errorMessage}\n");
             return;
@@ -45,7 +66,24 @@ internal static partial class Program
         var sweepOptions = ReadQualitySweepOptions();
 
         int? simulationCount = null;
-        if (matches.Count <= 20)
+        if (groupingMode == FinalStageGroupingMode.Off)
+        {
+            if (matches.Count <= 20)
+            {
+                Console.WriteLine("ニュートラルな品質評価用厳密計算を行います。\n");
+            }
+            else
+            {
+                const int defaultSimulationCount = 200_000;
+                simulationCount = ReadIntWithDefault(
+                    $"局数が多いためニュートラルな品質評価用シミュレーションで近似します。試行回数を入力してください [{defaultSimulationCount}]: ",
+                    defaultSimulationCount,
+                    min: 1);
+
+                Console.WriteLine();
+            }
+        }
+        else if (matches.Count <= 20)
         {
             Console.WriteLine("品質評価用の厳密計算を行います。\n");
         }
@@ -60,9 +98,13 @@ internal static partial class Program
             Console.WriteLine();
         }
 
-        Console.WriteLine($"本戦不出場Apexの扱い: {AdditionalApexPlacementRule.GetLabel(additionalApexPlacementMode)}\n");
-        Console.WriteLine($"境界救済戦: {BoundaryRescueRule.GetLabel(boundaryRescueMode)}\n");
-        Console.WriteLine($"可変定員8ルール: {VariableTop8Rule.GetLabel(variableTop8Mode)}\n");
+        Console.WriteLine($"Apex / Innov の分け方: {FinalStageGroupingRule.GetLabel(groupingMode)}\n");
+        if (groupingMode == FinalStageGroupingMode.On)
+        {
+            Console.WriteLine($"本戦不出場Apexの扱い: {AdditionalApexPlacementRule.GetLabel(additionalApexPlacementMode)}\n");
+            Console.WriteLine($"境界救済戦: {BoundaryRescueRule.GetLabel(boundaryRescueMode)}\n");
+            Console.WriteLine($"可変定員8ルール: {VariableTop8Rule.GetLabel(variableTop8Mode)}\n");
+        }
         if (referenceMatches.Count > 0)
         {
             PrintMatchesCsv(participants, referenceMatches, "参考対局CSV:");
@@ -76,6 +118,7 @@ internal static partial class Program
                 participants,
                 matches,
                 groupMap,
+                groupingMode,
                 additionalApexParticipants,
                 additionalApexPlacementMode,
                 effectiveAdditionalApexCount,
@@ -93,6 +136,7 @@ internal static partial class Program
             participants,
             matches,
             groupMap,
+            groupingMode,
             additionalApexParticipants,
             additionalApexPlacementMode,
             effectiveAdditionalApexCount,
@@ -105,7 +149,7 @@ internal static partial class Program
         PrintQualityParticipantHighlights(qualityEvaluationRun.ParticipantRows);
 
         var reportGroupingOptions = ReadExperimentalReportGroupingOptions();
-        var defaultOutputCsvPath = BuildQualitySummaryDefaultOutputPath(additionalApexPlacementMode, boundaryRescueMode, reportGroupingOptions);
+        var defaultOutputCsvPath = BuildQualitySummaryDefaultOutputPath(groupingMode, additionalApexPlacementMode, boundaryRescueMode, reportGroupingOptions);
         var summaryCsvPath = ResolveOutputCsvPath(ReadTextWithDefault(
             $"\n品質評価サマリーCSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
             defaultOutputCsvPath));
@@ -121,7 +165,8 @@ internal static partial class Program
     static void RunQualitySweepExperiment(
         IReadOnlyList<Participant> participants,
         IReadOnlyList<Match> matches,
-        IReadOnlyDictionary<string, FinalStageGroup> groupMap,
+        IReadOnlyDictionary<string, FinalStageGroup>? groupMap,
+        FinalStageGroupingMode groupingMode,
         IReadOnlyList<Participant> additionalApexParticipants,
         AdditionalApexPlacementMode additionalApexPlacementMode,
         int effectiveAdditionalApexCount,
@@ -137,6 +182,7 @@ internal static partial class Program
                 participants,
                 matches,
                 groupMap,
+                groupingMode,
                 additionalApexParticipants,
                 additionalApexPlacementMode,
                 effectiveAdditionalApexCount,
@@ -160,7 +206,7 @@ internal static partial class Program
         PrintQualitySweepRows(sweepRows);
 
         var reportGroupingOptions = ReadExperimentalReportGroupingOptions();
-        var defaultOutputCsvPath = BuildQualitySweepDefaultOutputPath(additionalApexPlacementMode, boundaryRescueMode, reportGroupingOptions);
+        var defaultOutputCsvPath = BuildQualitySweepDefaultOutputPath(groupingMode, additionalApexPlacementMode, boundaryRescueMode, reportGroupingOptions);
         var sweepCsvPath = ResolveOutputCsvPath(ReadTextWithDefault(
             $"\nn%スイープ結果CSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
             defaultOutputCsvPath));
@@ -172,7 +218,8 @@ internal static partial class Program
     static QualityEvaluationRun ExecuteQualityEvaluationRun(
         IReadOnlyList<Participant> participants,
         IReadOnlyList<Match> matches,
-        IReadOnlyDictionary<string, FinalStageGroup> groupMap,
+        IReadOnlyDictionary<string, FinalStageGroup>? groupMap,
+        FinalStageGroupingMode groupingMode,
         IReadOnlyList<Participant> additionalApexParticipants,
         AdditionalApexPlacementMode additionalApexPlacementMode,
         int effectiveAdditionalApexCount,
@@ -182,9 +229,13 @@ internal static partial class Program
         int? simulationCount)
     {
         var blackAdvantageRating = ConvertBlackAdvantagePercentToRating(blackAdvantagePercent);
-        var result = simulationCount.HasValue
-            ? CalculateFinalStageBySimulation(participants, matches, groupMap, effectiveAdditionalApexCount, boundaryRescueMode, blackAdvantageRating, simulationCount.Value, promotedInnovCount)
-            : CalculateFinalStageExactly(participants, matches, groupMap, effectiveAdditionalApexCount, boundaryRescueMode, blackAdvantageRating, promotedInnovCount);
+        var result = groupingMode == FinalStageGroupingMode.On
+            ? simulationCount.HasValue
+                ? CalculateFinalStageBySimulation(participants, matches, groupMap!, effectiveAdditionalApexCount, boundaryRescueMode, blackAdvantageRating, simulationCount.Value, promotedInnovCount)
+                : CalculateFinalStageExactly(participants, matches, groupMap!, effectiveAdditionalApexCount, boundaryRescueMode, blackAdvantageRating, promotedInnovCount)
+            : simulationCount.HasValue
+                ? CalculateBySimulation(participants, matches, blackAdvantageRating, simulationCount.Value)
+                : CalculateExactly(participants, matches, blackAdvantageRating);
 
         var resultRows = BuildResultRows(participants, matches, result, blackAdvantagePercent);
         var qualityParticipantRows = BuildQualityParticipantRows(resultRows, groupMap, additionalApexParticipants, additionalApexPlacementMode);

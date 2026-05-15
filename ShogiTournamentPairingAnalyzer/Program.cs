@@ -19,6 +19,16 @@ internal static partial class Program
         }
     }
 
+static Dictionary<string, FinalStageGroup>? ReadOptionalFinalStageGroupMap(FinalStageGroupingMode groupingMode, IReadOnlyList<Participant> participants)
+{
+    if (groupingMode == FinalStageGroupingMode.Off)
+    {
+        return null;
+    }
+
+    return ReadFinalStageGroupMap();
+}
+
 static List<Match> ReadOptionalMatchesFromCsv(IReadOnlyList<Participant> participants, string prompt)
 {
     while (true)
@@ -154,6 +164,25 @@ static string BuildQualitySummaryDefaultOutputPath(AdditionalApexPlacementMode p
     var baseDirectory = Path.Combine(Path.GetFullPath("."), "docs", "Reports", outcomeFolderName);
     Directory.CreateDirectory(baseDirectory);
     return Path.Combine(baseDirectory, fileName);
+}
+
+static string BuildQualitySummaryDefaultOutputPath(FinalStageGroupingMode groupingMode, AdditionalApexPlacementMode placementMode, BoundaryRescueMode boundaryRescueMode, ExperimentalReportGroupingOptions options)
+{
+    if (groupingMode == FinalStageGroupingMode.Off)
+    {
+        var fileName = $"quality_summary_neutral_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
+        if (!options.IsEnabled)
+        {
+            return Path.GetFullPath(fileName);
+        }
+
+        var outcomeFolderName = options.Outcome == ExperimentalReportOutcome.Bad ? "Bad" : "Good";
+        var baseDirectory = Path.Combine(Path.GetFullPath("."), "docs", "Reports", outcomeFolderName);
+        Directory.CreateDirectory(baseDirectory);
+        return Path.Combine(baseDirectory, fileName);
+    }
+
+    return BuildQualitySummaryDefaultOutputPath(placementMode, boundaryRescueMode, options);
 }
 
 static int ReadMode()
@@ -464,6 +493,19 @@ static bool ValidateFinalStageParticipants(IReadOnlyList<Participant> participan
     return true;
 }
 
+static bool ValidateFinalStageParticipants(IReadOnlyList<Participant> participants, out string errorMessage)
+{
+    errorMessage = string.Empty;
+
+    if (participants.Count != 16)
+    {
+        errorMessage = $"本戦参加者は 16 名で入力してください。現在は {participants.Count} 名です。";
+        return false;
+    }
+
+    return true;
+}
+
 static bool ValidateAdditionalApexParticipants(IReadOnlyList<Participant> participants, IReadOnlyDictionary<string, FinalStageGroup> groupMap, IReadOnlyList<Participant> additionalApexParticipants, out string errorMessage)
 {
     errorMessage = string.Empty;
@@ -480,6 +522,23 @@ static bool ValidateAdditionalApexParticipants(IReadOnlyList<Participant> partic
         if (groupMap.ContainsKey(participant.Name))
         {
             errorMessage = $"本戦不出場Apex一覧の選手 '{participant.Name}' はグループ対応CSVにも含まれています。";
+            return false;
+        }
+    }
+
+    return true;
+}
+
+static bool ValidateAdditionalApexParticipants(IReadOnlyList<Participant> participants, IReadOnlyList<Participant> additionalApexParticipants, out string errorMessage)
+{
+    errorMessage = string.Empty;
+
+    var knownNames = new HashSet<string>(participants.Select(x => x.Name), StringComparer.OrdinalIgnoreCase);
+    foreach (var participant in additionalApexParticipants)
+    {
+        if (knownNames.Contains(participant.Name))
+        {
+            errorMessage = $"本戦不出場Apex一覧の選手 '{participant.Name}' は本戦参加者と重複しています。";
             return false;
         }
     }
@@ -732,6 +791,23 @@ static bool ValidateFinalStageMatches(IReadOnlyList<Participant> participants, I
     return true;
 }
 
+static bool ValidateFinalStageMatches(IReadOnlyList<Participant> participants, IReadOnlyList<Match> matches, out string errorMessage)
+{
+    errorMessage = string.Empty;
+
+    for (var matchIndex = 0; matchIndex < matches.Count; matchIndex++)
+    {
+        var match = matches[matchIndex];
+        if (match.Black == match.White)
+        {
+            errorMessage = $"{matchIndex + 1} 局目で同じ選手が黒番と白番の両方に指定されています。";
+            return false;
+        }
+    }
+
+    return true;
+}
+
 static void AccumulatePlaceProbabilities(int[] wins, double scenarioProbability, double[,] placeProbabilities)
 {
     var ranking = wins
@@ -871,7 +947,7 @@ static List<FinalStageResultRow> BuildFinalStageResultRows(IReadOnlyList<Partici
         .ToList();
 }
 
-static List<QualityParticipantRow> BuildQualityParticipantRows(IReadOnlyList<ResultRow> resultRows, IReadOnlyDictionary<string, FinalStageGroup> groupMap, IReadOnlyList<Participant> additionalApexParticipants, AdditionalApexPlacementMode placementMode)
+static List<QualityParticipantRow> BuildQualityParticipantRows(IReadOnlyList<ResultRow> resultRows, IReadOnlyDictionary<string, FinalStageGroup>? groupMap, IReadOnlyList<Participant> additionalApexParticipants, AdditionalApexPlacementMode placementMode)
 {
     var allParticipants = resultRows
         .Select(row => new Participant(row.Name, row.OriginalRating))
@@ -891,7 +967,7 @@ static List<QualityParticipantRow> BuildQualityParticipantRows(IReadOnlyList<Res
             var overallTop8Probability = row.PlaceProbabilities.Take(Math.Min(8, row.PlaceProbabilities.Length)).Sum();
             return new QualityParticipantRow(
                 row.Name,
-                groupMap[row.Name].ToString(),
+                groupMap is null ? "Neutral" : groupMap[row.Name].ToString(),
                 row.OriginalRating,
                 eloRank,
                 row.AveragePlace,
@@ -1065,6 +1141,25 @@ static string BuildQualitySweepDefaultOutputPath(AdditionalApexPlacementMode pla
     var baseDirectory = Path.Combine(Path.GetFullPath("."), "docs", "Reports", outcomeFolderName);
     Directory.CreateDirectory(baseDirectory);
     return Path.Combine(baseDirectory, fileName);
+}
+
+static string BuildQualitySweepDefaultOutputPath(FinalStageGroupingMode groupingMode, AdditionalApexPlacementMode placementMode, BoundaryRescueMode boundaryRescueMode, ExperimentalReportGroupingOptions options)
+{
+    if (groupingMode == FinalStageGroupingMode.Off)
+    {
+        var fileName = $"quality_sweep_neutral_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
+        if (!options.IsEnabled)
+        {
+            return Path.GetFullPath(fileName);
+        }
+
+        var outcomeFolderName = options.Outcome == ExperimentalReportOutcome.Bad ? "Bad" : "Good";
+        var baseDirectory = Path.Combine(Path.GetFullPath("."), "docs", "Reports", outcomeFolderName);
+        Directory.CreateDirectory(baseDirectory);
+        return Path.Combine(baseDirectory, fileName);
+    }
+
+    return BuildQualitySweepDefaultOutputPath(placementMode, boundaryRescueMode, options);
 }
 
 static void WriteQualitySweepCsv(string outputCsvPath, IReadOnlyList<QualitySweepRow> sweepRows, ExperimentalReportGroupingOptions options)
@@ -2363,6 +2458,12 @@ enum BoundaryRescueMode
 }
 
 enum VariableTop8Mode
+{
+    Off,
+    On,
+}
+
+enum FinalStageGroupingMode
 {
     Off,
     On,
