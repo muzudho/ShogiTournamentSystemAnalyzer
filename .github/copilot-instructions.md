@@ -9,6 +9,7 @@
 - For the 格付けグラフ戦 proposal examples, use the assumption 'the stronger player wins' instead of assuming all ▽ sides lose and ▲ sides win.
 - In tournament ranking proposals, do not use original Elo in ranking calculation because participants join without computed original Elo.
 - For tournament naming in this project, prefer names that can be phrased as '○○式トーナメント' in the style of Swiss-system or ladder-style naming, including 'ツイル式トーナメント' as a preferred naming option and considering the Japanese term '斜文' as part of the concept.
+- When running expensive tournament simulations in this project, start with a 1-trial smoke test before benchmarking with small trial counts like 10 and 100 to estimate runtime before launching a large sweep.
 
 ## Tournament Announcement Draft Guidelines
 - For the tournament announcement draft, begin with a worked sample so first-time readers can understand it before the conceptual explanation.

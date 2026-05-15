@@ -1,0 +1,7 @@
+blackAdvantagePercent,spearmanCorrelation,meanAbsoluteRankError,averageTop8Retention,eloTop1OverallTop1ProbabilityPercent,mostPenalizedParticipant,mostPenalizedDelta,mostAdvantagedParticipant,mostAdvantagedDelta
+50.00,0.911937,1.687500,7.000000,0.000000,らいおん,3.000000,銀,-4.000000
+60.00,0.659285,3.375000,6.000000,0.000000,きりん,5.000000,いのしし,-7.500000
+70.00,0.655825,3.125000,6.000000,0.000000,金,8.000000,歩,-5.500000
+80.00,-0.476340,7.625000,1.000000,0.000000,桂,10.000000,いぬ,-10.500000
+90.00,-0.449378,7.375000,1.000000,0.000000,角,11.000000,うさぎ,-13.000000
+100.00,-0.867722,8.000000,0.000000,0.000000,飛,11.500000,ひよこ,-11.500000

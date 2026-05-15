@@ -112,11 +112,16 @@ internal static partial class Program
                     min: 1);
 
                 Console.WriteLine();
+                using var simulationBudget = BeginSimulationBudget();
                 result = CalculateBySimulation(participants, matches, blackAdvantageRating, simulationCount, tournamentRuleSetMode);
             }
 
             standardResultRows = BuildResultRows(participants, matches, result, blackAdvantagePercent);
             PrintResult(participants.Count, result, blackAdvantagePercent, standardResultRows);
+            if (result.Mode.Contains("時間切れ", StringComparison.Ordinal))
+            {
+                Console.WriteLine($"シミュレーションは時間上限 {SimulationTimeLimit.TotalMinutes:F0} 分で打ち切りました。\n");
+            }
         }
         else if (matches.Count <= 20)
         {
@@ -125,6 +130,10 @@ internal static partial class Program
 
             finalStageResultRows = BuildFinalStageResultRows(participants, matches, result, blackAdvantagePercent, groupMap!, effectiveAdditionalApexCount);
             PrintFinalStageResult(result, blackAdvantagePercent, finalStageResultRows);
+            if (result.Mode.Contains("時間切れ", StringComparison.Ordinal))
+            {
+                Console.WriteLine($"シミュレーションは時間上限 {SimulationTimeLimit.TotalMinutes:F0} 分で打ち切りました。\n");
+            }
         }
         else
         {
@@ -135,6 +144,7 @@ internal static partial class Program
                 min: 1);
 
             Console.WriteLine();
+            using var simulationBudget = BeginSimulationBudget();
             result = CalculateFinalStageBySimulation(participants, matches, groupMap!, effectiveAdditionalApexCount, boundaryRescueMode, blackAdvantageRating, simulationCount);
 
             finalStageResultRows = BuildFinalStageResultRows(participants, matches, result, blackAdvantagePercent, groupMap!, effectiveAdditionalApexCount);

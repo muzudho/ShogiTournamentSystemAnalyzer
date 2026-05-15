@@ -3,20 +3,122 @@ using System.Text;
 
 internal static partial class Program
 {
-    private static void Main()
+    private static readonly TimeSpan SimulationTimeLimit = TimeSpan.FromMinutes(3);
+    private static DateTime? _simulationDeadlineUtc;
+
+    private static void Main(string[] args)
     {
         Console.OutputEncoding = Encoding.UTF8;
 
-        Console.WriteLine("将棋大会の順位分布を計算します。\n");
-
         try
         {
+            ConfigureInputSource(args);
+
+            Console.WriteLine("将棋大会の順位分布を計算します。\n");
+
             RunApp();
         }
         catch (OperationCanceledException ex)
         {
             Console.WriteLine($"入力を中断しました: {ex.Message}");
         }
+    }
+
+    static void ConfigureInputSource(IReadOnlyList<string> args)
+    {
+        var inputFilePath = TryGetInputFilePathFromArgs(args);
+        if (!string.IsNullOrWhiteSpace(inputFilePath))
+        {
+            ApplyInputFile(inputFilePath);
+            return;
+        }
+
+        Console.WriteLine("入力方法を選んでください。");
+        Console.WriteLine("1. そのまま入力する");
+        Console.WriteLine("2. 入力ファイルを使う\n");
+
+        while (true)
+        {
+            Console.Write("入力方法を選んでください [1]: ");
+            var input = Console.ReadLine()?.Trim();
+            if (input is null)
+            {
+                throw new OperationCanceledException("入力方法の選択中に入力ストリームが終了しました。");
+            }
+
+            if (string.IsNullOrEmpty(input) || input == "1")
+            {
+                Console.WriteLine();
+                return;
+            }
+
+            if (input == "2")
+            {
+                var path = ReadInputFilePath();
+                ApplyInputFile(path);
+                return;
+            }
+
+            Console.WriteLine("1 か 2 を入力してください。\n");
+        }
+    }
+
+    static string ReadInputFilePath()
+    {
+        while (true)
+        {
+            Console.Write("入力ファイルのパスを入力してください: ");
+            var input = Console.ReadLine()?.Trim();
+            if (input is null)
+            {
+                throw new OperationCanceledException("入力ファイルパスの入力中に入力ストリームが終了しました。");
+            }
+
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                Console.WriteLine("ファイルパスを入力してください。\n");
+                continue;
+            }
+
+            return input;
+        }
+    }
+
+    static string? TryGetInputFilePathFromArgs(IReadOnlyList<string> args)
+    {
+        for (var index = 0; index < args.Count; index++)
+        {
+            var arg = args[index];
+            if (arg.Equals("--input-file", StringComparison.OrdinalIgnoreCase))
+            {
+                if (index + 1 >= args.Count)
+                {
+                    throw new OperationCanceledException("--input-file の後ろにファイルパスを指定してください。");
+                }
+
+                return args[index + 1];
+            }
+
+            const string inputFilePrefix = "--input-file=";
+            if (arg.StartsWith(inputFilePrefix, StringComparison.OrdinalIgnoreCase))
+            {
+                return arg[inputFilePrefix.Length..];
+            }
+        }
+
+        return null;
+    }
+
+    static void ApplyInputFile(string inputFilePath)
+    {
+        var fullPath = Path.GetFullPath(inputFilePath);
+        if (!File.Exists(fullPath))
+        {
+            throw new OperationCanceledException($"入力ファイルが見つかりません: {fullPath}");
+        }
+
+        Console.SetIn(new StringReader(File.ReadAllText(fullPath)));
+        Console.WriteLine($"入力ファイルを使います: {fullPath}\n");
     }
 
 static Dictionary<string, FinalStageGroup>? ReadOptionalFinalStageGroupMap(FinalStageGroupingMode groupingMode, IReadOnlyList<Participant> participants)
@@ -357,10 +459,15 @@ static CalculationResult CalculateBySimulation(IReadOnlyList<Participant> partic
     var placeProbabilities = new double[participants.Count, participants.Count];
     var wins = tournamentRuleSetMode == TournamentRuleSetMode.Neutral ? new int[participants.Count] : null;
     var outcomes = tournamentRuleSetMode == TournamentRuleSetMode.Twill ? new bool[matches.Count] : null;
-    var scenarioWeight = 1.0 / simulationCount;
+    var completedSimulationCount = 0;
 
     for (var simulation = 0; simulation < simulationCount; simulation++)
     {
+        if (!HasSimulationTimeRemaining())
+        {
+            break;
+        }
+
         if (tournamentRuleSetMode == TournamentRuleSetMode.Neutral)
         {
             Array.Clear(wins!);
@@ -396,18 +503,25 @@ static CalculationResult CalculateBySimulation(IReadOnlyList<Participant> partic
 
         if (tournamentRuleSetMode == TournamentRuleSetMode.Twill)
         {
-            TwillTournamentRule.AccumulatePlaceProbabilities(matches, outcomes!, scenarioWeight, placeProbabilities);
+            TwillTournamentRule.AccumulatePlaceProbabilities(matches, outcomes!, 1.0, placeProbabilities);
         }
         else
         {
-            AccumulatePlaceProbabilities(wins!, scenarioWeight, placeProbabilities);
+            AccumulatePlaceProbabilities(wins!, 1.0, placeProbabilities);
         }
+
+        completedSimulationCount++;
     }
 
-    var modeLabel = tournamentRuleSetMode == TournamentRuleSetMode.Twill
-        ? $"シミュレーション / Twill ({simulationCount:N0}回)"
-        : $"シミュレーション ({simulationCount:N0}回)";
-    return new CalculationResult(placeProbabilities, modeLabel, simulationCount);
+    NormalizePlaceProbabilities(placeProbabilities, completedSimulationCount);
+
+    var modeCoreLabel = tournamentRuleSetMode == TournamentRuleSetMode.Twill
+        ? "シミュレーション / Twill"
+        : "シミュレーション";
+    var modeLabel = completedSimulationCount < simulationCount
+        ? $"{modeCoreLabel} ({completedSimulationCount:N0}/{simulationCount:N0}回, 時間切れ)"
+        : $"{modeCoreLabel} ({simulationCount:N0}回)";
+    return new CalculationResult(placeProbabilities, modeLabel, completedSimulationCount);
 }
 
 static CalculationResult CalculateFinalStageExactly(IReadOnlyList<Participant> participants, IReadOnlyList<Match> matches, IReadOnlyDictionary<string, FinalStageGroup> groupMap, int additionalApexCount, BoundaryRescueMode boundaryRescueMode, double blackAdvantageRating, int promotedInnovCount = 0)
@@ -445,12 +559,17 @@ static CalculationResult CalculateFinalStageBySimulation(IReadOnlyList<Participa
 {
     var placeProbabilities = new double[participants.Count, participants.Count + additionalApexCount];
     var wins = new int[participants.Count];
-    var scenarioWeight = 1.0 / simulationCount;
     var apexParticipantIndexes = GetParticipantIndexesByGroup(participants, groupMap, FinalStageGroup.Apex);
     var innovParticipantIndexes = GetParticipantIndexesByGroup(participants, groupMap, FinalStageGroup.Innov);
+    var completedSimulationCount = 0;
 
     for (var simulation = 0; simulation < simulationCount; simulation++)
     {
+        if (!HasSimulationTimeRemaining())
+        {
+            break;
+        }
+
         Array.Clear(wins);
 
         foreach (var match in matches)
@@ -466,10 +585,16 @@ static CalculationResult CalculateFinalStageBySimulation(IReadOnlyList<Participa
             }
         }
 
-        AccumulateFinalStagePlaceProbabilities(wins, participants, apexParticipantIndexes, innovParticipantIndexes, additionalApexCount, boundaryRescueMode, blackAdvantageRating, scenarioWeight, placeProbabilities, promotedInnovCount);
+        AccumulateFinalStagePlaceProbabilities(wins, participants, apexParticipantIndexes, innovParticipantIndexes, additionalApexCount, boundaryRescueMode, blackAdvantageRating, 1.0, placeProbabilities, promotedInnovCount);
+        completedSimulationCount++;
     }
 
-    return new CalculationResult(placeProbabilities, $"本戦専用 シミュレーション ({simulationCount:N0}回)", simulationCount);
+    NormalizePlaceProbabilities(placeProbabilities, completedSimulationCount);
+
+    var modeLabel = completedSimulationCount < simulationCount
+        ? $"本戦専用 シミュレーション ({completedSimulationCount:N0}/{simulationCount:N0}回, 時間切れ)"
+        : $"本戦専用 シミュレーション ({simulationCount:N0}回)";
+    return new CalculationResult(placeProbabilities, modeLabel, completedSimulationCount);
 }
 
 static Dictionary<string, FinalStageGroup> ReadFinalStageGroupMap()
@@ -2412,6 +2537,49 @@ static string FormatOptionalPercentValue(double? value)
         : string.Empty;
 }
 
+static SimulationBudgetScope BeginSimulationBudget()
+{
+    var ownsBudget = !_simulationDeadlineUtc.HasValue;
+    if (ownsBudget)
+    {
+        _simulationDeadlineUtc = DateTime.UtcNow + SimulationTimeLimit;
+    }
+
+    return new SimulationBudgetScope(ownsBudget);
+}
+
+static bool HasSimulationTimeRemaining()
+{
+    return !_simulationDeadlineUtc.HasValue || DateTime.UtcNow < _simulationDeadlineUtc.Value;
+}
+
+static void NormalizePlaceProbabilities(double[,] placeProbabilities, int sampleCount)
+{
+    if (sampleCount <= 0)
+    {
+        return;
+    }
+
+    for (var row = 0; row < placeProbabilities.GetLength(0); row++)
+    {
+        for (var column = 0; column < placeProbabilities.GetLength(1); column++)
+        {
+            placeProbabilities[row, column] /= sampleCount;
+        }
+    }
+}
+
+readonly record struct SimulationBudgetScope(bool OwnsBudget) : IDisposable
+{
+    public void Dispose()
+    {
+        if (OwnsBudget)
+        {
+            _simulationDeadlineUtc = null;
+        }
+    }
+}
+
 static double CalculateEquivalentNeutralRating(IReadOnlyList<double> opponentRatings, double targetAverageScore)
 {
     if (opponentRatings.Count == 0)
@@ -2516,7 +2684,8 @@ readonly record struct QualitySummary(
 
 readonly record struct QualityEvaluationRun(
     IReadOnlyList<QualityParticipantRow> ParticipantRows,
-    QualitySummary Summary);
+    QualitySummary Summary,
+    string CalculationMode);
 
 readonly record struct QualitySweepOptions(
     bool IsEnabled,

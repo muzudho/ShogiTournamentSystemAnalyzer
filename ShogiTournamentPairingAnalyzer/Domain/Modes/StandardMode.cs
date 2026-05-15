@@ -41,11 +41,16 @@ internal static partial class Program
                 min: 1);
 
             Console.WriteLine();
+            using var simulationBudget = BeginSimulationBudget();
             result = CalculateBySimulation(participants, matches, blackAdvantageRating, simulationCount, tournamentRuleSetMode);
         }
 
         var resultRows = BuildResultRows(participants, matches, result, blackAdvantagePercent);
         PrintResult(participants.Count, result, blackAdvantagePercent, resultRows);
+        if (result.Mode.Contains("時間切れ", StringComparison.Ordinal))
+        {
+            Console.WriteLine($"シミュレーションは時間上限 {SimulationTimeLimit.TotalMinutes:F0} 分で打ち切りました。\n");
+        }
 
         var defaultOutputCsvPath = Path.GetFullPath($"result_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
         var outputCsvPath = ResolveOutputCsvPath(ReadTextWithDefault(

@@ -153,6 +153,10 @@ internal static partial class Program
 
         PrintQualitySummary(qualityEvaluationRun.Summary);
         PrintQualityParticipantHighlights(qualityEvaluationRun.ParticipantRows);
+        if (qualityEvaluationRun.CalculationMode.Contains("時間切れ", StringComparison.Ordinal))
+        {
+            Console.WriteLine($"シミュレーションは時間上限 {SimulationTimeLimit.TotalMinutes:F0} 分で打ち切りました。\n");
+        }
 
         var reportGroupingOptions = ReadExperimentalReportGroupingOptions();
         var defaultOutputCsvPath = BuildQualitySummaryDefaultOutputPath(groupingMode, additionalApexPlacementMode, boundaryRescueMode, reportGroupingOptions, tournamentRuleSetMode);
@@ -183,6 +187,8 @@ internal static partial class Program
         TournamentRuleSetMode tournamentRuleSetMode)
     {
         var sweepRows = new List<QualitySweepRow>();
+        using var simulationBudget = simulationCount.HasValue ? BeginSimulationBudget() : default;
+        var stoppedByTimeout = false;
         for (var blackAdvantagePercent = sweepOptions.StartPercent; blackAdvantagePercent <= sweepOptions.EndPercent + 1e-9; blackAdvantagePercent += sweepOptions.StepPercent)
         {
             var qualityEvaluationRun = ExecuteQualityEvaluationRun(
@@ -209,9 +215,19 @@ internal static partial class Program
                 qualityEvaluationRun.Summary.MostPenalizedDelta,
                 qualityEvaluationRun.Summary.MostAdvantagedParticipantName,
                 qualityEvaluationRun.Summary.MostAdvantagedDelta));
+
+            if (qualityEvaluationRun.CalculationMode.Contains("時間切れ", StringComparison.Ordinal))
+            {
+                stoppedByTimeout = true;
+                break;
+            }
         }
 
         PrintQualitySweepRows(sweepRows);
+        if (stoppedByTimeout)
+        {
+            Console.WriteLine($"シミュレーションは時間上限 {SimulationTimeLimit.TotalMinutes:F0} 分で打ち切ったため、n% スイープは途中で終了しました。\n");
+        }
 
         var reportGroupingOptions = ReadExperimentalReportGroupingOptions();
         var defaultOutputCsvPath = BuildQualitySweepDefaultOutputPath(groupingMode, additionalApexPlacementMode, boundaryRescueMode, reportGroupingOptions, tournamentRuleSetMode);
@@ -238,6 +254,7 @@ internal static partial class Program
         TournamentRuleSetMode tournamentRuleSetMode)
     {
         var blackAdvantageRating = ConvertBlackAdvantagePercentToRating(blackAdvantagePercent);
+        using var simulationBudget = simulationCount.HasValue ? BeginSimulationBudget() : default;
         var result = groupingMode == FinalStageGroupingMode.On
             ? simulationCount.HasValue
                 ? CalculateFinalStageBySimulation(participants, matches, groupMap!, effectiveAdditionalApexCount, boundaryRescueMode, blackAdvantageRating, simulationCount.Value, promotedInnovCount)
@@ -249,7 +266,7 @@ internal static partial class Program
         var resultRows = BuildResultRows(participants, matches, result, blackAdvantagePercent);
         var qualityParticipantRows = BuildQualityParticipantRows(resultRows, groupMap, additionalApexParticipants, additionalApexPlacementMode);
         var qualitySummary = BuildQualitySummary(qualityParticipantRows);
-        return new QualityEvaluationRun(qualityParticipantRows, qualitySummary);
+        return new QualityEvaluationRun(qualityParticipantRows, qualitySummary, result.Mode);
     }
 
     static QualitySweepOptions ReadQualitySweepOptions()
