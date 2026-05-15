@@ -248,33 +248,65 @@ static void PrintFinalStageInputSample()
     Console.WriteLine("END\n");
 }
 
-static CalculationResult CalculateExactly(IReadOnlyList<Participant> participants, IReadOnlyList<Match> matches, double blackAdvantageRating)
+static CalculationResult CalculateExactly(IReadOnlyList<Participant> participants, IReadOnlyList<Match> matches, double blackAdvantageRating, TournamentRuleSetMode tournamentRuleSetMode = TournamentRuleSetMode.Neutral)
 {
     var placeProbabilities = new double[participants.Count, participants.Count];
-    var wins = new int[participants.Count];
+    var wins = tournamentRuleSetMode == TournamentRuleSetMode.Neutral ? new int[participants.Count] : null;
+    var outcomes = tournamentRuleSetMode == TournamentRuleSetMode.Twill ? new bool[matches.Count] : null;
 
     void Explore(int matchIndex, double scenarioProbability)
     {
         if (matchIndex == matches.Count)
         {
-            AccumulatePlaceProbabilities(wins, scenarioProbability, placeProbabilities);
+            if (tournamentRuleSetMode == TournamentRuleSetMode.Twill)
+            {
+                TwillTournamentRule.AccumulatePlaceProbabilities(matches, outcomes!, scenarioProbability, placeProbabilities);
+            }
+            else
+            {
+                AccumulatePlaceProbabilities(wins!, scenarioProbability, placeProbabilities);
+            }
+
             return;
         }
 
         var match = matches[matchIndex];
         var blackWinsProbability = GetWinProbability(participants[match.Black], participants[match.White], blackAdvantageRating);
 
-        wins[match.Black]++;
-        Explore(matchIndex + 1, scenarioProbability * blackWinsProbability);
-        wins[match.Black]--;
+        if (tournamentRuleSetMode == TournamentRuleSetMode.Twill)
+        {
+            outcomes![matchIndex] = true;
+        }
+        else
+        {
+            wins![match.Black]++;
+        }
 
-        wins[match.White]++;
+        Explore(matchIndex + 1, scenarioProbability * blackWinsProbability);
+        if (tournamentRuleSetMode == TournamentRuleSetMode.Neutral)
+        {
+            wins![match.Black]--;
+        }
+
+        if (tournamentRuleSetMode == TournamentRuleSetMode.Twill)
+        {
+            outcomes![matchIndex] = false;
+        }
+        else
+        {
+            wins![match.White]++;
+        }
+
         Explore(matchIndex + 1, scenarioProbability * (1.0 - blackWinsProbability));
-        wins[match.White]--;
+        if (tournamentRuleSetMode == TournamentRuleSetMode.Neutral)
+        {
+            wins![match.White]--;
+        }
     }
 
     Explore(0, 1.0);
-    return new CalculationResult(placeProbabilities, "厳密計算", null);
+    var modeLabel = tournamentRuleSetMode == TournamentRuleSetMode.Twill ? "厳密計算 / Twill" : "厳密計算";
+    return new CalculationResult(placeProbabilities, modeLabel, null);
 }
 
 static (List<Participant> Participants, List<Match> Matches) FilterToScheduledParticipants(IReadOnlyList<Participant> participants, IReadOnlyList<Match> matches)
@@ -300,33 +332,62 @@ static (List<Participant> Participants, List<Match> Matches) FilterToScheduledPa
     return (filteredParticipants, filteredMatches);
 }
 
-static CalculationResult CalculateBySimulation(IReadOnlyList<Participant> participants, IReadOnlyList<Match> matches, double blackAdvantageRating, int simulationCount)
+static CalculationResult CalculateBySimulation(IReadOnlyList<Participant> participants, IReadOnlyList<Match> matches, double blackAdvantageRating, int simulationCount, TournamentRuleSetMode tournamentRuleSetMode = TournamentRuleSetMode.Neutral)
 {
     var placeProbabilities = new double[participants.Count, participants.Count];
-    var wins = new int[participants.Count];
+    var wins = tournamentRuleSetMode == TournamentRuleSetMode.Neutral ? new int[participants.Count] : null;
+    var outcomes = tournamentRuleSetMode == TournamentRuleSetMode.Twill ? new bool[matches.Count] : null;
     var scenarioWeight = 1.0 / simulationCount;
 
     for (var simulation = 0; simulation < simulationCount; simulation++)
     {
-        Array.Clear(wins);
-
-        foreach (var match in matches)
+        if (tournamentRuleSetMode == TournamentRuleSetMode.Neutral)
         {
+            Array.Clear(wins!);
+        }
+
+        for (var matchIndex = 0; matchIndex < matches.Count; matchIndex++)
+        {
+            var match = matches[matchIndex];
             var blackWinsProbability = GetWinProbability(participants[match.Black], participants[match.White], blackAdvantageRating);
             if (Random.Shared.NextDouble() < blackWinsProbability)
             {
-                wins[match.Black]++;
+                if (tournamentRuleSetMode == TournamentRuleSetMode.Twill)
+                {
+                    outcomes![matchIndex] = true;
+                }
+                else
+                {
+                    wins![match.Black]++;
+                }
             }
             else
             {
-                wins[match.White]++;
+                if (tournamentRuleSetMode == TournamentRuleSetMode.Twill)
+                {
+                    outcomes![matchIndex] = false;
+                }
+                else
+                {
+                    wins![match.White]++;
+                }
             }
         }
 
-        AccumulatePlaceProbabilities(wins, scenarioWeight, placeProbabilities);
+        if (tournamentRuleSetMode == TournamentRuleSetMode.Twill)
+        {
+            TwillTournamentRule.AccumulatePlaceProbabilities(matches, outcomes!, scenarioWeight, placeProbabilities);
+        }
+        else
+        {
+            AccumulatePlaceProbabilities(wins!, scenarioWeight, placeProbabilities);
+        }
     }
 
-    return new CalculationResult(placeProbabilities, $"シミュレーション ({simulationCount:N0}回)", simulationCount);
+    var modeLabel = tournamentRuleSetMode == TournamentRuleSetMode.Twill
+        ? $"シミュレーション / Twill ({simulationCount:N0}回)"
+        : $"シミュレーション ({simulationCount:N0}回)";
+    return new CalculationResult(placeProbabilities, modeLabel, simulationCount);
 }
 
 static CalculationResult CalculateFinalStageExactly(IReadOnlyList<Participant> participants, IReadOnlyList<Match> matches, IReadOnlyDictionary<string, FinalStageGroup> groupMap, int additionalApexCount, BoundaryRescueMode boundaryRescueMode, double blackAdvantageRating, int promotedInnovCount = 0)

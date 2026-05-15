@@ -5,6 +5,7 @@ internal static partial class Program
         Console.WriteLine("本戦専用モード: Apex / Innov 分割またはニュートラルな対局表を分析します。\n");
 
         PrintFinalStageInputSample();
+        var tournamentRuleSetMode = TournamentRuleSetRule.ReadMode();
 
         var blackAdvantagePercent = ReadDoubleWithDefaultInRange("同Elo対局時の先手勝率(%)を入力してください [51]: ", 51.0, 0.0, 100.0);
         var blackAdvantageRating = ConvertBlackAdvantagePercentToRating(blackAdvantagePercent);
@@ -66,6 +67,7 @@ internal static partial class Program
         Console.WriteLine();
         var referenceMatches = ReadOptionalMatchesFromCsv(participants, "参考対局CSVまたは Round/Black-White/対局記号表を貼り付けてください。大会記録に含めない場合だけ使います。");
 
+        Console.WriteLine($"順位ルール: {TournamentRuleSetRule.GetLabel(tournamentRuleSetMode)}\n");
         Console.WriteLine($"Apex / Innov の分け方: {FinalStageGroupingRule.GetLabel(groupingMode)}\n");
         if (groupingMode == FinalStageGroupingMode.On)
         {
@@ -97,7 +99,7 @@ internal static partial class Program
             if (matches.Count <= 20)
             {
                 Console.WriteLine("ニュートラルな厳密計算を行います。\n");
-                result = CalculateExactly(participants, matches, blackAdvantageRating);
+                result = CalculateExactly(participants, matches, blackAdvantageRating, tournamentRuleSetMode);
             }
             else
             {
@@ -108,7 +110,7 @@ internal static partial class Program
                     min: 1);
 
                 Console.WriteLine();
-                result = CalculateBySimulation(participants, matches, blackAdvantageRating, simulationCount);
+                result = CalculateBySimulation(participants, matches, blackAdvantageRating, simulationCount, tournamentRuleSetMode);
             }
 
             standardResultRows = BuildResultRows(participants, matches, result, blackAdvantagePercent);

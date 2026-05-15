@@ -11,7 +11,8 @@
 - For tournament naming in this project, prefer names that can be phrased as '○○式トーナメント' in the style of Swiss-system or ladder-style naming, including 'ツイル式トーナメント' as a preferred naming option and considering the Japanese term '斜文' as part of the concept.
 
 ## Tournament Announcement Draft Guidelines
-- For the tournament announcement draft, remove making-of/backstory for first-time readers.
+- For the tournament announcement draft, begin with a worked sample so first-time readers can understand it before the conceptual explanation.
+- Remove making-of/backstory for first-time readers.
 - Structure the announcement logically to ensure clarity.
 - Make the procedure immediately practical for readers.
 

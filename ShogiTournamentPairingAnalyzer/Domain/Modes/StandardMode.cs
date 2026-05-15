@@ -6,6 +6,7 @@ internal static partial class Program
         Console.WriteLine("前提: 各対局は黒番・白番を持ち、勝率は Elo レーティング差と黒番有利率から計算します。\n");
 
         PrintInputSample();
+        var tournamentRuleSetMode = TournamentRuleSetRule.ReadMode();
         var blackAdvantagePercent = ReadDoubleWithDefaultInRange("同Elo対局時の黒番勝率(%)を入力してください [51]: ", 51.0, 0.0, 100.0);
         var blackAdvantageRating = ConvertBlackAdvantagePercentToRating(blackAdvantagePercent);
 
@@ -13,6 +14,8 @@ internal static partial class Program
         var allParticipants = ReadParticipantsFromCsv();
         var allMatches = ReadMatchesFromCsv(allParticipants);
         var (participants, matches) = FilterToScheduledParticipants(allParticipants, allMatches);
+
+        Console.WriteLine($"順位ルール: {TournamentRuleSetRule.GetLabel(tournamentRuleSetMode)}\n");
 
         if (participants.Count != allParticipants.Count)
         {
@@ -27,7 +30,7 @@ internal static partial class Program
         if (matches.Count <= 20)
         {
             Console.WriteLine("厳密計算を行います。\n");
-            result = CalculateExactly(participants, matches, blackAdvantageRating);
+            result = CalculateExactly(participants, matches, blackAdvantageRating, tournamentRuleSetMode);
         }
         else
         {
@@ -38,7 +41,7 @@ internal static partial class Program
                 min: 1);
 
             Console.WriteLine();
-            result = CalculateBySimulation(participants, matches, blackAdvantageRating, simulationCount);
+            result = CalculateBySimulation(participants, matches, blackAdvantageRating, simulationCount, tournamentRuleSetMode);
         }
 
         var resultRows = BuildResultRows(participants, matches, result, blackAdvantagePercent);

@@ -7,6 +7,7 @@ internal static partial class Program
         Console.WriteLine("品質評価モード: 本戦ルールの実力反映性を評価します。\n");
 
         PrintFinalStageInputSample();
+        var tournamentRuleSetMode = TournamentRuleSetRule.ReadMode();
 
         var participants = ReadParticipantsFromCsv();
         Console.WriteLine();
@@ -98,6 +99,7 @@ internal static partial class Program
             Console.WriteLine();
         }
 
+        Console.WriteLine($"順位ルール: {TournamentRuleSetRule.GetLabel(tournamentRuleSetMode)}\n");
         Console.WriteLine($"Apex / Innov の分け方: {FinalStageGroupingRule.GetLabel(groupingMode)}\n");
         if (groupingMode == FinalStageGroupingMode.On)
         {
@@ -125,7 +127,8 @@ internal static partial class Program
                 boundaryRescueMode,
                 promotedInnovCount,
                 simulationCount,
-                sweepOptions);
+                sweepOptions,
+                tournamentRuleSetMode);
             return;
         }
 
@@ -143,7 +146,8 @@ internal static partial class Program
             boundaryRescueMode,
             promotedInnovCount,
             blackAdvantagePercent,
-            simulationCount);
+                simulationCount,
+                tournamentRuleSetMode);
 
         PrintQualitySummary(qualityEvaluationRun.Summary);
         PrintQualityParticipantHighlights(qualityEvaluationRun.ParticipantRows);
@@ -173,7 +177,8 @@ internal static partial class Program
         BoundaryRescueMode boundaryRescueMode,
         int promotedInnovCount,
         int? simulationCount,
-        QualitySweepOptions sweepOptions)
+        QualitySweepOptions sweepOptions,
+        TournamentRuleSetMode tournamentRuleSetMode)
     {
         var sweepRows = new List<QualitySweepRow>();
         for (var blackAdvantagePercent = sweepOptions.StartPercent; blackAdvantagePercent <= sweepOptions.EndPercent + 1e-9; blackAdvantagePercent += sweepOptions.StepPercent)
@@ -189,7 +194,8 @@ internal static partial class Program
                 boundaryRescueMode,
                 promotedInnovCount,
                 blackAdvantagePercent,
-                simulationCount);
+                simulationCount,
+                tournamentRuleSetMode);
 
             sweepRows.Add(new QualitySweepRow(
                 blackAdvantagePercent,
@@ -226,7 +232,8 @@ internal static partial class Program
         BoundaryRescueMode boundaryRescueMode,
         int promotedInnovCount,
         double blackAdvantagePercent,
-        int? simulationCount)
+        int? simulationCount,
+        TournamentRuleSetMode tournamentRuleSetMode)
     {
         var blackAdvantageRating = ConvertBlackAdvantagePercentToRating(blackAdvantagePercent);
         var result = groupingMode == FinalStageGroupingMode.On
@@ -234,8 +241,8 @@ internal static partial class Program
                 ? CalculateFinalStageBySimulation(participants, matches, groupMap!, effectiveAdditionalApexCount, boundaryRescueMode, blackAdvantageRating, simulationCount.Value, promotedInnovCount)
                 : CalculateFinalStageExactly(participants, matches, groupMap!, effectiveAdditionalApexCount, boundaryRescueMode, blackAdvantageRating, promotedInnovCount)
             : simulationCount.HasValue
-                ? CalculateBySimulation(participants, matches, blackAdvantageRating, simulationCount.Value)
-                : CalculateExactly(participants, matches, blackAdvantageRating);
+                ? CalculateBySimulation(participants, matches, blackAdvantageRating, simulationCount.Value, tournamentRuleSetMode)
+                : CalculateExactly(participants, matches, blackAdvantageRating, tournamentRuleSetMode);
 
         var resultRows = BuildResultRows(participants, matches, result, blackAdvantagePercent);
         var qualityParticipantRows = BuildQualityParticipantRows(resultRows, groupMap, additionalApexParticipants, additionalApexPlacementMode);
