@@ -1,0 +1,7 @@
+blackAdvantagePercent,spearmanCorrelation,meanAbsoluteRankError,averageTop8Retention,eloTop1OverallTop1ProbabilityPercent,mostPenalizedParticipant,mostPenalizedDelta,mostAdvantagedParticipant,mostAdvantagedDelta
+50.00,1.000000,1.234141,7.047906,22.514417,飛,2.639925,ひよこ,-2.645350
+60.00,1.000000,1.513819,5.941203,21.999185,飛,3.220150,ひよこ,-3.225350
+70.00,0.732353,3.581294,4.307576,15.507510,飛,4.763000,ひよこ,-4.805050
+80.00,-0.505882,6.290469,2.231419,3.652377,飛,7.735275,ひよこ,-7.744625
+90.00,-0.505882,7.874487,0.381445,0.050083,飛,10.213850,ひよこ,-10.238500
+100.00,-0.867722,8.000000,0.000000,0.000000,飛,11.500000,ひよこ,-11.500000
