@@ -87,12 +87,14 @@ END
 ```
 
 ### 本戦専用モード追加入力
-- グループ対応CSVを別入力で受け付ける
-- `group,name` 形式
-- `Apex` と `Innov` を使用する
-- 本戦不出場Apex一覧CSV（省略可）を別入力で受け付ける
-- 本戦不出場Apexの扱いを Off / On で切り替えられる
-- 境界救済戦を Off / On で切り替えられる
+- Apex / Innov の分け方を On / Off で切り替える
+- `On` のときはグループ対応CSVを別入力で受け付ける
+- グループ対応CSVは `group,name` 形式
+- `On` のときは `Apex` と `Innov` を使用する
+- `On` のときは本戦不出場Apex一覧CSV（省略可）を別入力で受け付ける
+- `On` のときは本戦不出場Apexの扱いを Off / On で切り替えられる
+- `On` のときは境界救済戦を Off / On で切り替えられる
+- `Off` のときはニュートラルな対局表として扱う
 
 例:
 
@@ -106,11 +108,15 @@ Innov,Dave
 
 現状の MVP 実装では、次を検証する。
 - 本戦参加者は 16 名
-- `Apex` は 8 名以下
-- 対局は `Innov` が黒番、`Apex` が白番
-- 同グループ同士の対局は禁止
+- Apex / Innov 分け方が `On` のときは `Apex` は 8 名以下
+- Apex / Innov 分け方が `On` のときは対局は `Innov` が黒番、`Apex` が白番
+- Apex / Innov 分け方が `On` のときは同グループ同士の対局は禁止
+- Apex / Innov 分け方が `Off` のときは全参加者を同一の土俵で順位づけする
 
 実験運用では、さらに次を切り替える。
+- Apex / Innov の分け方
+  - Off: ニュートラル
+  - On: Apex / Innov を使う
 - 本戦不出場Apexの扱い
   - Off: Innov より前に順位帯を確保する
   - On: 総合順位へ挿入しない
@@ -162,6 +168,11 @@ Innov,Dave
   - `overallPlaceDeltaFromEloRank`
   - `overallTop1ProbabilityPercent`
   - `overallTop8ProbabilityPercent`
+
+## 品質評価の基準
+- 品質評価では、ニュートラルを基準にする。
+- ニュートラルより良い大会ルールを `Good`、悪い大会ルールを `Bad` とする。
+- `docs/Reports/Good` と `docs/Reports/Bad` の振り分けも、この基準で行う。
 
 ## 実効Elo の意味
 - 対戦相手構成と黒白割り当てを踏まえた期待勝率から、色補正なしの通常 Elo 戦で同等の期待勝率になるレーティングを逆算したもの。
