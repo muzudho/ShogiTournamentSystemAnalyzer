@@ -25,7 +25,10 @@ internal static partial class Program
             $"\n結果CSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
             defaultOutputCsvPath));
         WriteResultCsv(outputCsvPath, result.Mode, context.BlackAdvantagePercent, resultRows);
+        var outputMarkdownPath = ChangeOutputExtension(outputCsvPath, ".md");
+        WriteResultMarkdown(outputMarkdownPath, result.Mode, context.BlackAdvantagePercent, resultRows);
         Console.WriteLine($"結果CSVを出力しました: {outputCsvPath}");
+        Console.WriteLine($"結果Markdownを出力しました: {outputMarkdownPath}");
     }
 
     static CalculationResult ExecuteStandardModeCalculation(StandardModeContext context)

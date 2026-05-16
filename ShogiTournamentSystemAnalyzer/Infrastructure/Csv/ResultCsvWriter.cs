@@ -328,6 +328,41 @@ internal static partial class Program
         File.WriteAllLines(outputCsvPath, lines, new UTF8Encoding(false));
     }
 
+    static void WriteResultMarkdown(string outputMarkdownPath, string mode, double blackAdvantagePercent, IReadOnlyList<ResultRow> resultRows)
+    {
+        var directoryPath = Path.GetDirectoryName(outputMarkdownPath);
+        if (!string.IsNullOrWhiteSpace(directoryPath))
+        {
+            Directory.CreateDirectory(directoryPath);
+        }
+
+        var topChampionshipRows = resultRows
+            .OrderByDescending(row => row.ChampionshipProbability)
+            .ThenBy(row => row.AveragePlace)
+            .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
+            .Take(8)
+            .ToArray();
+
+        var lines = new List<string>
+        {
+            "# 通常モード結果レポート",
+            string.Empty,
+            "## 概要",
+            $"- 計算モード: {mode}",
+            $"- 同Elo対局時の先手勝率: {blackAdvantagePercent.ToString("F2", CultureInfo.InvariantCulture)}%",
+            $"- 対象選手数: {resultRows.Count}",
+            string.Empty,
+            "## 上位候補一覧",
+            "| 選手 | 元Elo | 実効Elo | 差分 | 優勝確率 | 平均順位 |",
+            "| --- | ---: | ---: | ---: | ---: | ---: |"
+        };
+
+        lines.AddRange(topChampionshipRows.Select(row =>
+            $"| {row.Name} | {FormatRating(row.OriginalRating)} | {FormatRating(row.EffectiveRating)} | {FormatSignedRating(row.RatingDelta)} | {(row.ChampionshipProbability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {row.AveragePlace.ToString("F3", CultureInfo.InvariantCulture)} |"));
+
+        File.WriteAllLines(outputMarkdownPath, lines, new UTF8Encoding(false));
+    }
+
     static void WriteFinalStageResultCsv(string outputCsvPath, string mode, double blackAdvantagePercent, IReadOnlyList<FinalStageResultRow> resultRows)
     {
         var directoryPath = Path.GetDirectoryName(outputCsvPath);
@@ -404,6 +439,41 @@ internal static partial class Program
         }
 
         File.WriteAllLines(outputCsvPath, lines, new UTF8Encoding(false));
+    }
+
+    static void WriteFinalStageResultMarkdown(string outputMarkdownPath, string mode, double blackAdvantagePercent, IReadOnlyList<FinalStageResultRow> resultRows)
+    {
+        var directoryPath = Path.GetDirectoryName(outputMarkdownPath);
+        if (!string.IsNullOrWhiteSpace(directoryPath))
+        {
+            Directory.CreateDirectory(directoryPath);
+        }
+
+        var topRows = resultRows
+            .OrderByDescending(row => row.OverallPlace1Probability)
+            .ThenBy(row => row.OverallPlaceAverage)
+            .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
+            .Take(8)
+            .ToArray();
+
+        var lines = new List<string>
+        {
+            "# 本戦モード結果レポート",
+            string.Empty,
+            "## 概要",
+            $"- 計算モード: {mode}",
+            $"- 同Elo対局時の先手勝率: {blackAdvantagePercent.ToString("F2", CultureInfo.InvariantCulture)}%",
+            $"- 対象選手数: {resultRows.Count}",
+            string.Empty,
+            "## 上位候補一覧",
+            "| 選手 | グループ | 元Elo | 実効Elo | 差分 | グループ1位確率 | 総合1位確率 | 総合平均順位 |",
+            "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |"
+        };
+
+        lines.AddRange(topRows.Select(row =>
+            $"| {row.Name} | {row.Group} | {FormatRating(row.OriginalRating)} | {FormatRating(row.EffectiveRating)} | {FormatSignedRating(row.RatingDelta)} | {(row.GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {(row.OverallPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {row.OverallPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} |"));
+
+        File.WriteAllLines(outputMarkdownPath, lines, new UTF8Encoding(false));
     }
 }
 

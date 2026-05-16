@@ -110,15 +110,19 @@ internal static partial class Program
         var outputCsvPath = ResolveOutputCsvPath(ReadTextWithDefault(
             $"\n結果CSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
             defaultOutputCsvPath));
+        var outputMarkdownPath = ChangeOutputExtension(outputCsvPath, ".md");
         if (context.GroupingMode == FinalStageGroupingMode.On)
         {
             WriteFinalStageResultCsv(outputCsvPath, result.Mode, context.BlackAdvantagePercent, finalStageResultRows!);
+            WriteFinalStageResultMarkdown(outputMarkdownPath, result.Mode, context.BlackAdvantagePercent, finalStageResultRows!);
         }
         else
         {
             WriteResultCsv(outputCsvPath, result.Mode, context.BlackAdvantagePercent, standardResultRows!);
+            WriteResultMarkdown(outputMarkdownPath, result.Mode, context.BlackAdvantagePercent, standardResultRows!);
         }
         Console.WriteLine($"結果CSVを出力しました: {outputCsvPath}");
+        Console.WriteLine($"結果Markdownを出力しました: {outputMarkdownPath}");
 
         if (context.ReferenceMatches.Count > 0)
         {
