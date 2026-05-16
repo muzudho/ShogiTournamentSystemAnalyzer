@@ -53,6 +53,8 @@ dotnet run --project .\ShogiTournamentPairingAnalyzer\ShogiTournamentPairingAnal
   - `docs` 配下の資料全体を見渡したいときの入口
 - [実装計画の目次](./docs/実装計画/README.md)
   - 実装予定、設計メモ、改修方針
+- [Reports の案内](./docs/Reports/README.md)
+  - 実験結果や品質評価レポートを探したいときの入口
 - `docs/notes.md`
   - 補助メモ
 - `docs/むずでょの案`
