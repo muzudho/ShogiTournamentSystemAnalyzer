@@ -11,51 +11,14 @@ internal static partial class Program
         var participants = ReadParticipantsFromCsv();
         Console.WriteLine();
 
-        var groupingMode = FinalStageGroupingRule.ReadMode();
-        var tournamentRuleSetMode = groupingMode == FinalStageGroupingMode.Off
-            ? TournamentRuleSetRule.ReadMode()
-            : TournamentRuleSetMode.Neutral;
-        var groupMap = ReadOptionalFinalStageGroupMap(groupingMode, participants);
-        string errorMessage;
-        var participantsAreValid = groupingMode == FinalStageGroupingMode.On
-            ? ValidateFinalStageParticipants(participants, groupMap!, out errorMessage)
-            : ValidateFinalStageParticipants(participants, out errorMessage);
-        if (!participantsAreValid)
+        if (!TryReadQualityEvaluationRuleDefinition(participants, out var ruleDefinition))
         {
-            Console.WriteLine($"本戦参加者の検証に失敗しました: {errorMessage}\n");
             return;
         }
 
-        List<Participant> additionalApexParticipants;
-        var additionalApexPlacementMode = AdditionalApexPlacementMode.Off;
-        var effectiveAdditionalApexCount = 0;
-        var boundaryRescueMode = BoundaryRescueMode.Off;
-        var variableTop8Mode = VariableTop8Mode.Off;
-        var promotedInnovCount = 0;
-        if (groupingMode == FinalStageGroupingMode.On)
-        {
-            Console.WriteLine();
-            additionalApexParticipants = ReadOptionalParticipantsFromCsv("本戦不出場Apex一覧CSVを貼り付けてください。");
-            if (!ValidateAdditionalApexParticipants(participants, groupMap!, additionalApexParticipants, out errorMessage))
-            {
-                Console.WriteLine($"本戦不出場Apex一覧の検証に失敗しました: {errorMessage}\n");
-                return;
-            }
-
-            additionalApexPlacementMode = AdditionalApexPlacementRule.ReadMode();
-            effectiveAdditionalApexCount = AdditionalApexPlacementRule.GetEffectiveAdditionalApexCount(additionalApexParticipants.Count, additionalApexPlacementMode);
-            boundaryRescueMode = BoundaryRescueRule.ReadMode();
-            variableTop8Mode = VariableTop8Rule.ReadMode();
-            promotedInnovCount = VariableTop8Rule.GetPromotedInnovCount(variableTop8Mode, additionalApexParticipants.Count);
-        }
-        else
-        {
-            additionalApexParticipants = new List<Participant>();
-        }
-
         var matches = ReadMatchesFromCsv(participants);
-        var matchesAreValid = groupingMode == FinalStageGroupingMode.On
-            ? ValidateFinalStageMatches(participants, groupMap!, matches, out errorMessage)
+        var matchesAreValid = ruleDefinition.UsesFinalStageGrouping
+            ? ValidateFinalStageMatches(participants, ruleDefinition.GroupMap!, matches, out var errorMessage)
             : ValidateFinalStageMatches(participants, matches, out errorMessage);
         if (!matchesAreValid)
         {
@@ -66,53 +29,7 @@ internal static partial class Program
         Console.WriteLine();
         var referenceMatches = ReadOptionalMatchesFromCsv(participants, "参考対局CSVまたは Round/Black-White/対局記号表を貼り付けてください。大会記録に含めない場合だけ使います。");
         var input = new QualityEvaluationInput(participants, matches, referenceMatches);
-        var ruleDefinition = new QualityEvaluationRuleDefinition(
-            groupingMode,
-            tournamentRuleSetMode,
-            groupMap,
-            additionalApexParticipants,
-            additionalApexPlacementMode,
-            effectiveAdditionalApexCount,
-            boundaryRescueMode,
-            variableTop8Mode,
-            promotedInnovCount);
-
-        var sweepOptions = ReadQualitySweepOptions();
-
-        int? simulationCount = null;
-        if (!ruleDefinition.UsesFinalStageGrouping)
-        {
-            if (input.Matches.Count <= 20)
-            {
-                Console.WriteLine($"{TournamentRuleSetRule.GetLabel(ruleDefinition.TournamentRuleSetMode)} の品質評価用厳密計算を行います。\n");
-            }
-            else
-            {
-                const int defaultSimulationCount = 200_000;
-                simulationCount = ReadIntWithDefault(
-                    $"局数が多いため {TournamentRuleSetRule.GetLabel(ruleDefinition.TournamentRuleSetMode)} の品質評価用シミュレーションで近似します。試行回数を入力してください [{defaultSimulationCount}]: ",
-                    defaultSimulationCount,
-                    min: 1);
-
-                Console.WriteLine();
-            }
-        }
-        else if (input.Matches.Count <= 20)
-        {
-            Console.WriteLine("品質評価用の厳密計算を行います。\n");
-        }
-        else
-        {
-            const int defaultSimulationCount = 200_000;
-            simulationCount = ReadIntWithDefault(
-                $"局数が多いため品質評価用シミュレーションで近似します。試行回数を入力してください [{defaultSimulationCount}]: ",
-                defaultSimulationCount,
-                min: 1);
-
-            Console.WriteLine();
-        }
-
-        var executionOptions = new QualityEvaluationExecutionOptions(simulationCount, sweepOptions, null);
+        var executionOptions = ReadQualityEvaluationExecutionOptions(input, ruleDefinition);
 
         Console.WriteLine($"順位ルール: {TournamentRuleSetRule.GetLabel(ruleDefinition.TournamentRuleSetMode)}\n");
         Console.WriteLine($"Apex / Innov の分け方: {FinalStageGroupingRule.GetLabel(ruleDefinition.GroupingMode)}\n");
@@ -252,6 +169,109 @@ internal static partial class Program
         var qualityParticipantRows = BuildQualityParticipantRows(resultRows, ruleDefinition.GroupMap, ruleDefinition.AdditionalApexParticipants, ruleDefinition.AdditionalApexPlacementMode);
         var qualitySummary = BuildQualitySummary(qualityParticipantRows);
         return new QualityEvaluationRun(qualityParticipantRows, qualitySummary, result.Mode);
+    }
+
+    static bool TryReadQualityEvaluationRuleDefinition(
+        IReadOnlyList<Participant> participants,
+        out QualityEvaluationRuleDefinition ruleDefinition)
+    {
+        var groupingMode = FinalStageGroupingRule.ReadMode();
+        var tournamentRuleSetMode = groupingMode == FinalStageGroupingMode.Off
+            ? TournamentRuleSetRule.ReadMode()
+            : TournamentRuleSetMode.Neutral;
+        var groupMap = ReadOptionalFinalStageGroupMap(groupingMode, participants);
+
+        var participantsAreValid = groupingMode == FinalStageGroupingMode.On
+            ? ValidateFinalStageParticipants(participants, groupMap!, out var errorMessage)
+            : ValidateFinalStageParticipants(participants, out errorMessage);
+        if (!participantsAreValid)
+        {
+            Console.WriteLine($"本戦参加者の検証に失敗しました: {errorMessage}\n");
+            ruleDefinition = default;
+            return false;
+        }
+
+        List<Participant> additionalApexParticipants;
+        var additionalApexPlacementMode = AdditionalApexPlacementMode.Off;
+        var effectiveAdditionalApexCount = 0;
+        var boundaryRescueMode = BoundaryRescueMode.Off;
+        var variableTop8Mode = VariableTop8Mode.Off;
+        var promotedInnovCount = 0;
+        if (groupingMode == FinalStageGroupingMode.On)
+        {
+            Console.WriteLine();
+            additionalApexParticipants = ReadOptionalParticipantsFromCsv("本戦不出場Apex一覧CSVを貼り付けてください。");
+            if (!ValidateAdditionalApexParticipants(participants, groupMap!, additionalApexParticipants, out errorMessage))
+            {
+                Console.WriteLine($"本戦不出場Apex一覧の検証に失敗しました: {errorMessage}\n");
+                ruleDefinition = default;
+                return false;
+            }
+
+            additionalApexPlacementMode = AdditionalApexPlacementRule.ReadMode();
+            effectiveAdditionalApexCount = AdditionalApexPlacementRule.GetEffectiveAdditionalApexCount(additionalApexParticipants.Count, additionalApexPlacementMode);
+            boundaryRescueMode = BoundaryRescueRule.ReadMode();
+            variableTop8Mode = VariableTop8Rule.ReadMode();
+            promotedInnovCount = VariableTop8Rule.GetPromotedInnovCount(variableTop8Mode, additionalApexParticipants.Count);
+        }
+        else
+        {
+            additionalApexParticipants = new List<Participant>();
+        }
+
+        ruleDefinition = new QualityEvaluationRuleDefinition(
+            groupingMode,
+            tournamentRuleSetMode,
+            groupMap,
+            additionalApexParticipants,
+            additionalApexPlacementMode,
+            effectiveAdditionalApexCount,
+            boundaryRescueMode,
+            variableTop8Mode,
+            promotedInnovCount);
+        return true;
+    }
+
+    static QualityEvaluationExecutionOptions ReadQualityEvaluationExecutionOptions(
+        QualityEvaluationInput input,
+        QualityEvaluationRuleDefinition ruleDefinition)
+    {
+        var sweepOptions = ReadQualitySweepOptions();
+
+        int? simulationCount = null;
+        if (!ruleDefinition.UsesFinalStageGrouping)
+        {
+            if (input.Matches.Count <= 20)
+            {
+                Console.WriteLine($"{TournamentRuleSetRule.GetLabel(ruleDefinition.TournamentRuleSetMode)} の品質評価用厳密計算を行います。\n");
+            }
+            else
+            {
+                const int defaultSimulationCount = 200_000;
+                simulationCount = ReadIntWithDefault(
+                    $"局数が多いため {TournamentRuleSetRule.GetLabel(ruleDefinition.TournamentRuleSetMode)} の品質評価用シミュレーションで近似します。試行回数を入力してください [{defaultSimulationCount}]: ",
+                    defaultSimulationCount,
+                    min: 1);
+
+                Console.WriteLine();
+            }
+        }
+        else if (input.Matches.Count <= 20)
+        {
+            Console.WriteLine("品質評価用の厳密計算を行います。\n");
+        }
+        else
+        {
+            const int defaultSimulationCount = 200_000;
+            simulationCount = ReadIntWithDefault(
+                $"局数が多いため品質評価用シミュレーションで近似します。試行回数を入力してください [{defaultSimulationCount}]: ",
+                defaultSimulationCount,
+                min: 1);
+
+            Console.WriteLine();
+        }
+
+        return new QualityEvaluationExecutionOptions(simulationCount, sweepOptions, null);
     }
 
     static QualitySweepOptions ReadQualitySweepOptions()
