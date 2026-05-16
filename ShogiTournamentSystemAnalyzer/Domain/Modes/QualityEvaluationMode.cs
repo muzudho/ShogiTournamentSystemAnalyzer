@@ -16,19 +16,10 @@ internal static partial class Program
             return;
         }
 
-        var matches = ReadMatchesFromCsv(participants);
-        var matchesAreValid = ruleDefinition.UsesFinalStageGrouping
-            ? ValidateFinalStageMatches(participants, ruleDefinition.GroupMap!, matches, out var errorMessage)
-            : ValidateFinalStageMatches(participants, matches, out errorMessage);
-        if (!matchesAreValid)
+        if (!TryReadQualityEvaluationInput(participants, ruleDefinition, out var input))
         {
-            Console.WriteLine($"本戦対局の検証に失敗しました: {errorMessage}\n");
             return;
         }
-
-        Console.WriteLine();
-        var referenceMatches = ReadOptionalMatchesFromCsv(participants, "参考対局CSVまたは Round/Black-White/対局記号表を貼り付けてください。大会記録に含めない場合だけ使います。");
-        var input = new QualityEvaluationInput(participants, matches, referenceMatches);
         var executionOptions = ReadQualityEvaluationExecutionOptions(input, ruleDefinition);
 
         Console.WriteLine($"順位ルール: {TournamentRuleSetRule.GetLabel(ruleDefinition.TournamentRuleSetMode)}\n");
@@ -229,6 +220,28 @@ internal static partial class Program
             boundaryRescueMode,
             variableTop8Mode,
             promotedInnovCount);
+        return true;
+    }
+
+    static bool TryReadQualityEvaluationInput(
+        IReadOnlyList<Participant> participants,
+        QualityEvaluationRuleDefinition ruleDefinition,
+        out QualityEvaluationInput input)
+    {
+        var matches = ReadMatchesFromCsv(participants);
+        var matchesAreValid = ruleDefinition.UsesFinalStageGrouping
+            ? ValidateFinalStageMatches(participants, ruleDefinition.GroupMap!, matches, out var errorMessage)
+            : ValidateFinalStageMatches(participants, matches, out errorMessage);
+        if (!matchesAreValid)
+        {
+            Console.WriteLine($"本戦対局の検証に失敗しました: {errorMessage}\n");
+            input = default;
+            return false;
+        }
+
+        Console.WriteLine();
+        var referenceMatches = ReadOptionalMatchesFromCsv(participants, "参考対局CSVまたは Round/Black-White/対局記号表を貼り付けてください。大会記録に含めない場合だけ使います。");
+        input = new QualityEvaluationInput(participants, matches, referenceMatches);
         return true;
     }
 
