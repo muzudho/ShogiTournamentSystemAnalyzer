@@ -34,10 +34,6 @@ internal static partial class Program
             return;
         }
 
-        var blackAdvantagePercent = ReadDoubleWithDefaultInRange("同Elo対局時の先手勝率(%)を入力してください [51]: ", 51.0, 0.0, 100.0);
-        Console.WriteLine();
-        executionOptions = executionOptions with { BlackAdvantagePercent = blackAdvantagePercent };
-
         var qualityEvaluationRun = ExecuteQualityEvaluationRun(
             input,
             ruleDefinition,
