@@ -88,7 +88,7 @@ dotnet run --project .\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyz
 
 ### 実装者向け案内
 - [実装ファイル案内](./docs/Manuals/実装ファイル案内.md)
-	- どこにどんなファイルがあるか、何を直したいときにどのファイルを見るか、逆引きで探せる案内
+  - どこにどんなファイルがあるか、何を直したいときにどのファイルを見るか、ミニ目次付きで逆引きできる案内
 
 ### 開発・計画メモ
 - [docs フォルダー案内](./docs/README.md)
@@ -124,7 +124,7 @@ dotnet run --project .\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyz
 - 実行用入力ファイルの書き方を知りたい: [入力ファイル仕様](./docs/Manuals/入力ファイル仕様.md)
 - CSV 形式や出力内容を知りたい: [CSVと出力](./docs/Manuals/CSVと出力.md)
 - 実装の場所を探したい: [実装ファイル案内](./docs/Manuals/実装ファイル案内.md)
-  - 「最初に読む順」や「よくある修正例」から探せます
+	- 「最初に読む順」「よくある修正例」「ミニ目次」から探せます
 
 ## 関連リンク
 - [白黒対抗ルール案](https://note.com/muzudho/n/n311536fd1812?app_launch=false)
