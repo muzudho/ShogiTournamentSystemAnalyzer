@@ -13,15 +13,15 @@ internal static partial class Program
             PrintFinalStageInputSample();
         }
 
-        var participants = ReadPlayersFromCsv();
+        var players = ReadPlayersFromCsv();
         Console.WriteLine();
 
-        if (!TryReadQualityEvaluationRuleDefinition(participants, ruleProfileMode, out var ruleDefinition))
+        if (!TryReadQualityEvaluationRuleDefinition(players, ruleProfileMode, out var ruleDefinition))
         {
             return;
         }
 
-        if (!TryReadQualityEvaluationInput(participants, ruleDefinition, out var input))
+        if (!TryReadQualityEvaluationInput(players, ruleDefinition, out var input))
         {
             return;
         }
@@ -55,7 +55,7 @@ internal static partial class Program
     }
 
     static bool TryReadQualityEvaluationRuleDefinition(
-        IReadOnlyList<Player> participants,
+        IReadOnlyList<Player> players,
         RuleProfileMode ruleProfileMode,
         out QualityEvaluationRuleDefinition ruleDefinition)
     {
@@ -66,13 +66,13 @@ internal static partial class Program
             ? ReadTournamentRuleSetMode()
             : TournamentRuleSetMode.Neutral;
         var groupMap = ruleProfileMode == RuleProfileMode.FinalStage
-            ? ReadOptionalFinalStageGroupMap(groupingMode, participants)
+            ? ReadOptionalFinalStageGroupMap(groupingMode, players)
             : null;
 
-        var participantsAreValid = groupingMode == FinalStageGroupingMode.On
-            ? ValidateFinalStageParticipants(participants, groupMap!, out var errorMessage)
-            : ValidateFinalStageParticipants(participants, out errorMessage);
-        if (!participantsAreValid)
+        var playersAreValid = groupingMode == FinalStageGroupingMode.On
+            ? ValidateFinalStageParticipants(players, groupMap!, out var errorMessage)
+            : ValidateFinalStageParticipants(players, out errorMessage);
+        if (!playersAreValid)
         {
             var targetLabel = groupingMode == FinalStageGroupingMode.On ? "本戦選手" : "選手一覧";
             Console.WriteLine($"{targetLabel}の検証に失敗しました: {errorMessage}\n");
@@ -80,7 +80,7 @@ internal static partial class Program
             return false;
         }
 
-        List<Player> additionalApexParticipants;
+        List<Player> additionalApexPlayers;
         var additionalApexPlacementMode = AdditionalApexPlacementMode.Off;
         var effectiveAdditionalApexCount = 0;
         var boundaryRescueMode = BoundaryRescueMode.Off;
@@ -89,8 +89,8 @@ internal static partial class Program
         if (groupingMode == FinalStageGroupingMode.On)
         {
             Console.WriteLine();
-            additionalApexParticipants = ReadOptionalPlayersFromCsv("本戦不出場Apex一覧CSVを貼り付けてください。");
-            if (!ValidateAdditionalApexParticipants(participants, groupMap!, additionalApexParticipants, out errorMessage))
+            additionalApexPlayers = ReadOptionalPlayersFromCsv("本戦不出場Apex一覧CSVを貼り付けてください。");
+            if (!ValidateAdditionalApexParticipants(players, groupMap!, additionalApexPlayers, out errorMessage))
             {
                 Console.WriteLine($"本戦不出場Apex一覧の検証に失敗しました: {errorMessage}\n");
                 ruleDefinition = default;
@@ -98,21 +98,21 @@ internal static partial class Program
             }
 
             additionalApexPlacementMode = ReadAdditionalApexPlacementMode();
-            effectiveAdditionalApexCount = AdditionalApexPlacementRule.GetEffectiveAdditionalApexCount(additionalApexParticipants.Count, additionalApexPlacementMode);
+            effectiveAdditionalApexCount = AdditionalApexPlacementRule.GetEffectiveAdditionalApexCount(additionalApexPlayers.Count, additionalApexPlacementMode);
             boundaryRescueMode = ReadBoundaryRescueMode();
             variableTop8Mode = ReadVariableTop8Mode();
-            promotedInnovCount = VariableTop8Rule.GetPromotedInnovCount(variableTop8Mode, additionalApexParticipants.Count);
+            promotedInnovCount = VariableTop8Rule.GetPromotedInnovCount(variableTop8Mode, additionalApexPlayers.Count);
         }
         else
         {
-            additionalApexParticipants = new List<Player>();
+            additionalApexPlayers = new List<Player>();
         }
 
         ruleDefinition = new QualityEvaluationRuleDefinition(
             groupingMode,
             tournamentRuleSetMode,
             groupMap,
-            additionalApexParticipants,
+            additionalApexPlayers,
             additionalApexPlacementMode,
             effectiveAdditionalApexCount,
             boundaryRescueMode,
@@ -122,14 +122,14 @@ internal static partial class Program
     }
 
     static bool TryReadQualityEvaluationInput(
-        IReadOnlyList<Player> participants,
+        IReadOnlyList<Player> players,
         QualityEvaluationRuleDefinition ruleDefinition,
         out QualityEvaluationInput input)
     {
-        var matches = ReadMatchesFromCsv(participants);
+        var matches = ReadMatchesFromCsv(players);
         var matchesAreValid = ruleDefinition.UsesFinalStageGrouping
-            ? ValidateFinalStageMatches(participants, ruleDefinition.GroupMap!, matches, out var errorMessage)
-            : ValidateFinalStageMatches(participants, matches, out errorMessage);
+            ? ValidateFinalStageMatches(players, ruleDefinition.GroupMap!, matches, out var errorMessage)
+            : ValidateFinalStageMatches(players, matches, out errorMessage);
         if (!matchesAreValid)
         {
             var matchLabel = ruleDefinition.UsesFinalStageGrouping ? "本戦対局" : "対局";
@@ -139,8 +139,8 @@ internal static partial class Program
         }
 
         Console.WriteLine();
-        var referenceMatches = ReadOptionalMatchesFromCsv(participants, "参考対局CSVまたは Round/Black-White/対局記号表を貼り付けてください。大会記録に含めない場合だけ使います。");
-        input = new QualityEvaluationInput(participants, matches, referenceMatches);
+        var referenceMatches = ReadOptionalMatchesFromCsv(players, "参考対局CSVまたは Round/Black-White/対局記号表を貼り付けてください。大会記録に含めない場合だけ使います。");
+        input = new QualityEvaluationInput(players, matches, referenceMatches);
         return true;
     }
 
