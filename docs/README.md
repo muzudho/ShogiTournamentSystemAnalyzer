@@ -36,6 +36,7 @@
 実行結果の CSV、品質評価レポート、比較メモを置く場所です。
 
 - [Reports の案内](./Reports/README.md)
+- [ツイル式トーナメント発表案](./Reports/ツイル式トーナメント発表案.md)
 
 ### `../ShogiTournamentSystemAnalyzer/Data`
 アプリで使う実行用入力、選手データ、ルール保存データを置く場所です。
