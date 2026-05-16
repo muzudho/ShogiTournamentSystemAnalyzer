@@ -79,13 +79,20 @@ dotnet run --project .\ShogiTournamentPairingAnalyzer\ShogiTournamentPairingAnal
 `--input-file` を使うときは、実行用入力を `ShogiTournamentPairingAnalyzer/Inputs/Smoke`、`Bench`、`Sweeps` のいずれかに置く運用を基本にします。
 
 入力ファイルでは `#` で始まる行をコメントとして無視できます。  
-そのため、値だけでは意味が分かりにくい箇所には次のように `#[Prompt]` を添えられます。
+また、`#[Enter]` は空行 1 行として扱われます。  
+そのため、値だけでは意味が分かりにくい箇所には `#[Prompt]` を添え、空行終端には `#[Enter]` を使えます。
 
 ```plaintext
 #[Prompt] モード番号を入力してください [1]
 3
 #[Prompt] 同Elo対局時の先手勝率(%)を入力してください [51]
 51
+
+#[Prompt] 選手一覧CSVを貼り付けてください。入力終了は #[Enter] です。
+name,elo
+Alice,1500
+Bob,1480
+#[Enter]
 ```
 
 ### 通常モード

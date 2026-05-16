@@ -18,7 +18,7 @@ name,elo
 "大ハム",4730
 "中ハム",4710
 "小ハム",4690
-
+#[Enter]
 #[Prompt] Apex / Innov の分け方を使いますか？
 1
 #[Prompt] グループ対応CSVを貼り付けてください。入力終了は空行です。
@@ -39,9 +39,9 @@ Innov,"ひよこ"
 Innov,"大ハム"
 Innov,"中ハム"
 Innov,"小ハム"
-
+#[Enter]
 #[Prompt] 本戦不出場Apex一覧CSVを貼り付けてください。入力終了は空行です。空のまま Enter で省略できます。
-
+#[Enter]
 #[Prompt] 本戦不出場Apexの扱いを選んでください [1]
 1
 #[Prompt] 境界救済戦を使いますか？ [1]
@@ -104,7 +104,7 @@ M, "ひよこ"
 N, "大ハム"
 O, "中ハム"
 P, "小ハム"
-
+#[Enter]
 END
 #[Prompt] 参考対局CSVまたは Round/Black-White/対局記号表を貼り付けてください。空のまま END で省略できます。
 END

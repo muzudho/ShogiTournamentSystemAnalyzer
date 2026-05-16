@@ -117,10 +117,13 @@ internal static partial class Program
             throw new OperationCanceledException($"入力ファイルが見つかりません: {fullPath}");
         }
 
-        var filteredInput = string.Join(
-            Environment.NewLine,
-            File.ReadLines(fullPath)
-                .Where(line => !line.TrimStart().StartsWith('#')));
+        var filteredLines = File.ReadLines(fullPath)
+            .Select(line => line.Trim().Equals("#[Enter]", StringComparison.OrdinalIgnoreCase)
+                ? string.Empty
+                : line)
+            .Where(line => !line.TrimStart().StartsWith('#'));
+
+        var filteredInput = string.Join(Environment.NewLine, filteredLines);
 
         Console.SetIn(new StringReader(filteredInput));
         Console.WriteLine($"入力ファイルを使います: {fullPath}\n");
