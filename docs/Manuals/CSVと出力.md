@@ -85,7 +85,7 @@ END
 - 主なヘッダー名:
   - `calculationMode`
   - `blackAdvantagePercent`
-  - `participantName`
+	- `playerName`
   - `originalElo`
   - `effectiveElo`
   - `eloDelta`
@@ -100,10 +100,12 @@ END
 - `meanAbsoluteRankError`
 - `averageTop8Retention`
 - `eloTop1OverallTop1Probability`
+- `mostPenalizedPlayerDelta`
+- `mostAdvantagedPlayerDelta`
 - 必要に応じて `evaluationMemo`
 
 ### 選手別CSV
-- `participantName`
+- `playerName`
 - `group`
 - `originalElo`
 - `eloRank`

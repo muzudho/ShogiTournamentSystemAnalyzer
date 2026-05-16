@@ -1,4 +1,4 @@
-# Participants
+# Players
 
 このフォルダーは、選手名とレーティングのような再利用する選手データを置く場所です。
 
@@ -13,11 +13,11 @@
 - 大会区分別
 
 例:
-- `2025/participants_[2025年度_全国].csv`
-- `2026/participants_[2026年_関東].csv`
-- `2026/participants_[2026年_関西].csv`
+- `2025/players_[2025年度_全国].csv`
+- `2026/players_[2026年_関東].csv`
+- `2026/players_[2026年_関西].csv`
 
 ## 位置づけ
 - `Data/Inputs`: 実行用入力ファイル
-- `Data/Participants`: 再利用する選手データ
+- `Data/Players`: 再利用する選手データ
 - `Data/RuleSets`: 保存して再利用する大会ルール

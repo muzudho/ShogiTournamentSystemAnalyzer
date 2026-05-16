@@ -59,11 +59,11 @@ internal static partial class Program
     {
         WriteQualitySummaryCsv(outputOptions.OutputCsvPath, qualityEvaluationRun.Summary, outputOptions.ReportGroupingOptions);
 
-        var participantCsvPath = BuildSiblingOutputCsvPath(outputOptions.OutputCsvPath, "quality_participants");
-        WriteQualityParticipantCsv(participantCsvPath, qualityEvaluationRun.ParticipantRows);
+        var playerCsvPath = BuildSiblingOutputCsvPath(outputOptions.OutputCsvPath, "quality_players");
+        WriteQualityParticipantCsv(playerCsvPath, qualityEvaluationRun.ParticipantRows);
 
         Console.WriteLine($"品質評価サマリーCSVを出力しました: {outputOptions.OutputCsvPath}");
-        Console.WriteLine($"品質評価参加者別CSVを出力しました: {participantCsvPath}");
+        Console.WriteLine($"品質評価選手別CSVを出力しました: {playerCsvPath}");
     }
 
     static void PrintQualitySweepRows(IReadOnlyList<QualitySweepRow> sweepRows)

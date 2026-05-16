@@ -18,8 +18,8 @@ internal static partial class Program
             $"meanAbsoluteRankError,{summary.MeanAbsoluteRankError.ToString("F6", CultureInfo.InvariantCulture)},期待総合順位とElo順位のずれの絶対値平均",
             $"averageTop8Retention,{summary.AverageTop8Retention.ToString("F6", CultureInfo.InvariantCulture)},Elo上位8名が総合上位8位に残る人数の期待値",
             $"eloTop1OverallTop1Probability,{(summary.EloTop1OverallTop1Probability * 100).ToString("F6", CultureInfo.InvariantCulture)},Elo1位が総合1位になる確率(%)",
-            $"mostPenalizedParticipantDelta,{summary.MostPenalizedDelta.ToString("F6", CultureInfo.InvariantCulture)},{EscapeCsv(summary.MostPenalizedParticipantName)}",
-            $"mostAdvantagedParticipantDelta,{summary.MostAdvantagedDelta.ToString("F6", CultureInfo.InvariantCulture)},{EscapeCsv(summary.MostAdvantagedParticipantName)}"
+            $"mostPenalizedPlayerDelta,{summary.MostPenalizedDelta.ToString("F6", CultureInfo.InvariantCulture)},{EscapeCsv(summary.MostPenalizedParticipantName)}",
+            $"mostAdvantagedPlayerDelta,{summary.MostAdvantagedDelta.ToString("F6", CultureInfo.InvariantCulture)},{EscapeCsv(summary.MostAdvantagedParticipantName)}"
         };
 
         if (!string.IsNullOrWhiteSpace(options.EvaluationMemo))
@@ -40,7 +40,7 @@ internal static partial class Program
 
         var lines = new List<string>
         {
-            "blackAdvantagePercent,spearmanCorrelation,meanAbsoluteRankError,averageTop8Retention,eloTop1OverallTop1ProbabilityPercent,mostPenalizedParticipant,mostPenalizedDelta,mostAdvantagedParticipant,mostAdvantagedDelta"
+            "blackAdvantagePercent,spearmanCorrelation,meanAbsoluteRankError,averageTop8Retention,eloTop1OverallTop1ProbabilityPercent,mostPenalizedPlayer,mostPenalizedDelta,mostAdvantagedPlayer,mostAdvantagedDelta"
         };
 
         lines.AddRange(sweepRows.Select(row => string.Join(",",
@@ -72,7 +72,7 @@ internal static partial class Program
 
         var lines = new List<string>
         {
-            "participantName,group,originalElo,eloRank,expectedOverallPlace,overallPlaceDeltaFromEloRank,overallTop1ProbabilityPercent,overallTop8ProbabilityPercent"
+            "playerName,group,originalElo,eloRank,expectedOverallPlace,overallPlaceDeltaFromEloRank,overallTop1ProbabilityPercent,overallTop8ProbabilityPercent"
         };
 
         lines.AddRange(participantRows.Select(row => string.Join(",",
@@ -101,7 +101,7 @@ internal static partial class Program
         {
             "calculationMode",
             "blackAdvantagePercent",
-            "participantName",
+            "playerName",
             "originalElo",
             "effectiveElo",
             "eloDelta",
@@ -173,7 +173,7 @@ internal static partial class Program
         {
             "calculationMode",
             "blackAdvantagePercent",
-            "participantName",
+            "playerName",
             "group",
             "originalElo",
             "effectiveElo",

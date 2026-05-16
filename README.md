@@ -117,7 +117,7 @@ dotnet run --project .\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyz
   - `Smoke`: 1 回や少数回のスモークテスト用
   - `Bench`: 単発評価や軽いベンチマーク用
   - `Sweeps`: n% スイープ実験用
-- `ShogiTournamentSystemAnalyzer/Data/Participants`
+- `ShogiTournamentSystemAnalyzer/Data/Players`
   - 年度別・地域別の選手名とレーティングを置く場所
 - `ShogiTournamentSystemAnalyzer/Data/RuleSets`
   - 保存して再利用する大会ルールを置く場所
