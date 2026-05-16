@@ -1,22 +1,44 @@
 # ShogiTournamentSystemAnalyzer
 
-大会の対局表と Elo レーティングから、順位分布を計算する .NET コンソールアプリです。  
-黒番有利なゲームを想定しており、黒番・白番の偏りや、対局表による有利不利を確認できます。
+大会ルールは、感覚だけでは改善しにくいです。  
+このプロジェクトは、将棋大会の［大会ルールの部品］を試作し、シミュレーションで品質を比較しながら、より良い［大会ルール］を作っていくための .NET コンソールアプリです。
+
+対局表と選手の強さを与えると、順位分布や実力反映性を計算できます。  
+黒番有利なゲームを想定しており、黒番・白番の偏りや、対局表による有利不利も確認できます。
+
+「ルール案を思いつく → ルールの部品として組み込む → 回して比べる → もっと良くする」を繰り返すための実験場です。
 
 README は入口に絞り、詳細説明は `docs/Manuals` に分けています。
+
+
+## このツールでできること
+
+- 大会ルールの案を、シミュレーションで比較できる
+- 現在の最高品質を基準にして、新しい案が良いか悪いかを見られる
+- 対局表の偏りや、順位ルールの違いが結果にどう効くか確認できる
+- 1 回の評価だけでなく、条件を変えながら繰り返し試せる
+
+
+## こんな人に向いています
+
+- 大会制度を改善したい人
+- 「公平そう」に見えるルールを、数値で確かめたい人
+- 予選・本戦を含む大会システム全体を試行錯誤したい人
+- ルールの部品を差し替えながら、少しずつ品質を上げたい人
 
 
 ## 主な機能
 
 - 品質評価モード（本戦ルールの実力反映性評価）
+- 通常モード（総当たり戦分析）
+- 本戦専用モード（Apex / Innov 定先戦分析）
+- ルールセットの切り替えによる比較
 
 ### 細かな機能
 - 起動時のモード選択
 - 順位ルールセット選択
   - `Neutral`（勝ち数ベースのニュートラル順位）
   - `Twill`（ツイル式トーナメント）
-- 通常モード（総当たり戦分析）
-- 本戦専用モード（Apex / Innov 定先戦分析）
 - 対局CSV入力
 - `Round / Black/White / 対局記号表` からの対局CSV自動生成
 - 少ない対局数では厳密計算、多い対局数ではシミュレーション
@@ -27,7 +49,7 @@ README は入口に絞り、詳細説明は `docs/Manuals` に分けています
 Visual Studio から実行するか、プロジェクトディレクトリーで次を実行します。
 
 ```powershell
-dotnet run --project .\ShogiTournamentPairingAnalyzer\ShogiTournamentSystemAnalyzer.csproj
+dotnet run --project .\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyzer.csproj
 ```
 
 起動後のモード:
@@ -35,6 +57,17 @@ dotnet run --project .\ShogiTournamentPairingAnalyzer\ShogiTournamentSystemAnaly
 - `1`: 通常モード（総当たり戦分析）
 - `2`: 本戦専用モード（Apex / Innov 定先戦分析）
 - `3`: 品質評価モード（本戦ルールの実力反映性評価）
+
+
+## 進め方のイメージ
+
+1. ルールの部品を考える
+2. その部品を大会ルールへ取り入れる
+3. 品質評価モードでシミュレーションする
+4. 現在の最高品質を上回るか比較する
+5. 良ければ次の基準にし、さらに改良する
+
+この繰り返しで、大会ルールを育てていくプロジェクトです。
 
 ## ドキュメント案内
 
@@ -66,9 +99,9 @@ dotnet run --project .\ShogiTournamentPairingAnalyzer\ShogiTournamentSystemAnaly
   - ルール案や発想メモ
 
 ## 入力ファイルとレポートの置き場
-- `ShogiTournamentPairingAnalyzer/Examples`
+- `ShogiTournamentSystemAnalyzer/Examples`
   - 人が読むためのサンプル CSV とメモ
-- `ShogiTournamentPairingAnalyzer/Inputs`
+- `ShogiTournamentSystemAnalyzer/Inputs`
   - `--input-file` で流す実行用入力ファイル
   - `Smoke`: 1 回や少数回のスモークテスト用
   - `Bench`: 単発評価や軽いベンチマーク用
