@@ -143,3 +143,6 @@ dotnet run --project .\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyz
 
 ## 関連リンク
 - [白黒対抗ルール案](https://note.com/muzudho/n/n311536fd1812?app_launch=false)
+
+## ライセンス
+- [MIT License](./LICENSE)
