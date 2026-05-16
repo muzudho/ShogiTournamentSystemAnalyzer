@@ -65,28 +65,39 @@ internal static partial class Program
 
         Console.WriteLine();
         var referenceMatches = ReadOptionalMatchesFromCsv(participants, "参考対局CSVまたは Round/Black-White/対局記号表を貼り付けてください。大会記録に含めない場合だけ使います。");
+        var input = new QualityEvaluationInput(participants, matches, referenceMatches);
+        var ruleDefinition = new QualityEvaluationRuleDefinition(
+            groupingMode,
+            tournamentRuleSetMode,
+            groupMap,
+            additionalApexParticipants,
+            additionalApexPlacementMode,
+            effectiveAdditionalApexCount,
+            boundaryRescueMode,
+            variableTop8Mode,
+            promotedInnovCount);
 
         var sweepOptions = ReadQualitySweepOptions();
 
         int? simulationCount = null;
-        if (groupingMode == FinalStageGroupingMode.Off)
+        if (!ruleDefinition.UsesFinalStageGrouping)
         {
-            if (matches.Count <= 20)
+            if (input.Matches.Count <= 20)
             {
-                Console.WriteLine($"{TournamentRuleSetRule.GetLabel(tournamentRuleSetMode)} の品質評価用厳密計算を行います。\n");
+                Console.WriteLine($"{TournamentRuleSetRule.GetLabel(ruleDefinition.TournamentRuleSetMode)} の品質評価用厳密計算を行います。\n");
             }
             else
             {
                 const int defaultSimulationCount = 200_000;
                 simulationCount = ReadIntWithDefault(
-                    $"局数が多いため {TournamentRuleSetRule.GetLabel(tournamentRuleSetMode)} の品質評価用シミュレーションで近似します。試行回数を入力してください [{defaultSimulationCount}]: ",
+                    $"局数が多いため {TournamentRuleSetRule.GetLabel(ruleDefinition.TournamentRuleSetMode)} の品質評価用シミュレーションで近似します。試行回数を入力してください [{defaultSimulationCount}]: ",
                     defaultSimulationCount,
                     min: 1);
 
                 Console.WriteLine();
             }
         }
-        else if (matches.Count <= 20)
+        else if (input.Matches.Count <= 20)
         {
             Console.WriteLine("品質評価用の厳密計算を行います。\n");
         }
@@ -101,57 +112,42 @@ internal static partial class Program
             Console.WriteLine();
         }
 
-        Console.WriteLine($"順位ルール: {TournamentRuleSetRule.GetLabel(tournamentRuleSetMode)}\n");
-        Console.WriteLine($"Apex / Innov の分け方: {FinalStageGroupingRule.GetLabel(groupingMode)}\n");
-        if (groupingMode == FinalStageGroupingMode.On)
+        var executionOptions = new QualityEvaluationExecutionOptions(simulationCount, sweepOptions, null);
+
+        Console.WriteLine($"順位ルール: {TournamentRuleSetRule.GetLabel(ruleDefinition.TournamentRuleSetMode)}\n");
+        Console.WriteLine($"Apex / Innov の分け方: {FinalStageGroupingRule.GetLabel(ruleDefinition.GroupingMode)}\n");
+        if (ruleDefinition.UsesFinalStageGrouping)
         {
-            Console.WriteLine($"本戦不出場Apexの扱い: {AdditionalApexPlacementRule.GetLabel(additionalApexPlacementMode)}\n");
-            Console.WriteLine($"境界救済戦: {BoundaryRescueRule.GetLabel(boundaryRescueMode)}\n");
-            Console.WriteLine($"可変定員8ルール: {VariableTop8Rule.GetLabel(variableTop8Mode)}\n");
+            Console.WriteLine($"本戦不出場Apexの扱い: {AdditionalApexPlacementRule.GetLabel(ruleDefinition.AdditionalApexPlacementMode)}\n");
+            Console.WriteLine($"境界救済戦: {BoundaryRescueRule.GetLabel(ruleDefinition.BoundaryRescueMode)}\n");
+            Console.WriteLine($"可変定員8ルール: {VariableTop8Rule.GetLabel(ruleDefinition.VariableTop8Mode)}\n");
         }
-        if (referenceMatches.Count > 0)
+        if (input.ReferenceMatches.Count > 0)
         {
-            PrintMatchesCsv(participants, referenceMatches, "参考対局CSV:");
-            Console.WriteLine($"参考対局数: {referenceMatches.Count}");
+            PrintMatchesCsv(input.Participants, input.ReferenceMatches, "参考対局CSV:");
+            Console.WriteLine($"参考対局数: {input.ReferenceMatches.Count}");
             Console.WriteLine("参考対局は品質評価に含めません。\n");
         }
 
-        if (sweepOptions.IsEnabled)
+        if (executionOptions.IsSweep)
         {
             RunQualitySweepExperiment(
-                new QualityEvaluationInput(participants, matches, referenceMatches),
-                new QualityEvaluationRuleDefinition(
-                    groupingMode,
-                    tournamentRuleSetMode,
-                    groupMap,
-                    additionalApexParticipants,
-                    additionalApexPlacementMode,
-                    effectiveAdditionalApexCount,
-                    boundaryRescueMode,
-                    variableTop8Mode,
-                    promotedInnovCount),
-                simulationCount,
-                sweepOptions);
+                input,
+                ruleDefinition,
+                executionOptions.SimulationCount,
+                executionOptions.SweepOptions);
             return;
         }
 
         var blackAdvantagePercent = ReadDoubleWithDefaultInRange("同Elo対局時の先手勝率(%)を入力してください [51]: ", 51.0, 0.0, 100.0);
         Console.WriteLine();
+        executionOptions = executionOptions with { BlackAdvantagePercent = blackAdvantagePercent };
 
         var qualityEvaluationRun = ExecuteQualityEvaluationRun(
-            new QualityEvaluationInput(participants, matches, referenceMatches),
-            new QualityEvaluationRuleDefinition(
-                groupingMode,
-                tournamentRuleSetMode,
-                groupMap,
-                additionalApexParticipants,
-                additionalApexPlacementMode,
-                effectiveAdditionalApexCount,
-                boundaryRescueMode,
-                variableTop8Mode,
-                promotedInnovCount),
-            blackAdvantagePercent,
-            simulationCount);
+            input,
+            ruleDefinition,
+            executionOptions.BlackAdvantagePercent!.Value,
+            executionOptions.SimulationCount);
 
         PrintQualitySummary(qualityEvaluationRun.Summary);
         PrintQualityParticipantHighlights(qualityEvaluationRun.ParticipantRows);
@@ -161,16 +157,22 @@ internal static partial class Program
         }
 
         var reportGroupingOptions = ReadExperimentalReportGroupingOptions();
-        var defaultOutputCsvPath = BuildQualitySummaryDefaultOutputPath(groupingMode, additionalApexPlacementMode, boundaryRescueMode, reportGroupingOptions, tournamentRuleSetMode);
+        var defaultOutputCsvPath = BuildQualitySummaryDefaultOutputPath(
+            ruleDefinition.GroupingMode,
+            ruleDefinition.AdditionalApexPlacementMode,
+            ruleDefinition.BoundaryRescueMode,
+            reportGroupingOptions,
+            ruleDefinition.TournamentRuleSetMode);
         var summaryCsvPath = ResolveOutputCsvPath(ReadTextWithDefault(
             $"\n品質評価サマリーCSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
             defaultOutputCsvPath));
-        WriteQualitySummaryCsv(summaryCsvPath, qualityEvaluationRun.Summary, reportGroupingOptions);
+        var outputOptions = new QualityEvaluationOutputOptions(reportGroupingOptions, summaryCsvPath);
+        WriteQualitySummaryCsv(outputOptions.OutputCsvPath, qualityEvaluationRun.Summary, outputOptions.ReportGroupingOptions);
 
-        var participantCsvPath = BuildSiblingOutputCsvPath(summaryCsvPath, "quality_participants");
+        var participantCsvPath = BuildSiblingOutputCsvPath(outputOptions.OutputCsvPath, "quality_participants");
         WriteQualityParticipantCsv(participantCsvPath, qualityEvaluationRun.ParticipantRows);
 
-        Console.WriteLine($"品質評価サマリーCSVを出力しました: {summaryCsvPath}");
+        Console.WriteLine($"品質評価サマリーCSVを出力しました: {outputOptions.OutputCsvPath}");
         Console.WriteLine($"品質評価参加者別CSVを出力しました: {participantCsvPath}");
     }
 
