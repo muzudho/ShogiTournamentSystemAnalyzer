@@ -6,6 +6,25 @@ internal static class TwillTournamentRule
         double scenarioProbability,
         double[,] placeProbabilities)
     {
+        AccumulatePlaceProbabilitiesCore(matches, blackWins, scenarioProbability, placeProbabilities, useCommonOpponentWeight: false);
+    }
+
+    internal static void AccumulatePlaceProbabilitiesWithCommonOpponentWeight(
+        IReadOnlyList<Match> matches,
+        IReadOnlyList<bool> blackWins,
+        double scenarioProbability,
+        double[,] placeProbabilities)
+    {
+        AccumulatePlaceProbabilitiesCore(matches, blackWins, scenarioProbability, placeProbabilities, useCommonOpponentWeight: true);
+    }
+
+    private static void AccumulatePlaceProbabilitiesCore(
+        IReadOnlyList<Match> matches,
+        IReadOnlyList<bool> blackWins,
+        double scenarioProbability,
+        double[,] placeProbabilities,
+        bool useCommonOpponentWeight)
+    {
         var participantCount = placeProbabilities.GetLength(0);
         var nodeCount = participantCount * 2;
         var adjacency = Enumerable.Range(0, nodeCount)
@@ -34,7 +53,15 @@ internal static class TwillTournamentRule
 
         var metrics = BuildPlayerMetrics(participantCount, adjacency, incomingCounts, reachableCounts, longestPathLengths);
         var primaryGroups = BuildPrimaryGroups(metrics);
-        var finalGroups = RefineGroupsByWhiteLossStrength(primaryGroups, metrics, adjacency)
+        var refinedGroups = RefineGroupsByWhiteLossStrength(primaryGroups, metrics, adjacency);
+        if (useCommonOpponentWeight)
+        {
+            refinedGroups = refinedGroups
+                .SelectMany(group => RefineGroupByCommonOpponentReliability(group, matches, blackWins))
+                .ToList();
+        }
+
+        var finalGroups = refinedGroups
             .SelectMany(group => RefineGroupByDirectEncounter(group, matches, blackWins))
             .ToList();
 
@@ -277,6 +304,137 @@ internal static class TwillTournamentRule
             index = end;
         }
     }
+
+    private static IEnumerable<List<int>> RefineGroupByCommonOpponentReliability(
+        IReadOnlyList<int> group,
+        IReadOnlyList<Match> matches,
+        IReadOnlyList<bool> blackWins)
+    {
+        if (group.Count <= 1)
+        {
+            yield return group.ToList();
+            yield break;
+        }
+
+        var outcomesByPlayer = BuildOutcomeMapByPlayer(matches, blackWins);
+        var weightedWins = group.ToDictionary(participantIndex => participantIndex, _ => 0);
+
+        for (var leftIndex = 0; leftIndex < group.Count - 1; leftIndex++)
+        {
+            for (var rightIndex = leftIndex + 1; rightIndex < group.Count; rightIndex++)
+            {
+                var leftPlayerIndex = group[leftIndex];
+                var rightPlayerIndex = group[rightIndex];
+                var weightedEvidence = CalculateWeightedCommonOpponentEvidence(leftPlayerIndex, rightPlayerIndex, outcomesByPlayer);
+                if (weightedEvidence > CommonOpponentEvidenceThreshold)
+                {
+                    weightedWins[leftPlayerIndex]++;
+                }
+                else if (weightedEvidence < -CommonOpponentEvidenceThreshold)
+                {
+                    weightedWins[rightPlayerIndex]++;
+                }
+            }
+        }
+
+        var ordered = group
+            .OrderByDescending(participantIndex => weightedWins[participantIndex])
+            .ThenBy(participantIndex => participantIndex)
+            .ToList();
+
+        for (var index = 0; index < ordered.Count;)
+        {
+            var end = index + 1;
+            while (end < ordered.Count && weightedWins[ordered[end]] == weightedWins[ordered[index]])
+            {
+                end++;
+            }
+
+            yield return ordered.Skip(index).Take(end - index).ToList();
+            index = end;
+        }
+    }
+
+    private static Dictionary<int, Dictionary<int, bool>> BuildOutcomeMapByPlayer(
+        IReadOnlyList<Match> matches,
+        IReadOnlyList<bool> blackWins)
+    {
+        var outcomeMap = new Dictionary<int, Dictionary<int, bool>>();
+        foreach (var (match, blackWon) in matches.Zip(blackWins, static (match, blackWon) => (match, blackWon)))
+        {
+            if (!outcomeMap.TryGetValue(match.Black, out var blackMap))
+            {
+                blackMap = new Dictionary<int, bool>();
+                outcomeMap.Add(match.Black, blackMap);
+            }
+
+            if (!outcomeMap.TryGetValue(match.White, out var whiteMap))
+            {
+                whiteMap = new Dictionary<int, bool>();
+                outcomeMap.Add(match.White, whiteMap);
+            }
+
+            blackMap[match.White] = blackWon;
+            whiteMap[match.Black] = !blackWon;
+        }
+
+        return outcomeMap;
+    }
+
+    private static double CalculateWeightedCommonOpponentEvidence(
+        int leftPlayerIndex,
+        int rightPlayerIndex,
+        IReadOnlyDictionary<int, Dictionary<int, bool>> outcomesByPlayer)
+    {
+        if (!outcomesByPlayer.TryGetValue(leftPlayerIndex, out var leftOutcomes)
+            || !outcomesByPlayer.TryGetValue(rightPlayerIndex, out var rightOutcomes))
+        {
+            return 0.0;
+        }
+
+        var commonOpponentIndexes = leftOutcomes.Keys
+            .Intersect(rightOutcomes.Keys)
+            .Where(opponentIndex => opponentIndex != leftPlayerIndex && opponentIndex != rightPlayerIndex)
+            .ToArray();
+        if (commonOpponentIndexes.Length == 0)
+        {
+            return 0.0;
+        }
+
+        var rawEvidence = 0;
+        foreach (var opponentIndex in commonOpponentIndexes)
+        {
+            var leftWon = leftOutcomes[opponentIndex];
+            var rightWon = rightOutcomes[opponentIndex];
+            if (leftWon == rightWon)
+            {
+                continue;
+            }
+
+            rawEvidence += leftWon ? 1 : -1;
+        }
+
+        if (rawEvidence == 0)
+        {
+            return 0.0;
+        }
+
+        return (double)rawEvidence / commonOpponentIndexes.Length * GetCommonOpponentReliability(commonOpponentIndexes.Length);
+    }
+
+    private static double GetCommonOpponentReliability(int commonOpponentCount)
+    {
+        return commonOpponentCount switch
+        {
+            <= 0 => 0.0,
+            1 => 0.35,
+            2 => 0.60,
+            3 => 0.80,
+            _ => 1.00,
+        };
+    }
+
+    private const double CommonOpponentEvidenceThreshold = 0.5;
 
     private static void AccumulateGroupedPlaces(IReadOnlyList<List<int>> groups, double scenarioProbability, double[,] placeProbabilities)
     {

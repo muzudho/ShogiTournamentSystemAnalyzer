@@ -8,6 +8,7 @@ enum TournamentRuleSetMode
 {
     Neutral,
     Twill,
+    TwillCommonOpponentWeighted,
 }
 
 enum AdditionalApexPlacementMode

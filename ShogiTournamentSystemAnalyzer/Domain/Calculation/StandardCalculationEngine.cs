@@ -3,8 +3,9 @@ internal static partial class Program
     static CalculationResult CalculateExactly(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, double blackAdvantageRating, TournamentRuleSetMode tournamentRuleSetMode = TournamentRuleSetMode.Neutral)
     {
         var placeProbabilities = new double[players.Count, players.Count];
+        var usesTwillRule = tournamentRuleSetMode is TournamentRuleSetMode.Twill or TournamentRuleSetMode.TwillCommonOpponentWeighted;
         var wins = tournamentRuleSetMode == TournamentRuleSetMode.Neutral ? new int[players.Count] : null;
-        var outcomes = tournamentRuleSetMode == TournamentRuleSetMode.Twill ? new bool[matches.Count] : null;
+        var outcomes = usesTwillRule ? new bool[matches.Count] : null;
 
         void Explore(int matchIndex, double scenarioProbability)
         {
@@ -13,6 +14,10 @@ internal static partial class Program
                 if (tournamentRuleSetMode == TournamentRuleSetMode.Twill)
                 {
                     TwillTournamentRule.AccumulatePlaceProbabilities(matches, outcomes!, scenarioProbability, placeProbabilities);
+                }
+                else if (tournamentRuleSetMode == TournamentRuleSetMode.TwillCommonOpponentWeighted)
+                {
+                    TwillTournamentRule.AccumulatePlaceProbabilitiesWithCommonOpponentWeight(matches, outcomes!, scenarioProbability, placeProbabilities);
                 }
                 else
                 {
@@ -25,7 +30,7 @@ internal static partial class Program
             var match = matches[matchIndex];
             var blackWinsProbability = GetWinProbability(players[match.Black], players[match.White], blackAdvantageRating);
 
-            if (tournamentRuleSetMode == TournamentRuleSetMode.Twill)
+            if (usesTwillRule)
             {
                 outcomes![matchIndex] = true;
             }
@@ -40,7 +45,7 @@ internal static partial class Program
                 wins![match.Black]--;
             }
 
-            if (tournamentRuleSetMode == TournamentRuleSetMode.Twill)
+            if (usesTwillRule)
             {
                 outcomes![matchIndex] = false;
             }
@@ -57,15 +62,21 @@ internal static partial class Program
         }
 
         Explore(0, 1.0);
-        var modeLabel = tournamentRuleSetMode == TournamentRuleSetMode.Twill ? "厳密計算 / Twill" : "厳密計算";
+        var modeLabel = tournamentRuleSetMode switch
+        {
+            TournamentRuleSetMode.Twill => "厳密計算 / Twill",
+            TournamentRuleSetMode.TwillCommonOpponentWeighted => "厳密計算 / Twill+CommonOpp",
+            _ => "厳密計算",
+        };
         return new CalculationResult(placeProbabilities, modeLabel, null);
     }
 
     static CalculationResult CalculateBySimulation(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, double blackAdvantageRating, int simulationCount, TournamentRuleSetMode tournamentRuleSetMode = TournamentRuleSetMode.Neutral)
     {
         var placeProbabilities = new double[players.Count, players.Count];
+        var usesTwillRule = tournamentRuleSetMode is TournamentRuleSetMode.Twill or TournamentRuleSetMode.TwillCommonOpponentWeighted;
         var wins = tournamentRuleSetMode == TournamentRuleSetMode.Neutral ? new int[players.Count] : null;
-        var outcomes = tournamentRuleSetMode == TournamentRuleSetMode.Twill ? new bool[matches.Count] : null;
+        var outcomes = usesTwillRule ? new bool[matches.Count] : null;
         var completedSimulationCount = 0;
 
         for (var simulation = 0; simulation < simulationCount; simulation++)
@@ -86,7 +97,7 @@ internal static partial class Program
                 var blackWinsProbability = GetWinProbability(players[match.Black], players[match.White], blackAdvantageRating);
                 if (Random.Shared.NextDouble() < blackWinsProbability)
                 {
-                    if (tournamentRuleSetMode == TournamentRuleSetMode.Twill)
+                    if (usesTwillRule)
                     {
                         outcomes![matchIndex] = true;
                     }
@@ -97,7 +108,7 @@ internal static partial class Program
                 }
                 else
                 {
-                    if (tournamentRuleSetMode == TournamentRuleSetMode.Twill)
+                    if (usesTwillRule)
                     {
                         outcomes![matchIndex] = false;
                     }
@@ -112,6 +123,10 @@ internal static partial class Program
             {
                 TwillTournamentRule.AccumulatePlaceProbabilities(matches, outcomes!, 1.0, placeProbabilities);
             }
+            else if (tournamentRuleSetMode == TournamentRuleSetMode.TwillCommonOpponentWeighted)
+            {
+                TwillTournamentRule.AccumulatePlaceProbabilitiesWithCommonOpponentWeight(matches, outcomes!, 1.0, placeProbabilities);
+            }
             else
             {
                 AccumulatePlaceProbabilities(wins!, 1.0, placeProbabilities);
@@ -122,9 +137,12 @@ internal static partial class Program
 
         NormalizePlaceProbabilities(placeProbabilities, completedSimulationCount);
 
-        var modeCoreLabel = tournamentRuleSetMode == TournamentRuleSetMode.Twill
-            ? "シミュレーション / Twill"
-            : "シミュレーション";
+        var modeCoreLabel = tournamentRuleSetMode switch
+        {
+            TournamentRuleSetMode.Twill => "シミュレーション / Twill",
+            TournamentRuleSetMode.TwillCommonOpponentWeighted => "シミュレーション / Twill+CommonOpp",
+            _ => "シミュレーション",
+        };
         var modeLabel = completedSimulationCount < simulationCount
             ? $"{modeCoreLabel} ({completedSimulationCount:N0}/{simulationCount:N0}回, 時間切れ)"
             : $"{modeCoreLabel} ({simulationCount:N0}回)";

@@ -6,6 +6,7 @@ internal static partial class Program
         Console.WriteLine("通常ルールでは Neutral / Twill をここで切り替えます。");
         Console.WriteLine("1. Neutral: 勝ち数ベースのニュートラル順位");
         Console.WriteLine("2. Twill: 比較グラフと重箱表で順位を決める\n");
+        Console.WriteLine("3. Twill+CommonOpp: 共通相手比較に信頼度を入れたツイル改良案\n");
 
         while (true)
         {
@@ -23,7 +24,13 @@ internal static partial class Program
                 return TournamentRuleSetMode.Twill;
             }
 
-            Console.WriteLine("1 か 2 を入力してください。\n");
+            if (input == "3")
+            {
+                Console.WriteLine();
+                return TournamentRuleSetMode.TwillCommonOpponentWeighted;
+            }
+
+            Console.WriteLine("1、2、3 のいずれかを入力してください。\n");
         }
     }
 
