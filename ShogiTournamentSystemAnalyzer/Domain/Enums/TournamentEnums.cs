@@ -40,3 +40,15 @@ enum ExperimentalReportOutcome
     Bad,
 }
 
+enum AnalysisFlowMode
+{
+    Simulation,
+    QualityEvaluation,
+}
+
+enum RuleProfileMode
+{
+    Standard,
+    FinalStage,
+}
+

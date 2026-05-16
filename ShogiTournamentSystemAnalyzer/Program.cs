@@ -34,21 +34,25 @@ internal static partial class Program
             //
             // 📍 TODO: ［ルール選択］→［パラメーター設定］→［試行］→［品質評価・レポート作成］の４ステップのシーケンスにした方がいいのでは（＾～＾）？
             //
-            switch (ReadMode())
+            var flowMode = ReadAnalysisFlowMode();
+            var ruleProfileMode = ReadRuleProfileMode(flowMode);
+
+            switch ((flowMode, ruleProfileMode))
             {
-                // ［通常ルール］モード
-                case 1:
+                case (AnalysisFlowMode.Simulation, RuleProfileMode.Standard):
                     RunStandardMode();
                     break;
 
-                // ［本戦ルール］モード
-                case 2:
+                case (AnalysisFlowMode.Simulation, RuleProfileMode.FinalStage):
                     RunFinalStageMode();
                     break;
 
-                // ［品質評価］モード
-                case 3:
-                    RunQualityEvaluationMode();
+                case (AnalysisFlowMode.QualityEvaluation, RuleProfileMode.Standard):
+                    RunQualityEvaluationMode(RuleProfileMode.Standard);
+                    break;
+
+                case (AnalysisFlowMode.QualityEvaluation, RuleProfileMode.FinalStage):
+                    RunQualityEvaluationMode(RuleProfileMode.FinalStage);
                     break;
 
                 default:

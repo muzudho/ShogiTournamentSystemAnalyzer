@@ -2,7 +2,7 @@ internal static partial class Program
 {
     static void RunFinalStageMode()
     {
-        Console.WriteLine("本戦専用モード: Apex / Innov 分割またはニュートラルな対局表を分析します。\n");
+        Console.WriteLine("対局シミュレーション / 本戦ルール: Apex / Innov 分割の定先戦を分析します。\n");
 
         PrintFinalStageInputSample();
         if (!TryReadFinalStageModeContext(out var context))

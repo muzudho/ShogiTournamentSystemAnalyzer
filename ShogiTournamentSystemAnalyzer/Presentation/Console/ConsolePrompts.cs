@@ -1,35 +1,55 @@
 internal static partial class Program
 {
-    static int ReadMode()
+    static AnalysisFlowMode ReadAnalysisFlowMode()
     {
-        Console.WriteLine("モードを選んでください。");
-        Console.WriteLine("1. 通常モード（総当たり戦分析）");
-        Console.WriteLine("2. 本戦専用モード（Apex / Innov 定先戦分析）");
-        Console.WriteLine("3. 品質評価モード（本戦ルールの実力反映性評価）\n");
+        Console.WriteLine("目的を選んでください。");
+        Console.WriteLine("1. 対局シミュレーション");
+        Console.WriteLine("2. 品質評価\n");
 
         while (true)
         {
-            Console.Write("モード番号を入力してください [1]: ");
+            Console.Write("番号を入力してください [1]: ");
             var input = Console.ReadLine()?.Trim();
             if (string.IsNullOrEmpty(input) || input == "1")
             {
                 Console.WriteLine();
-                return 1;
+                return AnalysisFlowMode.Simulation;
             }
 
             if (input == "2")
             {
                 Console.WriteLine();
-                return 2;
+                return AnalysisFlowMode.QualityEvaluation;
             }
 
-            if (input == "3")
+            Console.WriteLine("1、2 のいずれかを入力してください。\n");
+        }
+    }
+
+    static RuleProfileMode ReadRuleProfileMode(AnalysisFlowMode flowMode)
+    {
+        var flowLabel = flowMode == AnalysisFlowMode.Simulation ? "対局シミュレーション" : "品質評価";
+        Console.WriteLine($"{flowLabel} の対象ルールを選んでください。");
+        Console.WriteLine("1. 通常ルール");
+        Console.WriteLine("2. 本戦ルール\n");
+
+        while (true)
+        {
+            Console.Write("番号を入力してください [1]: ");
+            var input = Console.ReadLine()?.Trim();
+            if (string.IsNullOrEmpty(input) || input == "1")
             {
                 Console.WriteLine();
-                return 3;
+                return RuleProfileMode.Standard;
             }
 
-            Console.WriteLine("1、2、3 のいずれかを入力してください。\n");
+            if (input == "2")
+            {
+                Console.WriteLine();
+                return RuleProfileMode.FinalStage;
+            }
+
+            Console.WriteLine("1、2 のいずれかを入力してください。\n");
         }
     }
 

@@ -9,15 +9,11 @@ internal static partial class Program
         var participants = ReadPlayersFromCsv();
         Console.WriteLine();
 
-        var groupingMode = ReadFinalStageGroupingMode();
-        var tournamentRuleSetMode = groupingMode == FinalStageGroupingMode.Off
-            ? ReadTournamentRuleSetMode()
-            : TournamentRuleSetMode.Neutral;
+        var groupingMode = FinalStageGroupingMode.On;
+        var tournamentRuleSetMode = TournamentRuleSetMode.Neutral;
         var groupMap = ReadOptionalFinalStageGroupMap(groupingMode, participants);
         string errorMessage;
-        var participantsAreValid = groupingMode == FinalStageGroupingMode.On
-            ? ValidateFinalStageParticipants(participants, groupMap!, out errorMessage)
-            : ValidateFinalStageParticipants(participants, out errorMessage);
+        var participantsAreValid = ValidateFinalStageParticipants(participants, groupMap!, out errorMessage);
         if (!participantsAreValid)
         {
             Console.WriteLine($"本戦参加者の検証に失敗しました: {errorMessage}\n");
@@ -55,9 +51,7 @@ internal static partial class Program
         Console.WriteLine("本戦参加者の入力を受け付けました。\n");
 
         var matches = ReadMatchesFromCsv(participants);
-        var matchesAreValid = groupingMode == FinalStageGroupingMode.On
-            ? ValidateFinalStageMatches(participants, groupMap!, matches, out errorMessage)
-            : ValidateFinalStageMatches(participants, matches, out errorMessage);
+        var matchesAreValid = ValidateFinalStageMatches(participants, groupMap!, matches, out errorMessage);
         if (!matchesAreValid)
         {
             Console.WriteLine($"本戦対局の検証に失敗しました: {errorMessage}\n");

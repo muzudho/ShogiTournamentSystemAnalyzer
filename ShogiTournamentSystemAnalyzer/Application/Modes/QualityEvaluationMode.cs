@@ -1,15 +1,22 @@
 internal static partial class Program
 {
-    static void RunQualityEvaluationMode()
+    static void RunQualityEvaluationMode(RuleProfileMode ruleProfileMode)
     {
-        Console.WriteLine("品質評価モード: 本戦ルールの実力反映性を評価します。\n");
-
-        PrintFinalStageInputSample();
+        if (ruleProfileMode == RuleProfileMode.Standard)
+        {
+            Console.WriteLine("品質評価 / 通常ルール: 総当たり戦向けルールの実力反映性を評価します。\n");
+            PrintInputSample();
+        }
+        else
+        {
+            Console.WriteLine("品質評価 / 本戦ルール: 本戦ルールの実力反映性を評価します。\n");
+            PrintFinalStageInputSample();
+        }
 
         var participants = ReadPlayersFromCsv();
         Console.WriteLine();
 
-        if (!TryReadQualityEvaluationRuleDefinition(participants, out var ruleDefinition))
+        if (!TryReadQualityEvaluationRuleDefinition(participants, ruleProfileMode, out var ruleDefinition))
         {
             return;
         }
@@ -49,20 +56,26 @@ internal static partial class Program
 
     static bool TryReadQualityEvaluationRuleDefinition(
         IReadOnlyList<Player> participants,
+        RuleProfileMode ruleProfileMode,
         out QualityEvaluationRuleDefinition ruleDefinition)
     {
-        var groupingMode = ReadFinalStageGroupingMode();
-        var tournamentRuleSetMode = groupingMode == FinalStageGroupingMode.Off
+        var groupingMode = ruleProfileMode == RuleProfileMode.FinalStage
+            ? FinalStageGroupingMode.On
+            : FinalStageGroupingMode.Off;
+        var tournamentRuleSetMode = ruleProfileMode == RuleProfileMode.Standard
             ? ReadTournamentRuleSetMode()
             : TournamentRuleSetMode.Neutral;
-        var groupMap = ReadOptionalFinalStageGroupMap(groupingMode, participants);
+        var groupMap = ruleProfileMode == RuleProfileMode.FinalStage
+            ? ReadOptionalFinalStageGroupMap(groupingMode, participants)
+            : null;
 
         var participantsAreValid = groupingMode == FinalStageGroupingMode.On
             ? ValidateFinalStageParticipants(participants, groupMap!, out var errorMessage)
             : ValidateFinalStageParticipants(participants, out errorMessage);
         if (!participantsAreValid)
         {
-            Console.WriteLine($"本戦参加者の検証に失敗しました: {errorMessage}\n");
+            var targetLabel = groupingMode == FinalStageGroupingMode.On ? "本戦選手" : "選手一覧";
+            Console.WriteLine($"{targetLabel}の検証に失敗しました: {errorMessage}\n");
             ruleDefinition = default;
             return false;
         }
@@ -119,7 +132,8 @@ internal static partial class Program
             : ValidateFinalStageMatches(participants, matches, out errorMessage);
         if (!matchesAreValid)
         {
-            Console.WriteLine($"本戦対局の検証に失敗しました: {errorMessage}\n");
+            var matchLabel = ruleDefinition.UsesFinalStageGrouping ? "本戦対局" : "対局";
+            Console.WriteLine($"{matchLabel}の検証に失敗しました: {errorMessage}\n");
             input = default;
             return false;
         }
