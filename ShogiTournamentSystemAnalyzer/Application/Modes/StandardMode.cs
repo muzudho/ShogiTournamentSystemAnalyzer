@@ -10,3 +10,4 @@ internal static partial class Program
         ExecuteStandardMode(context);
     }
 }
+

@@ -71,3 +71,4 @@ internal static partial class Program
         return Math.Round(value).ToString("+0;-0;0", CultureInfo.InvariantCulture);
     }
 }
+

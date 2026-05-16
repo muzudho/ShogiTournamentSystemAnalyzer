@@ -1,6 +1,6 @@
-readonly record struct Participant(string Name, double Rating);
+readonly record struct Player(string Name, double Rating);
 readonly record struct Match(int Black, int White);
-readonly record struct ParticipantScore(int ParticipantIndex, int Wins);
+readonly record struct PlayerScore(int PlayerIndex, int Wins);
 readonly record struct CalculationResult(double[,] PlaceProbabilities, string Mode, int? SimulationCount);
 readonly record struct ResultRow(
     string Name,
@@ -32,3 +32,4 @@ readonly record struct FinalStageResultRow(
     double OverallPlaceAverage,
     double[] PlaceProbabilities,
     double[]? PlaceCounts);
+

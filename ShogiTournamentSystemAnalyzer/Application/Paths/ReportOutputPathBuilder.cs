@@ -106,3 +106,4 @@ internal static partial class Program
         return BuildQualitySweepDefaultOutputPath(placementMode, boundaryRescueMode, options);
     }
 }
+

@@ -6,7 +6,7 @@ internal static partial class Program
         var blackAdvantageRating = ConvertBlackAdvantagePercentToRating(blackAdvantagePercent);
         Console.WriteLine();
 
-        var participants = ReadParticipantsFromCsv();
+        var participants = ReadPlayersFromCsv();
         Console.WriteLine();
 
         var groupingMode = ReadFinalStageGroupingMode();
@@ -25,14 +25,14 @@ internal static partial class Program
             return false;
         }
 
-        List<Participant> additionalApexParticipants;
+        List<Player> additionalApexParticipants;
         var additionalApexPlacementMode = AdditionalApexPlacementMode.Off;
         var effectiveAdditionalApexCount = 0;
         var boundaryRescueMode = BoundaryRescueMode.Off;
         if (groupingMode == FinalStageGroupingMode.On)
         {
             Console.WriteLine();
-            additionalApexParticipants = ReadOptionalParticipantsFromCsv("本戦不出場Apex一覧CSVを貼り付けてください。");
+            additionalApexParticipants = ReadOptionalPlayersFromCsv("本戦不出場Apex一覧CSVを貼り付けてください。");
             if (!ValidateAdditionalApexParticipants(participants, groupMap!, additionalApexParticipants, out errorMessage))
             {
                 Console.WriteLine($"本戦不出場Apex一覧の検証に失敗しました: {errorMessage}\n");
@@ -46,7 +46,7 @@ internal static partial class Program
         }
         else
         {
-            additionalApexParticipants = new List<Participant>();
+            additionalApexParticipants = new List<Player>();
         }
 
         var apexCount = groupMap?.Count(x => x.Value == FinalStageGroup.Apex) ?? 0;
@@ -86,3 +86,4 @@ internal static partial class Program
         return true;
     }
 }
+

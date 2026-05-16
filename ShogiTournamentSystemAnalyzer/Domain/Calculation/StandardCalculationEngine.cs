@@ -1,6 +1,6 @@
 internal static partial class Program
 {
-    static CalculationResult CalculateExactly(IReadOnlyList<Participant> participants, IReadOnlyList<Match> matches, double blackAdvantageRating, TournamentRuleSetMode tournamentRuleSetMode = TournamentRuleSetMode.Neutral)
+    static CalculationResult CalculateExactly(IReadOnlyList<Player> participants, IReadOnlyList<Match> matches, double blackAdvantageRating, TournamentRuleSetMode tournamentRuleSetMode = TournamentRuleSetMode.Neutral)
     {
         var placeProbabilities = new double[participants.Count, participants.Count];
         var wins = tournamentRuleSetMode == TournamentRuleSetMode.Neutral ? new int[participants.Count] : null;
@@ -61,7 +61,7 @@ internal static partial class Program
         return new CalculationResult(placeProbabilities, modeLabel, null);
     }
 
-    static CalculationResult CalculateBySimulation(IReadOnlyList<Participant> participants, IReadOnlyList<Match> matches, double blackAdvantageRating, int simulationCount, TournamentRuleSetMode tournamentRuleSetMode = TournamentRuleSetMode.Neutral)
+    static CalculationResult CalculateBySimulation(IReadOnlyList<Player> participants, IReadOnlyList<Match> matches, double blackAdvantageRating, int simulationCount, TournamentRuleSetMode tournamentRuleSetMode = TournamentRuleSetMode.Neutral)
     {
         var placeProbabilities = new double[participants.Count, participants.Count];
         var wins = tournamentRuleSetMode == TournamentRuleSetMode.Neutral ? new int[participants.Count] : null;
@@ -134,9 +134,9 @@ internal static partial class Program
     static void AccumulatePlaceProbabilities(int[] wins, double scenarioProbability, double[,] placeProbabilities)
     {
         var ranking = wins
-            .Select((winCount, index) => new ParticipantScore(index, winCount))
+            .Select((winCount, index) => new PlayerScore(index, winCount))
             .OrderByDescending(x => x.Wins)
-            .ThenBy(x => x.ParticipantIndex)
+            .ThenBy(x => x.PlayerIndex)
             .ToArray();
 
         var currentPlace = 0;
@@ -153,10 +153,10 @@ internal static partial class Program
 
             for (var i = currentPlace; i < groupEnd; i++)
             {
-                var participantIndex = ranking[i].ParticipantIndex;
+                var playerIndex = ranking[i].PlayerIndex;
                 for (var place = currentPlace; place < groupEnd; place++)
                 {
-                    placeProbabilities[participantIndex, place] += splitProbability;
+                    placeProbabilities[playerIndex, place] += splitProbability;
                 }
             }
 
@@ -164,8 +164,9 @@ internal static partial class Program
         }
     }
 
-    static double GetWinProbability(Participant black, Participant white, double blackAdvantageRating)
+    static double GetWinProbability(Player black, Player white, double blackAdvantageRating)
     {
         return 1.0 / (1.0 + Math.Pow(10.0, (white.Rating - (black.Rating + blackAdvantageRating)) / 400.0));
     }
 }
+

@@ -47,3 +47,4 @@ internal static partial class Program
         return CalculateBySimulation(context.Participants, context.Matches, context.BlackAdvantageRating, simulationCount, context.TournamentRuleSetMode);
     }
 }
+

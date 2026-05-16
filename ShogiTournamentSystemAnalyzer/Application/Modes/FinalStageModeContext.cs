@@ -1,11 +1,11 @@
 internal readonly record struct FinalStageModeContext(
     double BlackAdvantagePercent,
     double BlackAdvantageRating,
-    IReadOnlyList<Participant> Participants,
+    IReadOnlyList<Player> Participants,
     FinalStageGroupingMode GroupingMode,
     TournamentRuleSetMode TournamentRuleSetMode,
     IReadOnlyDictionary<string, FinalStageGroup>? GroupMap,
-    IReadOnlyList<Participant> AdditionalApexParticipants,
+    IReadOnlyList<Player> AdditionalApexParticipants,
     AdditionalApexPlacementMode AdditionalApexPlacementMode,
     int EffectiveAdditionalApexCount,
     BoundaryRescueMode BoundaryRescueMode,
@@ -16,3 +16,4 @@ internal readonly record struct FinalStageModeContext(
 {
     internal bool UsesFinalStageGrouping => GroupingMode == FinalStageGroupingMode.On;
 }
+

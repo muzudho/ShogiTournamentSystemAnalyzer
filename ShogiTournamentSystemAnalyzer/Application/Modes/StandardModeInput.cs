@@ -7,7 +7,7 @@ internal static partial class Program
         var blackAdvantageRating = ConvertBlackAdvantagePercentToRating(blackAdvantagePercent);
 
         Console.WriteLine();
-        var allParticipants = ReadParticipantsFromCsv();
+        var allParticipants = ReadPlayersFromCsv();
         var allMatches = ReadMatchesFromCsv(allParticipants);
         var (participants, matches) = FilterToScheduledParticipants(allParticipants, allMatches);
 
@@ -20,3 +20,4 @@ internal static partial class Program
             matches);
     }
 }
+

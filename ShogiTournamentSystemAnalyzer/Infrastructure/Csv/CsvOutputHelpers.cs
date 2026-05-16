@@ -31,7 +31,7 @@ internal static partial class Program
         return Path.Combine(directoryPath, $"{fileNamePrefix}_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
     }
 
-    static void WriteReferenceMatchCsv(string outputCsvPath, IReadOnlyList<Participant> participants, IReadOnlyList<Match> matches)
+    static void WriteReferenceMatchCsv(string outputCsvPath, IReadOnlyList<Player> participants, IReadOnlyList<Match> matches)
     {
         var directoryPath = Path.GetDirectoryName(outputCsvPath);
         if (!string.IsNullOrWhiteSpace(directoryPath))
@@ -58,3 +58,4 @@ internal static partial class Program
         return $"\"{value.Replace("\"", "\"\"")}\"";
     }
 }
+

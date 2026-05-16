@@ -7,3 +7,4 @@ internal static class BoundaryRescueRule
             : "Off（境界救済戦なし）";
     }
 }
+

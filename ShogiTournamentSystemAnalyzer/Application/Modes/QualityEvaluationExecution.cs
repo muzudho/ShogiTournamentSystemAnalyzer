@@ -21,9 +21,9 @@ internal static partial class Program
                 qualityEvaluationRun.Summary.MeanAbsoluteRankError,
                 qualityEvaluationRun.Summary.AverageTop8Retention,
                 qualityEvaluationRun.Summary.EloTop1OverallTop1Probability,
-                qualityEvaluationRun.Summary.MostPenalizedParticipantName,
+                qualityEvaluationRun.Summary.MostPenalizedPlayerName,
                 qualityEvaluationRun.Summary.MostPenalizedDelta,
-                qualityEvaluationRun.Summary.MostAdvantagedParticipantName,
+                qualityEvaluationRun.Summary.MostAdvantagedPlayerName,
                 qualityEvaluationRun.Summary.MostAdvantagedDelta));
 
             if (qualityEvaluationRun.CalculationMode.Contains("時間切れ", StringComparison.Ordinal))
@@ -62,9 +62,9 @@ internal static partial class Program
                 : CalculateExactly(input.Participants, input.Matches, blackAdvantageRating, ruleDefinition.TournamentRuleSetMode);
 
         var resultRows = BuildResultRows(input.Participants, input.Matches, result, blackAdvantagePercent);
-        var qualityParticipantRows = BuildQualityParticipantRows(resultRows, ruleDefinition.GroupMap, ruleDefinition.AdditionalApexParticipants, ruleDefinition.AdditionalApexPlacementMode);
-        var qualitySummary = BuildQualitySummary(qualityParticipantRows);
-        return new QualityEvaluationRun(qualityParticipantRows, qualitySummary, result.Mode);
+        var qualityPlayerRows = BuildQualityPlayerRows(resultRows, ruleDefinition.GroupMap, ruleDefinition.AdditionalApexParticipants, ruleDefinition.AdditionalApexPlacementMode);
+        var qualitySummary = BuildQualitySummary(qualityPlayerRows);
+        return new QualityEvaluationRun(qualityPlayerRows, qualitySummary, result.Mode);
     }
 
     static QualityEvaluationExecutionOptions ReadQualityEvaluationExecutionOptions(
@@ -149,3 +149,4 @@ internal static partial class Program
         }
     }
 }
+

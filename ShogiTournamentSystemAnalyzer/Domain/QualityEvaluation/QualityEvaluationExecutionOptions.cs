@@ -6,3 +6,4 @@ internal readonly record struct QualityEvaluationExecutionOptions(
     internal bool IsSweep => SweepOptions.IsEnabled;
     internal bool UsesSimulation => SimulationCount.HasValue;
 }
+

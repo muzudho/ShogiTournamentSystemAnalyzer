@@ -18,8 +18,8 @@ internal static partial class Program
             $"meanAbsoluteRankError,{summary.MeanAbsoluteRankError.ToString("F6", CultureInfo.InvariantCulture)},期待総合順位とElo順位のずれの絶対値平均",
             $"averageTop8Retention,{summary.AverageTop8Retention.ToString("F6", CultureInfo.InvariantCulture)},Elo上位8名が総合上位8位に残る人数の期待値",
             $"eloTop1OverallTop1Probability,{(summary.EloTop1OverallTop1Probability * 100).ToString("F6", CultureInfo.InvariantCulture)},Elo1位が総合1位になる確率(%)",
-            $"mostPenalizedPlayerDelta,{summary.MostPenalizedDelta.ToString("F6", CultureInfo.InvariantCulture)},{EscapeCsv(summary.MostPenalizedParticipantName)}",
-            $"mostAdvantagedPlayerDelta,{summary.MostAdvantagedDelta.ToString("F6", CultureInfo.InvariantCulture)},{EscapeCsv(summary.MostAdvantagedParticipantName)}"
+            $"mostPenalizedPlayerDelta,{summary.MostPenalizedDelta.ToString("F6", CultureInfo.InvariantCulture)},{EscapeCsv(summary.MostPenalizedPlayerName)}",
+            $"mostAdvantagedPlayerDelta,{summary.MostAdvantagedDelta.ToString("F6", CultureInfo.InvariantCulture)},{EscapeCsv(summary.MostAdvantagedPlayerName)}"
         };
 
         if (!string.IsNullOrWhiteSpace(options.EvaluationMemo))
@@ -49,9 +49,9 @@ internal static partial class Program
             row.MeanAbsoluteRankError.ToString("F6", CultureInfo.InvariantCulture),
             row.AverageTop8Retention.ToString("F6", CultureInfo.InvariantCulture),
             (row.EloTop1OverallTop1Probability * 100).ToString("F6", CultureInfo.InvariantCulture),
-            EscapeCsv(row.MostPenalizedParticipantName),
+            EscapeCsv(row.MostPenalizedPlayerName),
             row.MostPenalizedDelta.ToString("F6", CultureInfo.InvariantCulture),
-            EscapeCsv(row.MostAdvantagedParticipantName),
+            EscapeCsv(row.MostAdvantagedPlayerName),
             row.MostAdvantagedDelta.ToString("F6", CultureInfo.InvariantCulture))));
 
         if (!string.IsNullOrWhiteSpace(options.EvaluationMemo))
@@ -62,7 +62,7 @@ internal static partial class Program
         File.WriteAllLines(outputCsvPath, lines, new UTF8Encoding(false));
     }
 
-    static void WriteQualityParticipantCsv(string outputCsvPath, IReadOnlyList<QualityParticipantRow> participantRows)
+    static void WriteQualityPlayerCsv(string outputCsvPath, IReadOnlyList<QualityPlayerRow> playerRows)
     {
         var directoryPath = Path.GetDirectoryName(outputCsvPath);
         if (!string.IsNullOrWhiteSpace(directoryPath))
@@ -75,7 +75,7 @@ internal static partial class Program
             "playerName,group,originalElo,eloRank,expectedOverallPlace,overallPlaceDeltaFromEloRank,overallTop1ProbabilityPercent,overallTop8ProbabilityPercent"
         };
 
-        lines.AddRange(participantRows.Select(row => string.Join(",",
+        lines.AddRange(playerRows.Select(row => string.Join(",",
             EscapeCsv(row.Name),
             EscapeCsv(row.Group),
             FormatRating(row.OriginalRating),
@@ -238,3 +238,4 @@ internal static partial class Program
         File.WriteAllLines(outputCsvPath, lines, new UTF8Encoding(false));
     }
 }
+

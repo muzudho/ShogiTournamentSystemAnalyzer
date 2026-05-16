@@ -15,3 +15,4 @@ internal static partial class Program
         WriteFinalStageModeOutputs(context, result, standardResultRows, finalStageResultRows);
     }
 }
+

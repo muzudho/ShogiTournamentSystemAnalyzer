@@ -1,6 +1,6 @@
 internal static partial class Program
 {
-    static List<Match> ReadOptionalMatchesFromCsv(IReadOnlyList<Participant> participants, string prompt)
+    static List<Match> ReadOptionalMatchesFromCsv(IReadOnlyList<Player> participants, string prompt)
     {
         while (true)
         {
@@ -139,7 +139,7 @@ internal static partial class Program
         }
     }
 
-    static List<Participant> ReadOptionalParticipantsFromCsv(string prompt)
+    static List<Player> ReadOptionalPlayersFromCsv(string prompt)
     {
         while (true)
         {
@@ -159,10 +159,10 @@ internal static partial class Program
 
             if (lines.Count == 0)
             {
-                return new List<Participant>();
+                return new List<Player>();
             }
 
-            if (TryParseParticipants(lines, out var participants, out var errorMessage))
+            if (TryParsePlayers(lines, out var participants, out var errorMessage))
             {
                 return participants;
             }
@@ -172,7 +172,7 @@ internal static partial class Program
         }
     }
 
-    static List<Participant> ReadParticipantsFromCsv()
+    static List<Player> ReadPlayersFromCsv()
     {
         while (true)
         {
@@ -201,7 +201,7 @@ internal static partial class Program
                 continue;
             }
 
-            if (TryParseParticipants(lines, out var participants, out var errorMessage))
+            if (TryParsePlayers(lines, out var participants, out var errorMessage))
             {
                 return participants;
             }
@@ -211,7 +211,7 @@ internal static partial class Program
         }
     }
 
-    static List<Match> ReadMatchesFromCsv(IReadOnlyList<Participant> participants)
+    static List<Match> ReadMatchesFromCsv(IReadOnlyList<Player> participants)
     {
         while (true)
         {
@@ -250,3 +250,4 @@ internal static partial class Program
         }
     }
 }
+

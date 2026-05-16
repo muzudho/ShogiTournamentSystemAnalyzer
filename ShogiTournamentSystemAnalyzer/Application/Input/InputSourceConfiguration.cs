@@ -105,3 +105,4 @@ internal static partial class Program
         Console.WriteLine($"入力ファイルを使います: {fullPath}\n");
     }
 }
+

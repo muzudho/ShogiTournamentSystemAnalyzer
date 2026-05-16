@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Text;
 
 /// <summary>
@@ -74,3 +74,4 @@ internal static partial class Program
     private static DateTime? _simulationDeadlineUtc;
 
 }
+

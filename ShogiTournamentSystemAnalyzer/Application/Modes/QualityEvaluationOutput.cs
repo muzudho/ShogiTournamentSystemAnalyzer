@@ -60,7 +60,7 @@ internal static partial class Program
         WriteQualitySummaryCsv(outputOptions.OutputCsvPath, qualityEvaluationRun.Summary, outputOptions.ReportGroupingOptions);
 
         var playerCsvPath = BuildSiblingOutputCsvPath(outputOptions.OutputCsvPath, "quality_players");
-        WriteQualityParticipantCsv(playerCsvPath, qualityEvaluationRun.ParticipantRows);
+        WriteQualityPlayerCsv(playerCsvPath, qualityEvaluationRun.PlayerRows);
 
         Console.WriteLine($"品質評価サマリーCSVを出力しました: {outputOptions.OutputCsvPath}");
         Console.WriteLine($"品質評価選手別CSVを出力しました: {playerCsvPath}");
@@ -85,3 +85,4 @@ internal static partial class Program
         Console.WriteLine();
     }
 }
+

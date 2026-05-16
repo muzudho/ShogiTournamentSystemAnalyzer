@@ -7,3 +7,4 @@ internal static class FinalStageGroupingRule
             : "Off（ニュートラルに扱う）";
     }
 }
+

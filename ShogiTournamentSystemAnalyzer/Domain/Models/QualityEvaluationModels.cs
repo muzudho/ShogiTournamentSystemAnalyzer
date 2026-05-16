@@ -1,4 +1,4 @@
-readonly record struct QualityParticipantRow(
+readonly record struct QualityPlayerRow(
     string Name,
     string Group,
     double OriginalRating,
@@ -13,13 +13,13 @@ readonly record struct QualitySummary(
     double MeanAbsoluteRankError,
     double AverageTop8Retention,
     double EloTop1OverallTop1Probability,
-    string MostPenalizedParticipantName,
+    string MostPenalizedPlayerName,
     double MostPenalizedDelta,
-    string MostAdvantagedParticipantName,
+    string MostAdvantagedPlayerName,
     double MostAdvantagedDelta);
 
 readonly record struct QualityEvaluationRun(
-    IReadOnlyList<QualityParticipantRow> ParticipantRows,
+    IReadOnlyList<QualityPlayerRow> PlayerRows,
     QualitySummary Summary,
     string CalculationMode);
 
@@ -35,12 +35,13 @@ readonly record struct QualitySweepRow(
     double MeanAbsoluteRankError,
     double AverageTop8Retention,
     double EloTop1OverallTop1Probability,
-    string MostPenalizedParticipantName,
+    string MostPenalizedPlayerName,
     double MostPenalizedDelta,
-    string MostAdvantagedParticipantName,
+    string MostAdvantagedPlayerName,
     double MostAdvantagedDelta);
 
 readonly record struct ExperimentalReportGroupingOptions(
     bool IsEnabled,
     ExperimentalReportOutcome? Outcome,
     string EvaluationMemo);
+

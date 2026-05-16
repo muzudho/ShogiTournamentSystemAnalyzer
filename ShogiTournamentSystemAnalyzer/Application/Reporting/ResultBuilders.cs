@@ -1,63 +1,63 @@
 internal static partial class Program
 {
-    static List<ResultRow> BuildResultRows(IReadOnlyList<Participant> participants, IReadOnlyList<Match> matches, CalculationResult result, double blackAdvantagePercent)
+    static List<ResultRow> BuildResultRows(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, CalculationResult result, double blackAdvantagePercent)
     {
         var blackAdvantageRating = ConvertBlackAdvantagePercentToRating(blackAdvantagePercent);
-        var blackCounts = new int[participants.Count];
-        var whiteCounts = new int[participants.Count];
-        var blackWinProbabilitySums = new double[participants.Count];
-        var whiteWinProbabilitySums = new double[participants.Count];
-        var totalWinProbabilitySums = new double[participants.Count];
-        var opponentRatings = Enumerable.Range(0, participants.Count)
+        var blackCounts = new int[players.Count];
+        var whiteCounts = new int[players.Count];
+        var blackWinProbabilitySums = new double[players.Count];
+        var whiteWinProbabilitySums = new double[players.Count];
+        var totalWinProbabilitySums = new double[players.Count];
+        var opponentRatings = Enumerable.Range(0, players.Count)
             .Select(_ => new List<double>())
             .ToArray();
 
         foreach (var match in matches)
         {
-            var blackWinProbability = GetWinProbability(participants[match.Black], participants[match.White], blackAdvantageRating);
+            var blackWinProbability = GetWinProbability(players[match.Black], players[match.White], blackAdvantageRating);
             blackCounts[match.Black]++;
             whiteCounts[match.White]++;
             blackWinProbabilitySums[match.Black] += blackWinProbability;
             whiteWinProbabilitySums[match.White] += 1.0 - blackWinProbability;
             totalWinProbabilitySums[match.Black] += blackWinProbability;
             totalWinProbabilitySums[match.White] += 1.0 - blackWinProbability;
-            opponentRatings[match.Black].Add(participants[match.White].Rating);
-            opponentRatings[match.White].Add(participants[match.Black].Rating);
+            opponentRatings[match.Black].Add(players[match.White].Rating);
+            opponentRatings[match.White].Add(players[match.Black].Rating);
         }
 
-        var rows = new List<ResultRow>(participants.Count);
-        for (var participantIndex = 0; participantIndex < participants.Count; participantIndex++)
+        var rows = new List<ResultRow>(players.Count);
+        for (var playerIndex = 0; playerIndex < players.Count; playerIndex++)
         {
-            var expectedPlace = Enumerable.Range(0, participants.Count)
-                .Sum(place => (place + 1) * result.PlaceProbabilities[participantIndex, place]);
-            var blackWinRate = blackCounts[participantIndex] == 0
+            var expectedPlace = Enumerable.Range(0, players.Count)
+                .Sum(place => (place + 1) * result.PlaceProbabilities[playerIndex, place]);
+            var blackWinRate = blackCounts[playerIndex] == 0
                 ? (double?)null
-                : blackWinProbabilitySums[participantIndex] / blackCounts[participantIndex];
-            var whiteWinRate = whiteCounts[participantIndex] == 0
+                : blackWinProbabilitySums[playerIndex] / blackCounts[playerIndex];
+            var whiteWinRate = whiteCounts[playerIndex] == 0
                 ? (double?)null
-                : whiteWinProbabilitySums[participantIndex] / whiteCounts[participantIndex];
-            var matchCount = blackCounts[participantIndex] + whiteCounts[participantIndex];
+                : whiteWinProbabilitySums[playerIndex] / whiteCounts[playerIndex];
+            var matchCount = blackCounts[playerIndex] + whiteCounts[playerIndex];
             var totalWinRate = matchCount == 0
                 ? 0.0
-                : totalWinProbabilitySums[participantIndex] / matchCount;
-            var effectiveRating = CalculateEquivalentNeutralRating(opponentRatings[participantIndex], totalWinRate);
-            var placeProbabilities = Enumerable.Range(0, participants.Count)
-                .Select(place => result.PlaceProbabilities[participantIndex, place])
+                : totalWinProbabilitySums[playerIndex] / matchCount;
+            var effectiveRating = CalculateEquivalentNeutralRating(opponentRatings[playerIndex], totalWinRate);
+            var placeProbabilities = Enumerable.Range(0, players.Count)
+                .Select(place => result.PlaceProbabilities[playerIndex, place])
                 .ToArray();
             var placeCounts = result.SimulationCount.HasValue
                 ? placeProbabilities.Select(value => value * result.SimulationCount.Value).ToArray()
                 : null;
 
             rows.Add(new ResultRow(
-                participants[participantIndex].Name,
-                participants[participantIndex].Rating,
+                players[playerIndex].Name,
+                players[playerIndex].Rating,
                 effectiveRating,
-                effectiveRating - participants[participantIndex].Rating,
-                blackCounts[participantIndex],
-                whiteCounts[participantIndex],
+                effectiveRating - players[playerIndex].Rating,
+                blackCounts[playerIndex],
+                whiteCounts[playerIndex],
                 blackWinRate,
                 whiteWinRate,
-                result.PlaceProbabilities[participantIndex, 0],
+                result.PlaceProbabilities[playerIndex, 0],
                 expectedPlace,
                 placeProbabilities,
                 placeCounts));
@@ -66,11 +66,11 @@ internal static partial class Program
         return rows;
     }
 
-    static List<FinalStageResultRow> BuildFinalStageResultRows(IReadOnlyList<Participant> participants, IReadOnlyList<Match> matches, CalculationResult result, double blackAdvantagePercent, IReadOnlyDictionary<string, FinalStageGroup> groupMap, int additionalApexCount)
+    static List<FinalStageResultRow> BuildFinalStageResultRows(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, CalculationResult result, double blackAdvantagePercent, IReadOnlyDictionary<string, FinalStageGroup> groupMap, int additionalApexCount)
     {
-        var standardRows = BuildResultRows(participants, matches, result, blackAdvantagePercent);
+        var standardRows = BuildResultRows(players, matches, result, blackAdvantagePercent);
         var apexCount = groupMap.Count(x => x.Value == FinalStageGroup.Apex);
-        var innovCount = participants.Count - apexCount;
+        var innovCount = players.Count - apexCount;
 
         return standardRows
             .Select(row =>
@@ -101,17 +101,17 @@ internal static partial class Program
             .ToList();
     }
 
-    static List<QualityParticipantRow> BuildQualityParticipantRows(IReadOnlyList<ResultRow> resultRows, IReadOnlyDictionary<string, FinalStageGroup>? groupMap, IReadOnlyList<Participant> additionalApexParticipants, AdditionalApexPlacementMode placementMode)
+    static List<QualityPlayerRow> BuildQualityPlayerRows(IReadOnlyList<ResultRow> resultRows, IReadOnlyDictionary<string, FinalStageGroup>? groupMap, IReadOnlyList<Player> additionalApexPlayers, AdditionalApexPlacementMode placementMode)
     {
-        var allParticipants = resultRows
-            .Select(row => new Participant(row.Name, row.OriginalRating))
-            .Concat(placementMode == AdditionalApexPlacementMode.Off ? additionalApexParticipants : Enumerable.Empty<Participant>())
+        var allPlayers = resultRows
+            .Select(row => new Player(row.Name, row.OriginalRating))
+            .Concat(placementMode == AdditionalApexPlacementMode.Off ? additionalApexPlayers : Enumerable.Empty<Player>())
             .ToList();
 
-        var eloRanks = allParticipants
+        var eloRanks = allPlayers
             .OrderByDescending(x => x.Rating)
             .ThenBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
-            .Select((participant, index) => new { participant.Name, Rank = index + 1 })
+            .Select((player, index) => new { player.Name, Rank = index + 1 })
             .ToDictionary(x => x.Name, x => x.Rank, StringComparer.OrdinalIgnoreCase);
 
         return resultRows
@@ -119,7 +119,7 @@ internal static partial class Program
             {
                 var eloRank = eloRanks[row.Name];
                 var overallTop8Probability = row.PlaceProbabilities.Take(Math.Min(8, row.PlaceProbabilities.Length)).Sum();
-                return new QualityParticipantRow(
+                return new QualityPlayerRow(
                     row.Name,
                     groupMap is null ? "Neutral" : groupMap[row.Name].ToString(),
                     row.OriginalRating,
@@ -133,41 +133,41 @@ internal static partial class Program
             .ToList();
     }
 
-    static QualitySummary BuildQualitySummary(IReadOnlyList<QualityParticipantRow> participantRows)
+    static QualitySummary BuildQualitySummary(IReadOnlyList<QualityPlayerRow> playerRows)
     {
-        var spearmanCorrelation = CalculateSpearmanCorrelation(participantRows);
-        var meanAbsoluteRankError = participantRows.Average(x => Math.Abs(x.OverallPlaceDeltaFromEloRank));
-        var averageTop8Retention = participantRows
+        var spearmanCorrelation = CalculateSpearmanCorrelation(playerRows);
+        var meanAbsoluteRankError = playerRows.Average(x => Math.Abs(x.OverallPlaceDeltaFromEloRank));
+        var averageTop8Retention = playerRows
             .Where(x => x.EloRank <= 8)
             .Sum(x => x.OverallTop8Probability);
 
-        var topEloParticipant = participantRows.OrderBy(x => x.EloRank).First();
-        var mostPenalizedParticipant = participantRows.OrderByDescending(x => x.OverallPlaceDeltaFromEloRank).First();
-        var mostAdvantagedParticipant = participantRows.OrderBy(x => x.OverallPlaceDeltaFromEloRank).First();
+        var topEloPlayer = playerRows.OrderBy(x => x.EloRank).First();
+        var mostPenalizedPlayer = playerRows.OrderByDescending(x => x.OverallPlaceDeltaFromEloRank).First();
+        var mostAdvantagedPlayer = playerRows.OrderBy(x => x.OverallPlaceDeltaFromEloRank).First();
 
         return new QualitySummary(
             spearmanCorrelation,
             meanAbsoluteRankError,
             averageTop8Retention,
-            topEloParticipant.OverallTop1Probability,
-            mostPenalizedParticipant.Name,
-            mostPenalizedParticipant.OverallPlaceDeltaFromEloRank,
-            mostAdvantagedParticipant.Name,
-            mostAdvantagedParticipant.OverallPlaceDeltaFromEloRank);
+            topEloPlayer.OverallTop1Probability,
+            mostPenalizedPlayer.Name,
+            mostPenalizedPlayer.OverallPlaceDeltaFromEloRank,
+            mostAdvantagedPlayer.Name,
+            mostAdvantagedPlayer.OverallPlaceDeltaFromEloRank);
     }
 
-    static double CalculateSpearmanCorrelation(IReadOnlyList<QualityParticipantRow> participantRows)
+    static double CalculateSpearmanCorrelation(IReadOnlyList<QualityPlayerRow> playerRows)
     {
-        if (participantRows.Count <= 1)
+        if (playerRows.Count <= 1)
         {
             return 1.0;
         }
 
-        var eloRanks = participantRows
+        var eloRanks = playerRows
             .OrderBy(x => x.EloRank)
             .Select(x => (double)x.EloRank)
             .ToArray();
-        var overallPlaceRanks = GetAverageRanks(participantRows.Select(x => x.ExpectedOverallPlace).ToArray());
+        var overallPlaceRanks = GetAverageRanks(playerRows.Select(x => x.ExpectedOverallPlace).ToArray());
 
         return CalculatePearsonCorrelation(eloRanks, overallPlaceRanks);
     }
@@ -226,3 +226,4 @@ internal static partial class Program
         return covariance / Math.Sqrt(varianceX * varianceY);
     }
 }
+

@@ -340,3 +340,4 @@ internal static class TwillTournamentRule
         int TotalLongestPathLength,
         int[] WhiteLossOpponentParticipantIndexes);
 }
+

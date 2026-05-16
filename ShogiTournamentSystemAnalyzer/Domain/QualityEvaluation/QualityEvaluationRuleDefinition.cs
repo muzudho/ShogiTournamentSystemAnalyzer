@@ -2,7 +2,7 @@ internal readonly record struct QualityEvaluationRuleDefinition(
     FinalStageGroupingMode GroupingMode,
     TournamentRuleSetMode TournamentRuleSetMode,
     IReadOnlyDictionary<string, FinalStageGroup>? GroupMap,
-    IReadOnlyList<Participant> AdditionalApexParticipants,
+    IReadOnlyList<Player> AdditionalApexParticipants,
     AdditionalApexPlacementMode AdditionalApexPlacementMode,
     int EffectiveAdditionalApexCount,
     BoundaryRescueMode BoundaryRescueMode,
@@ -11,3 +11,4 @@ internal readonly record struct QualityEvaluationRuleDefinition(
 {
     internal bool UsesFinalStageGrouping => GroupingMode == FinalStageGroupingMode.On;
 }
+

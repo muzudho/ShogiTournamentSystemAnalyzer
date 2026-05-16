@@ -12,3 +12,4 @@ internal static class AdditionalApexPlacementRule
             : "Off（現行案: Innov より前に順位帯を確保する）";
     }
 }
+

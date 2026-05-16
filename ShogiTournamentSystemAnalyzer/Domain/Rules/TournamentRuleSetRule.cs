@@ -7,3 +7,4 @@ internal static class TournamentRuleSetRule
             : "Neutral（ニュートラル）";
     }
 }
+

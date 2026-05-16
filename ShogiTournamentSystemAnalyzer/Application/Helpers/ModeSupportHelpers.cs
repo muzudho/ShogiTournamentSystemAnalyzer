@@ -1,6 +1,6 @@
 internal static partial class Program
 {
-    static Dictionary<string, FinalStageGroup>? ReadOptionalFinalStageGroupMap(FinalStageGroupingMode groupingMode, IReadOnlyList<Participant> participants)
+    static Dictionary<string, FinalStageGroup>? ReadOptionalFinalStageGroupMap(FinalStageGroupingMode groupingMode, IReadOnlyList<Player> participants)
     {
         if (groupingMode == FinalStageGroupingMode.Off)
         {
@@ -10,7 +10,7 @@ internal static partial class Program
         return ReadFinalStageGroupMap();
     }
 
-    static (List<Participant> Participants, List<Match> Matches) FilterToScheduledParticipants(IReadOnlyList<Participant> participants, IReadOnlyList<Match> matches)
+    static (List<Player> Participants, List<Match> Matches) FilterToScheduledParticipants(IReadOnlyList<Player> participants, IReadOnlyList<Match> matches)
     {
         var activeIndexes = matches
             .SelectMany(match => new[] { match.Black, match.White })
@@ -33,3 +33,4 @@ internal static partial class Program
         return (filteredParticipants, filteredMatches);
     }
 }
+

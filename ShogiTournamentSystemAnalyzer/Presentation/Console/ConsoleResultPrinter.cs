@@ -9,16 +9,16 @@ internal static partial class Program
         Console.WriteLine($"- 平均順位ずれ: {summary.MeanAbsoluteRankError.ToString("F3", CultureInfo.InvariantCulture)}");
         Console.WriteLine($"- Elo上位8名の総合上位8位残留人数（平均）: {summary.AverageTop8Retention.ToString("F3", CultureInfo.InvariantCulture)}");
         Console.WriteLine($"- Elo1位の総合1位確率: {FormatPercent(summary.EloTop1OverallTop1Probability)}");
-        Console.WriteLine($"- 最大不利益: {summary.MostPenalizedParticipantName} ({summary.MostPenalizedDelta.ToString("+0.000;-0.000;0.000", CultureInfo.InvariantCulture)})");
-        Console.WriteLine($"- 最大利益: {summary.MostAdvantagedParticipantName} ({summary.MostAdvantagedDelta.ToString("+0.000;-0.000;0.000", CultureInfo.InvariantCulture)})\n");
+        Console.WriteLine($"- 最大不利益: {summary.MostPenalizedPlayerName} ({summary.MostPenalizedDelta.ToString("+0.000;-0.000;0.000", CultureInfo.InvariantCulture)})");
+        Console.WriteLine($"- 最大利益: {summary.MostAdvantagedPlayerName} ({summary.MostAdvantagedDelta.ToString("+0.000;-0.000;0.000", CultureInfo.InvariantCulture)})\n");
     }
 
-    static void PrintQualityParticipantHighlights(IReadOnlyList<QualityParticipantRow> participantRows)
+    static void PrintQualityPlayerHighlights(IReadOnlyList<QualityPlayerRow> playerRows)
     {
-        Console.WriteLine("品質評価 参加者別ハイライト:");
+        Console.WriteLine("品質評価 選手別ハイライト:");
         Console.WriteLine("Elo順位  名前                 期待総合順位   ずれ      総合1位確率   総合上位8確率");
 
-        foreach (var row in participantRows.Take(8))
+        foreach (var row in playerRows.Take(8))
         {
             Console.WriteLine(
                 row.EloRank.ToString(CultureInfo.InvariantCulture).PadLeft(6)
@@ -108,12 +108,12 @@ internal static partial class Program
         }
     }
 
-    static void PrintMatchesCsv(IReadOnlyList<Participant> participants, IReadOnlyList<Match> matches)
+    static void PrintMatchesCsv(IReadOnlyList<Player> participants, IReadOnlyList<Match> matches)
     {
         PrintMatchesCsv(participants, matches, "生成された対局CSV:");
     }
 
-    static void PrintMatchesCsv(IReadOnlyList<Participant> participants, IReadOnlyList<Match> matches, string title)
+    static void PrintMatchesCsv(IReadOnlyList<Player> participants, IReadOnlyList<Match> matches, string title)
     {
         Console.WriteLine(title);
         Console.WriteLine("black,white");
@@ -126,3 +126,4 @@ internal static partial class Program
         Console.WriteLine();
     }
 }
+

@@ -3,9 +3,9 @@ using System.Text;
 
 internal static partial class Program
 {
-    static bool TryParseParticipants(IReadOnlyList<string> lines, out List<Participant> participants, out string errorMessage)
+    static bool TryParsePlayers(IReadOnlyList<string> lines, out List<Player> participants, out string errorMessage)
     {
-        participants = new List<Participant>();
+        participants = new List<Player>();
         errorMessage = string.Empty;
 
         var startIndex = 0;
@@ -37,7 +37,7 @@ internal static partial class Program
                 return false;
             }
 
-            participants.Add(new Participant(name, rating));
+            participants.Add(new Player(name, rating));
         }
 
         if (participants.Count == 0)
@@ -111,7 +111,7 @@ internal static partial class Program
         return true;
     }
 
-    static bool TryParseMatches(IReadOnlyList<string> lines, IReadOnlyList<Participant> participants, out List<Match> matches, out string errorMessage)
+    static bool TryParseMatches(IReadOnlyList<string> lines, IReadOnlyList<Player> participants, out List<Match> matches, out string errorMessage)
     {
         matches = new List<Match>();
         errorMessage = string.Empty;
@@ -193,7 +193,7 @@ internal static partial class Program
         return true;
     }
 
-    static bool TryParseMatchesFromRoundMatrix(IReadOnlyList<string> lines, IReadOnlyList<Participant> participants, out List<Match> matches, out string errorMessage)
+    static bool TryParseMatchesFromRoundMatrix(IReadOnlyList<string> lines, IReadOnlyList<Player> participants, out List<Match> matches, out string errorMessage)
     {
         matches = new List<Match>();
         errorMessage = string.Empty;
@@ -588,3 +588,4 @@ internal static partial class Program
             || header.Equals("対局記号表", StringComparison.OrdinalIgnoreCase);
     }
 }
+

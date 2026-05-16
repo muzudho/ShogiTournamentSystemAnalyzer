@@ -6,7 +6,7 @@ internal static partial class Program
 
         PrintFinalStageInputSample();
 
-        var participants = ReadParticipantsFromCsv();
+        var participants = ReadPlayersFromCsv();
         Console.WriteLine();
 
         if (!TryReadQualityEvaluationRuleDefinition(participants, out var ruleDefinition))
@@ -37,7 +37,7 @@ internal static partial class Program
             executionOptions);
 
         PrintQualitySummary(qualityEvaluationRun.Summary);
-        PrintQualityParticipantHighlights(qualityEvaluationRun.ParticipantRows);
+        PrintQualityPlayerHighlights(qualityEvaluationRun.PlayerRows);
         if (qualityEvaluationRun.CalculationMode.Contains("時間切れ", StringComparison.Ordinal))
         {
             Console.WriteLine($"シミュレーションは時間上限 {SimulationTimeLimit.TotalMinutes:F0} 分で打ち切りました。\n");
@@ -48,7 +48,7 @@ internal static partial class Program
     }
 
     static bool TryReadQualityEvaluationRuleDefinition(
-        IReadOnlyList<Participant> participants,
+        IReadOnlyList<Player> participants,
         out QualityEvaluationRuleDefinition ruleDefinition)
     {
         var groupingMode = ReadFinalStageGroupingMode();
@@ -67,7 +67,7 @@ internal static partial class Program
             return false;
         }
 
-        List<Participant> additionalApexParticipants;
+        List<Player> additionalApexParticipants;
         var additionalApexPlacementMode = AdditionalApexPlacementMode.Off;
         var effectiveAdditionalApexCount = 0;
         var boundaryRescueMode = BoundaryRescueMode.Off;
@@ -76,7 +76,7 @@ internal static partial class Program
         if (groupingMode == FinalStageGroupingMode.On)
         {
             Console.WriteLine();
-            additionalApexParticipants = ReadOptionalParticipantsFromCsv("本戦不出場Apex一覧CSVを貼り付けてください。");
+            additionalApexParticipants = ReadOptionalPlayersFromCsv("本戦不出場Apex一覧CSVを貼り付けてください。");
             if (!ValidateAdditionalApexParticipants(participants, groupMap!, additionalApexParticipants, out errorMessage))
             {
                 Console.WriteLine($"本戦不出場Apex一覧の検証に失敗しました: {errorMessage}\n");
@@ -92,7 +92,7 @@ internal static partial class Program
         }
         else
         {
-            additionalApexParticipants = new List<Participant>();
+            additionalApexParticipants = new List<Player>();
         }
 
         ruleDefinition = new QualityEvaluationRuleDefinition(
@@ -109,7 +109,7 @@ internal static partial class Program
     }
 
     static bool TryReadQualityEvaluationInput(
-        IReadOnlyList<Participant> participants,
+        IReadOnlyList<Player> participants,
         QualityEvaluationRuleDefinition ruleDefinition,
         out QualityEvaluationInput input)
     {
@@ -131,3 +131,4 @@ internal static partial class Program
     }
 
 }
+

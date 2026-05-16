@@ -1,17 +1,17 @@
 internal static partial class Program
 {
-    static CalculationResult CalculateFinalStageExactly(IReadOnlyList<Participant> participants, IReadOnlyList<Match> matches, IReadOnlyDictionary<string, FinalStageGroup> groupMap, int additionalApexCount, BoundaryRescueMode boundaryRescueMode, double blackAdvantageRating, int promotedInnovCount = 0)
+    static CalculationResult CalculateFinalStageExactly(IReadOnlyList<Player> participants, IReadOnlyList<Match> matches, IReadOnlyDictionary<string, FinalStageGroup> groupMap, int additionalApexCount, BoundaryRescueMode boundaryRescueMode, double blackAdvantageRating, int promotedInnovCount = 0)
     {
         var placeProbabilities = new double[participants.Count, participants.Count + additionalApexCount];
         var wins = new int[participants.Count];
-        var apexParticipantIndexes = GetParticipantIndexesByGroup(participants, groupMap, FinalStageGroup.Apex);
-        var innovParticipantIndexes = GetParticipantIndexesByGroup(participants, groupMap, FinalStageGroup.Innov);
+        var apexPlayerIndexes = GetPlayerIndexesByGroup(participants, groupMap, FinalStageGroup.Apex);
+        var innovPlayerIndexes = GetPlayerIndexesByGroup(participants, groupMap, FinalStageGroup.Innov);
 
         void Explore(int matchIndex, double scenarioProbability)
         {
             if (matchIndex == matches.Count)
             {
-                AccumulateFinalStagePlaceProbabilities(wins, participants, apexParticipantIndexes, innovParticipantIndexes, additionalApexCount, boundaryRescueMode, blackAdvantageRating, scenarioProbability, placeProbabilities, promotedInnovCount);
+                AccumulateFinalStagePlaceProbabilities(wins, participants, apexPlayerIndexes, innovPlayerIndexes, additionalApexCount, boundaryRescueMode, blackAdvantageRating, scenarioProbability, placeProbabilities, promotedInnovCount);
                 return;
             }
 
@@ -31,12 +31,12 @@ internal static partial class Program
         return new CalculationResult(placeProbabilities, "本戦専用 厳密計算", null);
     }
 
-    static CalculationResult CalculateFinalStageBySimulation(IReadOnlyList<Participant> participants, IReadOnlyList<Match> matches, IReadOnlyDictionary<string, FinalStageGroup> groupMap, int additionalApexCount, BoundaryRescueMode boundaryRescueMode, double blackAdvantageRating, int simulationCount, int promotedInnovCount = 0)
+    static CalculationResult CalculateFinalStageBySimulation(IReadOnlyList<Player> participants, IReadOnlyList<Match> matches, IReadOnlyDictionary<string, FinalStageGroup> groupMap, int additionalApexCount, BoundaryRescueMode boundaryRescueMode, double blackAdvantageRating, int simulationCount, int promotedInnovCount = 0)
     {
         var placeProbabilities = new double[participants.Count, participants.Count + additionalApexCount];
         var wins = new int[participants.Count];
-        var apexParticipantIndexes = GetParticipantIndexesByGroup(participants, groupMap, FinalStageGroup.Apex);
-        var innovParticipantIndexes = GetParticipantIndexesByGroup(participants, groupMap, FinalStageGroup.Innov);
+        var apexPlayerIndexes = GetPlayerIndexesByGroup(participants, groupMap, FinalStageGroup.Apex);
+        var innovPlayerIndexes = GetPlayerIndexesByGroup(participants, groupMap, FinalStageGroup.Innov);
         var completedSimulationCount = 0;
 
         for (var simulation = 0; simulation < simulationCount; simulation++)
@@ -61,7 +61,7 @@ internal static partial class Program
                 }
             }
 
-            AccumulateFinalStagePlaceProbabilities(wins, participants, apexParticipantIndexes, innovParticipantIndexes, additionalApexCount, boundaryRescueMode, blackAdvantageRating, 1.0, placeProbabilities, promotedInnovCount);
+            AccumulateFinalStagePlaceProbabilities(wins, participants, apexPlayerIndexes, innovPlayerIndexes, additionalApexCount, boundaryRescueMode, blackAdvantageRating, 1.0, placeProbabilities, promotedInnovCount);
             completedSimulationCount++;
         }
 
@@ -73,42 +73,42 @@ internal static partial class Program
         return new CalculationResult(placeProbabilities, modeLabel, completedSimulationCount);
     }
 
-    static List<int> GetParticipantIndexesByGroup(IReadOnlyList<Participant> participants, IReadOnlyDictionary<string, FinalStageGroup> groupMap, FinalStageGroup targetGroup)
+    static List<int> GetPlayerIndexesByGroup(IReadOnlyList<Player> players, IReadOnlyDictionary<string, FinalStageGroup> groupMap, FinalStageGroup targetGroup)
     {
-        return participants
-            .Select((participant, index) => new { participant.Name, Index = index })
+        return players
+            .Select((player, index) => new { player.Name, Index = index })
             .Where(x => groupMap[x.Name] == targetGroup)
             .Select(x => x.Index)
             .ToList();
     }
 
-    static void AccumulateFinalStagePlaceProbabilities(int[] wins, IReadOnlyList<Participant> participants, IReadOnlyList<int> apexParticipantIndexes, IReadOnlyList<int> innovParticipantIndexes, int additionalApexCount, BoundaryRescueMode boundaryRescueMode, double blackAdvantageRating, double scenarioProbability, double[,] placeProbabilities, int promotedInnovCount = 0)
+    static void AccumulateFinalStagePlaceProbabilities(int[] wins, IReadOnlyList<Player> players, IReadOnlyList<int> apexPlayerIndexes, IReadOnlyList<int> innovPlayerIndexes, int additionalApexCount, BoundaryRescueMode boundaryRescueMode, double blackAdvantageRating, double scenarioProbability, double[,] placeProbabilities, int promotedInnovCount = 0)
     {
         if (promotedInnovCount > 0)
         {
-            AccumulateVariableTop8PlaceProbabilities(wins, apexParticipantIndexes, innovParticipantIndexes, additionalApexCount, promotedInnovCount, scenarioProbability, placeProbabilities);
+            AccumulateVariableTop8PlaceProbabilities(wins, apexPlayerIndexes, innovPlayerIndexes, additionalApexCount, promotedInnovCount, scenarioProbability, placeProbabilities);
             return;
         }
 
         if (boundaryRescueMode == BoundaryRescueMode.Off)
         {
-            AccumulateGroupPlaceProbabilities(wins, apexParticipantIndexes, 0, scenarioProbability, placeProbabilities);
-            AccumulateGroupPlaceProbabilities(wins, innovParticipantIndexes, apexParticipantIndexes.Count + additionalApexCount, scenarioProbability, placeProbabilities);
+            AccumulateGroupPlaceProbabilities(wins, apexPlayerIndexes, 0, scenarioProbability, placeProbabilities);
+            AccumulateGroupPlaceProbabilities(wins, innovPlayerIndexes, apexPlayerIndexes.Count + additionalApexCount, scenarioProbability, placeProbabilities);
             return;
         }
 
-        var apexRanking = BuildRankingForParticipantIndexes(wins, apexParticipantIndexes);
-        var innovRanking = BuildRankingForParticipantIndexes(wins, innovParticipantIndexes);
+        var apexRanking = BuildRankingForPlayerIndexes(wins, apexPlayerIndexes);
+        var innovRanking = BuildRankingForPlayerIndexes(wins, innovPlayerIndexes);
 
-        var apexBoundaryIndexes = GetTiedParticipantIndexesAtPosition(apexRanking, apexRanking.Length - 1);
-        var innovBoundaryIndexes = GetTiedParticipantIndexesAtPosition(innovRanking, 0);
+        var apexBoundaryIndexes = GetTiedPlayerIndexesAtPosition(apexRanking, apexRanking.Length - 1);
+        var innovBoundaryIndexes = GetTiedPlayerIndexesAtPosition(innovRanking, 0);
 
         var rescueScenarioProbability = scenarioProbability / (apexBoundaryIndexes.Count * innovBoundaryIndexes.Count);
         foreach (var apexBoundaryIndex in apexBoundaryIndexes)
         {
             foreach (var innovBoundaryIndex in innovBoundaryIndexes)
             {
-                var blackWinsProbability = GetWinProbability(participants[innovBoundaryIndex], participants[apexBoundaryIndex], blackAdvantageRating);
+                var blackWinsProbability = GetWinProbability(players[innovBoundaryIndex], players[apexBoundaryIndex], blackAdvantageRating);
                 AccumulateFinalStagePlaceProbabilitiesWithBoundaryRescue(
                     wins,
                     apexRanking,
@@ -123,10 +123,10 @@ internal static partial class Program
         }
     }
 
-    static void AccumulateVariableTop8PlaceProbabilities(int[] wins, IReadOnlyList<int> apexParticipantIndexes, IReadOnlyList<int> innovParticipantIndexes, int additionalApexCount, int promotedInnovCount, double scenarioProbability, double[,] placeProbabilities)
+    static void AccumulateVariableTop8PlaceProbabilities(int[] wins, IReadOnlyList<int> apexPlayerIndexes, IReadOnlyList<int> innovPlayerIndexes, int additionalApexCount, int promotedInnovCount, double scenarioProbability, double[,] placeProbabilities)
     {
-        var apexRanking = BuildRankingForParticipantIndexes(wins, apexParticipantIndexes);
-        var innovRanking = BuildRankingForParticipantIndexes(wins, innovParticipantIndexes);
+        var apexRanking = BuildRankingForPlayerIndexes(wins, apexPlayerIndexes);
+        var innovRanking = BuildRankingForPlayerIndexes(wins, innovPlayerIndexes);
         var actualPromotedInnovCount = Math.Min(promotedInnovCount, Math.Min(apexRanking.Length, innovRanking.Length));
         var leadingApexCount = Math.Max(0, apexRanking.Length - actualPromotedInnovCount);
 
@@ -141,18 +141,18 @@ internal static partial class Program
         AccumulateRankingProbabilities(remainingInnovRanking, apexRanking.Length + actualPromotedInnovCount + additionalApexCount, scenarioProbability, placeProbabilities);
     }
 
-    static ParticipantScore[] BuildRankingForParticipantIndexes(int[] wins, IReadOnlyList<int> participantIndexes)
+    static PlayerScore[] BuildRankingForPlayerIndexes(int[] wins, IReadOnlyList<int> playerIndexes)
     {
-        return participantIndexes
-            .Select(index => new ParticipantScore(index, wins[index]))
+        return playerIndexes
+            .Select(index => new PlayerScore(index, wins[index]))
             .OrderByDescending(x => x.Wins)
-            .ThenBy(x => x.ParticipantIndex)
+            .ThenBy(x => x.PlayerIndex)
             .ToArray();
     }
 
-    static List<int> GetTiedParticipantIndexesAtPosition(IReadOnlyList<ParticipantScore> ranking, int position)
+    static List<int> GetTiedPlayerIndexesAtPosition(IReadOnlyList<PlayerScore> ranking, int position)
     {
-        var tiedParticipantIndexes = new List<int>();
+        var tiedPlayerIndexes = new List<int>();
         var targetWins = ranking[position].Wins;
         var index = position;
         while (index > 0 && ranking[index - 1].Wins == targetWins)
@@ -162,17 +162,17 @@ internal static partial class Program
 
         while (index < ranking.Count && ranking[index].Wins == targetWins)
         {
-            tiedParticipantIndexes.Add(ranking[index].ParticipantIndex);
+            tiedPlayerIndexes.Add(ranking[index].PlayerIndex);
             index++;
         }
 
-        return tiedParticipantIndexes;
+        return tiedPlayerIndexes;
     }
 
     static void AccumulateFinalStagePlaceProbabilitiesWithBoundaryRescue(
         int[] wins,
-        IReadOnlyList<ParticipantScore> apexRanking,
-        IReadOnlyList<ParticipantScore> innovRanking,
+        IReadOnlyList<PlayerScore> apexRanking,
+        IReadOnlyList<PlayerScore> innovRanking,
         int additionalApexCount,
         int apexBoundaryIndex,
         int innovBoundaryIndex,
@@ -186,8 +186,8 @@ internal static partial class Program
 
     static void AccumulateBoundaryRescueOutcome(
         int[] wins,
-        IReadOnlyList<ParticipantScore> apexRanking,
-        IReadOnlyList<ParticipantScore> innovRanking,
+        IReadOnlyList<PlayerScore> apexRanking,
+        IReadOnlyList<PlayerScore> innovRanking,
         int additionalApexCount,
         int apexBoundaryIndex,
         int innovBoundaryIndex,
@@ -197,10 +197,10 @@ internal static partial class Program
     {
         var apexGroupSize = apexRanking.Count;
         var rescuedApexRanking = apexRanking
-            .Where(x => x.ParticipantIndex != apexBoundaryIndex)
+            .Where(x => x.PlayerIndex != apexBoundaryIndex)
             .ToArray();
         var rescuedInnovRanking = innovRanking
-            .Where(x => x.ParticipantIndex != innovBoundaryIndex)
+            .Where(x => x.PlayerIndex != innovBoundaryIndex)
             .ToArray();
 
         AccumulateRankingProbabilities(rescuedApexRanking, 0, scenarioProbability, placeProbabilities);
@@ -223,7 +223,7 @@ internal static partial class Program
             placeProbabilities);
     }
 
-    static void AccumulateRankingProbabilities(IReadOnlyList<ParticipantScore> ranking, int placeOffset, double scenarioProbability, double[,] placeProbabilities)
+    static void AccumulateRankingProbabilities(IReadOnlyList<PlayerScore> ranking, int placeOffset, double scenarioProbability, double[,] placeProbabilities)
     {
         var currentPlace = 0;
         while (currentPlace < ranking.Count)
@@ -239,10 +239,10 @@ internal static partial class Program
 
             for (var i = currentPlace; i < groupEnd; i++)
             {
-                var participantIndex = ranking[i].ParticipantIndex;
+                var playerIndex = ranking[i].PlayerIndex;
                 for (var place = currentPlace; place < groupEnd; place++)
                 {
-                    placeProbabilities[participantIndex, placeOffset + place] += splitProbability;
+                    placeProbabilities[playerIndex, placeOffset + place] += splitProbability;
                 }
             }
 
@@ -250,12 +250,12 @@ internal static partial class Program
         }
     }
 
-    static void AccumulateGroupPlaceProbabilities(int[] wins, IReadOnlyList<int> participantIndexes, int placeOffset, double scenarioProbability, double[,] placeProbabilities)
+    static void AccumulateGroupPlaceProbabilities(int[] wins, IReadOnlyList<int> playerIndexes, int placeOffset, double scenarioProbability, double[,] placeProbabilities)
     {
-        var ranking = participantIndexes
-            .Select(index => new ParticipantScore(index, wins[index]))
+        var ranking = playerIndexes
+            .Select(index => new PlayerScore(index, wins[index]))
             .OrderByDescending(x => x.Wins)
-            .ThenBy(x => x.ParticipantIndex)
+            .ThenBy(x => x.PlayerIndex)
             .ToArray();
 
         var currentPlace = 0;
@@ -272,10 +272,10 @@ internal static partial class Program
 
             for (var i = currentPlace; i < groupEnd; i++)
             {
-                var participantIndex = ranking[i].ParticipantIndex;
+                var playerIndex = ranking[i].PlayerIndex;
                 for (var place = currentPlace; place < groupEnd; place++)
                 {
-                    placeProbabilities[participantIndex, placeOffset + place] += splitProbability;
+                    placeProbabilities[playerIndex, placeOffset + place] += splitProbability;
                 }
             }
 
@@ -283,3 +283,4 @@ internal static partial class Program
         }
     }
 }
+

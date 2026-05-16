@@ -12,3 +12,4 @@ internal static class VariableTop8Rule
             : "Off（定員8固定）";
     }
 }
+

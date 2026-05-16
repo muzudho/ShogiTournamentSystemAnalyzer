@@ -1,6 +1,6 @@
 internal static partial class Program
 {
-    static bool ValidateFinalStageParticipants(IReadOnlyList<Participant> participants, IReadOnlyDictionary<string, FinalStageGroup> groupMap, out string errorMessage)
+    static bool ValidateFinalStageParticipants(IReadOnlyList<Player> participants, IReadOnlyDictionary<string, FinalStageGroup> groupMap, out string errorMessage)
     {
         errorMessage = string.Empty;
 
@@ -35,7 +35,7 @@ internal static partial class Program
         return true;
     }
 
-    static bool ValidateFinalStageParticipants(IReadOnlyList<Participant> participants, out string errorMessage)
+    static bool ValidateFinalStageParticipants(IReadOnlyList<Player> participants, out string errorMessage)
     {
         errorMessage = string.Empty;
 
@@ -48,7 +48,7 @@ internal static partial class Program
         return true;
     }
 
-    static bool ValidateAdditionalApexParticipants(IReadOnlyList<Participant> participants, IReadOnlyDictionary<string, FinalStageGroup> groupMap, IReadOnlyList<Participant> additionalApexParticipants, out string errorMessage)
+    static bool ValidateAdditionalApexParticipants(IReadOnlyList<Player> participants, IReadOnlyDictionary<string, FinalStageGroup> groupMap, IReadOnlyList<Player> additionalApexParticipants, out string errorMessage)
     {
         errorMessage = string.Empty;
 
@@ -71,7 +71,7 @@ internal static partial class Program
         return true;
     }
 
-    static bool ValidateAdditionalApexParticipants(IReadOnlyList<Participant> participants, IReadOnlyList<Participant> additionalApexParticipants, out string errorMessage)
+    static bool ValidateAdditionalApexParticipants(IReadOnlyList<Player> participants, IReadOnlyList<Player> additionalApexParticipants, out string errorMessage)
     {
         errorMessage = string.Empty;
 
@@ -88,7 +88,7 @@ internal static partial class Program
         return true;
     }
 
-    static bool ValidateFinalStageMatches(IReadOnlyList<Participant> participants, IReadOnlyDictionary<string, FinalStageGroup> groupMap, IReadOnlyList<Match> matches, out string errorMessage)
+    static bool ValidateFinalStageMatches(IReadOnlyList<Player> participants, IReadOnlyDictionary<string, FinalStageGroup> groupMap, IReadOnlyList<Match> matches, out string errorMessage)
     {
         errorMessage = string.Empty;
 
@@ -123,7 +123,7 @@ internal static partial class Program
         return true;
     }
 
-    static bool ValidateFinalStageMatches(IReadOnlyList<Participant> participants, IReadOnlyList<Match> matches, out string errorMessage)
+    static bool ValidateFinalStageMatches(IReadOnlyList<Player> participants, IReadOnlyList<Match> matches, out string errorMessage)
     {
         errorMessage = string.Empty;
 
@@ -140,3 +140,4 @@ internal static partial class Program
         return true;
     }
 }
+
