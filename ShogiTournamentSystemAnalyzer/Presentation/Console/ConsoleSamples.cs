@@ -1,80 +1,113 @@
 internal static partial class Program
 {
-    static void PrintInputSample()
+    static void PrintPlayersCsvExample()
     {
-        Console.WriteLine("入力形式:");
-        Console.WriteLine("1. 黒番有利率 (%)");
-        Console.WriteLine("2. 選手一覧CSV (1列目=名前, 2列目=Elo レーティング)");
-        Console.WriteLine("3. 対局CSV (1列目=黒番, 2列目=白番) または Round/Black-White/対局記号表");
-        Console.WriteLine("選手一覧CSVは空行で入力終了、対局入力は END 行で入力終了です。\n");
-        Console.WriteLine("入力サンプル:");
-        Console.WriteLine("黒番有利率(%): 51\n");
-        Console.WriteLine("選手一覧CSV:");
+        Console.WriteLine("例:");
         Console.WriteLine("name,elo");
         Console.WriteLine("Alice,1500");
-        Console.WriteLine("Bob,1650");
-        Console.WriteLine("Carol,1420");
-        Console.WriteLine("Dave,1800\n");
-        Console.WriteLine("対局CSV:");
-        Console.WriteLine("black,white");
-        Console.WriteLine("Alice,Bob");
-        Console.WriteLine("Carol,Alice");
-        Console.WriteLine("Dave,Alice");
-        Console.WriteLine("Bob,Carol");
-        Console.WriteLine("Bob,Dave");
-        Console.WriteLine("Dave,Carol");
-        Console.WriteLine("END\n");
-        Console.WriteLine("Round/Black-White 表の例:");
-        Console.WriteLine("Round");
-        Console.WriteLine(" , A, B, C, D");
-        Console.WriteLine("A, -, 3, 2, 1");
-        Console.WriteLine("B, 3, -, 1, 2");
-        Console.WriteLine("C, 2, 1, -, 3");
-        Console.WriteLine("D, 1, 2, 3, -");
-        Console.WriteLine();
-        Console.WriteLine("Black/White");
-        Console.WriteLine(" , A, B, C, D");
-        Console.WriteLine("A, -, b, b, b");
-        Console.WriteLine("B, w, -, b, b");
-        Console.WriteLine("C, w, w, -, b");
-        Console.WriteLine("D, w, w, w, -");
-        Console.WriteLine();
-        Console.WriteLine("対局記号表");
-        Console.WriteLine("A, \"Alice\"");
-        Console.WriteLine("B, \"Bob\"");
-        Console.WriteLine("C, \"Carol\"");
-        Console.WriteLine("D, \"Dave\"");
-        Console.WriteLine("END\n");
+        Console.WriteLine("Bob,1480\n");
     }
 
-    static void PrintFinalStageInputSample()
+    static void PrintOptionalPlayersCsvExample()
     {
-        Console.WriteLine("本戦専用モードの入力形式:");
-        Console.WriteLine("1. 選手一覧CSV");
-        Console.WriteLine("2. グループ対応CSV");
-        Console.WriteLine("3. 本戦不出場Apex一覧CSV（省略可）");
-        Console.WriteLine("4. 対局CSV または Round/Black-White/対局記号表\n");
-        Console.WriteLine("選手一覧CSVの例:");
+        Console.WriteLine("例（省略可）:");
         Console.WriteLine("name,elo");
-        Console.WriteLine("Alice,5000");
-        Console.WriteLine("Bob,4980");
-        Console.WriteLine("Carol,4960");
-        Console.WriteLine("Dave,4940\n");
-        Console.WriteLine("グループ対応CSVの例:");
+        Console.WriteLine("Eve,4920");
+        Console.WriteLine("Frank,4900");
+        Console.WriteLine("空のまま Enter でも省略できます。\n");
+    }
+
+    static void PrintFinalStageGroupCsvExample()
+    {
+        Console.WriteLine("例:");
         Console.WriteLine("group,name");
         Console.WriteLine("Apex,Alice");
         Console.WriteLine("Apex,Bob");
         Console.WriteLine("Innov,Carol");
         Console.WriteLine("Innov,Dave\n");
-        Console.WriteLine("本戦不出場Apex一覧の例（省略可）:");
-        Console.WriteLine("name,elo");
-        Console.WriteLine("Eve,4920");
-        Console.WriteLine("Frank,4900\n");
-        Console.WriteLine("対局CSVの例:");
+    }
+
+    static void PrintMatchesCsvExample()
+    {
+        Console.WriteLine("例:");
         Console.WriteLine("black,white");
+        Console.WriteLine("Alice,Bob");
         Console.WriteLine("Carol,Alice");
-        Console.WriteLine("Dave,Bob");
         Console.WriteLine("END\n");
+    }
+
+    static void PrintRoundMatrixExample()
+    {
+        Console.WriteLine("Round/Black-White/対局記号表 の例:");
+        Console.WriteLine("Round");
+        Console.WriteLine(" , A, B");
+        Console.WriteLine("A, -, 1");
+        Console.WriteLine("B, 1, -");
+        Console.WriteLine();
+        Console.WriteLine("Black/White");
+        Console.WriteLine(" , A, B");
+        Console.WriteLine("A, -, b");
+        Console.WriteLine("B, w, -");
+        Console.WriteLine();
+        Console.WriteLine("対局記号表");
+        Console.WriteLine("A, \"Alice\"");
+        Console.WriteLine("B, \"Bob\"");
+        Console.WriteLine("END\n");
+    }
+
+    static void PrintSimulationStandardOverview()
+    {
+        Console.WriteLine("このモードでは次を順に入力します。");
+        Console.WriteLine("1. 順位ルールセット");
+        Console.WriteLine("2. 同Elo対局時の黒番勝率 (%)");
+        Console.WriteLine("3. 選手 / Player 一覧CSV");
+        Console.WriteLine("4. 対局CSV または Round/Black-White/対局記号表");
+        Console.WriteLine("5. 必要に応じて試行回数");
+        Console.WriteLine("6. 結果CSVの出力先\n");
+    }
+
+    static void PrintSimulationFinalStageOverview()
+    {
+        Console.WriteLine("このモードでは次を順に入力します。");
+        Console.WriteLine("1. 同Elo対局時の先手勝率 (%)");
+        Console.WriteLine("2. 選手 / Player 一覧CSV");
+        Console.WriteLine("3. グループ対応CSV");
+        Console.WriteLine("4. 本戦不出場Apex一覧CSV（省略可）");
+        Console.WriteLine("5. 本戦不出場Apexの扱い");
+        Console.WriteLine("6. 境界救済戦の有無");
+        Console.WriteLine("7. 対局CSV または Round/Black-White/対局記号表");
+        Console.WriteLine("8. 参考対局CSV（省略可）");
+        Console.WriteLine("9. 必要に応じて試行回数");
+        Console.WriteLine("10. 結果CSVの出力先\n");
+    }
+
+    static void PrintQualityEvaluationStandardOverview()
+    {
+        Console.WriteLine("このモードでは次を順に入力します。");
+        Console.WriteLine("1. 順位ルールセット");
+        Console.WriteLine("2. 同Elo対局時の先手勝率 (%)");
+        Console.WriteLine("3. 選手 / Player 一覧CSV");
+        Console.WriteLine("4. 対局CSV または Round/Black-White/対局記号表");
+        Console.WriteLine("5. 単発評価または n% スイープ実験");
+        Console.WriteLine("6. 必要に応じて試行回数");
+        Console.WriteLine("7. レポート出力先\n");
+    }
+
+    static void PrintQualityEvaluationFinalStageOverview()
+    {
+        Console.WriteLine("このモードでは次を順に入力します。");
+        Console.WriteLine("1. 同Elo対局時の先手勝率 (%)");
+        Console.WriteLine("2. 選手 / Player 一覧CSV");
+        Console.WriteLine("3. グループ対応CSV");
+        Console.WriteLine("4. 本戦不出場Apex一覧CSV（省略可）");
+        Console.WriteLine("5. 本戦不出場Apexの扱い");
+        Console.WriteLine("6. 境界救済戦の有無");
+        Console.WriteLine("7. 可変定員8ルールの有無");
+        Console.WriteLine("8. 対局CSV または Round/Black-White/対局記号表");
+        Console.WriteLine("9. 参考対局CSV（省略可）");
+        Console.WriteLine("10. 単発評価または n% スイープ実験");
+        Console.WriteLine("11. 必要に応じて試行回数");
+        Console.WriteLine("12. レポート出力先\n");
     }
 }
 

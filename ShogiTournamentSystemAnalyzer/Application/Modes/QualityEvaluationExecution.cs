@@ -112,6 +112,7 @@ internal static partial class Program
     static QualitySweepOptions ReadQualitySweepOptions()
     {
         Console.WriteLine("品質評価の実行方法を選んでください。");
+        Console.WriteLine("単発評価は現在の条件だけを評価し、n% スイープ実験は先手勝率を範囲で振って比較します。");
         Console.WriteLine("1. 単発評価");
         Console.WriteLine("2. n% スイープ実験\n");
 
@@ -130,6 +131,7 @@ internal static partial class Program
                 Console.WriteLine();
                 while (true)
                 {
+                    Console.WriteLine("補足: 例として 50 → 55 を 1 刻みで指定すると、50, 51, 52, 53, 54, 55 を順に評価します。\n");
                     var startPercent = ReadDoubleWithDefaultInRange("開始する先手勝率(%)を入力してください [50]: ", 50.0, 0.0, 100.0);
                     var endPercent = ReadDoubleWithDefaultInRange("終了する先手勝率(%)を入力してください [55]: ", 55.0, 0.0, 100.0);
                     var stepPercent = ReadDoubleWithDefaultInRange("刻み幅(%)を入力してください [1]: ", 1.0, 0.000001, 100.0);

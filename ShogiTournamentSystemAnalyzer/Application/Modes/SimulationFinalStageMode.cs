@@ -4,7 +4,7 @@ internal static partial class Program
     {
         Console.WriteLine("対局シミュレーション / 本戦ルール: Apex / Innov 分割の定先戦を分析します。\n");
 
-        PrintFinalStageInputSample();
+        PrintSimulationFinalStageOverview();
         if (!TryReadFinalStageModeContext(out var context))
         {
             return;

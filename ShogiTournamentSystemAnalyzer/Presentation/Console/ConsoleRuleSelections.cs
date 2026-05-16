@@ -3,6 +3,7 @@ internal static partial class Program
     static TournamentRuleSetMode ReadTournamentRuleSetMode()
     {
         Console.WriteLine("順位ルールを選んでください。");
+        Console.WriteLine("通常ルールでは Neutral / Twill をここで切り替えます。");
         Console.WriteLine("1. Neutral: 勝ち数ベースのニュートラル順位");
         Console.WriteLine("2. Twill: 比較グラフと重箱表で順位を決める\n");
 
@@ -55,6 +56,7 @@ internal static partial class Program
     static AdditionalApexPlacementMode ReadAdditionalApexPlacementMode()
     {
         Console.WriteLine("本戦不出場Apexの扱いを選んでください。");
+        Console.WriteLine("本戦選手とは別にいる Apex を総合順位へどう反映するかを選びます。");
         Console.WriteLine("1. Off: Innov より前に順位帯を確保する（現行案）");
         Console.WriteLine("2. On: 総合順位へ挿入しない（改善案A）\n");
 
@@ -81,6 +83,7 @@ internal static partial class Program
     static BoundaryRescueMode ReadBoundaryRescueMode()
     {
         Console.WriteLine("境界救済戦を使いますか？");
+        Console.WriteLine("Apex 最下位相当と Innov 最上位相当の入れ替わり余地を補う設定です。");
         Console.WriteLine("1. Off: 使わない");
         Console.WriteLine("2. On: Apex最下位相当とInnov最上位相当で救済戦を行う\n");
 
@@ -107,6 +110,7 @@ internal static partial class Program
     static VariableTop8Mode ReadVariableTop8Mode()
     {
         Console.WriteLine("可変定員8ルールを使いますか？");
+        Console.WriteLine("本戦不出場Apexの人数に応じて Innov 側の総合上位8人数を補正する設定です。");
         Console.WriteLine("1. Off: 使わない");
         Console.WriteLine("2. On: 本戦不出場Apex人数ぶんだけ Innov 上位を総合上位8へ引っ張り上げる\n");
 

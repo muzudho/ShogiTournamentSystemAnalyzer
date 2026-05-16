@@ -110,6 +110,7 @@ internal static partial class Program
         while (true)
         {
             Console.WriteLine("グループ対応CSVを貼り付けてください。入力終了は空行です。\n");
+            PrintFinalStageGroupCsvExample();
 
             var lines = new List<string>();
             while (true)
@@ -144,6 +145,7 @@ internal static partial class Program
         while (true)
         {
             Console.WriteLine($"{prompt} 入力終了は空行です。空のまま Enter で省略できます。\n");
+            PrintOptionalPlayersCsvExample();
 
             var lines = new List<string>();
             while (true)
@@ -177,6 +179,7 @@ internal static partial class Program
         while (true)
         {
             Console.WriteLine("選手一覧CSVを貼り付けてください。入力終了は空行です。\n");
+            PrintPlayersCsvExample();
 
             var lines = new List<string>();
             while (true)
@@ -216,6 +219,8 @@ internal static partial class Program
         while (true)
         {
             Console.WriteLine("\n対局CSVまたは Round/Black-White/対局記号表を貼り付けてください。入力終了は END 行です。\n");
+            PrintMatchesCsvExample();
+            PrintRoundMatrixExample();
 
             var lines = new List<string>();
             while (true)
