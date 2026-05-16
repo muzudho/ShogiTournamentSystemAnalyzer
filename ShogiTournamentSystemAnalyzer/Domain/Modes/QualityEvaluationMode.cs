@@ -119,18 +119,19 @@ internal static partial class Program
         if (sweepOptions.IsEnabled)
         {
             RunQualitySweepExperiment(
-                participants,
-                matches,
-                groupMap,
-                groupingMode,
-                additionalApexParticipants,
-                additionalApexPlacementMode,
-                effectiveAdditionalApexCount,
-                boundaryRescueMode,
-                promotedInnovCount,
+                new QualityEvaluationInput(participants, matches, referenceMatches),
+                new QualityEvaluationRuleDefinition(
+                    groupingMode,
+                    tournamentRuleSetMode,
+                    groupMap,
+                    additionalApexParticipants,
+                    additionalApexPlacementMode,
+                    effectiveAdditionalApexCount,
+                    boundaryRescueMode,
+                    variableTop8Mode,
+                    promotedInnovCount),
                 simulationCount,
-                sweepOptions,
-                tournamentRuleSetMode);
+                sweepOptions);
             return;
         }
 
@@ -138,18 +139,19 @@ internal static partial class Program
         Console.WriteLine();
 
         var qualityEvaluationRun = ExecuteQualityEvaluationRun(
-            participants,
-            matches,
-            groupMap,
-            groupingMode,
-            additionalApexParticipants,
-            additionalApexPlacementMode,
-            effectiveAdditionalApexCount,
-            boundaryRescueMode,
-            promotedInnovCount,
+            new QualityEvaluationInput(participants, matches, referenceMatches),
+            new QualityEvaluationRuleDefinition(
+                groupingMode,
+                tournamentRuleSetMode,
+                groupMap,
+                additionalApexParticipants,
+                additionalApexPlacementMode,
+                effectiveAdditionalApexCount,
+                boundaryRescueMode,
+                variableTop8Mode,
+                promotedInnovCount),
             blackAdvantagePercent,
-                simulationCount,
-                tournamentRuleSetMode);
+            simulationCount);
 
         PrintQualitySummary(qualityEvaluationRun.Summary);
         PrintQualityParticipantHighlights(qualityEvaluationRun.ParticipantRows);
@@ -173,18 +175,10 @@ internal static partial class Program
     }
 
     static void RunQualitySweepExperiment(
-        IReadOnlyList<Participant> participants,
-        IReadOnlyList<Match> matches,
-        IReadOnlyDictionary<string, FinalStageGroup>? groupMap,
-        FinalStageGroupingMode groupingMode,
-        IReadOnlyList<Participant> additionalApexParticipants,
-        AdditionalApexPlacementMode additionalApexPlacementMode,
-        int effectiveAdditionalApexCount,
-        BoundaryRescueMode boundaryRescueMode,
-        int promotedInnovCount,
+        QualityEvaluationInput input,
+        QualityEvaluationRuleDefinition ruleDefinition,
         int? simulationCount,
-        QualitySweepOptions sweepOptions,
-        TournamentRuleSetMode tournamentRuleSetMode)
+        QualitySweepOptions sweepOptions)
     {
         var sweepRows = new List<QualitySweepRow>();
         using var simulationBudget = simulationCount.HasValue ? BeginSimulationBudget() : default;
@@ -192,18 +186,10 @@ internal static partial class Program
         for (var blackAdvantagePercent = sweepOptions.StartPercent; blackAdvantagePercent <= sweepOptions.EndPercent + 1e-9; blackAdvantagePercent += sweepOptions.StepPercent)
         {
             var qualityEvaluationRun = ExecuteQualityEvaluationRun(
-                participants,
-                matches,
-                groupMap,
-                groupingMode,
-                additionalApexParticipants,
-                additionalApexPlacementMode,
-                effectiveAdditionalApexCount,
-                boundaryRescueMode,
-                promotedInnovCount,
+                input,
+                ruleDefinition,
                 blackAdvantagePercent,
-                simulationCount,
-                tournamentRuleSetMode);
+                simulationCount);
 
             sweepRows.Add(new QualitySweepRow(
                 blackAdvantagePercent,
@@ -230,7 +216,12 @@ internal static partial class Program
         }
 
         var reportGroupingOptions = ReadExperimentalReportGroupingOptions();
-        var defaultOutputCsvPath = BuildQualitySweepDefaultOutputPath(groupingMode, additionalApexPlacementMode, boundaryRescueMode, reportGroupingOptions, tournamentRuleSetMode);
+        var defaultOutputCsvPath = BuildQualitySweepDefaultOutputPath(
+            ruleDefinition.GroupingMode,
+            ruleDefinition.AdditionalApexPlacementMode,
+            ruleDefinition.BoundaryRescueMode,
+            reportGroupingOptions,
+            ruleDefinition.TournamentRuleSetMode);
         var sweepCsvPath = ResolveOutputCsvPath(ReadTextWithDefault(
             $"\nn%スイープ結果CSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
             defaultOutputCsvPath));
@@ -240,31 +231,23 @@ internal static partial class Program
     }
 
     static QualityEvaluationRun ExecuteQualityEvaluationRun(
-        IReadOnlyList<Participant> participants,
-        IReadOnlyList<Match> matches,
-        IReadOnlyDictionary<string, FinalStageGroup>? groupMap,
-        FinalStageGroupingMode groupingMode,
-        IReadOnlyList<Participant> additionalApexParticipants,
-        AdditionalApexPlacementMode additionalApexPlacementMode,
-        int effectiveAdditionalApexCount,
-        BoundaryRescueMode boundaryRescueMode,
-        int promotedInnovCount,
+        QualityEvaluationInput input,
+        QualityEvaluationRuleDefinition ruleDefinition,
         double blackAdvantagePercent,
-        int? simulationCount,
-        TournamentRuleSetMode tournamentRuleSetMode)
+        int? simulationCount)
     {
         var blackAdvantageRating = ConvertBlackAdvantagePercentToRating(blackAdvantagePercent);
         using var simulationBudget = simulationCount.HasValue ? BeginSimulationBudget() : default;
-        var result = groupingMode == FinalStageGroupingMode.On
+        var result = ruleDefinition.GroupingMode == FinalStageGroupingMode.On
             ? simulationCount.HasValue
-                ? CalculateFinalStageBySimulation(participants, matches, groupMap!, effectiveAdditionalApexCount, boundaryRescueMode, blackAdvantageRating, simulationCount.Value, promotedInnovCount)
-                : CalculateFinalStageExactly(participants, matches, groupMap!, effectiveAdditionalApexCount, boundaryRescueMode, blackAdvantageRating, promotedInnovCount)
+                ? CalculateFinalStageBySimulation(input.Participants, input.Matches, ruleDefinition.GroupMap!, ruleDefinition.EffectiveAdditionalApexCount, ruleDefinition.BoundaryRescueMode, blackAdvantageRating, simulationCount.Value, ruleDefinition.PromotedInnovCount)
+                : CalculateFinalStageExactly(input.Participants, input.Matches, ruleDefinition.GroupMap!, ruleDefinition.EffectiveAdditionalApexCount, ruleDefinition.BoundaryRescueMode, blackAdvantageRating, ruleDefinition.PromotedInnovCount)
             : simulationCount.HasValue
-                ? CalculateBySimulation(participants, matches, blackAdvantageRating, simulationCount.Value, tournamentRuleSetMode)
-                : CalculateExactly(participants, matches, blackAdvantageRating, tournamentRuleSetMode);
+                ? CalculateBySimulation(input.Participants, input.Matches, blackAdvantageRating, simulationCount.Value, ruleDefinition.TournamentRuleSetMode)
+                : CalculateExactly(input.Participants, input.Matches, blackAdvantageRating, ruleDefinition.TournamentRuleSetMode);
 
-        var resultRows = BuildResultRows(participants, matches, result, blackAdvantagePercent);
-        var qualityParticipantRows = BuildQualityParticipantRows(resultRows, groupMap, additionalApexParticipants, additionalApexPlacementMode);
+        var resultRows = BuildResultRows(input.Participants, input.Matches, result, blackAdvantagePercent);
+        var qualityParticipantRows = BuildQualityParticipantRows(resultRows, ruleDefinition.GroupMap, ruleDefinition.AdditionalApexParticipants, ruleDefinition.AdditionalApexPlacementMode);
         var qualitySummary = BuildQualitySummary(qualityParticipantRows);
         return new QualityEvaluationRun(qualityParticipantRows, qualitySummary, result.Mode);
     }
