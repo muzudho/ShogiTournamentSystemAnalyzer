@@ -29,16 +29,14 @@ internal static partial class Program
             RunQualitySweepExperiment(
                 input,
                 ruleDefinition,
-                executionOptions.SimulationCount,
-                executionOptions.SweepOptions);
+                executionOptions);
             return;
         }
 
         var qualityEvaluationRun = ExecuteQualityEvaluationRun(
             input,
             ruleDefinition,
-            executionOptions.BlackAdvantagePercent!.Value,
-            executionOptions.SimulationCount);
+            executionOptions);
 
         PrintQualitySummary(qualityEvaluationRun.Summary);
         PrintQualityParticipantHighlights(qualityEvaluationRun.ParticipantRows);
@@ -54,19 +52,17 @@ internal static partial class Program
     static void RunQualitySweepExperiment(
         QualityEvaluationInput input,
         QualityEvaluationRuleDefinition ruleDefinition,
-        int? simulationCount,
-        QualitySweepOptions sweepOptions)
+        QualityEvaluationExecutionOptions executionOptions)
     {
         var sweepRows = new List<QualitySweepRow>();
-        using var simulationBudget = simulationCount.HasValue ? BeginSimulationBudget() : default;
+        using var simulationBudget = executionOptions.SimulationCount.HasValue ? BeginSimulationBudget() : default;
         var stoppedByTimeout = false;
-        for (var blackAdvantagePercent = sweepOptions.StartPercent; blackAdvantagePercent <= sweepOptions.EndPercent + 1e-9; blackAdvantagePercent += sweepOptions.StepPercent)
+        for (var blackAdvantagePercent = executionOptions.SweepOptions.StartPercent; blackAdvantagePercent <= executionOptions.SweepOptions.EndPercent + 1e-9; blackAdvantagePercent += executionOptions.SweepOptions.StepPercent)
         {
             var qualityEvaluationRun = ExecuteQualityEvaluationRun(
                 input,
                 ruleDefinition,
-                blackAdvantagePercent,
-                simulationCount);
+                executionOptions with { BlackAdvantagePercent = blackAdvantagePercent });
 
             sweepRows.Add(new QualitySweepRow(
                 blackAdvantagePercent,
@@ -101,17 +97,17 @@ internal static partial class Program
     static QualityEvaluationRun ExecuteQualityEvaluationRun(
         QualityEvaluationInput input,
         QualityEvaluationRuleDefinition ruleDefinition,
-        double blackAdvantagePercent,
-        int? simulationCount)
+        QualityEvaluationExecutionOptions executionOptions)
     {
+        var blackAdvantagePercent = executionOptions.BlackAdvantagePercent!.Value;
         var blackAdvantageRating = ConvertBlackAdvantagePercentToRating(blackAdvantagePercent);
-        using var simulationBudget = simulationCount.HasValue ? BeginSimulationBudget() : default;
+        using var simulationBudget = executionOptions.SimulationCount.HasValue ? BeginSimulationBudget() : default;
         var result = ruleDefinition.GroupingMode == FinalStageGroupingMode.On
-            ? simulationCount.HasValue
-                ? CalculateFinalStageBySimulation(input.Participants, input.Matches, ruleDefinition.GroupMap!, ruleDefinition.EffectiveAdditionalApexCount, ruleDefinition.BoundaryRescueMode, blackAdvantageRating, simulationCount.Value, ruleDefinition.PromotedInnovCount)
+            ? executionOptions.SimulationCount.HasValue
+                ? CalculateFinalStageBySimulation(input.Participants, input.Matches, ruleDefinition.GroupMap!, ruleDefinition.EffectiveAdditionalApexCount, ruleDefinition.BoundaryRescueMode, blackAdvantageRating, executionOptions.SimulationCount.Value, ruleDefinition.PromotedInnovCount)
                 : CalculateFinalStageExactly(input.Participants, input.Matches, ruleDefinition.GroupMap!, ruleDefinition.EffectiveAdditionalApexCount, ruleDefinition.BoundaryRescueMode, blackAdvantageRating, ruleDefinition.PromotedInnovCount)
-            : simulationCount.HasValue
-                ? CalculateBySimulation(input.Participants, input.Matches, blackAdvantageRating, simulationCount.Value, ruleDefinition.TournamentRuleSetMode)
+            : executionOptions.SimulationCount.HasValue
+                ? CalculateBySimulation(input.Participants, input.Matches, blackAdvantageRating, executionOptions.SimulationCount.Value, ruleDefinition.TournamentRuleSetMode)
                 : CalculateExactly(input.Participants, input.Matches, blackAdvantageRating, ruleDefinition.TournamentRuleSetMode);
 
         var resultRows = BuildResultRows(input.Participants, input.Matches, result, blackAdvantagePercent);
