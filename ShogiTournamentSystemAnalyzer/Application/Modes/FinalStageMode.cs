@@ -13,9 +13,9 @@ internal static partial class Program
         var participants = ReadParticipantsFromCsv();
         Console.WriteLine();
 
-        var groupingMode = FinalStageGroupingRule.ReadMode();
+        var groupingMode = ReadFinalStageGroupingMode();
         var tournamentRuleSetMode = groupingMode == FinalStageGroupingMode.Off
-            ? TournamentRuleSetRule.ReadMode()
+            ? ReadTournamentRuleSetMode()
             : TournamentRuleSetMode.Neutral;
         var groupMap = ReadOptionalFinalStageGroupMap(groupingMode, participants);
         string errorMessage;
@@ -42,9 +42,9 @@ internal static partial class Program
                 return;
             }
 
-            additionalApexPlacementMode = AdditionalApexPlacementRule.ReadMode();
+            additionalApexPlacementMode = ReadAdditionalApexPlacementMode();
             effectiveAdditionalApexCount = AdditionalApexPlacementRule.GetEffectiveAdditionalApexCount(additionalApexParticipants.Count, additionalApexPlacementMode);
-            boundaryRescueMode = BoundaryRescueRule.ReadMode();
+            boundaryRescueMode = ReadBoundaryRescueMode();
         }
         else
         {

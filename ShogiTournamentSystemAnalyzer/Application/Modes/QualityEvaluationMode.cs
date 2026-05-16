@@ -120,9 +120,9 @@ internal static partial class Program
         IReadOnlyList<Participant> participants,
         out QualityEvaluationRuleDefinition ruleDefinition)
     {
-        var groupingMode = FinalStageGroupingRule.ReadMode();
+        var groupingMode = ReadFinalStageGroupingMode();
         var tournamentRuleSetMode = groupingMode == FinalStageGroupingMode.Off
-            ? TournamentRuleSetRule.ReadMode()
+            ? ReadTournamentRuleSetMode()
             : TournamentRuleSetMode.Neutral;
         var groupMap = ReadOptionalFinalStageGroupMap(groupingMode, participants);
 
@@ -153,10 +153,10 @@ internal static partial class Program
                 return false;
             }
 
-            additionalApexPlacementMode = AdditionalApexPlacementRule.ReadMode();
+            additionalApexPlacementMode = ReadAdditionalApexPlacementMode();
             effectiveAdditionalApexCount = AdditionalApexPlacementRule.GetEffectiveAdditionalApexCount(additionalApexParticipants.Count, additionalApexPlacementMode);
-            boundaryRescueMode = BoundaryRescueRule.ReadMode();
-            variableTop8Mode = VariableTop8Rule.ReadMode();
+            boundaryRescueMode = ReadBoundaryRescueMode();
+            variableTop8Mode = ReadVariableTop8Mode();
             promotedInnovCount = VariableTop8Rule.GetPromotedInnovCount(variableTop8Mode, additionalApexParticipants.Count);
         }
         else

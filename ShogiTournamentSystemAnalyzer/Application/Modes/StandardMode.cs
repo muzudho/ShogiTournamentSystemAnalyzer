@@ -6,7 +6,7 @@ internal static partial class Program
         Console.WriteLine("前提: 各対局は黒番・白番を持ち、勝率は Elo レーティング差と黒番有利率から計算します。\n");
 
         PrintInputSample();
-        var tournamentRuleSetMode = TournamentRuleSetRule.ReadMode();
+        var tournamentRuleSetMode = ReadTournamentRuleSetMode();
         var blackAdvantagePercent = ReadDoubleWithDefaultInRange("同Elo対局時の黒番勝率(%)を入力してください [51]: ", 51.0, 0.0, 100.0);
         var blackAdvantageRating = ConvertBlackAdvantagePercentToRating(blackAdvantagePercent);
 
