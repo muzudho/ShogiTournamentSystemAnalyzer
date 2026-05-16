@@ -64,17 +64,7 @@ internal static partial class Program
             Console.WriteLine($"シミュレーションは時間上限 {SimulationTimeLimit.TotalMinutes:F0} 分で打ち切りました。\n");
         }
 
-        var reportGroupingOptions = ReadExperimentalReportGroupingOptions();
-        var defaultOutputCsvPath = BuildQualitySummaryDefaultOutputPath(
-            ruleDefinition.GroupingMode,
-            ruleDefinition.AdditionalApexPlacementMode,
-            ruleDefinition.BoundaryRescueMode,
-            reportGroupingOptions,
-            ruleDefinition.TournamentRuleSetMode);
-        var summaryCsvPath = ResolveOutputCsvPath(ReadTextWithDefault(
-            $"\n品質評価サマリーCSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
-            defaultOutputCsvPath));
-        var outputOptions = new QualityEvaluationOutputOptions(reportGroupingOptions, summaryCsvPath);
+        var outputOptions = ReadQualitySummaryOutputOptions(ruleDefinition);
         WriteQualitySummaryCsv(outputOptions.OutputCsvPath, qualityEvaluationRun.Summary, outputOptions.ReportGroupingOptions);
 
         var participantCsvPath = BuildSiblingOutputCsvPath(outputOptions.OutputCsvPath, "quality_participants");
@@ -125,19 +115,10 @@ internal static partial class Program
             Console.WriteLine($"シミュレーションは時間上限 {SimulationTimeLimit.TotalMinutes:F0} 分で打ち切ったため、n% スイープは途中で終了しました。\n");
         }
 
-        var reportGroupingOptions = ReadExperimentalReportGroupingOptions();
-        var defaultOutputCsvPath = BuildQualitySweepDefaultOutputPath(
-            ruleDefinition.GroupingMode,
-            ruleDefinition.AdditionalApexPlacementMode,
-            ruleDefinition.BoundaryRescueMode,
-            reportGroupingOptions,
-            ruleDefinition.TournamentRuleSetMode);
-        var sweepCsvPath = ResolveOutputCsvPath(ReadTextWithDefault(
-            $"\nn%スイープ結果CSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
-            defaultOutputCsvPath));
-        WriteQualitySweepCsv(sweepCsvPath, sweepRows, reportGroupingOptions);
+        var outputOptions = ReadQualitySweepOutputOptions(ruleDefinition);
+        WriteQualitySweepCsv(outputOptions.OutputCsvPath, sweepRows, outputOptions.ReportGroupingOptions);
 
-        Console.WriteLine($"n%スイープ結果CSVを出力しました: {sweepCsvPath}");
+        Console.WriteLine($"n%スイープ結果CSVを出力しました: {outputOptions.OutputCsvPath}");
     }
 
     static QualityEvaluationRun ExecuteQualityEvaluationRun(
@@ -285,6 +266,36 @@ internal static partial class Program
         }
 
         return new QualityEvaluationExecutionOptions(simulationCount, sweepOptions, null);
+    }
+
+    static QualityEvaluationOutputOptions ReadQualitySummaryOutputOptions(QualityEvaluationRuleDefinition ruleDefinition)
+    {
+        var reportGroupingOptions = ReadExperimentalReportGroupingOptions();
+        var defaultOutputCsvPath = BuildQualitySummaryDefaultOutputPath(
+            ruleDefinition.GroupingMode,
+            ruleDefinition.AdditionalApexPlacementMode,
+            ruleDefinition.BoundaryRescueMode,
+            reportGroupingOptions,
+            ruleDefinition.TournamentRuleSetMode);
+        var outputCsvPath = ResolveOutputCsvPath(ReadTextWithDefault(
+            $"\n品質評価サマリーCSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
+            defaultOutputCsvPath));
+        return new QualityEvaluationOutputOptions(reportGroupingOptions, outputCsvPath);
+    }
+
+    static QualityEvaluationOutputOptions ReadQualitySweepOutputOptions(QualityEvaluationRuleDefinition ruleDefinition)
+    {
+        var reportGroupingOptions = ReadExperimentalReportGroupingOptions();
+        var defaultOutputCsvPath = BuildQualitySweepDefaultOutputPath(
+            ruleDefinition.GroupingMode,
+            ruleDefinition.AdditionalApexPlacementMode,
+            ruleDefinition.BoundaryRescueMode,
+            reportGroupingOptions,
+            ruleDefinition.TournamentRuleSetMode);
+        var outputCsvPath = ResolveOutputCsvPath(ReadTextWithDefault(
+            $"\nn%スイープ結果CSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
+            defaultOutputCsvPath));
+        return new QualityEvaluationOutputOptions(reportGroupingOptions, outputCsvPath);
     }
 
     static QualitySweepOptions ReadQualitySweepOptions()
