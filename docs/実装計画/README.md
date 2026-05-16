@@ -1,7 +1,7 @@
 # 実装計画
 
 このフォルダーは、ShogiTournamentSystemAnalyzer の**開発向けメモ**をまとめた場所です。  
-利用者向けの使い方や仕様説明は `docs/Manuals`、このフォルダーは実装予定・改修方針・設計メモを扱います。
+利用者向けの使い方や仕様説明は [docs/Manuals](../Manuals/README.md)、このフォルダーは実装予定・改修方針・設計メモを扱います。
 
 ## ファイル一覧
 - [rename-to-ShogiTournamentPairingAnalyzer.txt](./rename-to-ShogiTournamentPairingAnalyzer.txt)
