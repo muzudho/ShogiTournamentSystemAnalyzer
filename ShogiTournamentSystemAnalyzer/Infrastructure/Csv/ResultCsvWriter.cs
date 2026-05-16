@@ -58,7 +58,7 @@ internal static partial class Program
             string.Empty,
             "## 概要",
             $"- 評価点数: {sweepRows.Count}",
-            $"- 出力CSV: `{sweepCsvPath}`"
+            $"- 出力CSV: {BuildMarkdownFileLink(outputMarkdownPath, sweepCsvPath)}"
         };
 
         if (!string.IsNullOrWhiteSpace(options.EvaluationMemo))
@@ -146,8 +146,8 @@ internal static partial class Program
             "## 概要",
             $"- 計算モード: {qualityEvaluationRun.CalculationMode}",
             $"- 対象選手数: {qualityEvaluationRun.PlayerRows.Count}",
-            $"- サマリーCSV: `{summaryCsvPath}`",
-            $"- 選手別CSV: `{playerCsvPath}`"
+            $"- サマリーCSV: {BuildMarkdownFileLink(outputMarkdownPath, summaryCsvPath)}",
+            $"- 選手別CSV: {BuildMarkdownFileLink(outputMarkdownPath, playerCsvPath)}"
         };
 
         if (!string.IsNullOrWhiteSpace(options.EvaluationMemo))
@@ -779,6 +779,17 @@ internal static partial class Program
     static string EscapeMermaidLabel(string label)
     {
         return "\"" + label.Replace("\"", "'") + "\"";
+    }
+
+    static string BuildMarkdownFileLink(string markdownPath, string targetPath)
+    {
+        var markdownDirectory = Path.GetDirectoryName(Path.GetFullPath(markdownPath)) ?? Path.GetFullPath(".");
+        var fullTargetPath = Path.GetFullPath(targetPath);
+        var relativePath = Path.GetRelativePath(markdownDirectory, fullTargetPath)
+            .Replace(Path.DirectorySeparatorChar, '/')
+            .Replace(Path.AltDirectorySeparatorChar, '/');
+        var fileName = Path.GetFileName(targetPath);
+        return $"[{fileName}]({relativePath})";
     }
 }
 
