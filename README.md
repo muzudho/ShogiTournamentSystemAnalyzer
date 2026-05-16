@@ -49,6 +49,8 @@ dotnet run --project .\ShogiTournamentPairingAnalyzer\ShogiTournamentPairingAnal
   - 選手一覧CSV、対局CSV、結果CSV、品質評価CSV、実効Elo
 
 ### 開発・計画メモ
+- [docs フォルダー案内](./docs/README.md)
+  - `docs` 配下の資料全体を見渡したいときの入口
 - `docs/実装計画`
   - 実装予定、設計メモ、改修方針
 - `docs/notes.md`
