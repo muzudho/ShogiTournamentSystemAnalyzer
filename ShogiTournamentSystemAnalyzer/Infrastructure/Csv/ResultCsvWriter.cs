@@ -360,6 +360,22 @@ internal static partial class Program
         lines.AddRange(topChampionshipRows.Select(row =>
             $"| {row.Name} | {FormatRating(row.OriginalRating)} | {FormatRating(row.EffectiveRating)} | {FormatSignedRating(row.RatingDelta)} | {(row.ChampionshipProbability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {row.AveragePlace.ToString("F3", CultureInfo.InvariantCulture)} |"));
 
+        if (topChampionshipRows.Length > 0)
+        {
+            lines.AddRange(new[]
+            {
+                string.Empty,
+                "## Mermaid 図",
+                "```mermaid",
+                "xychart-beta",
+                "    title \"上位候補の優勝確率\"",
+                "    x-axis [" + BuildMermaidCategoryList(topChampionshipRows.Select(row => row.Name)) + "]",
+                "    y-axis \"優勝確率(%)\" 0 --> 100",
+                "    bar [" + string.Join(", ", topChampionshipRows.Select(row => (row.ChampionshipProbability * 100).ToString("F2", CultureInfo.InvariantCulture))) + "]",
+                "```"
+            });
+        }
+
         File.WriteAllLines(outputMarkdownPath, lines, new UTF8Encoding(false));
     }
 
@@ -473,7 +489,33 @@ internal static partial class Program
         lines.AddRange(topRows.Select(row =>
             $"| {row.Name} | {row.Group} | {FormatRating(row.OriginalRating)} | {FormatRating(row.EffectiveRating)} | {FormatSignedRating(row.RatingDelta)} | {(row.GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {(row.OverallPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {row.OverallPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} |"));
 
+        if (topRows.Length > 0)
+        {
+            lines.AddRange(new[]
+            {
+                string.Empty,
+                "## Mermaid 図",
+                "```mermaid",
+                "xychart-beta",
+                "    title \"上位候補の総合1位確率\"",
+                "    x-axis [" + BuildMermaidCategoryList(topRows.Select(row => row.Name)) + "]",
+                "    y-axis \"総合1位確率(%)\" 0 --> 100",
+                "    bar [" + string.Join(", ", topRows.Select(row => (row.OverallPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture))) + "]",
+                "```"
+            });
+        }
+
         File.WriteAllLines(outputMarkdownPath, lines, new UTF8Encoding(false));
+    }
+
+    static string BuildMermaidCategoryList(IEnumerable<string> labels)
+    {
+        return string.Join(", ", labels.Select(EscapeMermaidLabel));
+    }
+
+    static string EscapeMermaidLabel(string label)
+    {
+        return "\"" + label.Replace("\"", "'") + "\"";
     }
 }
 
