@@ -1,21 +1,36 @@
 ﻿using System.Globalization;
 using System.Text;
 
+/// <summary>
+/// ここがプログラムだぜ（＾▽＾）！
+/// </summary>
 internal static partial class Program
 {
-    private static readonly TimeSpan SimulationTimeLimit = TimeSpan.FromMinutes(3);
-    private static DateTime? _simulationDeadlineUtc;
 
+
+    // ========================================
+    // 概要
+    // ========================================
+
+
+    /// <summary>
+    /// ここからプログラムが始まるぜ（＾▽＾）！
+    /// </summary>
+    /// <param name="args"></param>
     private static void Main(string[] args)
     {
+        // エンコーディングって大事だよな（＾▽＾）！　文字化けを防ぐぜ（＾▽＾）！
         Console.OutputEncoding = Encoding.UTF8;
 
         try
         {
+            // このプログラムの説明を最初にするぜ（＾▽＾）！
+            Console.WriteLine("このプログラムは、２人用ゲーム大会（例えば将棋）の大会ルールをいくつか選び、コンピューター上で模擬戦し、その結果を比較して、より良いルール作りを目指すツールだぜ（＾▽＾）！\n");
+
+            // 入力方法を選ばせる（＾▽＾）！
             ConfigureInputSource(args);
 
-            Console.WriteLine("将棋大会の順位分布を計算します。\n");
-
+            // 大きくモードが分かれるぜ（＾▽＾）！
             RunApp();
         }
         catch (OperationCanceledException ex)
@@ -24,6 +39,39 @@ internal static partial class Program
         }
     }
 
+    static void RunApp()
+    {
+        switch (ReadMode())
+        {
+            case 1:
+                RunStandardMode();
+                break;
+            case 2:
+                RunFinalStageMode();
+                break;
+            case 3:
+                RunQualityEvaluationMode();
+                break;
+            default:
+                throw new InvalidOperationException("未対応のモードです。");
+        }
+    }
+
+
+
+    // ========================================
+    // 詳細
+    // ========================================
+
+
+    private static readonly TimeSpan SimulationTimeLimit = TimeSpan.FromMinutes(3);
+    private static DateTime? _simulationDeadlineUtc;
+
+    /// <summary>
+    /// 入力方法を選ばせる（＾▽＾）！
+    /// </summary>
+    /// <param name="args"></param>
+    /// <exception cref="OperationCanceledException"></exception>
     static void ConfigureInputSource(IReadOnlyList<string> args)
     {
         var inputFilePath = TryGetInputFilePathFromArgs(args);
@@ -177,23 +225,6 @@ static List<Match> ReadOptionalMatchesFromCsv(IReadOnlyList<Participant> partici
     }
 }
 
-    static void RunApp()
-    {
-        switch (ReadMode())
-        {
-            case 1:
-                RunStandardMode();
-                break;
-            case 2:
-                RunFinalStageMode();
-                break;
-            case 3:
-                RunQualityEvaluationMode();
-                break;
-            default:
-                throw new InvalidOperationException("未対応のモードです。");
-        }
-    }
 
 static ExperimentalReportGroupingOptions ReadExperimentalReportGroupingOptions()
 {
