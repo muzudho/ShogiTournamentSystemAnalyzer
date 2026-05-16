@@ -68,6 +68,12 @@ internal static partial class Program
 
         if (sweepRows.Count > 0)
         {
+            var recommendedRows = sweepRows
+                .Where(row => row.SpearmanCorrelation >= bestSpearmanRow.SpearmanCorrelation - 0.001
+                    && row.MeanAbsoluteRankError <= bestMaeRow.MeanAbsoluteRankError + 0.05)
+                .OrderBy(row => row.BlackAdvantagePercent)
+                .ToArray();
+
             lines.AddRange(new[]
             {
                 string.Empty,
@@ -75,6 +81,7 @@ internal static partial class Program
                 $"- Spearman 相関が最良の点: **{bestSpearmanRow.BlackAdvantagePercent.ToString("F2", CultureInfo.InvariantCulture)}%**（{bestSpearmanRow.SpearmanCorrelation.ToString("F6", CultureInfo.InvariantCulture)}）",
                 $"- 平均順位ずれが最良の点: **{bestMaeRow.BlackAdvantagePercent.ToString("F2", CultureInfo.InvariantCulture)}%**（{bestMaeRow.MeanAbsoluteRankError.ToString("F6", CultureInfo.InvariantCulture)}）",
                 $"- Elo1位の総合1位確率が最良の点: **{bestTop1Row.BlackAdvantagePercent.ToString("F2", CultureInfo.InvariantCulture)}%**（{(bestTop1Row.EloTop1OverallTop1Probability * 100).ToString("F6", CultureInfo.InvariantCulture)}%）",
+                $"- 自動おすすめ帯: **{BuildRecommendedSweepBandText(recommendedRows, bestMaeRow.BlackAdvantagePercent)}**",
                 string.Empty,
                 "## 一覧表",
                 "| 先手勝率 | Spearman 相関 | 平均順位ずれ | Elo上位8名残留 | Elo1位の総合1位確率 | 最大不利益 | 最大利益 |",
@@ -126,6 +133,11 @@ internal static partial class Program
             .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
             .Take(3)
             .ToArray();
+        var bestTop1Row = qualityEvaluationRun.PlayerRows
+            .OrderByDescending(row => row.OverallTop1Probability)
+            .ThenBy(row => row.ExpectedOverallPlace)
+            .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
+            .FirstOrDefault();
 
         var lines = new List<string>
         {
@@ -157,6 +169,13 @@ internal static partial class Program
             "## 着目選手",
             $"- 最大不利益: **{summary.MostPenalizedPlayerName}** ({FormatSignedDelta(summary.MostPenalizedDelta)})",
             $"- 最大利益: **{summary.MostAdvantagedPlayerName}** ({FormatSignedDelta(summary.MostAdvantagedDelta)})",
+            $"- 総合1位確率が最も高い選手: **{bestTop1Row.Name}**（{(bestTop1Row.OverallTop1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}%）",
+            string.Empty,
+            "## 自動コメント",
+            $"- 実力順の並び: {BuildSpearmanComment(summary.SpearmanCorrelation)}",
+            $"- 平均順位の安定感: {BuildMeanAbsoluteRankErrorComment(summary.MeanAbsoluteRankError)}",
+            $"- 上位8名の残留: {BuildTop8RetentionComment(summary.AverageTop8Retention)}",
+            $"- 最強者の押し上げ: {BuildTop1Comment(summary.EloTop1OverallTop1Probability)}",
             string.Empty,
             "### 不利益が大きい選手",
             "| 選手 | Elo順位 | 期待総合順位 | ずれ | 総合1位確率 | 総合上位8位確率 |",
@@ -257,6 +276,116 @@ internal static partial class Program
         return value >= 0
             ? "+" + value.ToString("F6", CultureInfo.InvariantCulture)
             : value.ToString("F6", CultureInfo.InvariantCulture);
+    }
+
+    static string BuildSpearmanComment(double spearmanCorrelation)
+    {
+        return spearmanCorrelation switch
+        {
+            >= 0.999 => "かなり強く保たれています。",
+            >= 0.99 => "概ね保たれています。",
+            >= 0.95 => "少し崩れ始めています。",
+            _ => "はっきり崩れています。",
+        };
+    }
+
+    static string BuildMeanAbsoluteRankErrorComment(double meanAbsoluteRankError)
+    {
+        return meanAbsoluteRankError switch
+        {
+            <= 1.2 => "かなり小さめです。",
+            <= 1.6 => "比較的おだやかです。",
+            <= 2.0 => "やや大きめです。",
+            _ => "大きめです。",
+        };
+    }
+
+    static string BuildTop8RetentionComment(double averageTop8Retention)
+    {
+        return averageTop8Retention switch
+        {
+            >= 7.95 => "ほぼ完全に保たれています。",
+            >= 7.5 => "かなり保たれています。",
+            >= 7.0 => "少し崩れています。",
+            _ => "はっきり崩れています。",
+        };
+    }
+
+    static string BuildTop1Comment(double top1Probability)
+    {
+        var percent = top1Probability * 100;
+        return percent switch
+        {
+            >= 30.0 => "かなり強いです。",
+            >= 20.0 => "そこそこ確保されています。",
+            >= 10.0 => "やや弱めです。",
+            _ => "かなり弱めです。",
+        };
+    }
+
+    static string BuildAveragePlaceComment(double averagePlace)
+    {
+        return averagePlace switch
+        {
+            <= 2.0 => "かなり前寄りです。",
+            <= 3.5 => "比較的前寄りです。",
+            <= 5.0 => "中位上側です。",
+            _ => "まだ混戦気味です。",
+        };
+    }
+
+    static string BuildRatingDeltaComment(double biggestBoost, double biggestDrop)
+    {
+        var spread = biggestBoost - biggestDrop;
+        return spread switch
+        {
+            >= 80.0 => "割り当てや対戦構成の影響がかなり大きいです。",
+            >= 40.0 => "割り当てや対戦構成の影響が見えてきます。",
+            >= 15.0 => "割り当てや対戦構成の影響は比較的小さめです。",
+            _ => "割り当てや対戦構成の影響はかなり小さめです。",
+        };
+    }
+
+    static string BuildGroupLeadComment(double groupPlace1Probability, double groupPlaceAverage)
+    {
+        var percent = groupPlace1Probability * 100;
+        if (percent >= 35.0 && groupPlaceAverage <= 2.0)
+        {
+            return "先頭がかなりはっきりしています。";
+        }
+
+        if (percent >= 20.0 && groupPlaceAverage <= 3.0)
+        {
+            return "先頭候補が見えています。";
+        }
+
+        return "まだ横並び気味です。";
+    }
+
+    static string BuildApexInnovGapComment(double apexTopProbability, double innovTopProbability)
+    {
+        var gapPercent = (apexTopProbability - innovTopProbability) * 100;
+        return gapPercent switch
+        {
+            >= 15.0 => "Apex 側の先頭がかなり優勢です。",
+            >= 5.0 => "Apex 側の先頭がやや優勢です。",
+            > -5.0 => "両グループの先頭感は近めです。",
+            _ => "Innov 側の先頭感もかなり強いです。",
+        };
+    }
+
+    static string BuildRecommendedSweepBandText(IReadOnlyList<QualitySweepRow> recommendedRows, double fallbackPercent)
+    {
+        if (recommendedRows.Count == 0)
+        {
+            return fallbackPercent.ToString("F2", CultureInfo.InvariantCulture) + "% 付近";
+        }
+
+        var start = recommendedRows[0].BlackAdvantagePercent;
+        var end = recommendedRows[^1].BlackAdvantagePercent;
+        return Math.Abs(start - end) < 0.000001
+            ? start.ToString("F2", CultureInfo.InvariantCulture) + "% 付近"
+            : start.ToString("F2", CultureInfo.InvariantCulture) + "%〜" + end.ToString("F2", CultureInfo.InvariantCulture) + "%";
     }
 
     static void WriteQualityPlayerCsv(string outputCsvPath, IReadOnlyList<QualityPlayerRow> playerRows)
@@ -371,6 +500,24 @@ internal static partial class Program
             .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
             .Take(8)
             .ToArray();
+        var bestChampionshipRow = resultRows
+            .OrderByDescending(row => row.ChampionshipProbability)
+            .ThenBy(row => row.AveragePlace)
+            .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
+            .FirstOrDefault();
+        var bestAveragePlaceRow = resultRows
+            .OrderBy(row => row.AveragePlace)
+            .ThenByDescending(row => row.ChampionshipProbability)
+            .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
+            .FirstOrDefault();
+        var biggestBoostRow = resultRows
+            .OrderByDescending(row => row.RatingDelta)
+            .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
+            .FirstOrDefault();
+        var biggestDropRow = resultRows
+            .OrderBy(row => row.RatingDelta)
+            .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
+            .FirstOrDefault();
 
         var lines = new List<string>
         {
@@ -380,6 +527,17 @@ internal static partial class Program
             $"- 計算モード: {mode}",
             $"- 同Elo対局時の先手勝率: {blackAdvantagePercent.ToString("F2", CultureInfo.InvariantCulture)}%",
             $"- 対象選手数: {resultRows.Count}",
+            string.Empty,
+            "## 注目ポイント",
+            $"- 優勝確率が最も高い選手: **{bestChampionshipRow.Name}**（{(bestChampionshipRow.ChampionshipProbability * 100).ToString("F2", CultureInfo.InvariantCulture)}%）",
+            $"- 平均順位が最も良い選手: **{bestAveragePlaceRow.Name}**（{bestAveragePlaceRow.AveragePlace.ToString("F3", CultureInfo.InvariantCulture)}）",
+            $"- 実効Elo差分が最も大きくプラスの選手: **{biggestBoostRow.Name}**（{FormatSignedRating(biggestBoostRow.RatingDelta)}）",
+            $"- 実効Elo差分が最も大きくマイナスの選手: **{biggestDropRow.Name}**（{FormatSignedRating(biggestDropRow.RatingDelta)}）",
+            string.Empty,
+            "## 自動コメント",
+            $"- 優勝候補の強さ: {BuildTop1Comment(bestChampionshipRow.ChampionshipProbability)}",
+            $"- 先頭の平均順位: {BuildAveragePlaceComment(bestAveragePlaceRow.AveragePlace)}",
+            $"- 実効Eloの押し上げ: {BuildRatingDeltaComment(biggestBoostRow.RatingDelta, biggestDropRow.RatingDelta)}",
             string.Empty,
             "## 上位候補一覧",
             "| 選手 | 元Elo | 実効Elo | 差分 | 優勝確率 | 平均順位 |",
@@ -401,6 +559,14 @@ internal static partial class Program
                 "    x-axis [" + BuildMermaidCategoryList(topChampionshipRows.Select(row => row.Name)) + "]",
                 "    y-axis \"優勝確率(%)\" 0 --> 100",
                 "    bar [" + string.Join(", ", topChampionshipRows.Select(row => (row.ChampionshipProbability * 100).ToString("F2", CultureInfo.InvariantCulture))) + "]",
+                "```",
+                string.Empty,
+                "```mermaid",
+                "xychart-beta",
+                "    title \"上位候補の平均順位\"",
+                "    x-axis [" + BuildMermaidCategoryList(topChampionshipRows.Select(row => row.Name)) + "]",
+                "    y-axis \"平均順位\" 1 --> " + Math.Max(2, resultRows.Count).ToString(CultureInfo.InvariantCulture),
+                "    bar [" + string.Join(", ", topChampionshipRows.Select(row => row.AveragePlace.ToString("F3", CultureInfo.InvariantCulture))) + "]",
                 "```"
             });
         }
@@ -500,6 +666,27 @@ internal static partial class Program
             .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
             .Take(8)
             .ToArray();
+        var apexRows = resultRows
+            .Where(row => string.Equals(row.Group, "Apex", StringComparison.OrdinalIgnoreCase))
+            .OrderByDescending(row => row.GroupPlace1Probability)
+            .ThenBy(row => row.GroupPlaceAverage)
+            .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
+            .Take(4)
+            .ToArray();
+        var innovRows = resultRows
+            .Where(row => string.Equals(row.Group, "Innov", StringComparison.OrdinalIgnoreCase))
+            .OrderByDescending(row => row.GroupPlace1Probability)
+            .ThenBy(row => row.GroupPlaceAverage)
+            .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
+            .Take(4)
+            .ToArray();
+        var bestOverallRow = resultRows
+            .OrderByDescending(row => row.OverallPlace1Probability)
+            .ThenBy(row => row.OverallPlaceAverage)
+            .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
+            .FirstOrDefault();
+        var bestApexRow = apexRows.FirstOrDefault();
+        var bestInnovRow = innovRows.FirstOrDefault();
 
         var lines = new List<string>
         {
@@ -510,6 +697,17 @@ internal static partial class Program
             $"- 同Elo対局時の先手勝率: {blackAdvantagePercent.ToString("F2", CultureInfo.InvariantCulture)}%",
             $"- 対象選手数: {resultRows.Count}",
             string.Empty,
+            "## 注目ポイント",
+            $"- 総合1位確率が最も高い選手: **{bestOverallRow.Name}**（{(bestOverallRow.OverallPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}%）",
+            $"- Apex で最も有力な選手: **{bestApexRow.Name}**（グループ1位確率 {(bestApexRow.GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}%）",
+            $"- Innov で最も有力な選手: **{bestInnovRow.Name}**（グループ1位確率 {(bestInnovRow.GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}%）",
+            string.Empty,
+            "## 自動コメント",
+            $"- 総合1位候補の強さ: {BuildTop1Comment(bestOverallRow.OverallPlace1Probability)}",
+            $"- Apex の先頭感: {BuildGroupLeadComment(bestApexRow.GroupPlace1Probability, bestApexRow.GroupPlaceAverage)}",
+            $"- Innov の先頭感: {BuildGroupLeadComment(bestInnovRow.GroupPlace1Probability, bestInnovRow.GroupPlaceAverage)}",
+            $"- Apex / Innov の先頭差: {BuildApexInnovGapComment(bestApexRow.GroupPlace1Probability, bestInnovRow.GroupPlace1Probability)}",
+            string.Empty,
             "## 上位候補一覧",
             "| 選手 | グループ | 元Elo | 実効Elo | 差分 | グループ1位確率 | 総合1位確率 | 総合平均順位 |",
             "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |"
@@ -517,6 +715,34 @@ internal static partial class Program
 
         lines.AddRange(topRows.Select(row =>
             $"| {row.Name} | {row.Group} | {FormatRating(row.OriginalRating)} | {FormatRating(row.EffectiveRating)} | {FormatSignedRating(row.RatingDelta)} | {(row.GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {(row.OverallPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {row.OverallPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} |"));
+
+        if (apexRows.Length > 0)
+        {
+            lines.AddRange(new[]
+            {
+                string.Empty,
+                "## Apex 注目候補",
+                "| 選手 | 元Elo | 実効Elo | グループ1位確率 | グループ平均順位 | 総合平均順位 |",
+                "| --- | ---: | ---: | ---: | ---: | ---: |"
+            });
+
+            lines.AddRange(apexRows.Select(row =>
+                $"| {row.Name} | {FormatRating(row.OriginalRating)} | {FormatRating(row.EffectiveRating)} | {(row.GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {row.GroupPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} | {row.OverallPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} |"));
+        }
+
+        if (innovRows.Length > 0)
+        {
+            lines.AddRange(new[]
+            {
+                string.Empty,
+                "## Innov 注目候補",
+                "| 選手 | 元Elo | 実効Elo | グループ1位確率 | グループ平均順位 | 総合平均順位 |",
+                "| --- | ---: | ---: | ---: | ---: | ---: |"
+            });
+
+            lines.AddRange(innovRows.Select(row =>
+                $"| {row.Name} | {FormatRating(row.OriginalRating)} | {FormatRating(row.EffectiveRating)} | {(row.GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {row.GroupPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} | {row.OverallPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} |"));
+        }
 
         if (topRows.Length > 0)
         {
@@ -530,6 +756,14 @@ internal static partial class Program
                 "    x-axis [" + BuildMermaidCategoryList(topRows.Select(row => row.Name)) + "]",
                 "    y-axis \"総合1位確率(%)\" 0 --> 100",
                 "    bar [" + string.Join(", ", topRows.Select(row => (row.OverallPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture))) + "]",
+                "```",
+                string.Empty,
+                "```mermaid",
+                "xychart-beta",
+                "    title \"上位候補のグループ1位確率\"",
+                "    x-axis [" + BuildMermaidCategoryList(topRows.Select(row => row.Name)) + "]",
+                "    y-axis \"グループ1位確率(%)\" 0 --> 100",
+                "    bar [" + string.Join(", ", topRows.Select(row => (row.GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture))) + "]",
                 "```"
             });
         }
