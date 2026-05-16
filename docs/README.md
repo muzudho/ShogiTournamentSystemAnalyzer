@@ -37,6 +37,9 @@
 
 - [Reports の案内](./Reports/README.md)
 
+### `../ShogiTournamentSystemAnalyzer/Data`
+アプリで使う実行用入力、参加者データ、ルール保存データを置く場所です。
+
 ### `むずでょの案`
 大会ルール案、草案、発想メモを置く場所です。
 

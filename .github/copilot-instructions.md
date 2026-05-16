@@ -6,7 +6,7 @@
 - 大会制度全体（予選・本戦）を含めた分析を重視し、名称や設計は System 寄りの表現・構成を使用する。
 - The user prefers using the term '対局記号表' to refer to the player-symbol mapping list in the ShogiTournamentSystemAnalyzer project.
 - The user prefers using the term '重箱表' for the aggregated node-ranking table that combines ▲player and ▽player into ・player.
-- Use PascalCase folder names like 'Docs' instead of lowercase 'docs' in this project when naming folders.
+- Use PascalCase folder names like 'Docs' instead of lowercase 'docs' in this project when naming folders. Consolidate data-related folders under a single PascalCase 'Data' folder and subdivide within it; avoid creating many separate top-level data folders (ユーザーはデータ系フォルダーを増やしすぎず、`Data` 配下にまとめてその下を細分化する構成を好む)。
 - Place a PascalCase 'Inputs' folder adjacent to 'Examples' to hold execution/input files for runs.
 - In Inputs, include a short descriptive prompt line in execution/input files as a hash-comment plus PascalCase tag, e.g., #[Prompt] ... , so numeric values are not ambiguous. Mark input termination explicitly with a tag like #[Enter] to avoid dependence on blank lines.
 - Extract toggleable rule logic into separate classes under a Domain/Rules-style folder rather than keeping growing rule logic in Program.cs. In Program.cs, prioritize separating input procedures into two responsibilities: rule construction (use builders/composers for rules) and parameter setting (load/parse inputs and configure parameters), so Program.cs functions as orchestration/wiring only.
@@ -25,3 +25,4 @@
 ## Experimental Improvement Reports
 - Experimental improvement reports should be kept separated by good/bad outcome.
 - The behavior of the reports should be switchable with an On/Off option to prevent mixing results.
+ 
