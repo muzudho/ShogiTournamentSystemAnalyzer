@@ -1,0 +1,3 @@
+blackAdvantagePercent,spearmanCorrelation,meanAbsoluteRankError,averageTop8Retention,eloTop1OverallTop1ProbabilityPercent,mostPenalizedPlayer,mostPenalizedDelta,mostAdvantagedPlayer,mostAdvantagedDelta
+50.00,1.000000,1.221900,7.045600,22.610000,飛,2.668700,ひよこ,-2.635700
+60.00,0.950000,1.447917,6.375000,18.055556,角,3.166667,ひよこ,-3.291667
