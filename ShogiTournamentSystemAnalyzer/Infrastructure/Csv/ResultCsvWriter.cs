@@ -175,6 +175,35 @@ internal static partial class Program
 
         lines.AddRange(topAdvantagedPlayers.Select(BuildQualityPlayerMarkdownRow));
 
+        if (qualityEvaluationRun.PlayerRows.Count > 0)
+        {
+            var chartRows = qualityEvaluationRun.PlayerRows
+                .OrderBy(row => row.EloRank)
+                .Take(8)
+                .ToArray();
+
+            lines.AddRange(new[]
+            {
+                string.Empty,
+                "## Mermaid 図",
+                "```mermaid",
+                "xychart-beta",
+                "    title \"Elo上位8名の期待総合順位\"",
+                "    x-axis [" + BuildMermaidCategoryList(chartRows.Select(row => row.Name)) + "]",
+                "    y-axis \"期待総合順位\" 1 --> " + Math.Max(8, qualityEvaluationRun.PlayerRows.Count).ToString(CultureInfo.InvariantCulture),
+                "    bar [" + string.Join(", ", chartRows.Select(row => row.ExpectedOverallPlace.ToString("F3", CultureInfo.InvariantCulture))) + "]",
+                "```",
+                string.Empty,
+                "```mermaid",
+                "xychart-beta",
+                "    title \"Elo上位8名の総合1位確率\"",
+                "    x-axis [" + BuildMermaidCategoryList(chartRows.Select(row => row.Name)) + "]",
+                "    y-axis \"総合1位確率(%)\" 0 --> 100",
+                "    bar [" + string.Join(", ", chartRows.Select(row => (row.OverallTop1Probability * 100).ToString("F2", CultureInfo.InvariantCulture))) + "]",
+                "```"
+            });
+        }
+
         File.WriteAllLines(outputMarkdownPath, lines, new UTF8Encoding(false));
     }
 
