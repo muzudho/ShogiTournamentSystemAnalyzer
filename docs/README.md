@@ -11,11 +11,11 @@
 - 実験結果や品質評価レポートを見たい
 	- [Reports](./Reports/README.md)
 - 発想メモやルール案を見たい
-  - `むずでょの案`
+	- [むずでょの案](./むずでょの案/)
 
 ## フォルダー一覧
 
-### `Manuals`
+### [Manuals](./Manuals/README.md)
 利用者向け説明書です。
 
 - [説明書の総合目次](./Manuals/README.md)
@@ -27,24 +27,24 @@
 - [実装ファイル案内](./Manuals/実装ファイル案内.md)
 	- 実装場所をミニ目次付きで逆引きしたいとき
 
-### `実装計画`
+### [実装計画](./実装計画/README.md)
 開発用の実装計画、設計メモ、改修方針を置く場所です。
 
 - [実装計画の目次](./実装計画/README.md)
 
-### `Reports`
+### [Reports](./Reports/README.md)
 実行結果の CSV、品質評価レポート、比較メモを置く場所です。
 
 - [Reports の案内](./Reports/README.md)
 - [ツイル式トーナメント発表案](./Reports/ツイル式トーナメント発表案.md)
 
-### `../ShogiTournamentSystemAnalyzer/Data`
+### [../ShogiTournamentSystemAnalyzer/Data](../ShogiTournamentSystemAnalyzer/Data/)
 アプリで使う実行用入力、選手データ、ルール保存データを置く場所です。
 
-### `むずでょの案`
+### [むずでょの案](./むずでょの案/)
 大会ルール案、草案、発想メモを置く場所です。
 
-### `notes.md`
+### [notes.md](./notes.md)
 補助メモです。
 
 ## 関連入口
