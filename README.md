@@ -117,7 +117,7 @@ Innov,Dave
 - `ShogiTournamentPairingAnalyzer/Examples/【選手一覧】[黒8x白8].csv`
 - `ShogiTournamentPairingAnalyzer/Examples/【グループ対応表】[本戦専用_黒8x白8].csv`
 - `ShogiTournamentPairingAnalyzer/Examples/【対局表】[黒8x白8].csv`
-- `ShogiTournamentPairingAnalyzer/Examples/【本戦専用モード】[黒8x白8].memo.md`
+- `ShogiTournamentPairingAnalyzer/Examples/【メモ】[本戦専用モード_黒8x白8].md`
 
 ### 品質評価モード
 
@@ -296,7 +296,7 @@ END
 
 ## 注意
 - 未対局の選手は結果から自動除外されます
-- コメントは CSV に埋め込まず、`.memo.md` や `.memo.txt` で別管理する想定です
+- コメントは CSV に埋め込まず、Examples では `【メモ】...md` のような別ファイルで管理する想定です
 - シミュレーション 1 回でも、同点順位の等分配により 33.33% のような値が出ることがあります
 - 本戦専用モード / 品質評価モードは MVP を超えて実験運用中であり、改善案の On / Off を含む比較を行えます
 
@@ -305,4 +305,4 @@ END
 
 ## 関連メモ
 - `docs/notes.md`
-- `ShogiTournamentPairingAnalyzer/Examples/*.memo.md`
+- `ShogiTournamentPairingAnalyzer/Examples/【メモ】*.md`
