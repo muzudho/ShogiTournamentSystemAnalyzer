@@ -184,6 +184,7 @@ Innov,Dave
 - 同点順位は乱数で決めず、等分配で扱う。
 - シミュレーション 1 回でも、同点時には 33.33% などの分数確率が出ることがある。
 - コメントは CSV に埋め込まず、別ファイルで管理する。
+- 実行用入力ファイル `.txt` は `ShogiTournamentPairingAnalyzer/Inputs` に置き、結果レポートは `docs/Reports` に置く。
 - 改善案比較では `docs/Reports/Good` と `docs/Reports/Bad` を使い分ける。
 - Good / Bad は厳密な二元論ではなく、必要に応じて評価メモを 1 行残して運用する。
 - `Program.cs` の肥大化対策として、モード実装は `Domain/Modes` に分離した。

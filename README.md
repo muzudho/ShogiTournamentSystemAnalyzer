@@ -64,6 +64,18 @@ dotnet run --project .\ShogiTournamentPairingAnalyzer\ShogiTournamentPairingAnal
 
 その後、モードごとに必要な入力を行います。
 
+### 入力ファイルの置き場
+
+- `ShogiTournamentPairingAnalyzer/Examples`
+  - 人が読むためのサンプル CSV とメモ
+- `ShogiTournamentPairingAnalyzer/Inputs`
+  - `--input-file` で流す実行用入力ファイル
+  - 品質評価や n% スイープの回答一式 `.txt`
+- `docs/Reports`
+  - 実行結果の CSV や実験レポートの保存先
+
+`--input-file` を使うときは、実行用入力を `ShogiTournamentPairingAnalyzer/Inputs` に置く運用を基本にします。
+
 ### 通常モード
 
 次の順に入力します。
