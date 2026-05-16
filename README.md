@@ -86,6 +86,10 @@ dotnet run --project .\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyz
 - [CSVと出力](./docs/Manuals/CSVと出力.md)
   - 選手一覧CSV、対局CSV、結果CSV、品質評価CSV、実効Elo
 
+### 実装者向け案内
+- [実装ファイル案内](./docs/Manuals/実装ファイル案内.md)
+  - どこにどんなファイルがあるか、何を直したいときにどのファイルを見るか
+
 ### 開発・計画メモ
 - [docs フォルダー案内](./docs/README.md)
   - `docs` 配下の資料全体を見渡したいときの入口
@@ -119,6 +123,7 @@ dotnet run --project .\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyz
 - 品質評価の考え方を知りたい: [品質評価](./docs/Manuals/品質評価.md)
 - 実行用入力ファイルの書き方を知りたい: [入力ファイル仕様](./docs/Manuals/入力ファイル仕様.md)
 - CSV 形式や出力内容を知りたい: [CSVと出力](./docs/Manuals/CSVと出力.md)
+- 実装の場所を探したい: [実装ファイル案内](./docs/Manuals/実装ファイル案内.md)
 
 ## 関連リンク
 - [白黒対抗ルール案](https://note.com/muzudho/n/n311536fd1812?app_launch=false)
