@@ -4,6 +4,12 @@ enum FinalStageGroup
     Innov,
 }
 
+enum TournamentRuleSetMode
+{
+    Neutral,
+    Twill,
+}
+
 enum AdditionalApexPlacementMode
 {
     Off,

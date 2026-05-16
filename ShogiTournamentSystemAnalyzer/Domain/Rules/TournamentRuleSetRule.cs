@@ -7,9 +7,3 @@ internal static class TournamentRuleSetRule
             : "Neutral（ニュートラル）";
     }
 }
-
-internal enum TournamentRuleSetMode
-{
-    Neutral,
-    Twill,
-}
