@@ -31,32 +31,35 @@ internal static partial class Program
             ConfigureInputSource(args);
 
             // 大きくモードが分かれるぜ（＾▽＾）！
-            RunApp();
+            //
+            // 📍 TODO: ［ルール選択］→［パラメーター設定］→［試行］→［品質評価・レポート作成］の４ステップのシーケンスにした方がいいのでは（＾～＾）？
+            //
+            switch (ReadMode())
+            {
+                // ［通常ルール］モード
+                case 1:
+                    RunStandardMode();
+                    break;
+
+                // ［本戦ルール］モード
+                case 2:
+                    RunFinalStageMode();
+                    break;
+
+                // ［品質評価］モード
+                case 3:
+                    RunQualityEvaluationMode();
+                    break;
+
+                default:
+                    throw new InvalidOperationException("未対応のモードです。");
+            }
         }
         catch (OperationCanceledException ex)
         {
             Console.WriteLine($"入力を中断しました: {ex.Message}");
         }
     }
-
-    static void RunApp()
-    {
-        switch (ReadMode())
-        {
-            case 1:
-                RunStandardMode();
-                break;
-            case 2:
-                RunFinalStageMode();
-                break;
-            case 3:
-                RunQualityEvaluationMode();
-                break;
-            default:
-                throw new InvalidOperationException("未対応のモードです。");
-        }
-    }
-
 
 
     // ========================================
