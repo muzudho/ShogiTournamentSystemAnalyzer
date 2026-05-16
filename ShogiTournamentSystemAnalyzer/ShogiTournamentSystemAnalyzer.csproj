@@ -5,8 +5,8 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AssemblyName>ShogiTournamentPairingAnalyzer</AssemblyName>
-    <RootNamespace>ShogiTournamentPairingAnalyzer</RootNamespace>
+    <AssemblyName>ShogiTournamentSystemAnalyzer</AssemblyName>
+    <RootNamespace>ShogiTournamentSystemAnalyzer</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

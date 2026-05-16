@@ -1,46 +1,43 @@
 3
+51
 name,elo
-"飛",5050
-"角",5030
-"玉",5010
 "金",4990
 "銀",4970
 "桂",4950
 "香",4930
 "歩",4910
-"きりん",4890
-"ぞう",4870
-"らいおん",4850
-"いぬ",4830
-"ねこ",4810
+"きりん",4870
+"ぞう",4850
+"らいおん",4830
+"いぬ",4810
+"ねこ",4790
 "うさぎ",4790
 "いのしし",4770
 "ひよこ",4750
+"大ハム",4730
+"中ハム",4710
+"小ハム",4690
 
 group,name
-Apex,"飛"
-Apex,"角"
-Apex,"玉"
 Apex,"金"
 Apex,"銀"
 Apex,"桂"
 Apex,"香"
 Apex,"歩"
-Innov,"きりん"
-Innov,"ぞう"
-Innov,"らいおん"
+Apex,"きりん"
+Apex,"ぞう"
+Apex,"らいおん"
 Innov,"いぬ"
 Innov,"ねこ"
 Innov,"うさぎ"
 Innov,"いのしし"
 Innov,"ひよこ"
+Innov,"大ハム"
+Innov,"中ハム"
+Innov,"小ハム"
 
-name,elo
-"補A",4895
-"補B",4885
 
 2
-1
 2
 Round
  , A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P
@@ -80,29 +77,26 @@ N, b, b, b, b, b, b, b, b, -, -, -, -, -, -, -, -
 O, b, b, b, b, b, b, b, b, -, -, -, -, -, -, -, -
 P, b, b, b, b, b, b, b, b, -, -, -, -, -, -, -, -
 
-Players
-A, "飛"
-B, "角"
-C, "玉"
-D, "金"
-E, "銀"
-F, "桂"
-G, "香"
-H, "歩"
-I, "きりん"
-J, "ぞう"
-K, "らいおん"
-L, "いぬ"
-M, "ねこ"
-N, "うさぎ"
-O, "いのしし"
-P, "ひよこ"
+対局記号表
+A, "金"
+B, "銀"
+C, "桂"
+D, "香"
+E, "歩"
+F, "きりん"
+G, "ぞう"
+H, "らいおん"
+I, "いぬ"
+J, "ねこ"
+K, "うさぎ"
+L, "いのしし"
+M, "ひよこ"
+N, "大ハム"
+O, "中ハム"
+P, "小ハム"
 
 END
-1
 20000
-51
 2
 1
-定員8を可変にしてInnovを引っ張り上げる案
-E:\github.com\muzudho\ShogiTournamentPairingAnalyzer\docs\Reports\Good\quality_summary_[黒8x白8_本戦不出場Apexあり]_[VariableTop8].csv
+E:\\github.com\\muzudho\\ShogiTournamentSystemAnalyzer\\docs\\Reports\Good\quality_summary_[トップ集団小さめ]_[AdditionalOn_BoundaryOn].csv

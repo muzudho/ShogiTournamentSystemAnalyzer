@@ -1,5 +1,4 @@
 3
-51
 name,elo
 "飛",5050
 "角",5030
@@ -40,6 +39,8 @@ name,elo
 "補A",4895
 "補B",4885
 
+2
+1
 2
 Round
  , A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P
@@ -98,7 +99,10 @@ O, "いのしし"
 P, "ひよこ"
 
 END
+1
 20000
+51
 2
 1
-E:\github.com\muzudho\ShogiTournamentPairingAnalyzer\docs\Reports\Good\quality_summary_[黒8x白8_本戦不出場Apexあり]_[On].csv
+定員8を可変にしてInnovを引っ張り上げる案
+E:\\github.com\\muzudho\\ShogiTournamentSystemAnalyzer\\docs\\Reports\Good\quality_summary_[黒8x白8_本戦不出場Apexあり]_[VariableTop8].csv

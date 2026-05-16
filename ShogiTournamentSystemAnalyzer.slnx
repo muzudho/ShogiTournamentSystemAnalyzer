@@ -2,5 +2,5 @@
   <Folder Name="/ソリューション項目/">
     <File Path="private/メール草案.txt" />
   </Folder>
-  <Project Path="ShogiTournamentPairingAnalyzer/ShogiTournamentPairingAnalyzer.csproj" />
+  <Project Path="ShogiTournamentSystemAnalyzer/ShogiTournamentSystemAnalyzer.csproj" />
 </Solution>

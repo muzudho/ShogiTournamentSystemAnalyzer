@@ -1,6 +1,6 @@
 # Manuals
 
-このフォルダーは、ShogiTournamentPairingAnalyzer の**利用者向け説明書**をまとめた場所です。  
+このフォルダーは、ShogiTournamentSystemAnalyzer の**利用者向け説明書**をまとめた場所です。  
 トップの `README.md` は入口を短く案内するための文書で、詳細説明はこのフォルダーに集めています。
 
 ## まずはここから

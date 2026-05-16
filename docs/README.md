@@ -1,6 +1,6 @@
 # docs
 
-このフォルダーは、ShogiTournamentPairingAnalyzer の文書置き場です。  
+このフォルダーは、ShogiTournamentSystemAnalyzer の文書置き場です。  
 利用者向けの説明書、開発向けの実装計画、実験レポート、発想メモを役割ごとに分けています。
 
 ## まずどこを見るか

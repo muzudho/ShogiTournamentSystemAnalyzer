@@ -1,28 +1,33 @@
-# ShogiTournamentPairingAnalyzer
+# ShogiTournamentSystemAnalyzer
 
 大会の対局表と Elo レーティングから、順位分布を計算する .NET コンソールアプリです。  
 黒番有利なゲームを想定しており、黒番・白番の偏りや、対局表による有利不利を確認できます。
 
 README は入口に絞り、詳細説明は `docs/Manuals` に分けています。
 
+
 ## 主な機能
+
+- 品質評価モード（本戦ルールの実力反映性評価）
+
+### 細かな機能
 - 起動時のモード選択
 - 順位ルールセット選択
   - `Neutral`（勝ち数ベースのニュートラル順位）
   - `Twill`（ツイル式トーナメント）
 - 通常モード（総当たり戦分析）
 - 本戦専用モード（Apex / Innov 定先戦分析）
-- 品質評価モード（本戦ルールの実力反映性評価）
 - 対局CSV入力
 - `Round / Black/White / 対局記号表` からの対局CSV自動生成
 - 少ない対局数では厳密計算、多い対局数ではシミュレーション
 - 結果のコンソール表示と CSV 出力
 
+
 ## クイックスタート
 Visual Studio から実行するか、プロジェクトディレクトリーで次を実行します。
 
 ```powershell
-dotnet run --project .\ShogiTournamentPairingAnalyzer\ShogiTournamentPairingAnalyzer.csproj
+dotnet run --project .\ShogiTournamentPairingAnalyzer\ShogiTournamentSystemAnalyzer.csproj
 ```
 
 起動後のモード:

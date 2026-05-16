@@ -1,0 +1,191 @@
+ShogiTournamentSystemAnalyzer への名称変更手順
+
+目的
+- 将来的に、予選・本戦を含む大会制度全体を分析するツール名へ寄せる。
+- 現在の ShogiTournamentPairingAnalyzer 系の名称を、ShogiTournamentSystemAnalyzer 系へ統一する。
+
+前提
+- この手順には、GPT が自動では完了しにくい作業（GitHub 上の repository rename、ローカル親フォルダー rename、Visual Studio の開き直しなど）が含まれる。
+- 実施前に、作業中の変更は commit または退避しておく。
+- Visual Studio は閉じてから作業する。
+
+変更対象の全体像
+1. GitHub の repository 名
+2. ローカルのリポジトリー フォルダー名
+3. ソリューション ファイル名（`.slnx`）
+4. プロジェクト フォルダー名
+5. `.csproj` ファイル名
+6. `AssemblyName`
+7. `RootNamespace`
+8. README / docs / 各種メモ中の表記
+9. ランタイム配置先フォルダー名
+10. `origin` の URL
+
+現状メモ
+- `.slnx` はすでに `ShogiTournamentSystemAnalyzer.slnx` へ rename 済み。
+- `.csproj` はすでに `ShogiTournamentSystemAnalyzer.csproj` へ rename 済み。
+- `AssemblyName` と `RootNamespace` はすでに `ShogiTournamentSystemAnalyzer` へ更新済み。
+- プロジェクト フォルダー `ShogiTournamentPairingAnalyzer\` の rename は、IDE/ワークスペースのロック解除後に手動対応が必要。
+
+----------------------------------------
+A. 手動で行う作業
+----------------------------------------
+
+1. Visual Studio を閉じる
+   - フォルダー名変更や `.slnx` / `.csproj` の rename を安全に行うため。
+
+2. GitHub の repository 名を変更する
+   変更前:
+   ShogiTournamentPairingAnalyzer
+
+   変更後:
+   ShogiTournamentSystemAnalyzer
+
+   作業:
+   - GitHub の repository settings を開く
+   - Repository name を変更する
+
+3. ローカルのリポジトリー フォルダー名を変更する
+   変更前:
+   E:\github.com\muzudho\ShogiTournamentPairingAnalyzer\
+
+   変更後:
+   E:\github.com\muzudho\ShogiTournamentSystemAnalyzer\
+
+4. `origin` の URL を更新する
+   PowerShell で実行:
+
+   git -C "E:\github.com\muzudho\ShogiTournamentSystemAnalyzer" remote set-url origin https://github.com/muzudho/ShogiTournamentSystemAnalyzer.git
+
+5. リモート設定を確認する
+   PowerShell で実行:
+
+   git -C "E:\github.com\muzudho\ShogiTournamentSystemAnalyzer" remote -v
+
+----------------------------------------
+B. リポジトリー内で rename / update する対象
+----------------------------------------
+
+6. ソリューション ファイルを rename する
+   変更前:
+   E:\github.com\muzudho\ShogiTournamentSystemAnalyzer\ShogiTournamentPairingAnalyzer.slnx
+
+   変更後:
+   E:\github.com\muzudho\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyzer.slnx
+
+7. プロジェクト フォルダーを rename する
+   ※ 現時点では未完了。Visual Studio やワークスペースのロック解除後に実施する。
+   変更前:
+   E:\github.com\muzudho\ShogiTournamentSystemAnalyzer\ShogiTournamentPairingAnalyzer\
+
+   変更後:
+   E:\github.com\muzudho\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyzer\
+
+8. `.csproj` を rename する
+   変更前:
+   E:\github.com\muzudho\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyzer\ShogiTournamentPairingAnalyzer.csproj
+
+   変更後:
+   E:\github.com\muzudho\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyzer.csproj
+
+9. `ShogiTournamentSystemAnalyzer.slnx` 内の project path を更新する
+   更新前の想定:
+   ShogiTournamentPairingAnalyzer/ShogiTournamentPairingAnalyzer.csproj
+
+   更新後の想定:
+   ShogiTournamentSystemAnalyzer/ShogiTournamentSystemAnalyzer.csproj
+
+10. `.csproj` 内の名称を更新する
+   変更前:
+   <AssemblyName>ShogiTournamentPairingAnalyzer</AssemblyName>
+   <RootNamespace>ShogiTournamentPairingAnalyzer</RootNamespace>
+
+   変更後:
+   <AssemblyName>ShogiTournamentSystemAnalyzer</AssemblyName>
+   <RootNamespace>ShogiTournamentSystemAnalyzer</RootNamespace>
+
+11. 名前空間や表記を repo 内で横断更新する
+   主な対象:
+   - README.md
+   - docs/README.md
+   - docs/Manuals/*.md
+   - docs/実装計画/*.txt, *.md
+   - ランタイム配置手順メモ
+   - 必要ならコード中の namespace / string 表示
+
+   置換の観点:
+   - `ShogiTournamentPairingAnalyzer` → `ShogiTournamentSystemAnalyzer`
+   - 実行例パス
+   - publish 先の例示パス
+   - docs の説明文
+
+----------------------------------------
+C. ランタイム配置先の見直し
+----------------------------------------
+
+12. 既存のランタイム配置先も rename するか判断する
+   現在の配置先:
+   E:\Projects\ShogiTournamentPairingAnalyzer\
+
+   候補:
+   E:\Projects\ShogiTournamentSystemAnalyzer\
+
+   推奨:
+   - 将来的に名称統一するなら rename した方が分かりやすい。
+   - ただし既にショートカットや運用手順があるなら、移行タイミングを分けてもよい。
+
+13. ランタイムを再 publish する
+   PowerShell で実行例:
+
+   dotnet publish "E:\github.com\muzudho\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyzer.csproj" -c Release -o "E:\Projects\ShogiTournamentSystemAnalyzer"
+
+14. 必要なら `Output` フォルダーを作る
+   PowerShell で実行例:
+
+   New-Item -ItemType Directory -Force "E:\Projects\ShogiTournamentSystemAnalyzer\Output"
+
+----------------------------------------
+D. 開き直しと確認
+----------------------------------------
+
+15. Visual Studio で開き直す
+   開く候補:
+   E:\github.com\muzudho\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyzer.slnx
+
+16. ビルド確認を行う
+   PowerShell で実行例:
+
+   dotnet build "E:\github.com\muzudho\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyzer.csproj"
+
+17. 実行確認を行う
+   PowerShell で実行例:
+
+   dotnet run --project "E:\github.com\muzudho\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyzer.csproj"
+
+18. publish 配置先で exe を起動確認する
+   確認対象:
+   - `ShogiTournamentSystemAnalyzer.exe`
+   - `Output` フォルダーへの書き出し
+   - `--input-file` を使う場合の既存運用が崩れていないこと
+
+----------------------------------------
+E. 影響確認チェックリスト
+----------------------------------------
+
+- [ ] GitHub repository 名が変更された
+- [ ] ローカル フォルダー名が変更された
+- [ ] `origin` URL が更新された
+- [ ] `.slnx` 名が変更された
+- [ ] プロジェクト フォルダー名が変更された
+- [ ] `.csproj` 名が変更された
+- [ ] `AssemblyName` が `ShogiTournamentSystemAnalyzer` になった
+- [ ] `RootNamespace` が `ShogiTournamentSystemAnalyzer` になった
+- [ ] README / docs の表記が更新された
+- [ ] runtime 配置先の名称を更新した、または現状維持方針を決めた
+- [ ] build 成功を確認した
+- [ ] 実行確認を行った
+
+補足
+- 現時点では project の実体は `ShogiTournamentPairingAnalyzer` 名で残っているため、rename は repo 名だけでなく `.slnx` / プロジェクト フォルダー / `.csproj` まで揃えた方が一貫する。
+- `System` は、順位ルール単体ではなく、予選・本戦・進出方式・救済戦・定員設計を含めた大会制度全体を扱う将来像に合う。
+- GitHub rename とローカル フォルダー rename は環境依存のため、必要に応じて手動で行う。

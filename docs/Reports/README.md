@@ -1,6 +1,6 @@
 # Reports
 
-このフォルダーは、ShogiTournamentPairingAnalyzer の**実験結果とレポート**をまとめた場所です。  
+このフォルダーは、ShogiTournamentSystemAnalyzer の**実験結果とレポート**をまとめた場所です。  
 品質評価モードやスイープ実験の出力 CSV、比較レポート、実行ログを保管します。
 
 ## 何が入るか

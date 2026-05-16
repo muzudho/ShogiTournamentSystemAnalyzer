@@ -37,8 +37,8 @@ Innov,"中ハム"
 Innov,"小ハム"
 
 
-2
-2
+1
+1
 Round
  , A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P
 A, -, -, -, -, -, -, -, -, 8, 7, 6, 5, 4, 3, 2, 1
@@ -98,5 +98,5 @@ P, "小ハム"
 END
 20000
 2
-1
-E:\github.com\muzudho\ShogiTournamentPairingAnalyzer\docs\Reports\Good\quality_summary_[トップ集団小さめ]_[AdditionalOn_BoundaryOn].csv
+2
+E:\\github.com\\muzudho\\ShogiTournamentSystemAnalyzer\\docs\\Reports\Bad\quality_summary_[トップ集団小さめ]_[AdditionalOff_BoundaryOff].csv

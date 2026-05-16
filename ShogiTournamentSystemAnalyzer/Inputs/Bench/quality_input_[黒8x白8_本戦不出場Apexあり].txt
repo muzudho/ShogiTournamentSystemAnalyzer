@@ -46,9 +46,9 @@ name,elo
 "補B",4885
 #[Enter]
 #[Prompt] 本戦不出場Apexの扱いを選んでください [1]
-2
+1
 #[Prompt] 境界救済戦を使いますか？ [1]
-2
+1
 #[Prompt] 可変定員8ルールを使いますか？ [1]
 1
 #[Prompt] 対局CSVまたは Round/Black-White/対局記号表を貼り付けてください。入力終了は END 行です。
@@ -107,24 +107,17 @@ M, "ねこ"
 N, "うさぎ"
 O, "いのしし"
 P, "ひよこ"
+#[Enter]
 END
 #[Prompt] 参考対局CSVまたは Round/Black-White/対局記号表を貼り付けてください。空のまま END で省略できます。
 END
 #[Prompt] 品質評価の実行方法を入力してください [1]
-2
-#[Prompt] 開始する先手勝率(%)を入力してください [50]
-50
-#[Prompt] 終了する先手勝率(%)を入力してください [55]
-90
-#[Prompt] 刻み幅(%)を入力してください [1]
-5
+1
 #[Prompt] シミュレーション試行回数を入力してください
 20000
+#[Prompt] 同Elo対局時の先手勝率(%)を入力してください [51]
+51
 #[Prompt] 実験レポートの Good / Bad 分離を使いますか？ [1]
-2
-#[Prompt] 今回の案の評価を選んでください [1]
 1
-#[Prompt] 評価メモを1行で入力してください
-かなり良い組み合わせを50から90まで5刻みで確認
-#[Prompt] n%スイープ結果CSVの出力先パスまたはフォルダーパスを入力してください
-E:\github.com\muzudho\ShogiTournamentPairingAnalyzer\docs\Reports\Good\quality_sweep_[黒8x白8_本戦不出場Apexあり]_[AdditionalOn_BoundaryOn_50to90_by5].csv
+#[Prompt] 品質評価サマリーCSVの出力先パスまたはフォルダーパスを入力してください
+E:\\github.com\\muzudho\\ShogiTournamentSystemAnalyzer\\docs\\Reports\quality_summary_[黒8x白8_本戦不出場Apexあり].csv

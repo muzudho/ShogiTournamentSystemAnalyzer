@@ -1,7 +1,13 @@
 #[Prompt] モード番号を入力してください [1]
 3
-#[Prompt] 選手一覧CSVを貼り付けてください。入力終了は空行です。
+#[Prompt] 選手一覧CSVを貼り付けてください。入力終了は #[Enter] です。
 name,elo
+"圭",5110
+"杏",5090
+"と",5070
+"飛",5050
+"角",5030
+"玉",5010
 "金",4990
 "銀",4970
 "桂",4950
@@ -12,35 +18,29 @@ name,elo
 "らいおん",4830
 "いぬ",4810
 "ねこ",4790
-"うさぎ",4790
-"いのしし",4770
-"ひよこ",4750
-"大ハム",4730
-"中ハム",4710
-"小ハム",4690
 #[Enter]
 #[Prompt] Apex / Innov の分け方を使いますか？
 1
-#[Prompt] グループ対応CSVを貼り付けてください。入力終了は空行です。
+#[Prompt] グループ対応CSVを貼り付けてください。入力終了は #[Enter] です。
 group,name
+Apex,"圭"
+Apex,"杏"
+Apex,"と"
+Apex,"飛"
+Apex,"角"
+Apex,"玉"
 Apex,"金"
 Apex,"銀"
-Apex,"桂"
-Apex,"香"
-Apex,"歩"
-Apex,"きりん"
-Apex,"ぞう"
-Apex,"らいおん"
+Innov,"桂"
+Innov,"香"
+Innov,"歩"
+Innov,"きりん"
+Innov,"ぞう"
+Innov,"らいおん"
 Innov,"いぬ"
 Innov,"ねこ"
-Innov,"うさぎ"
-Innov,"いのしし"
-Innov,"ひよこ"
-Innov,"大ハム"
-Innov,"中ハム"
-Innov,"小ハム"
 #[Enter]
-#[Prompt] 本戦不出場Apex一覧CSVを貼り付けてください。入力終了は空行です。空のまま Enter で省略できます。
+#[Prompt] 本戦不出場Apex一覧CSVを貼り付けてください。入力終了は #[Enter] です。空のまま Enter で省略できます。
 #[Enter]
 #[Prompt] 本戦不出場Apexの扱いを選んでください [1]
 1
@@ -88,22 +88,22 @@ O, b, b, b, b, b, b, b, b, -, -, -, -, -, -, -, -
 P, b, b, b, b, b, b, b, b, -, -, -, -, -, -, -, -
 
 対局記号表
-A, "金"
-B, "銀"
-C, "桂"
-D, "香"
-E, "歩"
-F, "きりん"
-G, "ぞう"
-H, "らいおん"
-I, "いぬ"
-J, "ねこ"
-K, "うさぎ"
-L, "いのしし"
-M, "ひよこ"
-N, "大ハム"
-O, "中ハム"
-P, "小ハム"
+A, "圭"
+B, "杏"
+C, "と"
+D, "飛"
+E, "角"
+F, "玉"
+G, "金"
+H, "銀"
+I, "桂"
+J, "香"
+K, "歩"
+L, "きりん"
+M, "ぞう"
+N, "らいおん"
+O, "いぬ"
+P, "ねこ"
 #[Enter]
 END
 #[Prompt] 参考対局CSVまたは Round/Black-White/対局記号表を貼り付けてください。空のまま END で省略できます。
@@ -117,4 +117,4 @@ END
 #[Prompt] 実験レポートの Good / Bad 分離を使いますか？ [1]
 1
 #[Prompt] 品質評価サマリーCSVの出力先パスまたはフォルダーパスを入力してください
-E:\github.com\muzudho\ShogiTournamentPairingAnalyzer\docs\Reports\quality_summary_[トップ集団小さめ].csv
+E:\\github.com\\muzudho\\ShogiTournamentSystemAnalyzer\\docs\\Reports\quality_summary_[トップ集団大きめ].csv
