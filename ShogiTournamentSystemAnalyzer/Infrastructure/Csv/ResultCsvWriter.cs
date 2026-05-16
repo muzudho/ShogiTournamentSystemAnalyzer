@@ -486,7 +486,7 @@ internal static partial class Program
         File.WriteAllLines(outputCsvPath, lines, new UTF8Encoding(false));
     }
 
-    static void WriteResultMarkdown(string outputMarkdownPath, string mode, double blackAdvantagePercent, IReadOnlyList<ResultRow> resultRows)
+    static void WriteResultMarkdown(string outputMarkdownPath, string outputCsvPath, string mode, double blackAdvantagePercent, IReadOnlyList<ResultRow> resultRows)
     {
         var directoryPath = Path.GetDirectoryName(outputMarkdownPath);
         if (!string.IsNullOrWhiteSpace(directoryPath))
@@ -524,6 +524,7 @@ internal static partial class Program
             "# 通常モード結果レポート",
             string.Empty,
             "## 概要",
+            $"- 結果CSV: {BuildMarkdownFileLink(outputMarkdownPath, outputCsvPath)}",
             $"- 計算モード: {mode}",
             $"- 同Elo対局時の先手勝率: {blackAdvantagePercent.ToString("F2", CultureInfo.InvariantCulture)}%",
             $"- 対象選手数: {resultRows.Count}",
@@ -652,7 +653,7 @@ internal static partial class Program
         File.WriteAllLines(outputCsvPath, lines, new UTF8Encoding(false));
     }
 
-    static void WriteFinalStageResultMarkdown(string outputMarkdownPath, string mode, double blackAdvantagePercent, IReadOnlyList<FinalStageResultRow> resultRows)
+    static void WriteFinalStageResultMarkdown(string outputMarkdownPath, string outputCsvPath, string mode, double blackAdvantagePercent, IReadOnlyList<FinalStageResultRow> resultRows, string? referenceMatchesCsvPath = null)
     {
         var directoryPath = Path.GetDirectoryName(outputMarkdownPath);
         if (!string.IsNullOrWhiteSpace(directoryPath))
@@ -693,6 +694,7 @@ internal static partial class Program
             "# 本戦モード結果レポート",
             string.Empty,
             "## 概要",
+            $"- 結果CSV: {BuildMarkdownFileLink(outputMarkdownPath, outputCsvPath)}",
             $"- 計算モード: {mode}",
             $"- 同Elo対局時の先手勝率: {blackAdvantagePercent.ToString("F2", CultureInfo.InvariantCulture)}%",
             $"- 対象選手数: {resultRows.Count}",
@@ -712,6 +714,11 @@ internal static partial class Program
             "| 選手 | グループ | 元Elo | 実効Elo | 差分 | グループ1位確率 | 総合1位確率 | 総合平均順位 |",
             "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |"
         };
+
+        if (!string.IsNullOrWhiteSpace(referenceMatchesCsvPath))
+        {
+            lines.Insert(4, $"- 参考対局CSV: {BuildMarkdownFileLink(outputMarkdownPath, referenceMatchesCsvPath)}");
+        }
 
         lines.AddRange(topRows.Select(row =>
             $"| {row.Name} | {row.Group} | {FormatRating(row.OriginalRating)} | {FormatRating(row.EffectiveRating)} | {FormatSignedRating(row.RatingDelta)} | {(row.GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {(row.OverallPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {row.OverallPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} |"));
