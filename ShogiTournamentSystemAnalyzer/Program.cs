@@ -190,59 +190,6 @@ static Dictionary<string, FinalStageGroup>? ReadOptionalFinalStageGroupMap(Final
     return ReadFinalStageGroupMap();
 }
 
-static string BuildQualitySummaryDefaultOutputPath(AdditionalApexPlacementMode placementMode, BoundaryRescueMode boundaryRescueMode, ExperimentalReportGroupingOptions options)
-{
-    var fileName = $"quality_summary_{placementMode}_{boundaryRescueMode}_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
-    if (!options.IsEnabled)
-    {
-        return Path.GetFullPath(fileName);
-    }
-
-    var outcomeFolderName = options.Outcome == ExperimentalReportOutcome.Bad ? "Bad" : "Good";
-    var baseDirectory = Path.Combine(Path.GetFullPath("."), "docs", "Reports", outcomeFolderName);
-    Directory.CreateDirectory(baseDirectory);
-    return Path.Combine(baseDirectory, fileName);
-}
-
-static string BuildQualitySummaryDefaultOutputPath(FinalStageGroupingMode groupingMode, AdditionalApexPlacementMode placementMode, BoundaryRescueMode boundaryRescueMode, ExperimentalReportGroupingOptions options)
-{
-    if (groupingMode == FinalStageGroupingMode.Off)
-    {
-        var fileName = $"quality_summary_neutral_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
-        if (!options.IsEnabled)
-        {
-            return Path.GetFullPath(fileName);
-        }
-
-        var outcomeFolderName = options.Outcome == ExperimentalReportOutcome.Bad ? "Bad" : "Good";
-        var baseDirectory = Path.Combine(Path.GetFullPath("."), "docs", "Reports", outcomeFolderName);
-        Directory.CreateDirectory(baseDirectory);
-        return Path.Combine(baseDirectory, fileName);
-    }
-
-    return BuildQualitySummaryDefaultOutputPath(placementMode, boundaryRescueMode, options);
-}
-
-static string BuildQualitySummaryDefaultOutputPath(FinalStageGroupingMode groupingMode, AdditionalApexPlacementMode placementMode, BoundaryRescueMode boundaryRescueMode, ExperimentalReportGroupingOptions options, TournamentRuleSetMode tournamentRuleSetMode)
-{
-    if (groupingMode == FinalStageGroupingMode.Off)
-    {
-        var ruleName = tournamentRuleSetMode == TournamentRuleSetMode.Twill ? "twill" : "neutral";
-        var fileName = $"quality_summary_{ruleName}_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
-        if (!options.IsEnabled)
-        {
-            return Path.GetFullPath(fileName);
-        }
-
-        var outcomeFolderName = options.Outcome == ExperimentalReportOutcome.Bad ? "Bad" : "Good";
-        var baseDirectory = Path.Combine(Path.GetFullPath("."), "docs", "Reports", outcomeFolderName);
-        Directory.CreateDirectory(baseDirectory);
-        return Path.Combine(baseDirectory, fileName);
-    }
-
-    return BuildQualitySummaryDefaultOutputPath(placementMode, boundaryRescueMode, options);
-}
-
 static (List<Participant> Participants, List<Match> Matches) FilterToScheduledParticipants(IReadOnlyList<Participant> participants, IReadOnlyList<Match> matches)
 {
     var activeIndexes = matches
@@ -266,59 +213,6 @@ static (List<Participant> Participants, List<Match> Matches) FilterToScheduledPa
     return (filteredParticipants, filteredMatches);
 }
 
-static string BuildQualitySweepDefaultOutputPath(AdditionalApexPlacementMode placementMode, BoundaryRescueMode boundaryRescueMode, ExperimentalReportGroupingOptions options)
-{
-    var fileName = $"quality_sweep_{placementMode}_{boundaryRescueMode}_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
-    if (!options.IsEnabled)
-    {
-        return Path.GetFullPath(fileName);
-    }
-
-    var outcomeFolderName = options.Outcome == ExperimentalReportOutcome.Bad ? "Bad" : "Good";
-    var baseDirectory = Path.Combine(Path.GetFullPath("."), "docs", "Reports", outcomeFolderName);
-    Directory.CreateDirectory(baseDirectory);
-    return Path.Combine(baseDirectory, fileName);
-}
-
-static string BuildQualitySweepDefaultOutputPath(FinalStageGroupingMode groupingMode, AdditionalApexPlacementMode placementMode, BoundaryRescueMode boundaryRescueMode, ExperimentalReportGroupingOptions options)
-{
-    if (groupingMode == FinalStageGroupingMode.Off)
-    {
-        var fileName = $"quality_sweep_neutral_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
-        if (!options.IsEnabled)
-        {
-            return Path.GetFullPath(fileName);
-        }
-
-        var outcomeFolderName = options.Outcome == ExperimentalReportOutcome.Bad ? "Bad" : "Good";
-        var baseDirectory = Path.Combine(Path.GetFullPath("."), "docs", "Reports", outcomeFolderName);
-        Directory.CreateDirectory(baseDirectory);
-        return Path.Combine(baseDirectory, fileName);
-    }
-
-    return BuildQualitySweepDefaultOutputPath(placementMode, boundaryRescueMode, options);
-}
-
-static string BuildQualitySweepDefaultOutputPath(FinalStageGroupingMode groupingMode, AdditionalApexPlacementMode placementMode, BoundaryRescueMode boundaryRescueMode, ExperimentalReportGroupingOptions options, TournamentRuleSetMode tournamentRuleSetMode)
-{
-    if (groupingMode == FinalStageGroupingMode.Off)
-    {
-        var ruleName = tournamentRuleSetMode == TournamentRuleSetMode.Twill ? "twill" : "neutral";
-        var fileName = $"quality_sweep_{ruleName}_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
-        if (!options.IsEnabled)
-        {
-            return Path.GetFullPath(fileName);
-        }
-
-        var outcomeFolderName = options.Outcome == ExperimentalReportOutcome.Bad ? "Bad" : "Good";
-        var baseDirectory = Path.Combine(Path.GetFullPath("."), "docs", "Reports", outcomeFolderName);
-        Directory.CreateDirectory(baseDirectory);
-        return Path.Combine(baseDirectory, fileName);
-    }
-
-    return BuildQualitySweepDefaultOutputPath(placementMode, boundaryRescueMode, options);
-}
-
 //static int ReadInt(string prompt, int min)
 //{
 //    while (true)
@@ -333,30 +227,6 @@ static string BuildQualitySweepDefaultOutputPath(FinalStageGroupingMode grouping
 //        Console.WriteLine($"{min} 以上の整数を入力してください。");
 //    }
 //}
-
-static double ConvertBlackAdvantagePercentToRating(double blackAdvantagePercent)
-{
-    const double epsilon = 1e-9;
-    var probability = Math.Clamp(blackAdvantagePercent / 100.0, epsilon, 1.0 - epsilon);
-    return 400.0 * Math.Log10(probability / (1.0 - probability));
-}
-
-static string FormatPercent(double value)
-{
-    return (value * 100).ToString("F2", CultureInfo.InvariantCulture) + "%";
-}
-
-static string FormatOptionalPercent(double? value)
-{
-    return value.HasValue ? FormatPercent(value.Value) : "-";
-}
-
-static string FormatOptionalPercentValue(double? value)
-{
-    return value.HasValue
-        ? (value.Value * 100).ToString("F2", CultureInfo.InvariantCulture)
-        : string.Empty;
-}
 
 static SimulationBudgetScope BeginSimulationBudget()
 {
@@ -399,51 +269,6 @@ readonly record struct SimulationBudgetScope(bool OwnsBudget) : IDisposable
             _simulationDeadlineUtc = null;
         }
     }
-}
-
-static double CalculateEquivalentNeutralRating(IReadOnlyList<double> opponentRatings, double targetAverageScore)
-{
-    if (opponentRatings.Count == 0)
-    {
-        return 0.0;
-    }
-
-    const double epsilon = 1e-9;
-    var clampedScore = Math.Clamp(targetAverageScore, epsilon, 1.0 - epsilon);
-    var lowerBound = opponentRatings.Min() - 4000.0;
-    var upperBound = opponentRatings.Max() + 4000.0;
-
-    for (var i = 0; i < 80; i++)
-    {
-        var mid = (lowerBound + upperBound) / 2.0;
-        var averageScore = opponentRatings.Average(opponentRating => GetNeutralWinProbability(mid, opponentRating));
-
-        if (averageScore < clampedScore)
-        {
-            lowerBound = mid;
-        }
-        else
-        {
-            upperBound = mid;
-        }
-    }
-
-    return (lowerBound + upperBound) / 2.0;
-}
-
-static double GetNeutralWinProbability(double playerRating, double opponentRating)
-{
-    return 1.0 / (1.0 + Math.Pow(10.0, (opponentRating - playerRating) / 400.0));
-}
-
-static string FormatRating(double value)
-{
-    return Math.Round(value).ToString("F0", CultureInfo.InvariantCulture);
-}
-
-static string FormatSignedRating(double value)
-{
-    return Math.Round(value).ToString("+0;-0;0", CultureInfo.InvariantCulture);
 }
 
 }
