@@ -1,22 +1,22 @@
 internal static partial class Program
 {
-    static CalculationResult CalculateFinalStageExactly(IReadOnlyList<Player> participants, IReadOnlyList<Match> matches, IReadOnlyDictionary<string, FinalStageGroup> groupMap, int additionalApexCount, BoundaryRescueMode boundaryRescueMode, double blackAdvantageRating, int promotedInnovCount = 0)
+    static CalculationResult CalculateFinalStageExactly(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, IReadOnlyDictionary<string, FinalStageGroup> groupMap, int additionalApexCount, BoundaryRescueMode boundaryRescueMode, double blackAdvantageRating, int promotedInnovCount = 0)
     {
-        var placeProbabilities = new double[participants.Count, participants.Count + additionalApexCount];
-        var wins = new int[participants.Count];
-        var apexPlayerIndexes = GetPlayerIndexesByGroup(participants, groupMap, FinalStageGroup.Apex);
-        var innovPlayerIndexes = GetPlayerIndexesByGroup(participants, groupMap, FinalStageGroup.Innov);
+        var placeProbabilities = new double[players.Count, players.Count + additionalApexCount];
+        var wins = new int[players.Count];
+        var apexPlayerIndexes = GetPlayerIndexesByGroup(players, groupMap, FinalStageGroup.Apex);
+        var innovPlayerIndexes = GetPlayerIndexesByGroup(players, groupMap, FinalStageGroup.Innov);
 
         void Explore(int matchIndex, double scenarioProbability)
         {
             if (matchIndex == matches.Count)
             {
-                AccumulateFinalStagePlaceProbabilities(wins, participants, apexPlayerIndexes, innovPlayerIndexes, additionalApexCount, boundaryRescueMode, blackAdvantageRating, scenarioProbability, placeProbabilities, promotedInnovCount);
+                AccumulateFinalStagePlaceProbabilities(wins, players, apexPlayerIndexes, innovPlayerIndexes, additionalApexCount, boundaryRescueMode, blackAdvantageRating, scenarioProbability, placeProbabilities, promotedInnovCount);
                 return;
             }
 
             var match = matches[matchIndex];
-            var blackWinsProbability = GetWinProbability(participants[match.Black], participants[match.White], blackAdvantageRating);
+            var blackWinsProbability = GetWinProbability(players[match.Black], players[match.White], blackAdvantageRating);
 
             wins[match.Black]++;
             Explore(matchIndex + 1, scenarioProbability * blackWinsProbability);
@@ -31,12 +31,12 @@ internal static partial class Program
         return new CalculationResult(placeProbabilities, "本戦専用 厳密計算", null);
     }
 
-    static CalculationResult CalculateFinalStageBySimulation(IReadOnlyList<Player> participants, IReadOnlyList<Match> matches, IReadOnlyDictionary<string, FinalStageGroup> groupMap, int additionalApexCount, BoundaryRescueMode boundaryRescueMode, double blackAdvantageRating, int simulationCount, int promotedInnovCount = 0)
+    static CalculationResult CalculateFinalStageBySimulation(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, IReadOnlyDictionary<string, FinalStageGroup> groupMap, int additionalApexCount, BoundaryRescueMode boundaryRescueMode, double blackAdvantageRating, int simulationCount, int promotedInnovCount = 0)
     {
-        var placeProbabilities = new double[participants.Count, participants.Count + additionalApexCount];
-        var wins = new int[participants.Count];
-        var apexPlayerIndexes = GetPlayerIndexesByGroup(participants, groupMap, FinalStageGroup.Apex);
-        var innovPlayerIndexes = GetPlayerIndexesByGroup(participants, groupMap, FinalStageGroup.Innov);
+        var placeProbabilities = new double[players.Count, players.Count + additionalApexCount];
+        var wins = new int[players.Count];
+        var apexPlayerIndexes = GetPlayerIndexesByGroup(players, groupMap, FinalStageGroup.Apex);
+        var innovPlayerIndexes = GetPlayerIndexesByGroup(players, groupMap, FinalStageGroup.Innov);
         var completedSimulationCount = 0;
 
         for (var simulation = 0; simulation < simulationCount; simulation++)
@@ -50,7 +50,7 @@ internal static partial class Program
 
             foreach (var match in matches)
             {
-                var blackWinsProbability = GetWinProbability(participants[match.Black], participants[match.White], blackAdvantageRating);
+                var blackWinsProbability = GetWinProbability(players[match.Black], players[match.White], blackAdvantageRating);
                 if (Random.Shared.NextDouble() < blackWinsProbability)
                 {
                     wins[match.Black]++;
@@ -61,7 +61,7 @@ internal static partial class Program
                 }
             }
 
-            AccumulateFinalStagePlaceProbabilities(wins, participants, apexPlayerIndexes, innovPlayerIndexes, additionalApexCount, boundaryRescueMode, blackAdvantageRating, 1.0, placeProbabilities, promotedInnovCount);
+            AccumulateFinalStagePlaceProbabilities(wins, players, apexPlayerIndexes, innovPlayerIndexes, additionalApexCount, boundaryRescueMode, blackAdvantageRating, 1.0, placeProbabilities, promotedInnovCount);
             completedSimulationCount++;
         }
 

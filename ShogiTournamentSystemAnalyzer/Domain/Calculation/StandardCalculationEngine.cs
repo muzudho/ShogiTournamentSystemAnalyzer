@@ -1,9 +1,9 @@
 internal static partial class Program
 {
-    static CalculationResult CalculateExactly(IReadOnlyList<Player> participants, IReadOnlyList<Match> matches, double blackAdvantageRating, TournamentRuleSetMode tournamentRuleSetMode = TournamentRuleSetMode.Neutral)
+    static CalculationResult CalculateExactly(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, double blackAdvantageRating, TournamentRuleSetMode tournamentRuleSetMode = TournamentRuleSetMode.Neutral)
     {
-        var placeProbabilities = new double[participants.Count, participants.Count];
-        var wins = tournamentRuleSetMode == TournamentRuleSetMode.Neutral ? new int[participants.Count] : null;
+        var placeProbabilities = new double[players.Count, players.Count];
+        var wins = tournamentRuleSetMode == TournamentRuleSetMode.Neutral ? new int[players.Count] : null;
         var outcomes = tournamentRuleSetMode == TournamentRuleSetMode.Twill ? new bool[matches.Count] : null;
 
         void Explore(int matchIndex, double scenarioProbability)
@@ -23,7 +23,7 @@ internal static partial class Program
             }
 
             var match = matches[matchIndex];
-            var blackWinsProbability = GetWinProbability(participants[match.Black], participants[match.White], blackAdvantageRating);
+            var blackWinsProbability = GetWinProbability(players[match.Black], players[match.White], blackAdvantageRating);
 
             if (tournamentRuleSetMode == TournamentRuleSetMode.Twill)
             {
@@ -61,10 +61,10 @@ internal static partial class Program
         return new CalculationResult(placeProbabilities, modeLabel, null);
     }
 
-    static CalculationResult CalculateBySimulation(IReadOnlyList<Player> participants, IReadOnlyList<Match> matches, double blackAdvantageRating, int simulationCount, TournamentRuleSetMode tournamentRuleSetMode = TournamentRuleSetMode.Neutral)
+    static CalculationResult CalculateBySimulation(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, double blackAdvantageRating, int simulationCount, TournamentRuleSetMode tournamentRuleSetMode = TournamentRuleSetMode.Neutral)
     {
-        var placeProbabilities = new double[participants.Count, participants.Count];
-        var wins = tournamentRuleSetMode == TournamentRuleSetMode.Neutral ? new int[participants.Count] : null;
+        var placeProbabilities = new double[players.Count, players.Count];
+        var wins = tournamentRuleSetMode == TournamentRuleSetMode.Neutral ? new int[players.Count] : null;
         var outcomes = tournamentRuleSetMode == TournamentRuleSetMode.Twill ? new bool[matches.Count] : null;
         var completedSimulationCount = 0;
 
@@ -83,7 +83,7 @@ internal static partial class Program
             for (var matchIndex = 0; matchIndex < matches.Count; matchIndex++)
             {
                 var match = matches[matchIndex];
-                var blackWinsProbability = GetWinProbability(participants[match.Black], participants[match.White], blackAdvantageRating);
+                var blackWinsProbability = GetWinProbability(players[match.Black], players[match.White], blackAdvantageRating);
                 if (Random.Shared.NextDouble() < blackWinsProbability)
                 {
                     if (tournamentRuleSetMode == TournamentRuleSetMode.Twill)

@@ -1,6 +1,6 @@
 internal static partial class Program
 {
-    static List<Match> ReadOptionalMatchesFromCsv(IReadOnlyList<Player> participants, string prompt)
+    static List<Match> ReadOptionalMatchesFromCsv(IReadOnlyList<Player> players, string prompt)
     {
         while (true)
         {
@@ -28,7 +28,7 @@ internal static partial class Program
                 return new List<Match>();
             }
 
-            if (TryParseMatches(lines, participants, out var matches, out var errorMessage))
+            if (TryParseMatches(lines, players, out var matches, out var errorMessage))
             {
                 return matches;
             }
@@ -162,9 +162,9 @@ internal static partial class Program
                 return new List<Player>();
             }
 
-            if (TryParsePlayers(lines, out var participants, out var errorMessage))
+            if (TryParsePlayers(lines, out var players, out var errorMessage))
             {
-                return participants;
+                return players;
             }
 
             Console.WriteLine($"CSVの読み取りに失敗しました: {errorMessage}");
@@ -201,9 +201,9 @@ internal static partial class Program
                 continue;
             }
 
-            if (TryParsePlayers(lines, out var participants, out var errorMessage))
+            if (TryParsePlayers(lines, out var players, out var errorMessage))
             {
-                return participants;
+                return players;
             }
 
             Console.WriteLine($"CSVの読み取りに失敗しました: {errorMessage}");
@@ -211,7 +211,7 @@ internal static partial class Program
         }
     }
 
-    static List<Match> ReadMatchesFromCsv(IReadOnlyList<Player> participants)
+    static List<Match> ReadMatchesFromCsv(IReadOnlyList<Player> players)
     {
         while (true)
         {
@@ -240,7 +240,7 @@ internal static partial class Program
                 continue;
             }
 
-            if (TryParseMatches(lines, participants, out var matches, out var errorMessage))
+            if (TryParseMatches(lines, players, out var matches, out var errorMessage))
             {
                 return matches;
             }

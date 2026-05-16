@@ -3,9 +3,9 @@ using System.Text;
 
 internal static partial class Program
 {
-    static bool TryParsePlayers(IReadOnlyList<string> lines, out List<Player> participants, out string errorMessage)
+    static bool TryParsePlayers(IReadOnlyList<string> lines, out List<Player> players, out string errorMessage)
     {
-        participants = new List<Player>();
+        players = new List<Player>();
         errorMessage = string.Empty;
 
         var startIndex = 0;
@@ -37,16 +37,16 @@ internal static partial class Program
                 return false;
             }
 
-            participants.Add(new Player(name, rating));
+            players.Add(new Player(name, rating));
         }
 
-        if (participants.Count == 0)
+        if (players.Count == 0)
         {
             errorMessage = "選手は 1 人以上必要です。";
             return false;
         }
 
-        var duplicateName = participants
+        var duplicateName = players
             .GroupBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
             .FirstOrDefault(group => group.Count() > 1);
         if (duplicateName is not null)
@@ -111,7 +111,7 @@ internal static partial class Program
         return true;
     }
 
-    static bool TryParseMatches(IReadOnlyList<string> lines, IReadOnlyList<Player> participants, out List<Match> matches, out string errorMessage)
+    static bool TryParseMatches(IReadOnlyList<string> lines, IReadOnlyList<Player> players, out List<Match> matches, out string errorMessage)
     {
         matches = new List<Match>();
         errorMessage = string.Empty;
@@ -124,7 +124,7 @@ internal static partial class Program
 
         if (LooksLikeRoundMatrixInput(lines))
         {
-            return TryParseMatchesFromRoundMatrix(lines, participants, out matches, out errorMessage);
+            return TryParseMatchesFromRoundMatrix(lines, players, out matches, out errorMessage);
         }
 
         var startIndex = 0;
@@ -134,8 +134,8 @@ internal static partial class Program
             startIndex = 1;
         }
 
-        var participantIndexes = participants
-            .Select((participant, index) => new { participant.Name, index })
+        var playerIndexes = players
+            .Select((player, index) => new { player.Name, index })
             .ToDictionary(x => x.Name, x => x.index, StringComparer.OrdinalIgnoreCase);
 
         var seenPairs = new HashSet<Match>();
@@ -156,13 +156,13 @@ internal static partial class Program
                 return false;
             }
 
-            if (!participantIndexes.TryGetValue(blackName, out var blackIndex))
+            if (!playerIndexes.TryGetValue(blackName, out var blackIndex))
             {
                 errorMessage = $"{i + 1} 行目の黒番 '{blackName}' が選手一覧にありません。";
                 return false;
             }
 
-            if (!participantIndexes.TryGetValue(whiteName, out var whiteIndex))
+            if (!playerIndexes.TryGetValue(whiteName, out var whiteIndex))
             {
                 errorMessage = $"{i + 1} 行目の白番 '{whiteName}' が選手一覧にありません。";
                 return false;
@@ -193,7 +193,7 @@ internal static partial class Program
         return true;
     }
 
-    static bool TryParseMatchesFromRoundMatrix(IReadOnlyList<string> lines, IReadOnlyList<Player> participants, out List<Match> matches, out string errorMessage)
+    static bool TryParseMatchesFromRoundMatrix(IReadOnlyList<string> lines, IReadOnlyList<Player> players, out List<Match> matches, out string errorMessage)
     {
         matches = new List<Match>();
         errorMessage = string.Empty;
@@ -250,20 +250,20 @@ internal static partial class Program
         if (sections.TryGetValue("Players", out var aliasLines)
             || sections.TryGetValue("対局記号表", out aliasLines))
         {
-            if (!TryParseParticipantAliases(aliasLines, roundNames, out resolvedNames, out errorMessage))
+            if (!TryParsePlayerAliases(aliasLines, roundNames, out resolvedNames, out errorMessage))
             {
                 return false;
             }
         }
 
-        var participantIndexes = participants
-            .Select((participant, index) => new { participant.Name, index })
+        var playerIndexes = players
+            .Select((player, index) => new { player.Name, index })
             .ToDictionary(x => x.Name, x => x.index, StringComparer.OrdinalIgnoreCase);
 
         var orderedMatches = new List<(int Round, Match Match, int Order)>();
         for (var i = 0; i < roundNames.Count; i++)
         {
-            if (!participantIndexes.ContainsKey(resolvedNames[i]))
+            if (!playerIndexes.ContainsKey(resolvedNames[i]))
             {
                 errorMessage = $"対局記号表セクションの選手名 '{resolvedNames[i]}' が選手一覧にありません。";
                 return false;
@@ -297,11 +297,11 @@ internal static partial class Program
                 Match match;
                 if (colorForward == "b" && colorBackward == "w")
                 {
-                    match = new Match(participantIndexes[resolvedNames[i]], participantIndexes[resolvedNames[j]]);
+                    match = new Match(playerIndexes[resolvedNames[i]], playerIndexes[resolvedNames[j]]);
                 }
                 else if (colorForward == "w" && colorBackward == "b")
                 {
-                    match = new Match(participantIndexes[resolvedNames[j]], participantIndexes[resolvedNames[i]]);
+                    match = new Match(playerIndexes[resolvedNames[j]], playerIndexes[resolvedNames[i]]);
                 }
                 else
                 {
@@ -328,7 +328,7 @@ internal static partial class Program
         return true;
     }
 
-    static bool TryParseParticipantAliases(IReadOnlyList<string> lines, IReadOnlyList<string> aliases, out List<string> resolvedNames, out string errorMessage)
+    static bool TryParsePlayerAliases(IReadOnlyList<string> lines, IReadOnlyList<string> aliases, out List<string> resolvedNames, out string errorMessage)
     {
         resolvedNames = new List<string>();
         errorMessage = string.Empty;
@@ -350,9 +350,9 @@ internal static partial class Program
             }
 
             var alias = columns[0].Trim();
-            var participantName = columns[1].Trim();
+            var playerName = columns[1].Trim();
 
-            if (string.IsNullOrWhiteSpace(alias) || string.IsNullOrWhiteSpace(participantName))
+            if (string.IsNullOrWhiteSpace(alias) || string.IsNullOrWhiteSpace(playerName))
             {
                 errorMessage = "対局記号表セクションの記号または選手名が空です。";
                 return false;
@@ -364,18 +364,18 @@ internal static partial class Program
                 return false;
             }
 
-            aliasMap.Add(alias, participantName);
+            aliasMap.Add(alias, playerName);
         }
 
         foreach (var alias in aliases)
         {
-            if (!aliasMap.TryGetValue(alias, out var participantName))
+            if (!aliasMap.TryGetValue(alias, out var playerName))
             {
                 errorMessage = $"対局記号表セクションに記号 '{alias}' の対応表がありません。";
                 return false;
             }
 
-            resolvedNames.Add(participantName);
+            resolvedNames.Add(playerName);
         }
 
         return true;

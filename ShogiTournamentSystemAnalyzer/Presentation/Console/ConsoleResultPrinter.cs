@@ -108,19 +108,19 @@ internal static partial class Program
         }
     }
 
-    static void PrintMatchesCsv(IReadOnlyList<Player> participants, IReadOnlyList<Match> matches)
+    static void PrintMatchesCsv(IReadOnlyList<Player> players, IReadOnlyList<Match> matches)
     {
-        PrintMatchesCsv(participants, matches, "生成された対局CSV:");
+        PrintMatchesCsv(players, matches, "生成された対局CSV:");
     }
 
-    static void PrintMatchesCsv(IReadOnlyList<Player> participants, IReadOnlyList<Match> matches, string title)
+    static void PrintMatchesCsv(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, string title)
     {
         Console.WriteLine(title);
         Console.WriteLine("black,white");
 
         foreach (var match in matches)
         {
-            Console.WriteLine($"{EscapeCsv(participants[match.Black].Name)},{EscapeCsv(participants[match.White].Name)}");
+            Console.WriteLine($"{EscapeCsv(players[match.Black].Name)},{EscapeCsv(players[match.White].Name)}");
         }
 
         Console.WriteLine();

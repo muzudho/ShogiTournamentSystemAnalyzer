@@ -31,7 +31,7 @@ internal static partial class Program
         return Path.Combine(directoryPath, $"{fileNamePrefix}_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
     }
 
-    static void WriteReferenceMatchCsv(string outputCsvPath, IReadOnlyList<Player> participants, IReadOnlyList<Match> matches)
+    static void WriteReferenceMatchCsv(string outputCsvPath, IReadOnlyList<Player> players, IReadOnlyList<Match> matches)
     {
         var directoryPath = Path.GetDirectoryName(outputCsvPath);
         if (!string.IsNullOrWhiteSpace(directoryPath))
@@ -44,7 +44,7 @@ internal static partial class Program
             "black,white"
         };
 
-        lines.AddRange(matches.Select(match => $"{EscapeCsv(participants[match.Black].Name)},{EscapeCsv(participants[match.White].Name)}"));
+        lines.AddRange(matches.Select(match => $"{EscapeCsv(players[match.Black].Name)},{EscapeCsv(players[match.White].Name)}"));
         File.WriteAllLines(outputCsvPath, lines, new UTF8Encoding(false));
     }
 
