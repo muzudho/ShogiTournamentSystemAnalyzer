@@ -50,7 +50,7 @@ README は入口に絞り、詳細説明は `docs/Manuals` に分けています
 - 対局CSV入力
 - `Round / Black/White / 対局記号表` からの対局CSV自動生成
 - 少ない対局数では厳密計算、多い対局数ではシミュレーション
-- 結果のコンソール表示と CSV 出力
+- 結果のコンソール表示、CSV 出力、Markdown レポート出力
 
 
 ## クイックスタート
@@ -126,7 +126,7 @@ dotnet run --project .\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyz
 - `ShogiTournamentSystemAnalyzer/Data/RuleSets`
   - 保存して再利用する大会ルールを置く場所
 - `docs/Reports`
-  - 実行結果の CSV や実験レポートの保存先
+	- 実行結果の CSV、Markdown レポート、実験メモの保存先
 
 入力ファイルでは `#` で始まる行をコメントとして無視できます。  
 また、`#[Enter]` は空行 1 行として扱われます。  

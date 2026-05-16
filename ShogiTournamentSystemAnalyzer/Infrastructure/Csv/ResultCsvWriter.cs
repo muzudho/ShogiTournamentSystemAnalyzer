@@ -30,6 +30,154 @@ internal static partial class Program
         File.WriteAllLines(outputCsvPath, lines, new UTF8Encoding(false));
     }
 
+    static void WriteQualitySweepMarkdown(string outputMarkdownPath, IReadOnlyList<QualitySweepRow> sweepRows, string sweepCsvPath, ExperimentalReportGroupingOptions options)
+    {
+        var directoryPath = Path.GetDirectoryName(outputMarkdownPath);
+        if (!string.IsNullOrWhiteSpace(directoryPath))
+        {
+            Directory.CreateDirectory(directoryPath);
+        }
+
+        var bestSpearmanRow = sweepRows
+            .OrderByDescending(row => row.SpearmanCorrelation)
+            .ThenBy(row => row.MeanAbsoluteRankError)
+            .ThenBy(row => row.BlackAdvantagePercent)
+            .FirstOrDefault();
+        var bestMaeRow = sweepRows
+            .OrderBy(row => row.MeanAbsoluteRankError)
+            .ThenBy(row => row.BlackAdvantagePercent)
+            .FirstOrDefault();
+        var bestTop1Row = sweepRows
+            .OrderByDescending(row => row.EloTop1OverallTop1Probability)
+            .ThenBy(row => row.BlackAdvantagePercent)
+            .FirstOrDefault();
+
+        var lines = new List<string>
+        {
+            "# n% スイープ結果レポート",
+            string.Empty,
+            "## 概要",
+            $"- 評価点数: {sweepRows.Count}",
+            $"- 出力CSV: `{sweepCsvPath}`"
+        };
+
+        if (!string.IsNullOrWhiteSpace(options.EvaluationMemo))
+        {
+            lines.Add($"- 評価メモ: {options.EvaluationMemo}");
+        }
+
+        if (sweepRows.Count > 0)
+        {
+            lines.AddRange(new[]
+            {
+                string.Empty,
+                "## 注目ポイント",
+                $"- Spearman 相関が最良の点: **{bestSpearmanRow.BlackAdvantagePercent.ToString("F2", CultureInfo.InvariantCulture)}%**（{bestSpearmanRow.SpearmanCorrelation.ToString("F6", CultureInfo.InvariantCulture)}）",
+                $"- 平均順位ずれが最良の点: **{bestMaeRow.BlackAdvantagePercent.ToString("F2", CultureInfo.InvariantCulture)}%**（{bestMaeRow.MeanAbsoluteRankError.ToString("F6", CultureInfo.InvariantCulture)}）",
+                $"- Elo1位の総合1位確率が最良の点: **{bestTop1Row.BlackAdvantagePercent.ToString("F2", CultureInfo.InvariantCulture)}%**（{(bestTop1Row.EloTop1OverallTop1Probability * 100).ToString("F6", CultureInfo.InvariantCulture)}%）",
+                string.Empty,
+                "## 一覧表",
+                "| 先手勝率 | Spearman 相関 | 平均順位ずれ | Elo上位8名残留 | Elo1位の総合1位確率 | 最大不利益 | 最大利益 |",
+                "| ---: | ---: | ---: | ---: | ---: | --- | --- |"
+            });
+
+            lines.AddRange(sweepRows.Select(row =>
+                $"| {row.BlackAdvantagePercent.ToString("F2", CultureInfo.InvariantCulture)}% | {row.SpearmanCorrelation.ToString("F6", CultureInfo.InvariantCulture)} | {row.MeanAbsoluteRankError.ToString("F6", CultureInfo.InvariantCulture)} | {row.AverageTop8Retention.ToString("F6", CultureInfo.InvariantCulture)} | {(row.EloTop1OverallTop1Probability * 100).ToString("F6", CultureInfo.InvariantCulture)}% | {row.MostPenalizedPlayerName} ({FormatSignedDelta(row.MostPenalizedDelta)}) | {row.MostAdvantagedPlayerName} ({FormatSignedDelta(row.MostAdvantagedDelta)}) |"));
+
+            lines.AddRange(new[]
+            {
+                string.Empty,
+                "## 推移図",
+                "```mermaid",
+                "xychart-beta",
+                "    title \"n%スイープの主要指標\"",
+                "    x-axis \"先手勝率(%)\" [" + string.Join(", ", sweepRows.Select(row => row.BlackAdvantagePercent.ToString("F0", CultureInfo.InvariantCulture))) + "]",
+                "    y-axis \"値\" 0 --> 100",
+                "    line \"Elo1位の総合1位確率(%)\" [" + string.Join(", ", sweepRows.Select(row => (row.EloTop1OverallTop1Probability * 100).ToString("F2", CultureInfo.InvariantCulture))) + "]",
+                "    line \"Elo上位8名残留\" [" + string.Join(", ", sweepRows.Select(row => row.AverageTop8Retention.ToString("F2", CultureInfo.InvariantCulture))) + "]",
+                "```"
+            });
+        }
+
+        File.WriteAllLines(outputMarkdownPath, lines, new UTF8Encoding(false));
+    }
+
+    static void WriteQualitySummaryMarkdown(
+        string outputMarkdownPath,
+        QualityEvaluationRun qualityEvaluationRun,
+        string summaryCsvPath,
+        string playerCsvPath,
+        ExperimentalReportGroupingOptions options)
+    {
+        var directoryPath = Path.GetDirectoryName(outputMarkdownPath);
+        if (!string.IsNullOrWhiteSpace(directoryPath))
+        {
+            Directory.CreateDirectory(directoryPath);
+        }
+
+        var summary = qualityEvaluationRun.Summary;
+        var topPenalizedPlayers = qualityEvaluationRun.PlayerRows
+            .OrderByDescending(row => row.OverallPlaceDeltaFromEloRank)
+            .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
+            .Take(3)
+            .ToArray();
+        var topAdvantagedPlayers = qualityEvaluationRun.PlayerRows
+            .OrderBy(row => row.OverallPlaceDeltaFromEloRank)
+            .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
+            .Take(3)
+            .ToArray();
+
+        var lines = new List<string>
+        {
+            "# 品質評価サマリーレポート",
+            string.Empty,
+            "## 概要",
+            $"- 計算モード: {qualityEvaluationRun.CalculationMode}",
+            $"- 対象選手数: {qualityEvaluationRun.PlayerRows.Count}",
+            $"- サマリーCSV: `{summaryCsvPath}`",
+            $"- 選手別CSV: `{playerCsvPath}`"
+        };
+
+        if (!string.IsNullOrWhiteSpace(options.EvaluationMemo))
+        {
+            lines.Add($"- 評価メモ: {options.EvaluationMemo}");
+        }
+
+        lines.AddRange(new[]
+        {
+            string.Empty,
+            "## 指標サマリー",
+            "| 指標 | 値 | 意味 |",
+            "| --- | ---: | --- |",
+            $"| Spearman 相関 | {summary.SpearmanCorrelation.ToString("F6", CultureInfo.InvariantCulture)} | Elo順位と期待総合順位の相関 |",
+            $"| 平均順位ずれ | {summary.MeanAbsoluteRankError.ToString("F6", CultureInfo.InvariantCulture)} | 期待総合順位とElo順位のずれの絶対値平均 |",
+            $"| Elo上位8名の総合上位8位残留人数 | {summary.AverageTop8Retention.ToString("F6", CultureInfo.InvariantCulture)} | Elo上位8名が総合上位8位に残る人数の期待値 |",
+            $"| Elo1位の総合1位確率 | {(summary.EloTop1OverallTop1Probability * 100).ToString("F6", CultureInfo.InvariantCulture)}% | Elo1位が総合1位になる確率 |",
+            string.Empty,
+            "## 着目選手",
+            $"- 最大不利益: **{summary.MostPenalizedPlayerName}** ({FormatSignedDelta(summary.MostPenalizedDelta)})",
+            $"- 最大利益: **{summary.MostAdvantagedPlayerName}** ({FormatSignedDelta(summary.MostAdvantagedDelta)})",
+            string.Empty,
+            "### 不利益が大きい選手",
+            "| 選手 | Elo順位 | 期待総合順位 | ずれ | 総合1位確率 | 総合上位8位確率 |",
+            "| --- | ---: | ---: | ---: | ---: | ---: |"
+        });
+
+        lines.AddRange(topPenalizedPlayers.Select(BuildQualityPlayerMarkdownRow));
+
+        lines.AddRange(new[]
+        {
+            string.Empty,
+            "### 利益が大きい選手",
+            "| 選手 | Elo順位 | 期待総合順位 | ずれ | 総合1位確率 | 総合上位8位確率 |",
+            "| --- | ---: | ---: | ---: | ---: | ---: |"
+        });
+
+        lines.AddRange(topAdvantagedPlayers.Select(BuildQualityPlayerMarkdownRow));
+
+        File.WriteAllLines(outputMarkdownPath, lines, new UTF8Encoding(false));
+    }
+
     static void WriteQualitySweepCsv(string outputCsvPath, IReadOnlyList<QualitySweepRow> sweepRows, ExperimentalReportGroupingOptions options)
     {
         var directoryPath = Path.GetDirectoryName(outputCsvPath);
@@ -60,6 +208,26 @@ internal static partial class Program
         }
 
         File.WriteAllLines(outputCsvPath, lines, new UTF8Encoding(false));
+    }
+
+    static string BuildQualityPlayerMarkdownRow(QualityPlayerRow row)
+    {
+        return string.Join(" | ",
+            "|",
+            row.Name,
+            row.EloRank.ToString(CultureInfo.InvariantCulture),
+            row.ExpectedOverallPlace.ToString("F3", CultureInfo.InvariantCulture),
+            FormatSignedDelta(row.OverallPlaceDeltaFromEloRank),
+            ((row.OverallTop1Probability * 100).ToString("F2", CultureInfo.InvariantCulture) + "%"),
+            ((row.OverallTop8Probability * 100).ToString("F2", CultureInfo.InvariantCulture) + "%"),
+            string.Empty);
+    }
+
+    static string FormatSignedDelta(double value)
+    {
+        return value >= 0
+            ? "+" + value.ToString("F6", CultureInfo.InvariantCulture)
+            : value.ToString("F6", CultureInfo.InvariantCulture);
     }
 
     static void WriteQualityPlayerCsv(string outputCsvPath, IReadOnlyList<QualityPlayerRow> playerRows)

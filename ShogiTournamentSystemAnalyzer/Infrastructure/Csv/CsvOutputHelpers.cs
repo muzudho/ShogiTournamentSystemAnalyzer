@@ -31,6 +31,11 @@ internal static partial class Program
         return Path.Combine(directoryPath, $"{fileNamePrefix}_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
     }
 
+    static string ChangeOutputExtension(string basePath, string extension)
+    {
+        return Path.ChangeExtension(basePath, extension);
+    }
+
     static void WriteReferenceMatchCsv(string outputCsvPath, IReadOnlyList<Player> players, IReadOnlyList<Match> matches)
     {
         var directoryPath = Path.GetDirectoryName(outputCsvPath);

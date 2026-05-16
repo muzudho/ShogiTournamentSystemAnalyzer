@@ -1,26 +1,29 @@
 # Reports
 
 このフォルダーは、ShogiTournamentSystemAnalyzer の**実験結果とレポート**をまとめた場所です。  
-品質評価モードやスイープ実験の出力 CSV、比較レポート、実行ログを保管します。
+品質評価モードやスイープ実験の出力 CSV、人が読むための Markdown レポート、実行ログを保管します。
 
 ## 何が入るか
 - 品質評価のサマリー CSV
-- 品質評価の参加者別 CSV
+- 品質評価の選手別 CSV
 - n% スイープ実験の CSV
-- 品質評価レポートや比較メモ
+- 品質評価レポートや改善案メモの Markdown
 - 実行ログ（`.stdout.txt` / `.stderr.txt`）
 
-## よくある見方
-- 品質評価の結論を読みたい
-  - `品質評価レポート_*.txt`
-- 数値を表計算ソフトで確認したい
-  - `quality_summary_*.csv`
-  - `quality_participants_*.csv`
-- スイープ実験の変化を見たい
-  - `quality_sweep_*.csv`
-- 良し悪しで見分けたい
-  - `Good/`
-  - `Bad/`
+## 使い分け
+### Markdown レポートを見る
+GitHub 上で結論や考察を読みたいときは、次を開きます。
+
+- `品質評価レポート_*.md`
+- `品質評価総括レポート_*.md`
+- `改善案*.md`
+
+### CSV を見る
+表計算ソフトや再集計に使いたいときは、次を開きます。
+
+- `quality_summary_*.csv`
+- `quality_players_*.csv`
+- `quality_sweep_*.csv`
 
 ## サブフォルダー
 ### `Good`
@@ -31,14 +34,18 @@
 
 ## ファイル名の目安
 - `quality_summary_*.csv`
-  - 品質評価のサマリー
-- `quality_participants_*.csv`
-  - 参加者別の品質評価結果
+  - 品質評価のサマリー数値
+- `quality_players_*.csv`
+  - 選手別の品質評価結果
 - `quality_sweep_*.csv`
   - n% スイープ実験結果
-- `品質評価レポート_*.txt`
-  - 実験内容の説明や所感
-- `改善案*.txt`
+- `quality_summary_*.md`
+  - 品質評価サマリーの Markdown レポート
+- `quality_sweep_*.md`
+  - n% スイープ結果の Markdown レポート
+- `品質評価レポート_*.md`
+  - 手書きの実験内容、比較、所感
+- `改善案*.md`
   - 改善案比較メモ
 
 ## 関連入口
