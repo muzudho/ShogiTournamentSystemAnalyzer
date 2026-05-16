@@ -20,22 +20,9 @@ internal static partial class Program
         {
             return;
         }
-        var executionOptions = ReadQualityEvaluationExecutionOptions(input, ruleDefinition);
 
-        Console.WriteLine($"順位ルール: {TournamentRuleSetRule.GetLabel(ruleDefinition.TournamentRuleSetMode)}\n");
-        Console.WriteLine($"Apex / Innov の分け方: {FinalStageGroupingRule.GetLabel(ruleDefinition.GroupingMode)}\n");
-        if (ruleDefinition.UsesFinalStageGrouping)
-        {
-            Console.WriteLine($"本戦不出場Apexの扱い: {AdditionalApexPlacementRule.GetLabel(ruleDefinition.AdditionalApexPlacementMode)}\n");
-            Console.WriteLine($"境界救済戦: {BoundaryRescueRule.GetLabel(ruleDefinition.BoundaryRescueMode)}\n");
-            Console.WriteLine($"可変定員8ルール: {VariableTop8Rule.GetLabel(ruleDefinition.VariableTop8Mode)}\n");
-        }
-        if (input.ReferenceMatches.Count > 0)
-        {
-            PrintMatchesCsv(input.Participants, input.ReferenceMatches, "参考対局CSV:");
-            Console.WriteLine($"参考対局数: {input.ReferenceMatches.Count}");
-            Console.WriteLine("参考対局は品質評価に含めません。\n");
-        }
+        var executionOptions = ReadQualityEvaluationExecutionOptions(input, ruleDefinition);
+        PrintQualityEvaluationContext(input, ruleDefinition);
 
         if (executionOptions.IsSweep)
         {
@@ -65,13 +52,7 @@ internal static partial class Program
         }
 
         var outputOptions = ReadQualitySummaryOutputOptions(ruleDefinition);
-        WriteQualitySummaryCsv(outputOptions.OutputCsvPath, qualityEvaluationRun.Summary, outputOptions.ReportGroupingOptions);
-
-        var participantCsvPath = BuildSiblingOutputCsvPath(outputOptions.OutputCsvPath, "quality_participants");
-        WriteQualityParticipantCsv(participantCsvPath, qualityEvaluationRun.ParticipantRows);
-
-        Console.WriteLine($"品質評価サマリーCSVを出力しました: {outputOptions.OutputCsvPath}");
-        Console.WriteLine($"品質評価参加者別CSVを出力しました: {participantCsvPath}");
+        WriteQualityEvaluationOutputs(qualityEvaluationRun, outputOptions);
     }
 
     static void RunQualitySweepExperiment(
@@ -268,6 +249,27 @@ internal static partial class Program
         return new QualityEvaluationExecutionOptions(simulationCount, sweepOptions, null);
     }
 
+    static void PrintQualityEvaluationContext(
+        QualityEvaluationInput input,
+        QualityEvaluationRuleDefinition ruleDefinition)
+    {
+        Console.WriteLine($"順位ルール: {TournamentRuleSetRule.GetLabel(ruleDefinition.TournamentRuleSetMode)}\n");
+        Console.WriteLine($"Apex / Innov の分け方: {FinalStageGroupingRule.GetLabel(ruleDefinition.GroupingMode)}\n");
+        if (ruleDefinition.UsesFinalStageGrouping)
+        {
+            Console.WriteLine($"本戦不出場Apexの扱い: {AdditionalApexPlacementRule.GetLabel(ruleDefinition.AdditionalApexPlacementMode)}\n");
+            Console.WriteLine($"境界救済戦: {BoundaryRescueRule.GetLabel(ruleDefinition.BoundaryRescueMode)}\n");
+            Console.WriteLine($"可変定員8ルール: {VariableTop8Rule.GetLabel(ruleDefinition.VariableTop8Mode)}\n");
+        }
+
+        if (input.ReferenceMatches.Count > 0)
+        {
+            PrintMatchesCsv(input.Participants, input.ReferenceMatches, "参考対局CSV:");
+            Console.WriteLine($"参考対局数: {input.ReferenceMatches.Count}");
+            Console.WriteLine("参考対局は品質評価に含めません。\n");
+        }
+    }
+
     static QualityEvaluationOutputOptions ReadQualitySummaryOutputOptions(QualityEvaluationRuleDefinition ruleDefinition)
     {
         var reportGroupingOptions = ReadExperimentalReportGroupingOptions();
@@ -296,6 +298,19 @@ internal static partial class Program
             $"\nn%スイープ結果CSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
             defaultOutputCsvPath));
         return new QualityEvaluationOutputOptions(reportGroupingOptions, outputCsvPath);
+    }
+
+    static void WriteQualityEvaluationOutputs(
+        QualityEvaluationRun qualityEvaluationRun,
+        QualityEvaluationOutputOptions outputOptions)
+    {
+        WriteQualitySummaryCsv(outputOptions.OutputCsvPath, qualityEvaluationRun.Summary, outputOptions.ReportGroupingOptions);
+
+        var participantCsvPath = BuildSiblingOutputCsvPath(outputOptions.OutputCsvPath, "quality_participants");
+        WriteQualityParticipantCsv(participantCsvPath, qualityEvaluationRun.ParticipantRows);
+
+        Console.WriteLine($"品質評価サマリーCSVを出力しました: {outputOptions.OutputCsvPath}");
+        Console.WriteLine($"品質評価参加者別CSVを出力しました: {participantCsvPath}");
     }
 
     static QualitySweepOptions ReadQualitySweepOptions()
