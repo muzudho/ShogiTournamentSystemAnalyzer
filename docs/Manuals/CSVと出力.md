@@ -1,6 +1,6 @@
 # CSVと出力
 
-## 選手一覧CSV
+## 選手 / Player 一覧CSV
 - 1列目: 名前
 - 2列目: Elo レーティング
 - ヘッダーは省略可能
@@ -35,7 +35,7 @@ END
 
 ## Round / Black-White / 対局記号表
 横長になる実名の代わりに、`A`, `B`, `C` のような記号を使えます。
-必要なら `対局記号表` セクションで記号と選手名を対応付けます。
+必要なら `対局記号表` セクションで記号と選手 / Player 名を対応付けます。
 互換性のため、旧ヘッダー `Players` でも読み取れます。
 
 ### 例
@@ -102,7 +102,7 @@ END
 - `eloTop1OverallTop1Probability`
 - 必要に応じて `evaluationMemo`
 
-### 参加者別CSV
+### 選手別CSV
 - `participantName`
 - `group`
 - `originalElo`

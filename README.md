@@ -89,7 +89,7 @@ dotnet run --project .\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyz
 - [品質評価](./docs/Manuals/品質評価.md)
   - 評価指標、比較の考え方、n% スイープ実験、レポート運用
 - [入力ファイル仕様](./docs/Manuals/入力ファイル仕様.md)
-  - `--input-file`、`#[Prompt]`、`#[Enter]`、`Inputs` フォルダー運用
+  - `--input-file`、`#[Prompt]`、`#[Enter]`、`Data/Inputs` フォルダー運用
 - [CSVと出力](./docs/Manuals/CSVと出力.md)
   - 選手一覧CSV、対局CSV、結果CSV、品質評価CSV、実効Elo
 
@@ -118,7 +118,7 @@ dotnet run --project .\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyz
   - `Bench`: 単発評価や軽いベンチマーク用
   - `Sweeps`: n% スイープ実験用
 - `ShogiTournamentSystemAnalyzer/Data/Participants`
-  - 年度別・地域別の参加者名とレーティングを置く場所
+  - 年度別・地域別の選手名とレーティングを置く場所
 - `ShogiTournamentSystemAnalyzer/Data/RuleSets`
   - 保存して再利用する大会ルールを置く場所
 - `docs/Reports`
