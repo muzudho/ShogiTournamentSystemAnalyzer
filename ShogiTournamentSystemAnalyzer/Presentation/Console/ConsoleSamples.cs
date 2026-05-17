@@ -46,8 +46,8 @@ internal static partial class Program
         Console.WriteLine();
         Console.WriteLine("First/Second");
         Console.WriteLine(" , A, B");
-        Console.WriteLine("A, -, b");
-        Console.WriteLine("B, w, -");
+        Console.WriteLine("A, -, f");
+        Console.WriteLine("B, s, -");
         Console.WriteLine();
         Console.WriteLine("対局記号表");
         Console.WriteLine("A, \"Alice\"");

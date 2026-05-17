@@ -49,10 +49,10 @@ D, 1, 2, 3, -
 
 First/Second
  , A, B, C, D
-A, -, b, b, b
-B, w, -, b, b
-C, w, w, -, b
-D, w, w, w, -
+A, -, f, f, f
+B, s, -, f, f
+C, s, s, -, f
+D, s, s, s, -
 
 対局記号表
 A, "Alice"

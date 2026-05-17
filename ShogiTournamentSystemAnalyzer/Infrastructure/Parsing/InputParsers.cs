@@ -225,9 +225,10 @@ internal static partial class Program
             return false;
         }
 
-        if (!sections.TryGetValue("Black/White", out var colorLines))
+        if (!sections.TryGetValue("Black/White", out var colorLines)
+            && !sections.TryGetValue("First/Second", out colorLines))
         {
-            errorMessage = "Black/White セクションがありません。";
+            errorMessage = "First/Second セクションがありません。";
             return false;
         }
 
@@ -236,14 +237,14 @@ internal static partial class Program
             return false;
         }
 
-        if (!TryParseSquareMatrix(colorLines, "Black/White", out var colorNames, out var colorValues, out errorMessage))
+        if (!TryParseSquareMatrix(colorLines, "First/Second", out var colorNames, out var colorValues, out errorMessage))
         {
             return false;
         }
 
         if (roundNames.Count != colorNames.Count || !roundNames.SequenceEqual(colorNames, StringComparer.OrdinalIgnoreCase))
         {
-            errorMessage = "Round セクションと Black/White セクションの見出しが一致していません。";
+            errorMessage = "Round セクションと First/Second セクションの見出しが一致していません。";
             return false;
         }
 
@@ -296,17 +297,17 @@ internal static partial class Program
                 var colorBackward = NormalizeMatrixCell(colorValues[j, i]).ToLowerInvariant();
 
                 Match match;
-                if (colorForward == "b" && colorBackward == "w")
+                if ((colorForward == "b" || colorForward == "f") && (colorBackward == "w" || colorBackward == "s"))
                 {
                     match = new Match(playerIndexes[resolvedNames[i]], playerIndexes[resolvedNames[j]]);
                 }
-                else if (colorForward == "w" && colorBackward == "b")
+                else if ((colorForward == "w" || colorForward == "s") && (colorBackward == "b" || colorBackward == "f"))
                 {
                     match = new Match(playerIndexes[resolvedNames[j]], playerIndexes[resolvedNames[i]]);
                 }
                 else
                 {
-                    errorMessage = $"Black/White 表の '{roundNames[i]}' と '{roundNames[j]}' は b/w の組み合わせで入力してください。";
+                    errorMessage = $"First/Second 表の '{roundNames[i]}' と '{roundNames[j]}' は f/s（互換で b/w も可）の組み合わせで入力してください。";
                     return false;
                 }
 
