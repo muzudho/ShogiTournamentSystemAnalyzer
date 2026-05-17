@@ -30,7 +30,7 @@ readonly record struct QualitySweepOptions(
     double StepPercent);
 
 readonly record struct QualitySweepRow(
-    double BlackAdvantagePercent,
+    double FirstPlayerWinRatePercent,
     double SpearmanCorrelation,
     double MeanAbsoluteRankError,
     double AverageTop8Retention,

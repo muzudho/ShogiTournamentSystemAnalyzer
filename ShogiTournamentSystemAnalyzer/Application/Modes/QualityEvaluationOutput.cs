@@ -78,7 +78,7 @@ internal static partial class Program
         foreach (var row in sweepRows)
         {
             Console.WriteLine(
-                row.BlackAdvantagePercent.ToString("F2", CultureInfo.InvariantCulture).PadLeft(8)
+                row.FirstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture).PadLeft(8)
                 + "%"
                 + row.SpearmanCorrelation.ToString("F4", CultureInfo.InvariantCulture).PadLeft(12)
                 + row.MeanAbsoluteRankError.ToString("F3", CultureInfo.InvariantCulture).PadLeft(14)

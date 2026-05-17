@@ -41,15 +41,15 @@ internal static partial class Program
         var bestSpearmanRow = sweepRows
             .OrderByDescending(row => row.SpearmanCorrelation)
             .ThenBy(row => row.MeanAbsoluteRankError)
-            .ThenBy(row => row.BlackAdvantagePercent)
+            .ThenBy(row => row.FirstPlayerWinRatePercent)
             .FirstOrDefault();
         var bestMaeRow = sweepRows
             .OrderBy(row => row.MeanAbsoluteRankError)
-            .ThenBy(row => row.BlackAdvantagePercent)
+            .ThenBy(row => row.FirstPlayerWinRatePercent)
             .FirstOrDefault();
         var bestTop1Row = sweepRows
             .OrderByDescending(row => row.EloTop1OverallTop1Probability)
-            .ThenBy(row => row.BlackAdvantagePercent)
+            .ThenBy(row => row.FirstPlayerWinRatePercent)
             .FirstOrDefault();
 
         var lines = new List<string>
@@ -71,17 +71,17 @@ internal static partial class Program
             var recommendedRows = sweepRows
                 .Where(row => row.SpearmanCorrelation >= bestSpearmanRow.SpearmanCorrelation - 0.001
                     && row.MeanAbsoluteRankError <= bestMaeRow.MeanAbsoluteRankError + 0.05)
-                .OrderBy(row => row.BlackAdvantagePercent)
+                .OrderBy(row => row.FirstPlayerWinRatePercent)
                 .ToArray();
 
             lines.AddRange(new[]
             {
                 string.Empty,
                 "## 注目ポイント",
-                $"- Spearman 相関が最良の点: **{bestSpearmanRow.BlackAdvantagePercent.ToString("F2", CultureInfo.InvariantCulture)}%**（{bestSpearmanRow.SpearmanCorrelation.ToString("F6", CultureInfo.InvariantCulture)}）",
-                $"- 平均順位ずれが最良の点: **{bestMaeRow.BlackAdvantagePercent.ToString("F2", CultureInfo.InvariantCulture)}%**（{bestMaeRow.MeanAbsoluteRankError.ToString("F6", CultureInfo.InvariantCulture)}）",
-                $"- Elo1位の総合1位確率が最良の点: **{bestTop1Row.BlackAdvantagePercent.ToString("F2", CultureInfo.InvariantCulture)}%**（{(bestTop1Row.EloTop1OverallTop1Probability * 100).ToString("F6", CultureInfo.InvariantCulture)}%）",
-                $"- 自動おすすめ帯: **{BuildRecommendedSweepBandText(recommendedRows, bestMaeRow.BlackAdvantagePercent)}**",
+                $"- Spearman 相関が最良の点: **{bestSpearmanRow.FirstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture)}%**（{bestSpearmanRow.SpearmanCorrelation.ToString("F6", CultureInfo.InvariantCulture)}）",
+                $"- 平均順位ずれが最良の点: **{bestMaeRow.FirstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture)}%**（{bestMaeRow.MeanAbsoluteRankError.ToString("F6", CultureInfo.InvariantCulture)}）",
+                $"- Elo1位の総合1位確率が最良の点: **{bestTop1Row.FirstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture)}%**（{(bestTop1Row.EloTop1OverallTop1Probability * 100).ToString("F6", CultureInfo.InvariantCulture)}%）",
+                $"- 自動おすすめ帯: **{BuildRecommendedSweepBandText(recommendedRows, bestMaeRow.FirstPlayerWinRatePercent)}**",
                 string.Empty,
                 "## 一覧表",
                 "| 先手勝率 | Spearman 相関 | 平均順位ずれ | Elo上位8名残留 | Elo1位の総合1位確率 | 最大不利益 | 最大利益 |",
@@ -89,7 +89,7 @@ internal static partial class Program
             });
 
             lines.AddRange(sweepRows.Select(row =>
-                $"| {row.BlackAdvantagePercent.ToString("F2", CultureInfo.InvariantCulture)}% | {row.SpearmanCorrelation.ToString("F6", CultureInfo.InvariantCulture)} | {row.MeanAbsoluteRankError.ToString("F6", CultureInfo.InvariantCulture)} | {row.AverageTop8Retention.ToString("F6", CultureInfo.InvariantCulture)} | {(row.EloTop1OverallTop1Probability * 100).ToString("F6", CultureInfo.InvariantCulture)}% | {row.MostPenalizedPlayerName} ({FormatSignedDelta(row.MostPenalizedDelta)}) | {row.MostAdvantagedPlayerName} ({FormatSignedDelta(row.MostAdvantagedDelta)}) |"));
+                $"| {row.FirstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture)}% | {row.SpearmanCorrelation.ToString("F6", CultureInfo.InvariantCulture)} | {row.MeanAbsoluteRankError.ToString("F6", CultureInfo.InvariantCulture)} | {row.AverageTop8Retention.ToString("F6", CultureInfo.InvariantCulture)} | {(row.EloTop1OverallTop1Probability * 100).ToString("F6", CultureInfo.InvariantCulture)}% | {row.MostPenalizedPlayerName} ({FormatSignedDelta(row.MostPenalizedDelta)}) | {row.MostAdvantagedPlayerName} ({FormatSignedDelta(row.MostAdvantagedDelta)}) |"));
 
             lines.AddRange(new[]
             {
@@ -98,7 +98,7 @@ internal static partial class Program
                 "```mermaid",
                 "xychart-beta",
                 "    title \"n%スイープの主要指標\"",
-                "    x-axis \"先手勝率(%)\" [" + string.Join(", ", sweepRows.Select(row => row.BlackAdvantagePercent.ToString("F0", CultureInfo.InvariantCulture))) + "]",
+                "    x-axis \"先手勝率(%)\" [" + string.Join(", ", sweepRows.Select(row => row.FirstPlayerWinRatePercent.ToString("F0", CultureInfo.InvariantCulture))) + "]",
                 "    y-axis \"値\" 0 --> 100",
                 "    line \"Elo1位の総合1位確率(%)\" [" + string.Join(", ", sweepRows.Select(row => (row.EloTop1OverallTop1Probability * 100).ToString("F2", CultureInfo.InvariantCulture))) + "]",
                 "    line \"Elo上位8名残留\" [" + string.Join(", ", sweepRows.Select(row => row.AverageTop8Retention.ToString("F2", CultureInfo.InvariantCulture))) + "]",
@@ -240,7 +240,7 @@ internal static partial class Program
         };
 
         lines.AddRange(sweepRows.Select(row => string.Join(",",
-            row.BlackAdvantagePercent.ToString("F2", CultureInfo.InvariantCulture),
+            row.FirstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture),
             row.SpearmanCorrelation.ToString("F6", CultureInfo.InvariantCulture),
             row.MeanAbsoluteRankError.ToString("F6", CultureInfo.InvariantCulture),
             row.AverageTop8Retention.ToString("F6", CultureInfo.InvariantCulture),
@@ -381,8 +381,8 @@ internal static partial class Program
             return fallbackPercent.ToString("F2", CultureInfo.InvariantCulture) + "% 付近";
         }
 
-        var start = recommendedRows[0].BlackAdvantagePercent;
-        var end = recommendedRows[^1].BlackAdvantagePercent;
+        var start = recommendedRows[0].FirstPlayerWinRatePercent;
+        var end = recommendedRows[^1].FirstPlayerWinRatePercent;
         return Math.Abs(start - end) < 0.000001
             ? start.ToString("F2", CultureInfo.InvariantCulture) + "% 付近"
             : start.ToString("F2", CultureInfo.InvariantCulture) + "%〜" + end.ToString("F2", CultureInfo.InvariantCulture) + "%";
