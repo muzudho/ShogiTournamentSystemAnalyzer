@@ -236,7 +236,7 @@ internal static partial class Program
 
         var lines = new List<string>
         {
-            "blackAdvantagePercent,spearmanCorrelation,meanAbsoluteRankError,averageTop8Retention,eloTop1OverallTop1ProbabilityPercent,mostPenalizedPlayer,mostPenalizedDelta,mostAdvantagedPlayer,mostAdvantagedDelta"
+            "firstPlayerWinRatePercent,spearmanCorrelation,meanAbsoluteRankError,averageTop8Retention,eloTop1OverallTop1ProbabilityPercent,mostPenalizedPlayer,mostPenalizedDelta,mostAdvantagedPlayer,mostAdvantagedDelta"
         };
 
         lines.AddRange(sweepRows.Select(row => string.Join(",",
@@ -426,15 +426,15 @@ internal static partial class Program
         var headerColumns = new List<string>
         {
             "calculationMode",
-            "blackAdvantagePercent",
+            "firstPlayerWinRatePercent",
             "playerName",
             "originalElo",
             "effectiveElo",
             "eloDelta",
-            "blackCount",
-            "whiteCount",
-            "blackWinRatePercent",
-            "whiteWinRatePercent",
+            "firstPlayerCount",
+            "secondPlayerCount",
+            "firstPlayerWinRatePercent",
+            "secondPlayerWinRatePercent",
             "championshipProbabilityPercent",
             "averagePlace"
         };
@@ -587,16 +587,16 @@ internal static partial class Program
         var headerColumns = new List<string>
         {
             "calculationMode",
-            "blackAdvantagePercent",
+            "firstPlayerWinRatePercent",
             "playerName",
             "group",
             "originalElo",
             "effectiveElo",
             "eloDelta",
-            "blackCount",
-            "whiteCount",
-            "blackWinRatePercent",
-            "whiteWinRatePercent",
+            "firstPlayerCount",
+            "secondPlayerCount",
+            "firstPlayerWinRatePercent",
+            "secondPlayerWinRatePercent",
             "groupPlace1ProbabilityPercent",
             "groupPlaceAverage",
             "overallPlace1ProbabilityPercent",

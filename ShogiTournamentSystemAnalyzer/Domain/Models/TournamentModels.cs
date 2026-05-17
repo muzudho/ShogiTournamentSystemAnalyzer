@@ -1,5 +1,5 @@
 readonly record struct Player(string Name, double Rating);
-readonly record struct Match(int Black, int White);
+readonly record struct Match(int FirstPlayer, int SecondPlayer);
 readonly record struct PlayerScore(int PlayerIndex, int Wins);
 readonly record struct CalculationResult(double[,] PlaceProbabilities, string Mode, int? SimulationCount);
 readonly record struct ResultRow(

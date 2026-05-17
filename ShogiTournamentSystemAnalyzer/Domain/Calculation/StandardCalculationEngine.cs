@@ -28,7 +28,7 @@ internal static partial class Program
             }
 
             var match = matches[matchIndex];
-            var firstPlayerWinProbability = GetWinProbability(players[match.Black], players[match.White], firstPlayerWinRateRating);
+            var firstPlayerWinProbability = GetWinProbability(players[match.FirstPlayer], players[match.SecondPlayer], firstPlayerWinRateRating);
 
             if (usesTwillRule)
             {
@@ -36,13 +36,13 @@ internal static partial class Program
             }
             else
             {
-                wins![match.Black]++;
+                wins![match.FirstPlayer]++;
             }
 
             Explore(matchIndex + 1, scenarioProbability * firstPlayerWinProbability);
             if (tournamentRuleSetMode == TournamentRuleSetMode.Neutral)
             {
-                wins![match.Black]--;
+                wins![match.FirstPlayer]--;
             }
 
             if (usesTwillRule)
@@ -51,13 +51,13 @@ internal static partial class Program
             }
             else
             {
-                wins![match.White]++;
+                wins![match.SecondPlayer]++;
             }
 
             Explore(matchIndex + 1, scenarioProbability * (1.0 - firstPlayerWinProbability));
             if (tournamentRuleSetMode == TournamentRuleSetMode.Neutral)
             {
-                wins![match.White]--;
+                wins![match.SecondPlayer]--;
             }
         }
 
@@ -94,7 +94,7 @@ internal static partial class Program
             for (var matchIndex = 0; matchIndex < matches.Count; matchIndex++)
             {
                 var match = matches[matchIndex];
-                var firstPlayerWinProbability = GetWinProbability(players[match.Black], players[match.White], firstPlayerWinRateRating);
+                var firstPlayerWinProbability = GetWinProbability(players[match.FirstPlayer], players[match.SecondPlayer], firstPlayerWinRateRating);
                 if (Random.Shared.NextDouble() < firstPlayerWinProbability)
                 {
                     if (usesTwillRule)
@@ -103,7 +103,7 @@ internal static partial class Program
                     }
                     else
                     {
-                        wins![match.Black]++;
+                        wins![match.FirstPlayer]++;
                     }
                 }
                 else
@@ -114,7 +114,7 @@ internal static partial class Program
                     }
                     else
                     {
-                        wins![match.White]++;
+                        wins![match.SecondPlayer]++;
                     }
                 }
             }

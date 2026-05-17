@@ -130,9 +130,9 @@ internal static partial class Program
         for (var matchIndex = 0; matchIndex < matches.Count; matchIndex++)
         {
             var match = matches[matchIndex];
-            if (match.Black == match.White)
+            if (match.FirstPlayer == match.SecondPlayer)
             {
-                errorMessage = $"{matchIndex + 1} 局目で同じ選手が黒番と白番の両方に指定されています。";
+                errorMessage = $"{matchIndex + 1} 局目で同じ選手が先手と後手の両方に指定されています。";
                 return false;
             }
         }

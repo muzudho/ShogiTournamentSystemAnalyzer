@@ -46,10 +46,10 @@ internal static partial class Program
 
         var lines = new List<string>
         {
-            "black,white"
+            "first,second"
         };
 
-        lines.AddRange(matches.Select(match => $"{EscapeCsv(players[match.Black].Name)},{EscapeCsv(players[match.White].Name)}"));
+        lines.AddRange(matches.Select(match => $"{EscapeCsv(players[match.FirstPlayer].Name)},{EscapeCsv(players[match.SecondPlayer].Name)}"));
         File.WriteAllLines(outputCsvPath, lines, new UTF8Encoding(false));
     }
 

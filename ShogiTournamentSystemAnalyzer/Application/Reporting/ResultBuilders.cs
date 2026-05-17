@@ -14,15 +14,15 @@ internal static partial class Program
 
         foreach (var match in matches)
         {
-            var firstPlayerWinProbability = GetWinProbability(players[match.Black], players[match.White], firstPlayerWinRateRating);
-            firstPlayerCounts[match.Black]++;
-            secondPlayerCounts[match.White]++;
-            firstPlayerWinProbabilitySums[match.Black] += firstPlayerWinProbability;
-            secondPlayerWinProbabilitySums[match.White] += 1.0 - firstPlayerWinProbability;
-            totalWinProbabilitySums[match.Black] += firstPlayerWinProbability;
-            totalWinProbabilitySums[match.White] += 1.0 - firstPlayerWinProbability;
-            opponentRatings[match.Black].Add(players[match.White].Rating);
-            opponentRatings[match.White].Add(players[match.Black].Rating);
+            var firstPlayerWinProbability = GetWinProbability(players[match.FirstPlayer], players[match.SecondPlayer], firstPlayerWinRateRating);
+            firstPlayerCounts[match.FirstPlayer]++;
+            secondPlayerCounts[match.SecondPlayer]++;
+            firstPlayerWinProbabilitySums[match.FirstPlayer] += firstPlayerWinProbability;
+            secondPlayerWinProbabilitySums[match.SecondPlayer] += 1.0 - firstPlayerWinProbability;
+            totalWinProbabilitySums[match.FirstPlayer] += firstPlayerWinProbability;
+            totalWinProbabilitySums[match.SecondPlayer] += 1.0 - firstPlayerWinProbability;
+            opponentRatings[match.FirstPlayer].Add(players[match.SecondPlayer].Rating);
+            opponentRatings[match.SecondPlayer].Add(players[match.FirstPlayer].Rating);
         }
 
         var rows = new List<ResultRow>(players.Count);

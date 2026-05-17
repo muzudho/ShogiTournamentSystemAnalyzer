@@ -13,7 +13,7 @@ internal static partial class Program
     static (List<Player> Participants, List<Match> Matches) FilterToScheduledParticipants(IReadOnlyList<Player> participants, IReadOnlyList<Match> matches)
     {
         var activeIndexes = matches
-            .SelectMany(match => new[] { match.Black, match.White })
+            .SelectMany(match => new[] { match.FirstPlayer, match.SecondPlayer })
             .Distinct()
             .OrderBy(index => index)
             .ToList();
@@ -27,7 +27,7 @@ internal static partial class Program
             .ToList();
 
         var filteredMatches = matches
-            .Select(match => new Match(indexMap[match.Black], indexMap[match.White]))
+            .Select(match => new Match(indexMap[match.FirstPlayer], indexMap[match.SecondPlayer]))
             .ToList();
 
         return (filteredParticipants, filteredMatches);

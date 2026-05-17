@@ -116,11 +116,11 @@ internal static partial class Program
     static void PrintMatchesCsv(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, string title)
     {
         Console.WriteLine(title);
-        Console.WriteLine("black,white");
+        Console.WriteLine("first,second");
 
         foreach (var match in matches)
         {
-            Console.WriteLine($"{EscapeCsv(players[match.Black].Name)},{EscapeCsv(players[match.White].Name)}");
+            Console.WriteLine($"{EscapeCsv(players[match.FirstPlayer].Name)},{EscapeCsv(players[match.SecondPlayer].Name)}");
         }
 
         Console.WriteLine();

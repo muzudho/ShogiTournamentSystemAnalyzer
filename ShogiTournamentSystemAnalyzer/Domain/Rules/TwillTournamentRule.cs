@@ -357,25 +357,25 @@ internal static class TwillTournamentRule
 
     private static Dictionary<int, Dictionary<int, bool>> BuildOutcomeMapByPlayer(
         IReadOnlyList<Match> matches,
-        IReadOnlyList<bool> blackWins)
+        IReadOnlyList<bool> firstPlayerWins)
     {
         var outcomeMap = new Dictionary<int, Dictionary<int, bool>>();
-        foreach (var (match, blackWon) in matches.Zip(blackWins, static (match, blackWon) => (match, blackWon)))
+        foreach (var (match, firstPlayerWon) in matches.Zip(firstPlayerWins, static (match, firstPlayerWon) => (match, firstPlayerWon)))
         {
-            if (!outcomeMap.TryGetValue(match.Black, out var blackMap))
+            if (!outcomeMap.TryGetValue(match.FirstPlayer, out var firstPlayerMap))
             {
-                blackMap = new Dictionary<int, bool>();
-                outcomeMap.Add(match.Black, blackMap);
+                firstPlayerMap = new Dictionary<int, bool>();
+                outcomeMap.Add(match.FirstPlayer, firstPlayerMap);
             }
 
-            if (!outcomeMap.TryGetValue(match.White, out var whiteMap))
+            if (!outcomeMap.TryGetValue(match.SecondPlayer, out var secondPlayerMap))
             {
-                whiteMap = new Dictionary<int, bool>();
-                outcomeMap.Add(match.White, whiteMap);
+                secondPlayerMap = new Dictionary<int, bool>();
+                outcomeMap.Add(match.SecondPlayer, secondPlayerMap);
             }
 
-            blackMap[match.White] = blackWon;
-            whiteMap[match.Black] = !blackWon;
+            firstPlayerMap[match.SecondPlayer] = firstPlayerWon;
+            secondPlayerMap[match.FirstPlayer] = !firstPlayerWon;
         }
 
         return outcomeMap;

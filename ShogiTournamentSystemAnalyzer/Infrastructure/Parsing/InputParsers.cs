@@ -148,36 +148,36 @@ internal static partial class Program
                 return false;
             }
 
-            var blackName = columns[0].Trim();
-            var whiteName = columns[1].Trim();
-            if (string.IsNullOrWhiteSpace(blackName) || string.IsNullOrWhiteSpace(whiteName))
+            var firstPlayerName = columns[0].Trim();
+            var secondPlayerName = columns[1].Trim();
+            if (string.IsNullOrWhiteSpace(firstPlayerName) || string.IsNullOrWhiteSpace(secondPlayerName))
             {
-                errorMessage = $"{i + 1} 行目の黒番または白番が空です。";
+                errorMessage = $"{i + 1} 行目の先手または後手が空です。";
                 return false;
             }
 
-            if (!playerIndexes.TryGetValue(blackName, out var blackIndex))
+            if (!playerIndexes.TryGetValue(firstPlayerName, out var firstPlayerIndex))
             {
-                errorMessage = $"{i + 1} 行目の黒番 '{blackName}' が選手一覧にありません。";
+                errorMessage = $"{i + 1} 行目の先手 '{firstPlayerName}' が選手一覧にありません。";
                 return false;
             }
 
-            if (!playerIndexes.TryGetValue(whiteName, out var whiteIndex))
+            if (!playerIndexes.TryGetValue(secondPlayerName, out var secondPlayerIndex))
             {
-                errorMessage = $"{i + 1} 行目の白番 '{whiteName}' が選手一覧にありません。";
+                errorMessage = $"{i + 1} 行目の後手 '{secondPlayerName}' が選手一覧にありません。";
                 return false;
             }
 
-            if (blackIndex == whiteIndex)
+            if (firstPlayerIndex == secondPlayerIndex)
             {
                 errorMessage = $"{i + 1} 行目は同じ選手同士の対局です。";
                 return false;
             }
 
-            var match = new Match(blackIndex, whiteIndex);
+            var match = new Match(firstPlayerIndex, secondPlayerIndex);
             if (!seenPairs.Add(match))
             {
-                errorMessage = $"{i + 1} 行目の対局 '{blackName} vs {whiteName}' が重複しています。";
+                errorMessage = $"{i + 1} 行目の対局 '{firstPlayerName} vs {secondPlayerName}' が重複しています。";
                 return false;
             }
 
@@ -205,6 +205,7 @@ internal static partial class Program
             var line = rawLine.Trim();
             if (line.Equals("Round", StringComparison.OrdinalIgnoreCase)
                 || line.Equals("Black/White", StringComparison.OrdinalIgnoreCase)
+                || line.Equals("First/Second", StringComparison.OrdinalIgnoreCase)
                 || IsPlayerAliasSectionHeader(line))
             {
                 currentSectionLines = new List<string>();

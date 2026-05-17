@@ -30,7 +30,7 @@ internal static partial class Program
     static void PrintMatchesCsvExample()
     {
         Console.WriteLine("例:");
-        Console.WriteLine("black,white");
+        Console.WriteLine("first,second");
         Console.WriteLine("Alice,Bob");
         Console.WriteLine("Carol,Alice");
         Console.WriteLine("END\n");
@@ -38,13 +38,13 @@ internal static partial class Program
 
     static void PrintRoundMatrixExample()
     {
-        Console.WriteLine("Round/Black-White/対局記号表 の例:");
+        Console.WriteLine("Round/First-Second/対局記号表 の例:");
         Console.WriteLine("Round");
         Console.WriteLine(" , A, B");
         Console.WriteLine("A, -, 1");
         Console.WriteLine("B, 1, -");
         Console.WriteLine();
-        Console.WriteLine("Black/White");
+        Console.WriteLine("First/Second");
         Console.WriteLine(" , A, B");
         Console.WriteLine("A, -, b");
         Console.WriteLine("B, w, -");
