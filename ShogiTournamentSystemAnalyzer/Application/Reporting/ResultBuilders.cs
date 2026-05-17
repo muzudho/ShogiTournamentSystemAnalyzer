@@ -3,10 +3,10 @@ internal static partial class Program
     static List<ResultRow> BuildResultRows(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, CalculationResult result, double firstPlayerWinRatePercent)
     {
         var firstPlayerWinRateRating = ConvertFirstPlayerWinRatePercentToRating(firstPlayerWinRatePercent);
-        var blackCounts = new int[players.Count];
-        var whiteCounts = new int[players.Count];
-        var blackWinProbabilitySums = new double[players.Count];
-        var whiteWinProbabilitySums = new double[players.Count];
+        var firstPlayerCounts = new int[players.Count];
+        var secondPlayerCounts = new int[players.Count];
+        var firstPlayerWinProbabilitySums = new double[players.Count];
+        var secondPlayerWinProbabilitySums = new double[players.Count];
         var totalWinProbabilitySums = new double[players.Count];
         var opponentRatings = Enumerable.Range(0, players.Count)
             .Select(_ => new List<double>())
@@ -14,13 +14,13 @@ internal static partial class Program
 
         foreach (var match in matches)
         {
-            var blackWinProbability = GetWinProbability(players[match.Black], players[match.White], firstPlayerWinRateRating);
-            blackCounts[match.Black]++;
-            whiteCounts[match.White]++;
-            blackWinProbabilitySums[match.Black] += blackWinProbability;
-            whiteWinProbabilitySums[match.White] += 1.0 - blackWinProbability;
-            totalWinProbabilitySums[match.Black] += blackWinProbability;
-            totalWinProbabilitySums[match.White] += 1.0 - blackWinProbability;
+            var firstPlayerWinProbability = GetWinProbability(players[match.Black], players[match.White], firstPlayerWinRateRating);
+            firstPlayerCounts[match.Black]++;
+            secondPlayerCounts[match.White]++;
+            firstPlayerWinProbabilitySums[match.Black] += firstPlayerWinProbability;
+            secondPlayerWinProbabilitySums[match.White] += 1.0 - firstPlayerWinProbability;
+            totalWinProbabilitySums[match.Black] += firstPlayerWinProbability;
+            totalWinProbabilitySums[match.White] += 1.0 - firstPlayerWinProbability;
             opponentRatings[match.Black].Add(players[match.White].Rating);
             opponentRatings[match.White].Add(players[match.Black].Rating);
         }
@@ -30,13 +30,13 @@ internal static partial class Program
         {
             var expectedPlace = Enumerable.Range(0, players.Count)
                 .Sum(place => (place + 1) * result.PlaceProbabilities[playerIndex, place]);
-            var blackWinRate = blackCounts[playerIndex] == 0
+            var firstPlayerWinRate = firstPlayerCounts[playerIndex] == 0
                 ? (double?)null
-                : blackWinProbabilitySums[playerIndex] / blackCounts[playerIndex];
-            var whiteWinRate = whiteCounts[playerIndex] == 0
+                : firstPlayerWinProbabilitySums[playerIndex] / firstPlayerCounts[playerIndex];
+            var secondPlayerWinRate = secondPlayerCounts[playerIndex] == 0
                 ? (double?)null
-                : whiteWinProbabilitySums[playerIndex] / whiteCounts[playerIndex];
-            var matchCount = blackCounts[playerIndex] + whiteCounts[playerIndex];
+                : secondPlayerWinProbabilitySums[playerIndex] / secondPlayerCounts[playerIndex];
+            var matchCount = firstPlayerCounts[playerIndex] + secondPlayerCounts[playerIndex];
             var totalWinRate = matchCount == 0
                 ? 0.0
                 : totalWinProbabilitySums[playerIndex] / matchCount;
@@ -53,10 +53,10 @@ internal static partial class Program
                 players[playerIndex].Rating,
                 effectiveRating,
                 effectiveRating - players[playerIndex].Rating,
-                blackCounts[playerIndex],
-                whiteCounts[playerIndex],
-                blackWinRate,
-                whiteWinRate,
+                firstPlayerCounts[playerIndex],
+                secondPlayerCounts[playerIndex],
+                firstPlayerWinRate,
+                secondPlayerWinRate,
                 result.PlaceProbabilities[playerIndex, 0],
                 expectedPlace,
                 placeProbabilities,
@@ -89,8 +89,8 @@ internal static partial class Program
                     row.RatingDelta,
                     row.BlackCount,
                     row.WhiteCount,
-                    row.BlackWinRate,
-                    row.WhiteWinRate,
+                    row.FirstPlayerWinRate,
+                    row.SecondPlayerWinRate,
                     row.PlaceProbabilities[groupStartIndex],
                     groupPlaceAverage,
                     row.PlaceProbabilities[0],

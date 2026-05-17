@@ -414,7 +414,7 @@ internal static partial class Program
         File.WriteAllLines(outputCsvPath, lines, new UTF8Encoding(false));
     }
 
-    static void WriteResultCsv(string outputCsvPath, string mode, double blackAdvantagePercent, IReadOnlyList<ResultRow> resultRows)
+    static void WriteResultCsv(string outputCsvPath, string mode, double firstPlayerWinRatePercent, IReadOnlyList<ResultRow> resultRows)
     {
         var directoryPath = Path.GetDirectoryName(outputCsvPath);
         if (!string.IsNullOrWhiteSpace(directoryPath))
@@ -458,15 +458,15 @@ internal static partial class Program
             var columns = new List<string>
             {
                 mode,
-                blackAdvantagePercent.ToString("F2", CultureInfo.InvariantCulture),
+                firstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture),
                 row.Name,
                 FormatRating(row.OriginalRating),
                 FormatRating(row.EffectiveRating),
                 FormatSignedRating(row.RatingDelta),
                 row.BlackCount.ToString(CultureInfo.InvariantCulture),
                 row.WhiteCount.ToString(CultureInfo.InvariantCulture),
-                FormatOptionalPercentValue(row.BlackWinRate),
-                FormatOptionalPercentValue(row.WhiteWinRate),
+                FormatOptionalPercentValue(row.FirstPlayerWinRate),
+                FormatOptionalPercentValue(row.SecondPlayerWinRate),
                 (row.ChampionshipProbability * 100).ToString("F2", CultureInfo.InvariantCulture),
                 row.AveragePlace.ToString("F3", CultureInfo.InvariantCulture)
             };
@@ -486,7 +486,7 @@ internal static partial class Program
         File.WriteAllLines(outputCsvPath, lines, new UTF8Encoding(false));
     }
 
-    static void WriteResultMarkdown(string outputMarkdownPath, string outputCsvPath, string mode, double blackAdvantagePercent, IReadOnlyList<ResultRow> resultRows)
+    static void WriteResultMarkdown(string outputMarkdownPath, string outputCsvPath, string mode, double firstPlayerWinRatePercent, IReadOnlyList<ResultRow> resultRows)
     {
         var directoryPath = Path.GetDirectoryName(outputMarkdownPath);
         if (!string.IsNullOrWhiteSpace(directoryPath))
@@ -526,7 +526,7 @@ internal static partial class Program
             "## 概要",
             $"- 結果CSV: {BuildMarkdownFileLink(outputMarkdownPath, outputCsvPath)}",
             $"- 計算モード: {mode}",
-            $"- 同Elo対局時の先手勝率: {blackAdvantagePercent.ToString("F2", CultureInfo.InvariantCulture)}%",
+            $"- 同Elo対局時の先手勝率: {firstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture)}%",
             $"- 対象選手数: {resultRows.Count}",
             string.Empty,
             "## 注目ポイント",
@@ -575,7 +575,7 @@ internal static partial class Program
         File.WriteAllLines(outputMarkdownPath, lines, new UTF8Encoding(false));
     }
 
-    static void WriteFinalStageResultCsv(string outputCsvPath, string mode, double blackAdvantagePercent, IReadOnlyList<FinalStageResultRow> resultRows)
+    static void WriteFinalStageResultCsv(string outputCsvPath, string mode, double firstPlayerWinRatePercent, IReadOnlyList<FinalStageResultRow> resultRows)
     {
         var directoryPath = Path.GetDirectoryName(outputCsvPath);
         if (!string.IsNullOrWhiteSpace(directoryPath))
@@ -622,7 +622,7 @@ internal static partial class Program
             var columns = new List<string>
             {
                 mode,
-                blackAdvantagePercent.ToString("F2", CultureInfo.InvariantCulture),
+                firstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture),
                 row.Name,
                 row.Group,
                 FormatRating(row.OriginalRating),
@@ -630,8 +630,8 @@ internal static partial class Program
                 FormatSignedRating(row.RatingDelta),
                 row.BlackCount.ToString(CultureInfo.InvariantCulture),
                 row.WhiteCount.ToString(CultureInfo.InvariantCulture),
-                FormatOptionalPercentValue(row.BlackWinRate),
-                FormatOptionalPercentValue(row.WhiteWinRate),
+                FormatOptionalPercentValue(row.FirstPlayerWinRate),
+                FormatOptionalPercentValue(row.SecondPlayerWinRate),
                 (row.GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture),
                 row.GroupPlaceAverage.ToString("F3", CultureInfo.InvariantCulture),
                 (row.OverallPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture),
@@ -653,7 +653,7 @@ internal static partial class Program
         File.WriteAllLines(outputCsvPath, lines, new UTF8Encoding(false));
     }
 
-    static void WriteFinalStageResultMarkdown(string outputMarkdownPath, string outputCsvPath, string mode, double blackAdvantagePercent, IReadOnlyList<FinalStageResultRow> resultRows, string? referenceMatchesCsvPath = null)
+    static void WriteFinalStageResultMarkdown(string outputMarkdownPath, string outputCsvPath, string mode, double firstPlayerWinRatePercent, IReadOnlyList<FinalStageResultRow> resultRows, string? referenceMatchesCsvPath = null)
     {
         var directoryPath = Path.GetDirectoryName(outputMarkdownPath);
         if (!string.IsNullOrWhiteSpace(directoryPath))
@@ -696,7 +696,7 @@ internal static partial class Program
             "## 概要",
             $"- 結果CSV: {BuildMarkdownFileLink(outputMarkdownPath, outputCsvPath)}",
             $"- 計算モード: {mode}",
-            $"- 同Elo対局時の先手勝率: {blackAdvantagePercent.ToString("F2", CultureInfo.InvariantCulture)}%",
+            $"- 同Elo対局時の先手勝率: {firstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture)}%",
             $"- 対象選手数: {resultRows.Count}",
             string.Empty,
             "## 注目ポイント",

@@ -32,20 +32,20 @@ internal static partial class Program
         Console.WriteLine();
     }
 
-    static void PrintResult(int playerCount, CalculationResult result, double blackAdvantagePercent, IReadOnlyList<ResultRow> resultRows)
+    static void PrintResult(int playerCount, CalculationResult result, double firstPlayerWinRatePercent, IReadOnlyList<ResultRow> resultRows)
     {
         Console.WriteLine($"計算方法: {result.Mode}\n");
-        Console.WriteLine($"同Elo対局時の先手勝率: {blackAdvantagePercent.ToString("F2", CultureInfo.InvariantCulture)}%\n");
+        Console.WriteLine($"同Elo対局時の先手勝率: {firstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture)}%\n");
 
         var nameWidth = Math.Max(6, resultRows.Max(x => x.Name.Length) + 2);
         var header = "対局者".PadRight(nameWidth)
             + "元Elo".PadLeft(10)
             + "実効Elo".PadLeft(10)
             + "差分".PadLeft(10)
-            + "黒番".PadLeft(8)
-            + "白番".PadLeft(8)
-            + "黒番勝率".PadLeft(12)
-            + "白番勝率".PadLeft(12)
+            + "先手".PadLeft(8)
+            + "後手".PadLeft(8)
+            + "先手勝率".PadLeft(12)
+            + "後手勝率".PadLeft(12)
             + "優勝確率".PadLeft(12)
             + "平均順位".PadLeft(12);
 
@@ -60,8 +60,8 @@ internal static partial class Program
                 + FormatSignedRating(row.RatingDelta).PadLeft(10)
                 + row.BlackCount.ToString(CultureInfo.InvariantCulture).PadLeft(8)
                 + row.WhiteCount.ToString(CultureInfo.InvariantCulture).PadLeft(8)
-                + FormatOptionalPercent(row.BlackWinRate).PadLeft(12)
-                + FormatOptionalPercent(row.WhiteWinRate).PadLeft(12)
+                + FormatOptionalPercent(row.FirstPlayerWinRate).PadLeft(12)
+                + FormatOptionalPercent(row.SecondPlayerWinRate).PadLeft(12)
                 + FormatPercent(row.ChampionshipProbability).PadLeft(12)
                 + row.AveragePlace.ToString("F3", CultureInfo.InvariantCulture).PadLeft(12);
 
@@ -69,10 +69,10 @@ internal static partial class Program
         }
     }
 
-    static void PrintFinalStageResult(CalculationResult result, double blackAdvantagePercent, IReadOnlyList<FinalStageResultRow> resultRows)
+    static void PrintFinalStageResult(CalculationResult result, double firstPlayerWinRatePercent, IReadOnlyList<FinalStageResultRow> resultRows)
     {
         Console.WriteLine($"計算方法: {result.Mode}\n");
-        Console.WriteLine($"同Elo対局時の先手勝率: {blackAdvantagePercent.ToString("F2", CultureInfo.InvariantCulture)}%\n");
+        Console.WriteLine($"同Elo対局時の先手勝率: {firstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture)}%\n");
 
         var nameWidth = Math.Max(6, resultRows.Max(x => x.Name.Length) + 2);
         var header = "対局者".PadRight(nameWidth)
@@ -80,8 +80,8 @@ internal static partial class Program
             + "元Elo".PadLeft(10)
             + "実効Elo".PadLeft(10)
             + "差分".PadLeft(10)
-            + "黒番".PadLeft(8)
-            + "白番".PadLeft(8)
+            + "先手".PadLeft(8)
+            + "後手".PadLeft(8)
             + "群1位".PadLeft(10)
             + "群平均".PadLeft(10)
             + "総合1位".PadLeft(10)

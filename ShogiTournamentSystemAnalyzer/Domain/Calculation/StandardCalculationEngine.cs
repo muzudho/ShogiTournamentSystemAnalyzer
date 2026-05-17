@@ -28,7 +28,7 @@ internal static partial class Program
             }
 
             var match = matches[matchIndex];
-            var blackWinsProbability = GetWinProbability(players[match.Black], players[match.White], firstPlayerWinRateRating);
+            var firstPlayerWinProbability = GetWinProbability(players[match.Black], players[match.White], firstPlayerWinRateRating);
 
             if (usesTwillRule)
             {
@@ -39,7 +39,7 @@ internal static partial class Program
                 wins![match.Black]++;
             }
 
-            Explore(matchIndex + 1, scenarioProbability * blackWinsProbability);
+            Explore(matchIndex + 1, scenarioProbability * firstPlayerWinProbability);
             if (tournamentRuleSetMode == TournamentRuleSetMode.Neutral)
             {
                 wins![match.Black]--;
@@ -54,7 +54,7 @@ internal static partial class Program
                 wins![match.White]++;
             }
 
-            Explore(matchIndex + 1, scenarioProbability * (1.0 - blackWinsProbability));
+            Explore(matchIndex + 1, scenarioProbability * (1.0 - firstPlayerWinProbability));
             if (tournamentRuleSetMode == TournamentRuleSetMode.Neutral)
             {
                 wins![match.White]--;
@@ -94,8 +94,8 @@ internal static partial class Program
             for (var matchIndex = 0; matchIndex < matches.Count; matchIndex++)
             {
                 var match = matches[matchIndex];
-                var blackWinsProbability = GetWinProbability(players[match.Black], players[match.White], firstPlayerWinRateRating);
-                if (Random.Shared.NextDouble() < blackWinsProbability)
+                var firstPlayerWinProbability = GetWinProbability(players[match.Black], players[match.White], firstPlayerWinRateRating);
+                if (Random.Shared.NextDouble() < firstPlayerWinProbability)
                 {
                     if (usesTwillRule)
                     {
