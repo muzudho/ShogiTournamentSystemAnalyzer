@@ -1,0 +1,8 @@
+metricName,metricValue,note
+spearmanCorrelation,1.000000,Elo順位と期待総合順位の相関
+meanAbsoluteRankError,1.379956,期待総合順位とElo順位のずれの絶対値平均
+averageTop8Retention,8.000000,Elo上位8名が総合上位8位に残る人数の期待値
+eloTop1OverallTop1Probability,23.177613,Elo1位が総合1位になる確率(%)
+mostPenalizedPlayerDelta,2.425275,飛
+mostAdvantagedPlayerDelta,-2.451000,ひよこ
+evaluationMemo,,改善案A: 本戦不出場Apexを総合順位へ挿入しない
