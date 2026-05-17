@@ -29,6 +29,12 @@ enum VariableTop8Mode
     On,
 }
 
+enum QualityInnovExpectedRankOffsetMode
+{
+    Off,
+    On,
+}
+
 enum FinalStageGroupingMode
 {
     Off,

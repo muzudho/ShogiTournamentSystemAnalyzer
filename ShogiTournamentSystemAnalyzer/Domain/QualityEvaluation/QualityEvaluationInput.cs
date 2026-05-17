@@ -1,5 +1,7 @@
 internal readonly record struct QualityEvaluationInput(
     IReadOnlyList<Player> Participants,
     IReadOnlyList<Match> Matches,
-    IReadOnlyList<Match> ReferenceMatches);
+    IReadOnlyList<Match> ReferenceMatches,
+    QualityInnovExpectedRankOffsetMode InnovExpectedRankOffsetMode,
+    int InnovExpectedRankOffsetCount);
 

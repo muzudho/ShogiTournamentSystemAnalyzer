@@ -65,7 +65,13 @@ internal static partial class Program
                 : CalculateExactly(input.Participants, input.Matches, blackAdvantageRating, ruleDefinition.TournamentRuleSetMode);
 
         var resultRows = BuildResultRows(input.Participants, input.Matches, result, blackAdvantagePercent);
-        var qualityPlayerRows = BuildQualityPlayerRows(resultRows, ruleDefinition.GroupMap, ruleDefinition.AdditionalApexParticipants, ruleDefinition.AdditionalApexPlacementMode);
+        var qualityPlayerRows = BuildQualityPlayerRows(
+            resultRows,
+            ruleDefinition.GroupMap,
+            ruleDefinition.AdditionalApexParticipants,
+            ruleDefinition.AdditionalApexPlacementMode,
+            input.InnovExpectedRankOffsetMode,
+            input.InnovExpectedRankOffsetCount);
         var qualitySummary = BuildQualitySummary(qualityPlayerRows);
         return new QualityEvaluationRun(qualityPlayerRows, qualitySummary, result.Mode);
     }

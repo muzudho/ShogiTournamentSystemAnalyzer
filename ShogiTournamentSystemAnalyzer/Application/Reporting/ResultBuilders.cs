@@ -101,7 +101,13 @@ internal static partial class Program
             .ToList();
     }
 
-    static List<QualityPlayerRow> BuildQualityPlayerRows(IReadOnlyList<ResultRow> resultRows, IReadOnlyDictionary<string, FinalStageGroup>? groupMap, IReadOnlyList<Player> additionalApexPlayers, AdditionalApexPlacementMode placementMode)
+    static List<QualityPlayerRow> BuildQualityPlayerRows(
+        IReadOnlyList<ResultRow> resultRows,
+        IReadOnlyDictionary<string, FinalStageGroup>? groupMap,
+        IReadOnlyList<Player> additionalApexPlayers,
+        AdditionalApexPlacementMode placementMode,
+        QualityInnovExpectedRankOffsetMode innovExpectedRankOffsetMode,
+        int innovExpectedRankOffsetCount)
     {
         var allPlayers = resultRows
             .Select(row => new Player(row.Name, row.OriginalRating))
@@ -118,6 +124,11 @@ internal static partial class Program
             .Select(row =>
             {
                 var eloRank = eloRanks[row.Name];
+                var comparisonEloRank = groupMap is not null
+                    && groupMap[row.Name] == FinalStageGroup.Innov
+                    && innovExpectedRankOffsetMode == QualityInnovExpectedRankOffsetMode.On
+                    ? eloRank + innovExpectedRankOffsetCount
+                    : eloRank;
                 var overallTop8Probability = row.PlaceProbabilities.Take(Math.Min(8, row.PlaceProbabilities.Length)).Sum();
                 return new QualityPlayerRow(
                     row.Name,
@@ -125,7 +136,7 @@ internal static partial class Program
                     row.OriginalRating,
                     eloRank,
                     row.AveragePlace,
-                    row.AveragePlace - eloRank,
+                    row.AveragePlace - comparisonEloRank,
                     row.ChampionshipProbability,
                     overallTop8Probability);
             })

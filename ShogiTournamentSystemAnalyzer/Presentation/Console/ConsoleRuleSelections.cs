@@ -140,5 +140,32 @@ internal static partial class Program
             Console.WriteLine("1 か 2 を入力してください。\n");
         }
     }
+
+    static QualityInnovExpectedRankOffsetMode ReadQualityInnovExpectedRankOffsetMode()
+    {
+        Console.WriteLine("品質評価で Innov の期待順位ずれ補正を使いますか？");
+        Console.WriteLine("本戦不出場Apexを Innov より前に置く制度に合わせて、Innov の期待順位を Apex 人数ぶん後ろへずらして比較する設定です。");
+        Console.WriteLine("1. Off: 使わない");
+        Console.WriteLine("2. On: Innov の期待順位を 本戦不出場Apex人数ぶん後ろへずらす\n");
+
+        while (true)
+        {
+            Console.Write("モード番号を入力してください [1]: ");
+            var input = Console.ReadLine()?.Trim();
+            if (string.IsNullOrEmpty(input) || input == "1")
+            {
+                Console.WriteLine();
+                return QualityInnovExpectedRankOffsetMode.Off;
+            }
+
+            if (input == "2")
+            {
+                Console.WriteLine();
+                return QualityInnovExpectedRankOffsetMode.On;
+            }
+
+            Console.WriteLine("1 か 2 を入力してください。\n");
+        }
+    }
 }
 
