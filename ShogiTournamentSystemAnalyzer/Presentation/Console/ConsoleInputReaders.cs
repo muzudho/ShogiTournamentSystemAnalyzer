@@ -2,8 +2,10 @@ internal static partial class Program
 {
     static List<Match> ReadOptionalMatchesFromCsv(IReadOnlyList<Player> players, string prompt)
     {
+        var attempt = 0;
         while (true)
         {
+            attempt++;
             Console.WriteLine($"\n{prompt} 入力終了は END 行です。空のまま END で省略できます。\n");
 
             var lines = new List<string>();
@@ -34,6 +36,10 @@ internal static partial class Program
             }
 
             Console.WriteLine($"参考対局入力の読み取りに失敗しました: {errorMessage}");
+            if (attempt >= InputRetryLimit)
+            {
+                ThrowInputRetryLimitExceeded("参考対局入力", errorMessage);
+            }
             Console.WriteLine("もう一度入力してください。\n");
         }
     }
@@ -107,8 +113,10 @@ internal static partial class Program
 
     static Dictionary<string, FinalStageGroup> ReadFinalStageGroupMap()
     {
+        var attempt = 0;
         while (true)
         {
+            attempt++;
             Console.WriteLine("グループ対応CSVを貼り付けてください。入力終了は空行です。\n");
             PrintFinalStageGroupCsvExample();
 
@@ -136,14 +144,20 @@ internal static partial class Program
             }
 
             Console.WriteLine($"CSVの読み取りに失敗しました: {errorMessage}");
+            if (attempt >= InputRetryLimit)
+            {
+                ThrowInputRetryLimitExceeded("グループ対応CSV", errorMessage);
+            }
             Console.WriteLine("もう一度入力してください。\n");
         }
     }
 
     static List<Player> ReadOptionalPlayersFromCsv(string prompt)
     {
+        var attempt = 0;
         while (true)
         {
+            attempt++;
             Console.WriteLine($"{prompt} 入力終了は空行です。空のまま Enter で省略できます。\n");
             PrintOptionalPlayersCsvExample();
 
@@ -170,14 +184,20 @@ internal static partial class Program
             }
 
             Console.WriteLine($"CSVの読み取りに失敗しました: {errorMessage}");
+            if (attempt >= InputRetryLimit)
+            {
+                ThrowInputRetryLimitExceeded("選手一覧CSV", errorMessage);
+            }
             Console.WriteLine("もう一度入力してください。\n");
         }
     }
 
     static List<Player> ReadPlayersFromCsv()
     {
+        var attempt = 0;
         while (true)
         {
+            attempt++;
             Console.WriteLine("選手一覧CSVを貼り付けてください。入力終了は空行です。\n");
             PrintPlayersCsvExample();
 
@@ -210,14 +230,20 @@ internal static partial class Program
             }
 
             Console.WriteLine($"CSVの読み取りに失敗しました: {errorMessage}");
+            if (attempt >= InputRetryLimit)
+            {
+                ThrowInputRetryLimitExceeded("選手一覧CSV", errorMessage);
+            }
             Console.WriteLine("もう一度入力してください。\n");
         }
     }
 
     static List<Match> ReadMatchesFromCsv(IReadOnlyList<Player> players)
     {
+        var attempt = 0;
         while (true)
         {
+            attempt++;
             Console.WriteLine("\n対局CSVまたは Round/Black-White/対局記号表を貼り付けてください。入力終了は END 行です。\n");
             PrintMatchesCsvExample();
             PrintRoundMatrixExample();
@@ -251,6 +277,10 @@ internal static partial class Program
             }
 
             Console.WriteLine($"対局入力の読み取りに失敗しました: {errorMessage}");
+            if (attempt >= InputRetryLimit)
+            {
+                ThrowInputRetryLimitExceeded("対局入力", errorMessage);
+            }
             Console.WriteLine("もう一度入力してください。\n");
         }
     }

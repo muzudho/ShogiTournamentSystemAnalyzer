@@ -13,8 +13,10 @@ internal static partial class Program
         Console.WriteLine("1. そのまま入力する");
         Console.WriteLine("2. 入力ファイルを使う\n");
 
+        var attempt = 0;
         while (true)
         {
+            attempt++;
             Console.Write("入力方法を選んでください [1]: ");
             var input = Console.ReadLine()?.Trim();
             if (input is null)
@@ -35,14 +37,21 @@ internal static partial class Program
                 return;
             }
 
+            if (attempt >= InputRetryLimit)
+            {
+                ThrowInputRetryLimitExceeded("入力方法選択", "1 または 2 以外が入力されました");
+            }
+
             Console.WriteLine("1 か 2 を入力してください。\n");
         }
     }
 
     static string ReadInputFilePath()
     {
+        var attempt = 0;
         while (true)
         {
+            attempt++;
             Console.Write("入力ファイルのパスを入力してください: ");
             var input = Console.ReadLine()?.Trim();
             if (input is null)
@@ -52,6 +61,11 @@ internal static partial class Program
 
             if (string.IsNullOrWhiteSpace(input))
             {
+                if (attempt >= InputRetryLimit)
+                {
+                    ThrowInputRetryLimitExceeded("入力ファイルパス", "空欄のためファイルパスとして扱えません");
+                }
+
                 Console.WriteLine("ファイルパスを入力してください。\n");
                 continue;
             }

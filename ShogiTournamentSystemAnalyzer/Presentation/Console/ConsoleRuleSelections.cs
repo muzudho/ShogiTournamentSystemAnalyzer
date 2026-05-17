@@ -8,8 +8,10 @@ internal static partial class Program
         Console.WriteLine("2. Twill: 比較グラフと重箱表で順位を決める\n");
         Console.WriteLine("3. Twill+CommonOpp: 共通相手比較に信頼度を入れたツイル改良案\n");
 
+        var attempt = 0;
         while (true)
         {
+            attempt++;
             Console.Write("ルール番号を入力してください [1]: ");
             var input = Console.ReadLine()?.Trim();
             if (string.IsNullOrEmpty(input) || input == "1")
@@ -30,6 +32,11 @@ internal static partial class Program
                 return TournamentRuleSetMode.TwillCommonOpponentWeighted;
             }
 
+            if (attempt >= InputRetryLimit)
+            {
+                ThrowInputRetryLimitExceeded("順位ルール選択", "1、2、3 のいずれでもありません");
+            }
+
             Console.WriteLine("1、2、3 のいずれかを入力してください。\n");
         }
     }
@@ -40,8 +47,10 @@ internal static partial class Program
         Console.WriteLine("1. On: Apex / Innov を使う");
         Console.WriteLine("2. Off: ニュートラルに扱う\n");
 
+        var attempt = 0;
         while (true)
         {
+            attempt++;
             Console.Write("モード番号を入力してください [1]: ");
             var input = Console.ReadLine()?.Trim();
             if (string.IsNullOrEmpty(input) || input == "1")
@@ -56,6 +65,11 @@ internal static partial class Program
                 return FinalStageGroupingMode.Off;
             }
 
+            if (attempt >= InputRetryLimit)
+            {
+                ThrowInputRetryLimitExceeded("Apex / Innov の分け方", "1 または 2 以外が入力されました");
+            }
+
             Console.WriteLine("1 か 2 を入力してください。\n");
         }
     }
@@ -67,8 +81,10 @@ internal static partial class Program
         Console.WriteLine("1. Off: Innov より前に順位帯を確保する（現行案）");
         Console.WriteLine("2. On: 総合順位へ挿入しない（改善案A）\n");
 
+        var attempt = 0;
         while (true)
         {
+            attempt++;
             Console.Write("モード番号を入力してください [1]: ");
             var input = Console.ReadLine()?.Trim();
             if (string.IsNullOrEmpty(input) || input == "1")
@@ -83,6 +99,11 @@ internal static partial class Program
                 return AdditionalApexPlacementMode.On;
             }
 
+            if (attempt >= InputRetryLimit)
+            {
+                ThrowInputRetryLimitExceeded("本戦不出場Apexの扱い", "1 または 2 以外が入力されました");
+            }
+
             Console.WriteLine("1 か 2 を入力してください。\n");
         }
     }
@@ -94,8 +115,10 @@ internal static partial class Program
         Console.WriteLine("1. Off: 使わない");
         Console.WriteLine("2. On: Apex最下位相当とInnov最上位相当で救済戦を行う\n");
 
+        var attempt = 0;
         while (true)
         {
+            attempt++;
             Console.Write("モード番号を入力してください [1]: ");
             var input = Console.ReadLine()?.Trim();
             if (string.IsNullOrEmpty(input) || input == "1")
@@ -110,6 +133,11 @@ internal static partial class Program
                 return BoundaryRescueMode.On;
             }
 
+            if (attempt >= InputRetryLimit)
+            {
+                ThrowInputRetryLimitExceeded("境界救済戦", "1 または 2 以外が入力されました");
+            }
+
             Console.WriteLine("1 か 2 を入力してください。\n");
         }
     }
@@ -121,8 +149,10 @@ internal static partial class Program
         Console.WriteLine("1. Off: 使わない");
         Console.WriteLine("2. On: 本戦不出場Apex人数ぶんだけ Innov 上位を総合上位8へ引っ張り上げる\n");
 
+        var attempt = 0;
         while (true)
         {
+            attempt++;
             Console.Write("モード番号を入力してください [1]: ");
             var input = Console.ReadLine()?.Trim();
             if (string.IsNullOrEmpty(input) || input == "1")
@@ -137,6 +167,11 @@ internal static partial class Program
                 return VariableTop8Mode.On;
             }
 
+            if (attempt >= InputRetryLimit)
+            {
+                ThrowInputRetryLimitExceeded("可変定員8ルール", "1 または 2 以外が入力されました");
+            }
+
             Console.WriteLine("1 か 2 を入力してください。\n");
         }
     }
@@ -148,8 +183,10 @@ internal static partial class Program
         Console.WriteLine("1. Off: 使わない");
         Console.WriteLine("2. On: Innov の期待順位を 本戦不出場Apex人数ぶん後ろへずらす\n");
 
+        var attempt = 0;
         while (true)
         {
+            attempt++;
             Console.Write("モード番号を入力してください [1]: ");
             var input = Console.ReadLine()?.Trim();
             if (string.IsNullOrEmpty(input) || input == "1")
@@ -162,6 +199,11 @@ internal static partial class Program
             {
                 Console.WriteLine();
                 return QualityInnovExpectedRankOffsetMode.On;
+            }
+
+            if (attempt >= InputRetryLimit)
+            {
+                ThrowInputRetryLimitExceeded("品質評価の Innov 比較基準順位補正", "1 または 2 以外が入力されました");
             }
 
             Console.WriteLine("1 か 2 を入力してください。\n");

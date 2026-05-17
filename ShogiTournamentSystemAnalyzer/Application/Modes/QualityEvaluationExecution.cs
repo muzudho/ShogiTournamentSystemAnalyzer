@@ -82,40 +82,52 @@ internal static partial class Program
     {
         var sweepOptions = ReadQualitySweepOptions();
 
-        int? simulationCount = null;
-        if (!ruleDefinition.UsesFinalStageGrouping)
+        if (!sweepOptions.IsEnabled)
         {
-            if (input.Matches.Count <= 20)
+            var blackAdvantagePercent = ReadDoubleWithDefaultInRange(
+                "同Elo対局時の先手勝率(%)を入力してください [51]: ",
+                51.0,
+                0.0,
+                100.0);
+            Console.WriteLine();
+
+            int? simulationCount = null;
+            if (!ruleDefinition.UsesFinalStageGrouping)
             {
-                Console.WriteLine($"{TournamentRuleSetRule.GetLabel(ruleDefinition.TournamentRuleSetMode)} の品質評価用厳密計算を行います。\n");
+                if (input.Matches.Count <= 20)
+                {
+                    Console.WriteLine($"{TournamentRuleSetRule.GetLabel(ruleDefinition.TournamentRuleSetMode)} の品質評価用厳密計算を行います。\n");
+                }
+                else
+                {
+                    const int defaultSimulationCount = 200_000;
+                    simulationCount = ReadIntWithDefault(
+                        $"局数が多いため {TournamentRuleSetRule.GetLabel(ruleDefinition.TournamentRuleSetMode)} の品質評価用シミュレーションで近似します。試行回数を入力してください [{defaultSimulationCount}]: ",
+                        defaultSimulationCount,
+                        min: 1);
+
+                    Console.WriteLine();
+                }
+            }
+            else if (input.Matches.Count <= 20)
+            {
+                Console.WriteLine("品質評価用の厳密計算を行います。\n");
             }
             else
             {
                 const int defaultSimulationCount = 200_000;
                 simulationCount = ReadIntWithDefault(
-                    $"局数が多いため {TournamentRuleSetRule.GetLabel(ruleDefinition.TournamentRuleSetMode)} の品質評価用シミュレーションで近似します。試行回数を入力してください [{defaultSimulationCount}]: ",
+                    $"局数が多いため品質評価用シミュレーションで近似します。試行回数を入力してください [{defaultSimulationCount}]: ",
                     defaultSimulationCount,
                     min: 1);
 
                 Console.WriteLine();
             }
-        }
-        else if (input.Matches.Count <= 20)
-        {
-            Console.WriteLine("品質評価用の厳密計算を行います。\n");
-        }
-        else
-        {
-            const int defaultSimulationCount = 200_000;
-            simulationCount = ReadIntWithDefault(
-                $"局数が多いため品質評価用シミュレーションで近似します。試行回数を入力してください [{defaultSimulationCount}]: ",
-                defaultSimulationCount,
-                min: 1);
 
-            Console.WriteLine();
+            return new QualityEvaluationExecutionOptions(simulationCount, sweepOptions, blackAdvantagePercent);
         }
 
-        return new QualityEvaluationExecutionOptions(simulationCount, sweepOptions, null);
+        return new QualityEvaluationExecutionOptions(null, sweepOptions, null);
     }
 
     static QualitySweepOptions ReadQualitySweepOptions()
@@ -125,8 +137,10 @@ internal static partial class Program
         Console.WriteLine("1. 単発評価");
         Console.WriteLine("2. n% スイープ実験\n");
 
+        var attempt = 0;
         while (true)
         {
+            attempt++;
             Console.Write("実行方法を入力してください [1]: ");
             var input = Console.ReadLine()?.Trim();
             if (string.IsNullOrEmpty(input) || input == "1")
@@ -154,6 +168,11 @@ internal static partial class Program
 
                     return new QualitySweepOptions(true, startPercent, endPercent, stepPercent);
                 }
+            }
+
+            if (attempt >= InputRetryLimit)
+            {
+                ThrowInputRetryLimitExceeded("品質評価の実行方法", "1 または 2 以外が入力されました");
             }
 
             Console.WriteLine("1 か 2 を入力してください。\n");
