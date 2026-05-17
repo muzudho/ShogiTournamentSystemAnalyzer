@@ -343,7 +343,7 @@ black,white
 #[EndSection]
 
 #[Section] ReferenceMatchesInput
-black,white
+first,second
 銀,金
 #[EndSection]
 ```
@@ -372,7 +372,7 @@ Bob,1480
 #[EndSection]
 
 #[Section] MatchesInput
-black,white
+first,second
 Alice,Bob
 #[EndSection]
 ```
