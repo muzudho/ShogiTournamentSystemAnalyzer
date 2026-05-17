@@ -35,8 +35,8 @@ internal static class TwillTournamentRule
         for (var matchIndex = 0; matchIndex < matches.Count; matchIndex++)
         {
             var match = matches[matchIndex];
-            var blackNode = GetBlackNodeIndex(match.Black);
-            var whiteNode = GetWhiteNodeIndex(match.White);
+            var blackNode = GetBlackNodeIndex(match.FirstPlayer);
+            var whiteNode = GetWhiteNodeIndex(match.SecondPlayer);
             var fromNode = blackWins[matchIndex] ? whiteNode : blackNode;
             var toNode = blackWins[matchIndex] ? blackNode : whiteNode;
             adjacency[fromNode].Add(toNode);
@@ -278,12 +278,12 @@ internal static class TwillTournamentRule
         var directWins = group.ToDictionary(participantIndex => participantIndex, _ => 0);
         foreach (var (match, blackWon) in matches.Zip(blackWins, static (match, blackWon) => (match, blackWon)))
         {
-            if (!groupSet.Contains(match.Black) || !groupSet.Contains(match.White))
+            if (!groupSet.Contains(match.FirstPlayer) || !groupSet.Contains(match.SecondPlayer))
             {
                 continue;
             }
 
-            var winnerIndex = blackWon ? match.Black : match.White;
+            var winnerIndex = blackWon ? match.FirstPlayer : match.SecondPlayer;
             directWins[winnerIndex]++;
         }
 

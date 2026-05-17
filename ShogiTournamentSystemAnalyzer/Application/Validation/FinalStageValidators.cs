@@ -95,8 +95,8 @@ internal static partial class Program
         for (var matchIndex = 0; matchIndex < matches.Count; matchIndex++)
         {
             var match = matches[matchIndex];
-            var blackParticipant = participants[match.Black];
-            var whiteParticipant = participants[match.White];
+            var blackParticipant = participants[match.FirstPlayer];
+            var whiteParticipant = participants[match.SecondPlayer];
 
             var blackGroup = groupMap[blackParticipant.Name];
             var whiteGroup = groupMap[whiteParticipant.Name];
