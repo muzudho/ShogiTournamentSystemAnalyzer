@@ -57,6 +57,18 @@
 そこで、このプロジェクトでは大会システム分析用の抽象化として、順位計算や対局表の対象になる主体を、基本的に  **選手（Player）** という言葉を使っています。  
 
 
+## むずでょの仮定：　`［大会ルール］だけで、［先手勝率問題］を解決できる`
+
+このプロジェクトは、 `［大会ルール］だけで、［先手勝率問題］を解決できる` という仮定のもとに進めています。  
+仮定ですから、結果は以下の３つです。
+
+* 成立する
+* 成立しない
+* まだ決着しない
+
+どの結果になるかを確かめるのが、このプロジェクトの１番の目的です。  
+
+
 ## このツールでできること
 
 - 大会ルールの案を、シミュレーションで比較できる
@@ -157,7 +169,7 @@ dotnet run --project .\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyz
 
 ## 入力ファイルとレポートの置き場
 - `ShogiTournamentSystemAnalyzer/Examples`
-  - 人が読むためのサンプル CSV とメモ
+	- 人が読むための見本、対局記号表、メモ
 - `ShogiTournamentSystemAnalyzer/Data/Inputs`
   - `--input-file` で流す実行用入力ファイル
   - `Smoke`: 1 回や少数回のスモークテスト用
@@ -165,6 +177,10 @@ dotnet run --project .\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyz
   - `Sweeps`: n% スイープ実験用
 - `ShogiTournamentSystemAnalyzer/Data/Players`
   - 年度別・地域別の選手名とレーティングを置く場所
+- `ShogiTournamentSystemAnalyzer/Data/Matches`
+  - 再利用する対局表、参考対局表を置く場所
+- `ShogiTournamentSystemAnalyzer/Data/FinalStage`
+  - 本戦専用モードのグループ対応表や補助CSVを置く場所
 - `ShogiTournamentSystemAnalyzer/Data/RuleSets`
   - 保存して再利用する大会ルールを置く場所
 - `docs/Reports`

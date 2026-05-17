@@ -1,0 +1,19 @@
+# FinalStage
+
+このフォルダーは、本戦専用モードで再利用する補助 CSV を置く場所です。
+
+## 想定しているデータ
+- グループ対応表
+- 本戦不出場Apex一覧
+
+例:
+- `group_map_[本戦専用_黒8x白8].csv`
+- `group_map_[本戦専用_トップ集団小さめ].csv`
+- `additional_apex_[黒8x白8_2名].csv`
+
+## 位置づけ
+- `Data/Inputs`: 実行用入力ファイル
+- `Data/Players`: 再利用する選手データ
+- `Data/Matches`: 再利用する対局データ
+- `Data/FinalStage`: 本戦専用の補助データ
+- `Data/RuleSets`: 保存して再利用する大会ルール
