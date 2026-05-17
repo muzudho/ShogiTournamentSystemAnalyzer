@@ -46,7 +46,7 @@ name,elo
 "補B",4885
 #[Enter]
 #[Prompt] 本戦不出場Apexの扱いを選んでください [1]
-1
+2
 #[Prompt] 境界救済戦を使いますか？ [1]
 1
 #[Prompt] 可変定員8ルールを使いますか？ [1]
@@ -112,7 +112,7 @@ END
 #[Prompt] 参考対局CSVまたは Round/Black-White/対局記号表を貼り付けてください。空のまま END で省略できます。
 END
 #[Prompt] 品質評価で Innov の期待順位ずれ補正を使いますか？ [1]
-2
+1
 #[Prompt] 品質評価の実行方法を入力してください [1]
 1
 #[Prompt] 同Elo対局時の先手勝率(%)を入力してください [51]
@@ -122,8 +122,8 @@ END
 #[Prompt] 実験レポートの Good / Bad 分離を使いますか？ [1]
 2
 #[Prompt] 今回の案の評価を選んでください [1]
-2
+1
 #[Prompt] 評価メモを1行で入力してください
-現行案を品質評価の比較基準順位補正つきで再評価
+改善案A: 本戦不出場Apexを総合順位へ挿入しない
 #[Prompt] 品質評価サマリーCSVの出力先パスまたはフォルダーパスを入力してください
-E:\github.com\muzudho\ShogiTournamentSystemAnalyzer\docs\Reports\Bad\quality_summary_[黒8x白8_本戦不出場Apexあり]_[Off_QualityInnovOffsetOn].csv
+E:\github.com\muzudho\ShogiTournamentSystemAnalyzer\docs\Reports\Good\quality_summary_[黒8x白8_本戦不出場Apexあり]_[On]_modern.csv

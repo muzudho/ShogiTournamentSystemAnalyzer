@@ -148,6 +148,11 @@ internal static partial class Program
 
             if (lines.Count == 0)
             {
+                if (attempt >= InputRetryLimit)
+                {
+                    ThrowInputRetryLimitExceeded("グループ対応CSV", "CSVが入力されていません");
+                }
+
                 Console.WriteLine("CSVが入力されていません。再入力してください。\n");
                 continue;
             }
@@ -234,6 +239,11 @@ internal static partial class Program
 
             if (lines.Count == 0)
             {
+                if (attempt >= InputRetryLimit)
+                {
+                    ThrowInputRetryLimitExceeded("選手一覧CSV", "CSVが入力されていません");
+                }
+
                 Console.WriteLine("CSVが入力されていません。再入力してください。\n");
                 continue;
             }
@@ -281,6 +291,11 @@ internal static partial class Program
 
             if (lines.Count == 0)
             {
+                if (attempt >= InputRetryLimit)
+                {
+                    ThrowInputRetryLimitExceeded("対局入力", "対局入力が入力されていません");
+                }
+
                 Console.WriteLine("対局入力が入力されていません。再入力してください。\n");
                 continue;
             }

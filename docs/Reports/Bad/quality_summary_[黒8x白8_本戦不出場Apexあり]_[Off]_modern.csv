@@ -1,0 +1,8 @@
+metricName,metricValue,note
+spearmanCorrelation,0.771996,Elo順位と期待総合順位の相関
+meanAbsoluteRankError,2.996047,期待総合順位とElo順位のずれの絶対値平均
+averageTop8Retention,8.000000,Elo上位8名が総合上位8位に残る人数の期待値
+eloTop1OverallTop1Probability,22.652994,Elo1位が総合1位になる確率(%)
+mostPenalizedPlayerDelta,2.459750,飛
+mostAdvantagedPlayerDelta,-9.687516,ひよこ
+evaluationMemo,,現行案: 本戦不出場Apexを Innov より前の順位帯へ挿入する
