@@ -1,5 +1,5 @@
 # STSAInput/2 draft example
-# このファイルは仕様確認用の試作です。現時点では実行互換を保証しません。
+# このファイルは STSAInput/2 の最小パーサー確認用です。
 #[Format] STSAInput/2
 
 #[Section] Meta
@@ -13,7 +13,7 @@ QualityInnovExpectedRankOffsetMode=On
 ExecutionMode=Single
 SimulationCount=20000
 FirstPlayerWinRatePercent=51
-ExperimentalReportOutcome=GoodBadSeparated
+ExperimentalReportGrouping=Off
 #[EndSection]
 
 #[Section] PlayersCsv
@@ -121,6 +121,6 @@ P, "ねこ"
 #[EndSection]
 
 #[Section] Output
-ExperimentalReportOutcome=GoodBadSeparated
+ExperimentalReportGrouping=Off
 SummaryOutputPath=E:\github.com\muzudho\ShogiTournamentSystemAnalyzer\docs\Reports\quality_summary_[トップ集団大きめ].csv
 #[EndSection]

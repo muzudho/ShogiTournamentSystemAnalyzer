@@ -107,16 +107,344 @@ internal static partial class Program
             throw new OperationCanceledException($"入力ファイルが見つかりません: {fullPath}");
         }
 
-        var filteredLines = File.ReadLines(fullPath)
+        var rawLines = File.ReadAllLines(fullPath);
+        var filteredInput = IsStsaInput2(rawLines)
+            ? ConvertStsaInput2ToLegacyInput(rawLines, fullPath)
+            : ConvertLegacyInputFileToFilteredInput(rawLines);
+
+        Console.SetIn(new StringReader(filteredInput));
+        Console.WriteLine($"入力ファイルを使います: {fullPath}\n");
+    }
+
+    static bool IsStsaInput2(IReadOnlyList<string> rawLines)
+    {
+        return rawLines.Any(line => line.Trim().Equals("#[Format] STSAInput/2", StringComparison.OrdinalIgnoreCase));
+    }
+
+    static string ConvertLegacyInputFileToFilteredInput(IEnumerable<string> rawLines)
+    {
+        var filteredLines = rawLines
             .Select(line => line.Trim().Equals("#[Enter]", StringComparison.OrdinalIgnoreCase)
                 ? string.Empty
                 : line)
             .Where(line => !line.TrimStart().StartsWith('#'));
 
-        var filteredInput = string.Join(Environment.NewLine, filteredLines);
+        return string.Join(Environment.NewLine, filteredLines);
+    }
 
-        Console.SetIn(new StringReader(filteredInput));
-        Console.WriteLine($"入力ファイルを使います: {fullPath}\n");
+    static string ConvertStsaInput2ToLegacyInput(IReadOnlyList<string> rawLines, string fullPath)
+    {
+        var sections = ParseStsaInput2Sections(rawLines, fullPath);
+        var meta = ParseSectionKeyValues(GetRequiredSectionLines(sections, "Meta", fullPath), "Meta", fullPath);
+        var analysisFlowMode = ParseAnalysisFlowMode(GetRequiredMetaValue(meta, "AnalysisFlowMode", fullPath));
+        var ruleProfileMode = ParseRuleProfileMode(GetRequiredMetaValue(meta, "RuleProfileMode", fullPath));
+
+        if (analysisFlowMode != AnalysisFlowMode.QualityEvaluation || ruleProfileMode != RuleProfileMode.FinalStage)
+        {
+            throw new OperationCanceledException("STSAInput/2 の最小対応は、現在のところ『品質評価 / 本戦ルール』のみです。");
+        }
+
+        return ConvertStsaInput2QualityEvaluationFinalStage(meta, sections, fullPath);
+    }
+
+    static Dictionary<string, List<string>> ParseStsaInput2Sections(IReadOnlyList<string> rawLines, string fullPath)
+    {
+        var sections = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+        List<string>? currentLines = null;
+        string? currentSectionName = null;
+        var formatFound = false;
+
+        foreach (var rawLine in rawLines)
+        {
+            var trimmed = rawLine.Trim();
+            if (string.IsNullOrWhiteSpace(trimmed))
+            {
+                currentLines?.Add(string.Empty);
+                continue;
+            }
+
+            if (trimmed.Equals("#[Format] STSAInput/2", StringComparison.OrdinalIgnoreCase))
+            {
+                formatFound = true;
+                continue;
+            }
+
+            if (trimmed.StartsWith("#[Section]", StringComparison.OrdinalIgnoreCase))
+            {
+                if (currentLines is not null)
+                {
+                    throw new OperationCanceledException($"STSAInput/2 のセクション '{currentSectionName}' が #[EndSection] で閉じられていません: {fullPath}");
+                }
+
+                var sectionName = trimmed[11..].Trim();
+                if (string.IsNullOrWhiteSpace(sectionName))
+                {
+                    throw new OperationCanceledException($"STSAInput/2 の #[Section] にセクション名がありません: {fullPath}");
+                }
+
+                if (sections.ContainsKey(sectionName))
+                {
+                    throw new OperationCanceledException($"STSAInput/2 のセクション '{sectionName}' が重複しています: {fullPath}");
+                }
+
+                currentSectionName = sectionName;
+                currentLines = new List<string>();
+                continue;
+            }
+
+            if (trimmed.Equals("#[EndSection]", StringComparison.OrdinalIgnoreCase))
+            {
+                if (currentLines is null || currentSectionName is null)
+                {
+                    throw new OperationCanceledException($"STSAInput/2 の #[EndSection] に対応する #[Section] がありません: {fullPath}");
+                }
+
+                sections[currentSectionName] = currentLines;
+                currentLines = null;
+                currentSectionName = null;
+                continue;
+            }
+
+            if (trimmed.StartsWith('#'))
+            {
+                continue;
+            }
+
+            if (currentLines is null)
+            {
+                throw new OperationCanceledException($"STSAInput/2 の制御タグ外に本文があります: {rawLine}");
+            }
+
+            currentLines.Add(rawLine);
+        }
+
+        if (!formatFound)
+        {
+            throw new OperationCanceledException($"STSAInput/2 の #[Format] 宣言が見つかりません: {fullPath}");
+        }
+
+        if (currentLines is not null)
+        {
+            throw new OperationCanceledException($"STSAInput/2 のセクション '{currentSectionName}' が #[EndSection] で閉じられていません: {fullPath}");
+        }
+
+        return sections;
+    }
+
+    static Dictionary<string, string> ParseSectionKeyValues(IReadOnlyList<string> lines, string sectionName, string fullPath)
+    {
+        var values = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var line in lines)
+        {
+            var trimmed = line.Trim();
+            if (string.IsNullOrWhiteSpace(trimmed) || trimmed.StartsWith('#'))
+            {
+                continue;
+            }
+
+            var separatorIndex = line.IndexOf('=');
+            if (separatorIndex <= 0)
+            {
+                throw new OperationCanceledException($"STSAInput/2 の {sectionName} セクションで key=value 形式ではない行があります: {line} ({fullPath})");
+            }
+
+            var key = line[..separatorIndex].Trim();
+            var value = line[(separatorIndex + 1)..].Trim();
+            if (values.ContainsKey(key))
+            {
+                throw new OperationCanceledException($"STSAInput/2 の {sectionName} セクションでキー '{key}' が重複しています: {fullPath}");
+            }
+
+            values[key] = value;
+        }
+
+        return values;
+    }
+
+    static IReadOnlyList<string> GetRequiredSectionLines(Dictionary<string, List<string>> sections, string sectionName, string fullPath)
+    {
+        if (!sections.TryGetValue(sectionName, out var lines))
+        {
+            throw new OperationCanceledException($"STSAInput/2 の必須セクション '{sectionName}' がありません: {fullPath}");
+        }
+
+        return lines;
+    }
+
+    static IReadOnlyList<string> GetOptionalSectionLines(Dictionary<string, List<string>> sections, string sectionName)
+    {
+        return sections.TryGetValue(sectionName, out var lines)
+            ? lines
+            : Array.Empty<string>();
+    }
+
+    static string GetRequiredMetaValue(Dictionary<string, string> meta, string key, string fullPath)
+    {
+        if (!meta.TryGetValue(key, out var value) || string.IsNullOrWhiteSpace(value))
+        {
+            throw new OperationCanceledException($"STSAInput/2 の Meta セクションに必須キー '{key}' がありません: {fullPath}");
+        }
+
+        return value;
+    }
+
+    static string? GetOptionalMetaValue(Dictionary<string, string> meta, string key)
+    {
+        return meta.TryGetValue(key, out var value)
+            ? value
+            : null;
+    }
+
+    static string ConvertStsaInput2QualityEvaluationFinalStage(
+        Dictionary<string, string> meta,
+        Dictionary<string, List<string>> sections,
+        string fullPath)
+    {
+        var legacyLines = new List<string>
+        {
+            "2",
+            "2"
+        };
+
+        AppendDelimitedSection(legacyLines, GetRequiredSectionLines(sections, "PlayersCsv", fullPath));
+        AppendDelimitedSection(legacyLines, GetRequiredSectionLines(sections, "GroupMapCsv", fullPath));
+        AppendDelimitedSection(legacyLines, GetOptionalSectionLines(sections, "AdditionalApexPlayersCsv"));
+        legacyLines.Add(ParseOffOnSelection(GetRequiredMetaValue(meta, "AdditionalApexPlacementMode", fullPath), offNumber: "1", onNumber: "2", "AdditionalApexPlacementMode"));
+        legacyLines.Add(ParseOffOnSelection(GetRequiredMetaValue(meta, "BoundaryRescueMode", fullPath), offNumber: "1", onNumber: "2", "BoundaryRescueMode"));
+        legacyLines.Add(ParseOffOnSelection(GetRequiredMetaValue(meta, "VariableTop8Mode", fullPath), offNumber: "1", onNumber: "2", "VariableTop8Mode"));
+        AppendEndTerminatedSection(legacyLines, GetRequiredSectionLines(sections, "MatchesInput", fullPath));
+        AppendEndTerminatedSection(legacyLines, GetOptionalSectionLines(sections, "ReferenceMatchesInput"));
+        legacyLines.Add(ParseOffOnSelection(GetRequiredMetaValue(meta, "QualityInnovExpectedRankOffsetMode", fullPath), offNumber: "1", onNumber: "2", "QualityInnovExpectedRankOffsetMode"));
+
+        var executionModeValue = GetRequiredMetaValue(meta, "ExecutionMode", fullPath);
+        var isSweep = executionModeValue.Equals("Sweep", StringComparison.OrdinalIgnoreCase) || executionModeValue == "2";
+        legacyLines.Add(isSweep ? "2" : "1");
+        if (!isSweep)
+        {
+            legacyLines.Add(GetRequiredMetaValue(meta, "FirstPlayerWinRatePercent", fullPath));
+            var simulationCount = GetOptionalMetaValue(meta, "SimulationCount");
+            if (!string.IsNullOrWhiteSpace(simulationCount))
+            {
+                legacyLines.Add(simulationCount);
+            }
+        }
+        else
+        {
+            legacyLines.Add(GetRequiredMetaValue(meta, "SweepStartPercent", fullPath));
+            legacyLines.Add(GetRequiredMetaValue(meta, "SweepEndPercent", fullPath));
+            legacyLines.Add(GetRequiredMetaValue(meta, "SweepStepPercent", fullPath));
+        }
+
+        var output = sections.TryGetValue("Output", out var outputLines)
+            ? ParseSectionKeyValues(outputLines, "Output", fullPath)
+            : new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        var groupingMode = GetOptionalMetaValue(output, "ExperimentalReportGrouping")
+            ?? GetOptionalMetaValue(meta, "ExperimentalReportGrouping")
+            ?? "Off";
+        var groupingEnabled = groupingMode.Equals("On", StringComparison.OrdinalIgnoreCase) || groupingMode == "2";
+        legacyLines.Add(groupingEnabled ? "2" : "1");
+        if (groupingEnabled)
+        {
+            var outcomeValue = GetOptionalMetaValue(output, "ExperimentalReportOutcome")
+                ?? GetOptionalMetaValue(meta, "ExperimentalReportOutcome")
+                ?? "Good";
+            legacyLines.Add(ParseGoodBadSelection(outcomeValue, "ExperimentalReportOutcome"));
+            legacyLines.Add(GetOptionalMetaValue(output, "EvaluationMemo")
+                ?? GetOptionalMetaValue(meta, "EvaluationMemo")
+                ?? string.Empty);
+        }
+
+        var outputPath = GetOptionalMetaValue(output, "SummaryOutputPath")
+            ?? GetOptionalMetaValue(output, "OutputPath")
+            ?? GetOptionalMetaValue(meta, "SummaryOutputPath")
+            ?? GetOptionalMetaValue(meta, "OutputPath");
+        if (string.IsNullOrWhiteSpace(outputPath))
+        {
+            throw new OperationCanceledException($"STSAInput/2 の Output セクションまたは Meta セクションに出力先パスがありません: {fullPath}");
+        }
+
+        legacyLines.Add(outputPath);
+        return string.Join(Environment.NewLine, legacyLines);
+    }
+
+    static void AppendDelimitedSection(List<string> destination, IReadOnlyList<string> lines)
+    {
+        foreach (var line in lines)
+        {
+            destination.Add(line);
+        }
+
+        destination.Add(string.Empty);
+    }
+
+    static void AppendEndTerminatedSection(List<string> destination, IReadOnlyList<string> lines)
+    {
+        foreach (var line in lines)
+        {
+            destination.Add(line);
+        }
+
+        destination.Add("END");
+    }
+
+    static AnalysisFlowMode ParseAnalysisFlowMode(string value)
+    {
+        if (value.Equals("QualityEvaluation", StringComparison.OrdinalIgnoreCase) || value == "2")
+        {
+            return AnalysisFlowMode.QualityEvaluation;
+        }
+
+        if (value.Equals("Simulation", StringComparison.OrdinalIgnoreCase) || value == "1")
+        {
+            return AnalysisFlowMode.Simulation;
+        }
+
+        throw new OperationCanceledException($"STSAInput/2 の AnalysisFlowMode の値が解釈できません: {value}");
+    }
+
+    static RuleProfileMode ParseRuleProfileMode(string value)
+    {
+        if (value.Equals("FinalStage", StringComparison.OrdinalIgnoreCase) || value == "2")
+        {
+            return RuleProfileMode.FinalStage;
+        }
+
+        if (value.Equals("Standard", StringComparison.OrdinalIgnoreCase) || value == "1")
+        {
+            return RuleProfileMode.Standard;
+        }
+
+        throw new OperationCanceledException($"STSAInput/2 の RuleProfileMode の値が解釈できません: {value}");
+    }
+
+    static string ParseOffOnSelection(string value, string offNumber, string onNumber, string keyName)
+    {
+        if (value.Equals("Off", StringComparison.OrdinalIgnoreCase) || value == offNumber)
+        {
+            return offNumber;
+        }
+
+        if (value.Equals("On", StringComparison.OrdinalIgnoreCase) || value == onNumber)
+        {
+            return onNumber;
+        }
+
+        throw new OperationCanceledException($"STSAInput/2 の {keyName} の値が解釈できません: {value}");
+    }
+
+    static string ParseGoodBadSelection(string value, string keyName)
+    {
+        if (value.Equals("Good", StringComparison.OrdinalIgnoreCase) || value == "1")
+        {
+            return "1";
+        }
+
+        if (value.Equals("Bad", StringComparison.OrdinalIgnoreCase) || value == "2")
+        {
+            return "2";
+        }
+
+        throw new OperationCanceledException($"STSAInput/2 の {keyName} の値が解釈できません: {value}");
     }
 }
 
