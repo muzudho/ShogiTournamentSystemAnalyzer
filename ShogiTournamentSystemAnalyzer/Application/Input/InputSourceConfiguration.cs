@@ -139,12 +139,14 @@ internal static partial class Program
         var analysisFlowMode = ParseAnalysisFlowMode(GetRequiredMetaValue(meta, "AnalysisFlowMode", fullPath));
         var ruleProfileMode = ParseRuleProfileMode(GetRequiredMetaValue(meta, "RuleProfileMode", fullPath));
 
-        if (analysisFlowMode != AnalysisFlowMode.QualityEvaluation || ruleProfileMode != RuleProfileMode.FinalStage)
+        if (analysisFlowMode != AnalysisFlowMode.QualityEvaluation)
         {
-            throw new OperationCanceledException("STSAInput/2 の最小対応は、現在のところ『品質評価 / 本戦ルール』のみです。");
+            throw new OperationCanceledException("STSAInput/2 の最小対応は、現在のところ『品質評価』のみです。");
         }
 
-        return ConvertStsaInput2QualityEvaluationFinalStage(meta, sections, fullPath);
+        return ruleProfileMode == RuleProfileMode.FinalStage
+            ? ConvertStsaInput2QualityEvaluationFinalStage(meta, sections, fullPath)
+            : ConvertStsaInput2QualityEvaluationStandard(meta, sections, fullPath);
     }
 
     static Dictionary<string, List<string>> ParseStsaInput2Sections(IReadOnlyList<string> rawLines, string fullPath)
@@ -367,6 +369,73 @@ internal static partial class Program
         return string.Join(Environment.NewLine, legacyLines);
     }
 
+    static string ConvertStsaInput2QualityEvaluationStandard(
+        Dictionary<string, string> meta,
+        Dictionary<string, List<string>> sections,
+        string fullPath)
+    {
+        var legacyLines = new List<string>
+        {
+            "2",
+            "1"
+        };
+
+        AppendDelimitedSection(legacyLines, GetRequiredSectionLines(sections, "PlayersCsv", fullPath));
+        legacyLines.Add(ParseTournamentRuleSetSelection(GetRequiredMetaValue(meta, "TournamentRuleSetMode", fullPath)));
+        AppendEndTerminatedSection(legacyLines, GetRequiredSectionLines(sections, "MatchesInput", fullPath));
+        AppendEndTerminatedSection(legacyLines, GetOptionalSectionLines(sections, "ReferenceMatchesInput"));
+
+        var executionModeValue = GetRequiredMetaValue(meta, "ExecutionMode", fullPath);
+        var isSweep = executionModeValue.Equals("Sweep", StringComparison.OrdinalIgnoreCase) || executionModeValue == "2";
+        legacyLines.Add(isSweep ? "2" : "1");
+        if (!isSweep)
+        {
+            legacyLines.Add(GetRequiredMetaValue(meta, "FirstPlayerWinRatePercent", fullPath));
+            var simulationCount = GetOptionalMetaValue(meta, "SimulationCount");
+            if (!string.IsNullOrWhiteSpace(simulationCount))
+            {
+                legacyLines.Add(simulationCount);
+            }
+        }
+        else
+        {
+            legacyLines.Add(GetRequiredMetaValue(meta, "SweepStartPercent", fullPath));
+            legacyLines.Add(GetRequiredMetaValue(meta, "SweepEndPercent", fullPath));
+            legacyLines.Add(GetRequiredMetaValue(meta, "SweepStepPercent", fullPath));
+        }
+
+        var output = sections.TryGetValue("Output", out var outputLines)
+            ? ParseSectionKeyValues(outputLines, "Output", fullPath)
+            : new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        var groupingMode = GetOptionalMetaValue(output, "ExperimentalReportGrouping")
+            ?? GetOptionalMetaValue(meta, "ExperimentalReportGrouping")
+            ?? "Off";
+        var groupingEnabled = groupingMode.Equals("On", StringComparison.OrdinalIgnoreCase) || groupingMode == "2";
+        legacyLines.Add(groupingEnabled ? "2" : "1");
+        if (groupingEnabled)
+        {
+            var outcomeValue = GetOptionalMetaValue(output, "ExperimentalReportOutcome")
+                ?? GetOptionalMetaValue(meta, "ExperimentalReportOutcome")
+                ?? "Good";
+            legacyLines.Add(ParseGoodBadSelection(outcomeValue, "ExperimentalReportOutcome"));
+            legacyLines.Add(GetOptionalMetaValue(output, "EvaluationMemo")
+                ?? GetOptionalMetaValue(meta, "EvaluationMemo")
+                ?? string.Empty);
+        }
+
+        var outputPath = GetOptionalMetaValue(output, isSweep ? "SweepOutputPath" : "SummaryOutputPath")
+            ?? GetOptionalMetaValue(output, "OutputPath")
+            ?? GetOptionalMetaValue(meta, isSweep ? "SweepOutputPath" : "SummaryOutputPath")
+            ?? GetOptionalMetaValue(meta, "OutputPath");
+        if (string.IsNullOrWhiteSpace(outputPath))
+        {
+            throw new OperationCanceledException($"STSAInput/2 の Output セクションまたは Meta セクションに出力先パスがありません: {fullPath}");
+        }
+
+        legacyLines.Add(outputPath);
+        return string.Join(Environment.NewLine, legacyLines);
+    }
+
     static void AppendDelimitedSection(List<string> destination, IReadOnlyList<string> lines)
     {
         foreach (var line in lines)
@@ -445,6 +514,28 @@ internal static partial class Program
         }
 
         throw new OperationCanceledException($"STSAInput/2 の {keyName} の値が解釈できません: {value}");
+    }
+
+    static string ParseTournamentRuleSetSelection(string value)
+    {
+        if (value.Equals("Neutral", StringComparison.OrdinalIgnoreCase) || value == "1")
+        {
+            return "1";
+        }
+
+        if (value.Equals("Twill", StringComparison.OrdinalIgnoreCase) || value == "2")
+        {
+            return "2";
+        }
+
+        if (value.Equals("TwillCommonOpponentWeighted", StringComparison.OrdinalIgnoreCase)
+            || value.Equals("TwillCommonOpp", StringComparison.OrdinalIgnoreCase)
+            || value == "3")
+        {
+            return "3";
+        }
+
+        throw new OperationCanceledException($"STSAInput/2 の TournamentRuleSetMode の値が解釈できません: {value}");
     }
 }
 
