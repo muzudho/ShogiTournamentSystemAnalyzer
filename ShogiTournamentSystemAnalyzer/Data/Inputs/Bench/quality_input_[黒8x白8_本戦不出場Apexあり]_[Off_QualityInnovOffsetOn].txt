@@ -51,7 +51,7 @@ name,elo
 1
 #[Prompt] 可変定員8ルールを使いますか？ [1]
 1
-#[Prompt] 対局CSVまたは Round/Black-White/対局記号表を貼り付けてください。入力終了は END 行です。
+#[Prompt] 対局CSVまたは Round/First-Second/対局記号表を貼り付けてください。入力終了は END 行です。
 Round
  , A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P
 A, -, -, -, -, -, -, -, -, 8, 7, 6, 5, 4, 3, 2, 1
@@ -71,7 +71,7 @@ N, 3, 4, 1, 2, 7, 8, 5, 6, -, -, -, -, -, -, -, -
 O, 2, 1, 4, 3, 6, 5, 8, 7, -, -, -, -, -, -, -, -
 P, 1, 2, 3, 4, 5, 6, 7, 8, -, -, -, -, -, -, -, -
 
-Black/White
+First/Second
  , A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P
 A, -, -, -, -, -, -, -, -, w, w, w, w, w, w, w, w
 B, -, -, -, -, -, -, -, -, w, w, w, w, w, w, w, w
