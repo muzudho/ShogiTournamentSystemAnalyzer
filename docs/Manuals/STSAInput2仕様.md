@@ -90,14 +90,32 @@ SimulationCount=20000
 #[EndSection]
 ```
 
-### CSV セクション
-CSV 本文をそのまま入れるセクションです。
+### CSV / 複合入力セクション
+CSV 本文や、`Round / Black/White / 対局記号表` のような複合入力本文をそのまま入れるセクションです。
 
 ```plaintext
 #[Section] PlayersCsv
 name,elo
 Alice,1500
 Bob,1480
+#[EndSection]
+```
+
+```plaintext
+#[Section] MatchesInput
+Round
+ , A, B
+A, -, 1
+B, 1, -
+
+Black/White
+ , A, B
+A, -, b
+B, w, -
+
+対局記号表
+A, "Alice"
+B, "Bob"
 #[EndSection]
 ```
 
@@ -110,13 +128,13 @@ Bob,1480
 
 ### CSV 系
 - `PlayersCsv`
-- `MatchesCsv`
-- `ReferenceMatchesCsv`
+- `MatchesInput`
+- `ReferenceMatchesInput`
 - `GroupMapCsv`
 - `AdditionalApexPlayersCsv`
+- `Output`
 
 ### 将来拡張候補
-- `Output`
 - `Options`
 - `Notes`
 
@@ -181,6 +199,41 @@ RuleProfileMode=FinalStage
 TournamentRuleSetMode=Twill
 ```
 
+## 複合入力の書き方
+
+対局入力は、単純な `black,white` CSV だけではなく、`Round / Black/White / 対局記号表` の複合表記もあります。  
+そのため `STSAInput/2` では、対局入力系セクションを `MatchesCsv` のような狭い名前ではなく、`MatchesInput` / `ReferenceMatchesInput` のような広い名前で扱う案を推奨します。
+
+```plaintext
+#[Section] MatchesInput
+black,white
+Alice,Bob
+Carol,Alice
+#[EndSection]
+```
+
+または:
+
+```plaintext
+#[Section] MatchesInput
+Round
+ , A, B
+A, -, 1
+B, 1, -
+
+Black/White
+ , A, B
+A, -, b
+B, w, -
+
+対局記号表
+A, "Alice"
+B, "Bob"
+#[EndSection]
+```
+
+このセクション本文は、**そのまま既存の入力パーサーへ渡せる 1 まとまりのテキスト**として保持する想定です。
+
 ## 必須と任意の考え方
 
 `STSAInput/2` では、すべてのファイルが同じ項目を持つとは限りません。  
@@ -206,9 +259,9 @@ TournamentRuleSetMode=Twill
 なくても実行できる項目です。
 
 例:
-- `ReferenceMatchesCsv`
+- `ReferenceMatchesInput`
 - `AdditionalApexPlayersCsv`
-- `OutputPath`
+- `Output` セクション
 
 ## 順序の扱い
 
@@ -238,7 +291,7 @@ TournamentRuleSetMode=Twill
 - `#[Section]` に対応する `#[EndSection]` がない
 - 必須キーが不足している
 - 同じ必須キーが重複している
-- 必須 CSV セクションが不足している
+- 必須入力セクションが不足している
 
 ## 現行方式との違い
 
@@ -285,12 +338,12 @@ Apex,金
 Apex,銀
 #[EndSection]
 
-#[Section] MatchesCsv
+#[Section] MatchesInput
 black,white
 金,銀
 #[EndSection]
 
-#[Section] ReferenceMatchesCsv
+#[Section] ReferenceMatchesInput
 black,white
 銀,金
 #[EndSection]
@@ -319,7 +372,7 @@ Alice,1500
 Bob,1480
 #[EndSection]
 
-#[Section] MatchesCsv
+#[Section] MatchesInput
 black,white
 Alice,Bob
 #[EndSection]
