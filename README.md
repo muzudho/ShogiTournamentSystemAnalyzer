@@ -2,11 +2,8 @@
 
 大会ルールは、感覚だけでは改善しにくいです。  
 
-<div style="background:#fff3e0; border-left:6px solid #ff9800; padding:16px; border-radius:4px; margin:12px 0;">
-  <strong style="color:#e65100;">⚠️ 注意</strong><br>
-  「公平そう」に見えるルール、は公平ではないかも！
-</div>
-.  
+> [!WARNING]
+> 「公平そう」に見えるルール、は公平ではないかも！
 
 このプロジェクトは、将棋大会の［大会ルールの部品］を試作し、シミュレーションで品質を比較しながら、より良い［大会ルール］を作っていくための .NET コンソールアプリです。  
 
