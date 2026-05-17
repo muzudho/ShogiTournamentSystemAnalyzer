@@ -170,6 +170,7 @@ dotnet run --project .\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyz
 ## 入力ファイルとレポートの置き場
 - `ShogiTournamentSystemAnalyzer/Examples`
 	- 人が読むための見本、対局記号表、メモ
+  - 詳細: `ShogiTournamentSystemAnalyzer/Examples/README.md`
 - `ShogiTournamentSystemAnalyzer/Data/Inputs`
   - `--input-file` で流す実行用入力ファイル
   - `Smoke`: 1 回や少数回のスモークテスト用
