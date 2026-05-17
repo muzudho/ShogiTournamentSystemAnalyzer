@@ -1,17 +1,5 @@
-# STSAInput/2 draft example
-# このファイルは STSAInput/2 の通常ルール最小パーサー確認用です。
-#[Format] STSAInput/2
-
-#[Section] Meta
-AnalysisFlowMode=QualityEvaluation
-RuleProfileMode=Standard
-TournamentRuleSetMode=Neutral
-ExecutionMode=Single
-FirstPlayerWinRatePercent=51
-SimulationCount=10
-#[EndSection]
-
-#[Section] PlayersCsv
+3
+51
 name,elo
 "飛",5050
 "角",5030
@@ -29,9 +17,30 @@ name,elo
 "うさぎ",4790
 "いのしし",4770
 "ひよこ",4750
-#[EndSection]
 
-#[Section] MatchesInput
+group,name
+Apex,"飛"
+Apex,"角"
+Apex,"玉"
+Apex,"金"
+Apex,"銀"
+Apex,"桂"
+Apex,"香"
+Apex,"歩"
+Innov,"きりん"
+Innov,"ぞう"
+Innov,"らいおん"
+Innov,"いぬ"
+Innov,"ねこ"
+Innov,"うさぎ"
+Innov,"いのしし"
+Innov,"ひよこ"
+
+name,elo
+"補A",4895
+"補B",4885
+
+2
 Round
  , A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P
 A, -, -, -, -, -, -, -, -, 8, 7, 6, 5, 4, 3, 2, 1
@@ -87,12 +96,9 @@ M, "ねこ"
 N, "うさぎ"
 O, "いのしし"
 P, "ひよこ"
-#[EndSection]
 
-#[Section] ReferenceMatchesInput
-#[EndSection]
-
-#[Section] Output
-ExperimentalReportGrouping=Off
-SummaryOutputPath=E:\github.com\muzudho\ShogiTournamentSystemAnalyzer\docs\Reports\quality_summary_[黒8x白8]_[Neutral_Single10_STSAInput2_draft].csv
-#[EndSection]
+END
+20000
+2
+1
+E:\\github.com\\muzudho\\ShogiTournamentSystemAnalyzer\\docs\\Reports\Good\quality_summary_[先手8x後手8_本戦不出場Apexあり]_[On].csv

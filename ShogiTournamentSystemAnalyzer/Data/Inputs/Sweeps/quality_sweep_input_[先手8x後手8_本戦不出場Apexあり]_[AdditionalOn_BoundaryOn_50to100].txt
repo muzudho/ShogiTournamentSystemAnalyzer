@@ -1,7 +1,5 @@
-#[Prompt] 目的を入力してください [1]
-2
-#[Prompt] 対象ルールを入力してください [1]
-1
+#[Prompt] モード番号を入力してください [1]
+3
 #[Prompt] 選手一覧CSVを貼り付けてください。入力終了は #[Enter] です。
 name,elo
 "飛",5050
@@ -21,9 +19,39 @@ name,elo
 "いのしし",4770
 "ひよこ",4750
 #[Enter]
-#[Prompt] 順位ルールを選んでください [1]
-3
-#[Prompt] 対局CSVまたは Round/First-Second/対局記号表を貼り付けてください。入力終了は END 行です。
+#[Prompt] Apex / Innov の分け方を使いますか？
+1
+#[Prompt] グループ対応CSVを貼り付けてください。入力終了は #[Enter] です。
+group,name
+Apex,"飛"
+Apex,"角"
+Apex,"玉"
+Apex,"金"
+Apex,"銀"
+Apex,"桂"
+Apex,"香"
+Apex,"歩"
+Innov,"きりん"
+Innov,"ぞう"
+Innov,"らいおん"
+Innov,"いぬ"
+Innov,"ねこ"
+Innov,"うさぎ"
+Innov,"いのしし"
+Innov,"ひよこ"
+#[Enter]
+#[Prompt] 本戦不出場Apex一覧CSVを貼り付けてください。入力終了は #[Enter] です。空のまま Enter で省略できます。
+name,elo
+"補A",4895
+"補B",4885
+#[Enter]
+#[Prompt] 本戦不出場Apexの扱いを選んでください [1]
+2
+#[Prompt] 境界救済戦を使いますか？ [1]
+2
+#[Prompt] 可変定員8ルールを使いますか？ [1]
+1
+#[Prompt] 対局CSVまたは Round/Black-White/対局記号表を貼り付けてください。入力終了は END 行です。
 Round
  , A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P
 A, -, -, -, -, -, -, -, -, 8, 7, 6, 5, 4, 3, 2, 1
@@ -82,6 +110,8 @@ P, "ひよこ"
 END
 #[Prompt] 参考対局CSVまたは Round/Black-White/対局記号表を貼り付けてください。空のまま END で省略できます。
 END
+#[Prompt] 品質評価で Innov の期待順位ずれ補正を使いますか？ [1]
+1
 #[Prompt] 品質評価の実行方法を入力してください [1]
 2
 #[Prompt] 開始する先手勝率(%)を入力してください [50]
@@ -91,8 +121,12 @@ END
 #[Prompt] 刻み幅(%)を入力してください [1]
 10
 #[Prompt] シミュレーション試行回数を入力してください
-5000
+20000
 #[Prompt] 実験レポートの Good / Bad 分離を使いますか？ [1]
+2
+#[Prompt] 今回の案の評価を選んでください [1]
 1
+#[Prompt] 評価メモを1行で入力してください
+かなり良い組み合わせの極端先手有利スイープ
 #[Prompt] n%スイープ結果CSVの出力先パスまたはフォルダーパスを入力してください
-E:\github.com\muzudho\ShogiTournamentSystemAnalyzer\docs\Reports\quality_sweep_twill_commonopp_[黒8x白8]_50to100.csv
+E:\\github.com\\muzudho\\ShogiTournamentSystemAnalyzer\\docs\\Reports\Good\quality_sweep_[先手8x後手8_本戦不出場Apexあり]_[AdditionalOn_BoundaryOn_50to100].csv
