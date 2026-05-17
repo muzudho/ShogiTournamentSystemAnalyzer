@@ -14,7 +14,7 @@ internal static partial class Program
             if (context.Matches.Count <= 20)
             {
                 Console.WriteLine($"{TournamentRuleSetRule.GetLabel(context.TournamentRuleSetMode)} の厳密計算を行います。\n");
-                result = CalculateExactly(context.Participants, context.Matches, context.BlackAdvantageRating, context.TournamentRuleSetMode);
+                result = CalculateExactly(context.Participants, context.Matches, context.FirstPlayerWinRateRating, context.TournamentRuleSetMode);
             }
             else
             {
@@ -26,11 +26,11 @@ internal static partial class Program
 
                 Console.WriteLine();
                 using var simulationBudget = BeginSimulationBudget();
-                result = CalculateBySimulation(context.Participants, context.Matches, context.BlackAdvantageRating, simulationCount, context.TournamentRuleSetMode);
+                result = CalculateBySimulation(context.Participants, context.Matches, context.FirstPlayerWinRateRating, simulationCount, context.TournamentRuleSetMode);
             }
 
-            standardResultRows = BuildResultRows(context.Participants, context.Matches, result, context.BlackAdvantagePercent);
-            PrintResult(context.Participants.Count, result, context.BlackAdvantagePercent, standardResultRows);
+            standardResultRows = BuildResultRows(context.Participants, context.Matches, result, context.FirstPlayerWinRatePercent);
+            PrintResult(context.Participants.Count, result, context.FirstPlayerWinRatePercent, standardResultRows);
             if (result.Mode.Contains("時間切れ", StringComparison.Ordinal))
             {
                 Console.WriteLine($"シミュレーションは時間上限 {SimulationTimeLimit.TotalMinutes:F0} 分で打ち切りました。\n");
@@ -42,9 +42,9 @@ internal static partial class Program
         if (context.Matches.Count <= 20)
         {
             Console.WriteLine("本戦専用の厳密計算を行います。\n");
-            var result = CalculateFinalStageExactly(context.Participants, context.Matches, context.GroupMap!, context.EffectiveAdditionalApexCount, context.BoundaryRescueMode, context.BlackAdvantageRating);
-            finalStageResultRows = BuildFinalStageResultRows(context.Participants, context.Matches, result, context.BlackAdvantagePercent, context.GroupMap!, context.EffectiveAdditionalApexCount);
-            PrintFinalStageResult(result, context.BlackAdvantagePercent, finalStageResultRows);
+            var result = CalculateFinalStageExactly(context.Participants, context.Matches, context.GroupMap!, context.EffectiveAdditionalApexCount, context.BoundaryRescueMode, context.FirstPlayerWinRateRating);
+            finalStageResultRows = BuildFinalStageResultRows(context.Participants, context.Matches, result, context.FirstPlayerWinRatePercent, context.GroupMap!, context.EffectiveAdditionalApexCount);
+            PrintFinalStageResult(result, context.FirstPlayerWinRatePercent, finalStageResultRows);
             if (result.Mode.Contains("時間切れ", StringComparison.Ordinal))
             {
                 Console.WriteLine($"シミュレーションは時間上限 {SimulationTimeLimit.TotalMinutes:F0} 分で打ち切りました。\n");
@@ -61,10 +61,10 @@ internal static partial class Program
 
         Console.WriteLine();
         using var finalStageSimulationBudget = BeginSimulationBudget();
-        var finalStageSimulationResult = CalculateFinalStageBySimulation(context.Participants, context.Matches, context.GroupMap!, context.EffectiveAdditionalApexCount, context.BoundaryRescueMode, context.BlackAdvantageRating, finalStageSimulationCount);
+        var finalStageSimulationResult = CalculateFinalStageBySimulation(context.Participants, context.Matches, context.GroupMap!, context.EffectiveAdditionalApexCount, context.BoundaryRescueMode, context.FirstPlayerWinRateRating, finalStageSimulationCount);
 
-        finalStageResultRows = BuildFinalStageResultRows(context.Participants, context.Matches, finalStageSimulationResult, context.BlackAdvantagePercent, context.GroupMap!, context.EffectiveAdditionalApexCount);
-        PrintFinalStageResult(finalStageSimulationResult, context.BlackAdvantagePercent, finalStageResultRows);
+        finalStageResultRows = BuildFinalStageResultRows(context.Participants, context.Matches, finalStageSimulationResult, context.FirstPlayerWinRatePercent, context.GroupMap!, context.EffectiveAdditionalApexCount);
+        PrintFinalStageResult(finalStageSimulationResult, context.FirstPlayerWinRatePercent, finalStageResultRows);
         if (finalStageSimulationResult.Mode.Contains("時間切れ", StringComparison.Ordinal))
         {
             Console.WriteLine($"シミュレーションは時間上限 {SimulationTimeLimit.TotalMinutes:F0} 分で打ち切りました。\n");
@@ -116,13 +116,13 @@ internal static partial class Program
             : null;
         if (context.GroupingMode == FinalStageGroupingMode.On)
         {
-            WriteFinalStageResultCsv(outputCsvPath, result.Mode, context.BlackAdvantagePercent, finalStageResultRows!);
-            WriteFinalStageResultMarkdown(outputMarkdownPath, outputCsvPath, result.Mode, context.BlackAdvantagePercent, finalStageResultRows!, referenceMatchesCsvPath);
+            WriteFinalStageResultCsv(outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, finalStageResultRows!);
+            WriteFinalStageResultMarkdown(outputMarkdownPath, outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, finalStageResultRows!, referenceMatchesCsvPath);
         }
         else
         {
-            WriteResultCsv(outputCsvPath, result.Mode, context.BlackAdvantagePercent, standardResultRows!);
-            WriteResultMarkdown(outputMarkdownPath, outputCsvPath, result.Mode, context.BlackAdvantagePercent, standardResultRows!);
+            WriteResultCsv(outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, standardResultRows!);
+            WriteResultMarkdown(outputMarkdownPath, outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, standardResultRows!);
         }
         Console.WriteLine($"結果CSVを出力しました: {outputCsvPath}");
         Console.WriteLine($"結果Markdownを出力しました: {outputMarkdownPath}");

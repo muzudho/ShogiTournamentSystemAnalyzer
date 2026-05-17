@@ -59,7 +59,7 @@ internal static partial class Program
     {
         Console.WriteLine("このモードでは次を順に入力します。");
         Console.WriteLine("1. 順位ルールセット");
-        Console.WriteLine("2. 同Elo対局時の黒番勝率 (%)");
+        Console.WriteLine("2. 同Elo対局時の先手勝率 (%)");
         Console.WriteLine("3. 選手 / Player 一覧CSV");
         Console.WriteLine("4. 対局CSV または Round/Black-White/対局記号表");
         Console.WriteLine("5. 必要に応じて試行回数");

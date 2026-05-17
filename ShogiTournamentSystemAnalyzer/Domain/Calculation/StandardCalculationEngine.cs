@@ -1,6 +1,6 @@
 internal static partial class Program
 {
-    static CalculationResult CalculateExactly(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, double blackAdvantageRating, TournamentRuleSetMode tournamentRuleSetMode = TournamentRuleSetMode.Neutral)
+    static CalculationResult CalculateExactly(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, double firstPlayerWinRateRating, TournamentRuleSetMode tournamentRuleSetMode = TournamentRuleSetMode.Neutral)
     {
         var placeProbabilities = new double[players.Count, players.Count];
         var usesTwillRule = tournamentRuleSetMode is TournamentRuleSetMode.Twill or TournamentRuleSetMode.TwillCommonOpponentWeighted;
@@ -28,7 +28,7 @@ internal static partial class Program
             }
 
             var match = matches[matchIndex];
-            var blackWinsProbability = GetWinProbability(players[match.Black], players[match.White], blackAdvantageRating);
+            var blackWinsProbability = GetWinProbability(players[match.Black], players[match.White], firstPlayerWinRateRating);
 
             if (usesTwillRule)
             {
@@ -71,7 +71,7 @@ internal static partial class Program
         return new CalculationResult(placeProbabilities, modeLabel, null);
     }
 
-    static CalculationResult CalculateBySimulation(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, double blackAdvantageRating, int simulationCount, TournamentRuleSetMode tournamentRuleSetMode = TournamentRuleSetMode.Neutral)
+    static CalculationResult CalculateBySimulation(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, double firstPlayerWinRateRating, int simulationCount, TournamentRuleSetMode tournamentRuleSetMode = TournamentRuleSetMode.Neutral)
     {
         var placeProbabilities = new double[players.Count, players.Count];
         var usesTwillRule = tournamentRuleSetMode is TournamentRuleSetMode.Twill or TournamentRuleSetMode.TwillCommonOpponentWeighted;
@@ -94,7 +94,7 @@ internal static partial class Program
             for (var matchIndex = 0; matchIndex < matches.Count; matchIndex++)
             {
                 var match = matches[matchIndex];
-                var blackWinsProbability = GetWinProbability(players[match.Black], players[match.White], blackAdvantageRating);
+                var blackWinsProbability = GetWinProbability(players[match.Black], players[match.White], firstPlayerWinRateRating);
                 if (Random.Shared.NextDouble() < blackWinsProbability)
                 {
                     if (usesTwillRule)
@@ -182,9 +182,9 @@ internal static partial class Program
         }
     }
 
-    static double GetWinProbability(Player black, Player white, double blackAdvantageRating)
+    static double GetWinProbability(Player firstPlayer, Player secondPlayer, double firstPlayerWinRateRating)
     {
-        return 1.0 / (1.0 + Math.Pow(10.0, (white.Rating - (black.Rating + blackAdvantageRating)) / 400.0));
+        return 1.0 / (1.0 + Math.Pow(10.0, (secondPlayer.Rating - (firstPlayer.Rating + firstPlayerWinRateRating)) / 400.0));
     }
 }
 

@@ -13,8 +13,8 @@ internal static partial class Program
         Console.WriteLine($"\n総対局数: {context.Matches.Count}");
 
         var result = ExecuteStandardModeCalculation(context);
-        var resultRows = BuildResultRows(context.Participants, context.Matches, result, context.BlackAdvantagePercent);
-        PrintResult(context.Participants.Count, result, context.BlackAdvantagePercent, resultRows);
+        var resultRows = BuildResultRows(context.Participants, context.Matches, result, context.FirstPlayerWinRatePercent);
+        PrintResult(context.Participants.Count, result, context.FirstPlayerWinRatePercent, resultRows);
         if (result.Mode.Contains("時間切れ", StringComparison.Ordinal))
         {
             Console.WriteLine($"シミュレーションは時間上限 {SimulationTimeLimit.TotalMinutes:F0} 分で打ち切りました。\n");
@@ -24,9 +24,9 @@ internal static partial class Program
         var outputCsvPath = ResolveOutputCsvPath(ReadTextWithDefault(
             $"\n結果CSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
             defaultOutputCsvPath));
-        WriteResultCsv(outputCsvPath, result.Mode, context.BlackAdvantagePercent, resultRows);
+        WriteResultCsv(outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, resultRows);
         var outputMarkdownPath = ChangeOutputExtension(outputCsvPath, ".md");
-        WriteResultMarkdown(outputMarkdownPath, outputCsvPath, result.Mode, context.BlackAdvantagePercent, resultRows);
+        WriteResultMarkdown(outputMarkdownPath, outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, resultRows);
         Console.WriteLine($"結果CSVを出力しました: {outputCsvPath}");
         Console.WriteLine($"結果Markdownを出力しました: {outputMarkdownPath}");
     }
@@ -36,7 +36,7 @@ internal static partial class Program
         if (context.Matches.Count <= 20)
         {
             Console.WriteLine("厳密計算を行います。\n");
-            return CalculateExactly(context.Participants, context.Matches, context.BlackAdvantageRating, context.TournamentRuleSetMode);
+            return CalculateExactly(context.Participants, context.Matches, context.FirstPlayerWinRateRating, context.TournamentRuleSetMode);
         }
 
         const int defaultSimulationCount = 200_000;
@@ -47,7 +47,7 @@ internal static partial class Program
 
         Console.WriteLine();
         using var simulationBudget = BeginSimulationBudget();
-        return CalculateBySimulation(context.Participants, context.Matches, context.BlackAdvantageRating, simulationCount, context.TournamentRuleSetMode);
+        return CalculateBySimulation(context.Participants, context.Matches, context.FirstPlayerWinRateRating, simulationCount, context.TournamentRuleSetMode);
     }
 }
 

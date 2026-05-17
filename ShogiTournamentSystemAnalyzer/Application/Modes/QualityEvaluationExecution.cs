@@ -8,15 +8,15 @@ internal static partial class Program
         var sweepRows = new List<QualitySweepRow>();
         using var simulationBudget = executionOptions.SimulationCount.HasValue ? BeginSimulationBudget() : default;
         var stoppedByTimeout = false;
-        for (var blackAdvantagePercent = executionOptions.SweepOptions.StartPercent; blackAdvantagePercent <= executionOptions.SweepOptions.EndPercent + 1e-9; blackAdvantagePercent += executionOptions.SweepOptions.StepPercent)
+        for (var firstPlayerWinRatePercent = executionOptions.SweepOptions.StartPercent; firstPlayerWinRatePercent <= executionOptions.SweepOptions.EndPercent + 1e-9; firstPlayerWinRatePercent += executionOptions.SweepOptions.StepPercent)
         {
             var qualityEvaluationRun = ExecuteQualityEvaluationRun(
                 input,
                 ruleDefinition,
-                executionOptions with { BlackAdvantagePercent = blackAdvantagePercent });
+                executionOptions with { FirstPlayerWinRatePercent = firstPlayerWinRatePercent });
 
             sweepRows.Add(new QualitySweepRow(
-                blackAdvantagePercent,
+                firstPlayerWinRatePercent,
                 qualityEvaluationRun.Summary.SpearmanCorrelation,
                 qualityEvaluationRun.Summary.MeanAbsoluteRankError,
                 qualityEvaluationRun.Summary.AverageTop8Retention,
@@ -53,18 +53,18 @@ internal static partial class Program
         QualityEvaluationRuleDefinition ruleDefinition,
         QualityEvaluationExecutionOptions executionOptions)
     {
-        var blackAdvantagePercent = executionOptions.BlackAdvantagePercent!.Value;
-        var blackAdvantageRating = ConvertBlackAdvantagePercentToRating(blackAdvantagePercent);
+        var firstPlayerWinRatePercent = executionOptions.FirstPlayerWinRatePercent!.Value;
+        var firstPlayerWinRateRating = ConvertFirstPlayerWinRatePercentToRating(firstPlayerWinRatePercent);
         using var simulationBudget = executionOptions.SimulationCount.HasValue ? BeginSimulationBudget() : default;
         var result = ruleDefinition.GroupingMode == FinalStageGroupingMode.On
             ? executionOptions.SimulationCount.HasValue
-                ? CalculateFinalStageBySimulation(input.Participants, input.Matches, ruleDefinition.GroupMap!, ruleDefinition.EffectiveAdditionalApexCount, ruleDefinition.BoundaryRescueMode, blackAdvantageRating, executionOptions.SimulationCount.Value, ruleDefinition.PromotedInnovCount)
-                : CalculateFinalStageExactly(input.Participants, input.Matches, ruleDefinition.GroupMap!, ruleDefinition.EffectiveAdditionalApexCount, ruleDefinition.BoundaryRescueMode, blackAdvantageRating, ruleDefinition.PromotedInnovCount)
+                ? CalculateFinalStageBySimulation(input.Participants, input.Matches, ruleDefinition.GroupMap!, ruleDefinition.EffectiveAdditionalApexCount, ruleDefinition.BoundaryRescueMode, firstPlayerWinRateRating, executionOptions.SimulationCount.Value, ruleDefinition.PromotedInnovCount)
+                : CalculateFinalStageExactly(input.Participants, input.Matches, ruleDefinition.GroupMap!, ruleDefinition.EffectiveAdditionalApexCount, ruleDefinition.BoundaryRescueMode, firstPlayerWinRateRating, ruleDefinition.PromotedInnovCount)
             : executionOptions.SimulationCount.HasValue
-                ? CalculateBySimulation(input.Participants, input.Matches, blackAdvantageRating, executionOptions.SimulationCount.Value, ruleDefinition.TournamentRuleSetMode)
-                : CalculateExactly(input.Participants, input.Matches, blackAdvantageRating, ruleDefinition.TournamentRuleSetMode);
+                ? CalculateBySimulation(input.Participants, input.Matches, firstPlayerWinRateRating, executionOptions.SimulationCount.Value, ruleDefinition.TournamentRuleSetMode)
+                : CalculateExactly(input.Participants, input.Matches, firstPlayerWinRateRating, ruleDefinition.TournamentRuleSetMode);
 
-        var resultRows = BuildResultRows(input.Participants, input.Matches, result, blackAdvantagePercent);
+        var resultRows = BuildResultRows(input.Participants, input.Matches, result, firstPlayerWinRatePercent);
         var qualityPlayerRows = BuildQualityPlayerRows(
             resultRows,
             ruleDefinition.GroupMap,
@@ -84,7 +84,7 @@ internal static partial class Program
 
         if (!sweepOptions.IsEnabled)
         {
-            var blackAdvantagePercent = ReadDoubleWithDefaultInRange(
+            var firstPlayerWinRatePercent = ReadDoubleWithDefaultInRange(
                 "同Elo対局時の先手勝率(%)を入力してください [51]: ",
                 51.0,
                 0.0,
@@ -124,7 +124,7 @@ internal static partial class Program
                 Console.WriteLine();
             }
 
-            return new QualityEvaluationExecutionOptions(simulationCount, sweepOptions, blackAdvantagePercent);
+            return new QualityEvaluationExecutionOptions(simulationCount, sweepOptions, firstPlayerWinRatePercent);
         }
 
         return new QualityEvaluationExecutionOptions(null, sweepOptions, null);

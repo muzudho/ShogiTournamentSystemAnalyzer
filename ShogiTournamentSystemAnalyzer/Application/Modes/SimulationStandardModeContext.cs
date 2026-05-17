@@ -1,7 +1,7 @@
 internal readonly record struct StandardModeContext(
     TournamentRuleSetMode TournamentRuleSetMode,
-    double BlackAdvantagePercent,
-    double BlackAdvantageRating,
+    double FirstPlayerWinRatePercent,
+    double FirstPlayerWinRateRating,
     IReadOnlyList<Player> AllParticipants,
     IReadOnlyList<Player> Participants,
     IReadOnlyList<Match> Matches)

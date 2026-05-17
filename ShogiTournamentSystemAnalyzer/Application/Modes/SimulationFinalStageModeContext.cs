@@ -1,6 +1,6 @@
 internal readonly record struct FinalStageModeContext(
-    double BlackAdvantagePercent,
-    double BlackAdvantageRating,
+    double FirstPlayerWinRatePercent,
+    double FirstPlayerWinRateRating,
     IReadOnlyList<Player> Participants,
     FinalStageGroupingMode GroupingMode,
     TournamentRuleSetMode TournamentRuleSetMode,

@@ -2,11 +2,16 @@ using System.Globalization;
 
 internal static partial class Program
 {
-    static double ConvertBlackAdvantagePercentToRating(double blackAdvantagePercent)
+    static double ConvertFirstPlayerWinRatePercentToRating(double firstPlayerWinRatePercent)
     {
         const double epsilon = 1e-9;
-        var probability = Math.Clamp(blackAdvantagePercent / 100.0, epsilon, 1.0 - epsilon);
+        var probability = Math.Clamp(firstPlayerWinRatePercent / 100.0, epsilon, 1.0 - epsilon);
         return 400.0 * Math.Log10(probability / (1.0 - probability));
+    }
+
+    static double ConvertBlackAdvantagePercentToRating(double blackAdvantagePercent)
+    {
+        return ConvertFirstPlayerWinRatePercentToRating(blackAdvantagePercent);
     }
 
     static string FormatPercent(double value)

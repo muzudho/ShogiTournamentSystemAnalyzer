@@ -35,7 +35,7 @@ internal static partial class Program
     static void PrintResult(int playerCount, CalculationResult result, double blackAdvantagePercent, IReadOnlyList<ResultRow> resultRows)
     {
         Console.WriteLine($"計算方法: {result.Mode}\n");
-        Console.WriteLine($"同Elo対局時の黒番勝率: {blackAdvantagePercent.ToString("F2", CultureInfo.InvariantCulture)}%\n");
+        Console.WriteLine($"同Elo対局時の先手勝率: {blackAdvantagePercent.ToString("F2", CultureInfo.InvariantCulture)}%\n");
 
         var nameWidth = Math.Max(6, resultRows.Max(x => x.Name.Length) + 2);
         var header = "対局者".PadRight(nameWidth)

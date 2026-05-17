@@ -102,6 +102,7 @@ dotnet run --project .\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyz
 - ルールの意味を知りたい: [トーナメントルール](./docs/Manuals/トーナメントルール.md)
 - 実行用入力ファイルで流したい: [入力ファイル仕様](./docs/Manuals/入力ファイル仕様.md)
 - 次世代の入力ファイル方式案を見たい: [STSAInput/2 仕様](./docs/Manuals/STSAInput2仕様.md)
+  - `FirstPlayerWinRatePercent` のような安定キーで入力する案
 
 ## すぐ試すなら
 - 実行用入力ファイルの例: `ShogiTournamentSystemAnalyzer/Data/Inputs`

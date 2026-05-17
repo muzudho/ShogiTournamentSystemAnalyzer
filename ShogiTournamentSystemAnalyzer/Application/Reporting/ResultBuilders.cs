@@ -1,8 +1,8 @@
 internal static partial class Program
 {
-    static List<ResultRow> BuildResultRows(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, CalculationResult result, double blackAdvantagePercent)
+    static List<ResultRow> BuildResultRows(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, CalculationResult result, double firstPlayerWinRatePercent)
     {
-        var blackAdvantageRating = ConvertBlackAdvantagePercentToRating(blackAdvantagePercent);
+        var firstPlayerWinRateRating = ConvertFirstPlayerWinRatePercentToRating(firstPlayerWinRatePercent);
         var blackCounts = new int[players.Count];
         var whiteCounts = new int[players.Count];
         var blackWinProbabilitySums = new double[players.Count];
@@ -14,7 +14,7 @@ internal static partial class Program
 
         foreach (var match in matches)
         {
-            var blackWinProbability = GetWinProbability(players[match.Black], players[match.White], blackAdvantageRating);
+            var blackWinProbability = GetWinProbability(players[match.Black], players[match.White], firstPlayerWinRateRating);
             blackCounts[match.Black]++;
             whiteCounts[match.White]++;
             blackWinProbabilitySums[match.Black] += blackWinProbability;
@@ -66,9 +66,9 @@ internal static partial class Program
         return rows;
     }
 
-    static List<FinalStageResultRow> BuildFinalStageResultRows(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, CalculationResult result, double blackAdvantagePercent, IReadOnlyDictionary<string, FinalStageGroup> groupMap, int additionalApexCount)
+    static List<FinalStageResultRow> BuildFinalStageResultRows(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, CalculationResult result, double firstPlayerWinRatePercent, IReadOnlyDictionary<string, FinalStageGroup> groupMap, int additionalApexCount)
     {
-        var standardRows = BuildResultRows(players, matches, result, blackAdvantagePercent);
+        var standardRows = BuildResultRows(players, matches, result, firstPlayerWinRatePercent);
         var apexCount = groupMap.Count(x => x.Value == FinalStageGroup.Apex);
         var innovCount = players.Count - apexCount;
 
