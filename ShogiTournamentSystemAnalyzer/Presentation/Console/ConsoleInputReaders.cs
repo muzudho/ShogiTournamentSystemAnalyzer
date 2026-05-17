@@ -50,8 +50,10 @@ internal static partial class Program
         Console.WriteLine("1. Off: 分離しない");
         Console.WriteLine("2. On: Good / Bad フォルダーに分離する\n");
 
+        var attempt = 0;
         while (true)
         {
+            attempt++;
             Console.Write("モード番号を入力してください [1]: ");
             var input = Console.ReadLine()?.Trim();
             if (string.IsNullOrEmpty(input) || input == "1")
@@ -66,6 +68,11 @@ internal static partial class Program
                 var outcome = ReadExperimentalReportOutcome();
                 var evaluationMemo = ReadOptionalEvaluationMemo();
                 return new ExperimentalReportGroupingOptions(true, outcome, evaluationMemo);
+            }
+
+            if (attempt >= InputRetryLimit)
+            {
+                ThrowInputRetryLimitExceeded("実験レポートの Good / Bad 分離", "1 または 2 以外が入力されました");
             }
 
             Console.WriteLine("1 か 2 を入力してください。\n");
@@ -91,8 +98,10 @@ internal static partial class Program
         Console.WriteLine("1. Good");
         Console.WriteLine("2. Bad\n");
 
+        var attempt = 0;
         while (true)
         {
+            attempt++;
             Console.Write("評価番号を入力してください [1]: ");
             var input = Console.ReadLine()?.Trim();
             if (string.IsNullOrEmpty(input) || input == "1")
@@ -105,6 +114,11 @@ internal static partial class Program
             {
                 Console.WriteLine();
                 return ExperimentalReportOutcome.Bad;
+            }
+
+            if (attempt >= InputRetryLimit)
+            {
+                ThrowInputRetryLimitExceeded("実験レポート評価", "1 または 2 以外が入力されました");
             }
 
             Console.WriteLine("1 か 2 を入力してください。\n");

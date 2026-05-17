@@ -111,6 +111,9 @@ dotnet run --project .\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyz
   - `1`: 通常ルール
   - `2`: 本戦ルール
 
+> [!NOTE]
+> 入力ミスで止まらなくならないよう、主要な入力の再試行は 10 回で打ち切り、中断メッセージを表示します。
+
 
 ## 進め方のイメージ
 

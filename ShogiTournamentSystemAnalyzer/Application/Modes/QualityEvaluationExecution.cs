@@ -152,8 +152,10 @@ internal static partial class Program
             if (input == "2")
             {
                 Console.WriteLine();
+                var sweepAttempt = 0;
                 while (true)
                 {
+                    sweepAttempt++;
                     Console.WriteLine("補足: 例として 50 → 55 を 1 刻みで指定すると、50, 51, 52, 53, 54, 55 を順に評価します。\n");
                     var startPercent = ReadDoubleWithDefaultInRange("開始する先手勝率(%)を入力してください [50]: ", 50.0, 0.0, 100.0);
                     var endPercent = ReadDoubleWithDefaultInRange("終了する先手勝率(%)を入力してください [55]: ", 55.0, 0.0, 100.0);
@@ -162,6 +164,11 @@ internal static partial class Program
 
                     if (endPercent < startPercent)
                     {
+                        if (sweepAttempt >= InputRetryLimit)
+                        {
+                            ThrowInputRetryLimitExceeded("n% スイープ範囲", "終了する先手勝率が開始する先手勝率未満です");
+                        }
+
                         Console.WriteLine("終了する先手勝率は開始する先手勝率以上で入力してください。\n");
                         continue;
                     }
