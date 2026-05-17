@@ -4,8 +4,9 @@
 
 <div style="background:#fff3e0; border-left:6px solid #ff9800; padding:16px; border-radius:4px; margin:12px 0;">
   <strong style="color:#e65100;">⚠️ 注意</strong><br>
-  「公平そう」に見えるルール、は公平ではないかも！  
-</div>  
+  「公平そう」に見えるルール、は公平ではないかも！
+</div>
+.  
 
 このプロジェクトは、将棋大会の［大会ルールの部品］を試作し、シミュレーションで品質を比較しながら、より良い［大会ルール］を作っていくための .NET コンソールアプリです。  
 
@@ -21,8 +22,9 @@
 
 <div style="background:#e8f5e9; border-left:6px solid #4caf50; padding:16px; border-radius:4px; margin:12px 0;">
   <strong style="color:#2e7d32;">✅ 成功</strong><br>
-  「他人にコピーされるプログラムが良いプログラムだ」  
-</div>  
+  「他人にコピーされるプログラムが良いプログラムだ」
+</div>
+.  
 
 という品質評価方法に則り、どなた（人間、ＡＩ）でも使っていただけるよう、オープンソース（MIT ライセンス）で公開しています。  
 
@@ -42,9 +44,9 @@
 
 <div style="background:#e8f5e9; border-left:6px solid #4caf50; padding:16px; border-radius:4px; margin:12px 0;">
   <strong style="color:#2e7d32;">✅ 成功</strong><br>
-  ［ゲームのルール］を変えません。  
-</div>  
-
+  ［ゲームのルール］を変えません。
+</div>
+.  
 
 ### 選手（Player）と参加者（Participant）の違い
 
