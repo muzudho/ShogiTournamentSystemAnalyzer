@@ -798,5 +798,45 @@ internal static partial class Program
         var fileName = Path.GetFileName(targetPath);
         return $"[{fileName}]({relativePath})";
     }
+
+    static void WriteTournamentMatchRecordCsv(string outputCsvPath, IReadOnlyList<StageEntry> stages, IReadOnlyList<PlayerEntry> players, IReadOnlyList<TournamentMatchRecord> matchRecords)
+    {
+        var directoryPath = Path.GetDirectoryName(outputCsvPath);
+        if (!string.IsNullOrWhiteSpace(directoryPath)) Directory.CreateDirectory(directoryPath);
+
+        var stageNameById = stages.ToDictionary(stage => stage.StageId, stage => stage.StageName);
+        var playerNameById = players.ToDictionary(player => player.PlayerId, player => player.Name);
+        var lines = new List<string>
+        {
+            "matchId,stageId,stageName,firstPlayerId,firstPlayerName,secondPlayerId,secondPlayerName,startTime,endTime,status,resultType,roundNo"
+        };
+
+        foreach (var match in matchRecords.OrderBy(match => match.StartTime).ThenBy(match => match.MatchId))
+        {
+            var stageName = stageNameById.TryGetValue(match.StageId, out var stage) ? stage : string.Empty;
+            var firstPlayerName = playerNameById.TryGetValue(match.FirstPlayerId, out var firstPlayer) ? firstPlayer : string.Empty;
+            var secondPlayerName = playerNameById.TryGetValue(match.SecondPlayerId, out var secondPlayer) ? secondPlayer : string.Empty;
+
+            var columns = new[]
+            {
+                match.MatchId.ToString(CultureInfo.InvariantCulture),
+                match.StageId.ToString(CultureInfo.InvariantCulture),
+                stageName,
+                match.FirstPlayerId.ToString(CultureInfo.InvariantCulture),
+                firstPlayerName,
+                match.SecondPlayerId.ToString(CultureInfo.InvariantCulture),
+                secondPlayerName,
+                match.StartTime.ToString(CultureInfo.InvariantCulture),
+                match.EndTime.ToString(CultureInfo.InvariantCulture),
+                match.Status.ToString(),
+                match.ResultType.ToString(),
+                match.RoundNo?.ToString(CultureInfo.InvariantCulture) ?? string.Empty,
+            };
+
+            lines.Add(string.Join(",", columns.Select(EscapeCsv)));
+        }
+
+        File.WriteAllLines(outputCsvPath, lines, new UTF8Encoding(false));
+    }
 }
 

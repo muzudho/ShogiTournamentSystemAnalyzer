@@ -21,12 +21,12 @@ internal static partial class Program
 
             if (lines.All(string.IsNullOrWhiteSpace)) return new List<Match>();
 
-            if (TryParseMatches(lines, players, out var matches, out var errorMessage)) return matches;
+            if (TryParseMatches(lines, players, out var matches, out var err)) return matches;
 
-            Console.WriteLine($"参考対局入力の読み取りに失敗しました: {errorMessage}");
+            Console.WriteLine($"参考対局入力の読み取りに失敗しました: {err.Value}");
             if (attempt >= InputRetryLimit)
             {
-                ThrowInputRetryLimitExceeded("参考対局入力", errorMessage);
+                ThrowInputRetryLimitExceeded("参考対局入力", err.Value);
             }
             Console.WriteLine("もう一度入力してください。\n");
         }
@@ -139,12 +139,12 @@ internal static partial class Program
                 continue;
             }
 
-            if (TryParseFinalStageGroups(lines, out var groupMap, out var errorMessage)) return groupMap;
+            if (TryParseFinalStageGroups(lines, out var groupMap, out var err)) return groupMap;
 
-            Console.WriteLine($"CSVの読み取りに失敗しました: {errorMessage}");
+            Console.WriteLine($"CSVの読み取りに失敗しました: {err.Value}");
             if (attempt >= InputRetryLimit)
             {
-                ThrowInputRetryLimitExceeded("グループ対応CSV", errorMessage);
+                ThrowInputRetryLimitExceeded("グループ対応CSV", err.Value);
             }
             Console.WriteLine("もう一度入力してください。\n");
         }
@@ -173,10 +173,7 @@ internal static partial class Program
             if (TryParsePlayers(lines, out var players, out var err)) return players;
 
             Console.WriteLine($"CSVの読み取りに失敗しました: {err.Value}");
-            if (attempt >= InputRetryLimit)
-            {
-                ThrowInputRetryLimitExceeded("選手一覧CSV", err.Value);
-            }
+            if (attempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("選手一覧CSV", err.Value);
             Console.WriteLine("もう一度入力してください。\n");
         }
     }
@@ -215,10 +212,7 @@ internal static partial class Program
             if (TryParsePlayers(lines, out var players, out var err)) return players;
 
             Console.WriteLine($"CSVの読み取りに失敗しました: {err.Value}");
-            if (attempt >= InputRetryLimit)
-            {
-                ThrowInputRetryLimitExceeded("選手一覧CSV", err.Value);
-            }
+            if (attempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("選手一覧CSV", err.Value);
             Console.WriteLine("もう一度入力してください。\n");
         }
     }
@@ -237,39 +231,27 @@ internal static partial class Program
             while (true)
             {
                 var line = Console.ReadLine();
-                if (line is null)
-                {
-                    throw new OperationCanceledException("対局入力中に入力ストリームが終了しました。");
-                }
+                if (line is null) throw new OperationCanceledException("対局入力中に入力ストリームが終了しました。");
 
-                if (line.Trim().Equals("END", StringComparison.OrdinalIgnoreCase))
-                {
-                    break;
-                }
+                if (line.Trim().Equals("END", StringComparison.OrdinalIgnoreCase)) break;
 
                 lines.Add(line);
             }
 
             if (lines.Count == 0)
             {
-                if (attempt >= InputRetryLimit)
-                {
-                    ThrowInputRetryLimitExceeded("対局入力", "対局入力が入力されていません");
-                }
+                if (attempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("対局入力", "対局入力が入力されていません");
 
                 Console.WriteLine("対局入力が入力されていません。再入力してください。\n");
                 continue;
             }
 
-            if (TryParseMatches(lines, players, out var matches, out var errorMessage))
-            {
-                return matches;
-            }
+            if (TryParseMatches(lines, players, out var matches, out var err)) return matches;
 
-            Console.WriteLine($"対局入力の読み取りに失敗しました: {errorMessage}");
+            Console.WriteLine($"対局入力の読み取りに失敗しました: {err.Value}");
             if (attempt >= InputRetryLimit)
             {
-                ThrowInputRetryLimitExceeded("対局入力", errorMessage);
+                ThrowInputRetryLimitExceeded("対局入力", err.Value);
             }
             Console.WriteLine("もう一度入力してください。\n");
         }

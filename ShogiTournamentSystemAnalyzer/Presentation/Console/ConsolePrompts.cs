@@ -31,10 +31,7 @@ internal static partial class Program
                 return AnalysisFlowMode.QualityEvaluation;
             }
 
-            if (attempt >= InputRetryLimit)
-            {
-                ThrowInputRetryLimitExceeded("目的選択", "1 または 2 以外が入力されました");
-            }
+            if (attempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("目的選択", "1 または 2 以外が入力されました");
 
             Console.WriteLine("1、2 のいずれかを入力してください。\n");
         }
@@ -77,10 +74,7 @@ internal static partial class Program
                 return RuleProfileMode.TournamentFramework;
             }
 
-            if (attempt >= InputRetryLimit)
-            {
-                ThrowInputRetryLimitExceeded("対象ルール選択", flowMode == AnalysisFlowMode.Simulation ? "1、2、3 のいずれでもありません" : "1 または 2 以外が入力されました");
-            }
+            if (attempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("対象ルール選択", flowMode == AnalysisFlowMode.Simulation ? "1、2、3 のいずれでもありません" : "1 または 2 以外が入力されました");
 
             Console.WriteLine(flowMode == AnalysisFlowMode.Simulation
                 ? "1、2、3 のいずれかを入力してください。\n"
@@ -92,10 +86,7 @@ internal static partial class Program
     {
         Console.Write(prompt);
         var input = Console.ReadLine()?.Trim();
-        if (input is null)
-        {
-            throw new OperationCanceledException("文字列入力中に入力ストリームが終了しました。");
-        }
+        if (input is null) throw new OperationCanceledException("文字列入力中に入力ストリームが終了しました。");
 
         return string.IsNullOrEmpty(input) ? defaultValue : input;
     }
@@ -107,26 +98,14 @@ internal static partial class Program
         {
             Console.Write(prompt);
             var input = Console.ReadLine()?.Trim();
-            if (input is null)
-            {
-                throw new OperationCanceledException("整数入力中に入力ストリームが終了しました。");
-            }
+            if (input is null) throw new OperationCanceledException("整数入力中に入力ストリームが終了しました。");
 
-            if (string.IsNullOrEmpty(input))
-            {
-                return defaultValue;
-            }
+            if (string.IsNullOrEmpty(input)) return defaultValue;
 
             attempt++;
-            if (int.TryParse(input, out var value) && value >= min)
-            {
-                return value;
-            }
+            if (int.TryParse(input, out var value) && value >= min) return value;
 
-            if (attempt >= InputRetryLimit)
-            {
-                ThrowInputRetryLimitExceeded("整数入力", $"{min} 以上の整数ではありません");
-            }
+            if (attempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("整数入力", $"{min} 以上の整数ではありません");
 
             Console.WriteLine($"{min} 以上の整数を入力してください。");
         }
@@ -139,26 +118,14 @@ internal static partial class Program
         {
             Console.Write(prompt);
             var input = Console.ReadLine()?.Trim();
-            if (input is null)
-            {
-                throw new OperationCanceledException("数値入力中に入力ストリームが終了しました。");
-            }
+            if (input is null) throw new OperationCanceledException("数値入力中に入力ストリームが終了しました。");
 
-            if (string.IsNullOrEmpty(input))
-            {
-                return defaultValue;
-            }
+            if (string.IsNullOrEmpty(input)) return defaultValue;
 
             attempt++;
-            if (TryParseDouble(input, out var value) && value >= minInclusive && value <= maxInclusive)
-            {
-                return value;
-            }
+            if (TryParseDouble(input, out var value) && value >= minInclusive && value <= maxInclusive) return value;
 
-            if (attempt >= InputRetryLimit)
-            {
-                ThrowInputRetryLimitExceeded("数値入力", $"{minInclusive} 以上 {maxInclusive} 以下の数値ではありません");
-            }
+            if (attempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("数値入力", $"{minInclusive} 以上 {maxInclusive} 以下の数値ではありません");
 
             Console.WriteLine($"{minInclusive} 以上 {maxInclusive} 以下の数値を入力してください。");
         }
