@@ -2,6 +2,11 @@ using System.Globalization;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="firstPlayerWinRatePercent"></param>
+    /// <returns></returns>
     static double ConvertFirstPlayerWinRatePercentToRating(double firstPlayerWinRatePercent)
     {
         const double epsilon = 1e-9;
@@ -9,21 +14,41 @@ internal static partial class Program
         return 400.0 * Math.Log10(probability / (1.0 - probability));
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="blackAdvantagePercent"></param>
+    /// <returns></returns>
     static double ConvertBlackAdvantagePercentToRating(double blackAdvantagePercent)
     {
         return ConvertFirstPlayerWinRatePercentToRating(blackAdvantagePercent);
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
     static string FormatPercent(double value)
     {
         return (value * 100).ToString("F2", CultureInfo.InvariantCulture) + "%";
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
     static string FormatOptionalPercent(double? value)
     {
         return value.HasValue ? FormatPercent(value.Value) : "-";
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
     static string FormatOptionalPercentValue(double? value)
     {
         return value.HasValue
@@ -31,12 +56,15 @@ internal static partial class Program
             : string.Empty;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="opponentRatings"></param>
+    /// <param name="targetAverageScore"></param>
+    /// <returns></returns>
     static double CalculateEquivalentNeutralRating(IReadOnlyList<double> opponentRatings, double targetAverageScore)
     {
-        if (opponentRatings.Count == 0)
-        {
-            return 0.0;
-        }
+        if (opponentRatings.Count == 0) return 0.0;
 
         const double epsilon = 1e-9;
         var clampedScore = Math.Clamp(targetAverageScore, epsilon, 1.0 - epsilon);
@@ -61,16 +89,32 @@ internal static partial class Program
         return (lowerBound + upperBound) / 2.0;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="playerRating"></param>
+    /// <param name="opponentRating"></param>
+    /// <returns></returns>
     static double GetNeutralWinProbability(double playerRating, double opponentRating)
     {
         return 1.0 / (1.0 + Math.Pow(10.0, (opponentRating - playerRating) / 400.0));
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
     static string FormatRating(double value)
     {
         return Math.Round(value).ToString("F0", CultureInfo.InvariantCulture);
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
     static string FormatSignedRating(double value)
     {
         return Math.Round(value).ToString("+0;-0;0", CultureInfo.InvariantCulture);

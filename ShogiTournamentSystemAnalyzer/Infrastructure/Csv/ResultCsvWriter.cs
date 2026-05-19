@@ -3,6 +3,12 @@ using System.Text;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="outputCsvPath"></param>
+    /// <param name="summary"></param>
+    /// <param name="options"></param>
     static void WriteQualitySummaryCsv(string outputCsvPath, QualitySummary summary, ExperimentalReportGroupingOptions options)
     {
         var directoryPath = Path.GetDirectoryName(outputCsvPath);
@@ -30,6 +36,13 @@ internal static partial class Program
         File.WriteAllLines(outputCsvPath, lines, new UTF8Encoding(false));
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="outputMarkdownPath"></param>
+    /// <param name="sweepRows"></param>
+    /// <param name="sweepCsvPath"></param>
+    /// <param name="options"></param>
     static void WriteQualitySweepMarkdown(string outputMarkdownPath, IReadOnlyList<QualitySweepRow> sweepRows, string sweepCsvPath, ExperimentalReportGroupingOptions options)
     {
         var directoryPath = Path.GetDirectoryName(outputMarkdownPath);
@@ -109,6 +122,14 @@ internal static partial class Program
         File.WriteAllLines(outputMarkdownPath, lines, new UTF8Encoding(false));
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="outputMarkdownPath"></param>
+    /// <param name="qualityEvaluationRun"></param>
+    /// <param name="summaryCsvPath"></param>
+    /// <param name="playerCsvPath"></param>
+    /// <param name="options"></param>
     static void WriteQualitySummaryMarkdown(
         string outputMarkdownPath,
         QualityEvaluationRun qualityEvaluationRun,
@@ -226,6 +247,12 @@ internal static partial class Program
         File.WriteAllLines(outputMarkdownPath, lines, new UTF8Encoding(false));
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="outputCsvPath"></param>
+    /// <param name="sweepRows"></param>
+    /// <param name="options"></param>
     static void WriteQualitySweepCsv(string outputCsvPath, IReadOnlyList<QualitySweepRow> sweepRows, ExperimentalReportGroupingOptions options)
     {
         var directoryPath = Path.GetDirectoryName(outputCsvPath);
@@ -258,6 +285,11 @@ internal static partial class Program
         File.WriteAllLines(outputCsvPath, lines, new UTF8Encoding(false));
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="row"></param>
+    /// <returns></returns>
     static string BuildQualityPlayerMarkdownRow(QualityPlayerRow row)
     {
         return string.Join(" | ",
@@ -271,6 +303,11 @@ internal static partial class Program
             string.Empty);
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
     static string FormatSignedDelta(double value)
     {
         return value >= 0
@@ -278,6 +315,11 @@ internal static partial class Program
             : value.ToString("F6", CultureInfo.InvariantCulture);
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="spearmanCorrelation"></param>
+    /// <returns></returns>
     static string BuildSpearmanComment(double spearmanCorrelation)
     {
         return spearmanCorrelation switch
@@ -289,6 +331,11 @@ internal static partial class Program
         };
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="meanAbsoluteRankError"></param>
+    /// <returns></returns>
     static string BuildMeanAbsoluteRankErrorComment(double meanAbsoluteRankError)
     {
         return meanAbsoluteRankError switch
@@ -300,6 +347,11 @@ internal static partial class Program
         };
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="averageTop8Retention"></param>
+    /// <returns></returns>
     static string BuildTop8RetentionComment(double averageTop8Retention)
     {
         return averageTop8Retention switch
@@ -311,6 +363,11 @@ internal static partial class Program
         };
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="top1Probability"></param>
+    /// <returns></returns>
     static string BuildTop1Comment(double top1Probability)
     {
         var percent = top1Probability * 100;
@@ -323,6 +380,11 @@ internal static partial class Program
         };
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="averagePlace"></param>
+    /// <returns></returns>
     static string BuildAveragePlaceComment(double averagePlace)
     {
         return averagePlace switch
@@ -334,6 +396,12 @@ internal static partial class Program
         };
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="biggestBoost"></param>
+    /// <param name="biggestDrop"></param>
+    /// <returns></returns>
     static string BuildRatingDeltaComment(double biggestBoost, double biggestDrop)
     {
         var spread = biggestBoost - biggestDrop;
@@ -346,22 +414,26 @@ internal static partial class Program
         };
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="groupPlace1Probability"></param>
+    /// <param name="groupPlaceAverage"></param>
+    /// <returns></returns>
     static string BuildGroupLeadComment(double groupPlace1Probability, double groupPlaceAverage)
     {
         var percent = groupPlace1Probability * 100;
-        if (percent >= 35.0 && groupPlaceAverage <= 2.0)
-        {
-            return "先頭がかなりはっきりしています。";
-        }
-
-        if (percent >= 20.0 && groupPlaceAverage <= 3.0)
-        {
-            return "先頭候補が見えています。";
-        }
-
+        if (percent >= 35.0 && groupPlaceAverage <= 2.0) return "先頭がかなりはっきりしています。";
+        if (percent >= 20.0 && groupPlaceAverage <= 3.0) return "先頭候補が見えています。";
         return "まだ横並び気味です。";
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="apexTopProbability"></param>
+    /// <param name="innovTopProbability"></param>
+    /// <returns></returns>
     static string BuildApexInnovGapComment(double apexTopProbability, double innovTopProbability)
     {
         var gapPercent = (apexTopProbability - innovTopProbability) * 100;
@@ -374,12 +446,15 @@ internal static partial class Program
         };
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="recommendedRows"></param>
+    /// <param name="fallbackPercent"></param>
+    /// <returns></returns>
     static string BuildRecommendedSweepBandText(IReadOnlyList<QualitySweepRow> recommendedRows, double fallbackPercent)
     {
-        if (recommendedRows.Count == 0)
-        {
-            return fallbackPercent.ToString("F2", CultureInfo.InvariantCulture) + "% 付近";
-        }
+        if (recommendedRows.Count == 0) return fallbackPercent.ToString("F2", CultureInfo.InvariantCulture) + "% 付近";
 
         var start = recommendedRows[0].FirstPlayerWinRatePercent;
         var end = recommendedRows[^1].FirstPlayerWinRatePercent;
@@ -388,6 +463,11 @@ internal static partial class Program
             : start.ToString("F2", CultureInfo.InvariantCulture) + "%〜" + end.ToString("F2", CultureInfo.InvariantCulture) + "%";
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="outputCsvPath"></param>
+    /// <param name="playerRows"></param>
     static void WriteQualityPlayerCsv(string outputCsvPath, IReadOnlyList<QualityPlayerRow> playerRows)
     {
         var directoryPath = Path.GetDirectoryName(outputCsvPath);
@@ -414,6 +494,13 @@ internal static partial class Program
         File.WriteAllLines(outputCsvPath, lines, new UTF8Encoding(false));
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="outputCsvPath"></param>
+    /// <param name="mode"></param>
+    /// <param name="firstPlayerWinRatePercent"></param>
+    /// <param name="resultRows"></param>
     static void WriteResultCsv(string outputCsvPath, string mode, double firstPlayerWinRatePercent, IReadOnlyList<ResultRow> resultRows)
     {
         var directoryPath = Path.GetDirectoryName(outputCsvPath);
@@ -486,6 +573,14 @@ internal static partial class Program
         File.WriteAllLines(outputCsvPath, lines, new UTF8Encoding(false));
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="outputMarkdownPath"></param>
+    /// <param name="outputCsvPath"></param>
+    /// <param name="mode"></param>
+    /// <param name="firstPlayerWinRatePercent"></param>
+    /// <param name="resultRows"></param>
     static void WriteResultMarkdown(string outputMarkdownPath, string outputCsvPath, string mode, double firstPlayerWinRatePercent, IReadOnlyList<ResultRow> resultRows)
     {
         var directoryPath = Path.GetDirectoryName(outputMarkdownPath);
@@ -575,6 +670,13 @@ internal static partial class Program
         File.WriteAllLines(outputMarkdownPath, lines, new UTF8Encoding(false));
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="outputCsvPath"></param>
+    /// <param name="mode"></param>
+    /// <param name="firstPlayerWinRatePercent"></param>
+    /// <param name="resultRows"></param>
     static void WriteFinalStageResultCsv(string outputCsvPath, string mode, double firstPlayerWinRatePercent, IReadOnlyList<FinalStageResultRow> resultRows)
     {
         var directoryPath = Path.GetDirectoryName(outputCsvPath);
@@ -653,6 +755,15 @@ internal static partial class Program
         File.WriteAllLines(outputCsvPath, lines, new UTF8Encoding(false));
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="outputMarkdownPath"></param>
+    /// <param name="outputCsvPath"></param>
+    /// <param name="mode"></param>
+    /// <param name="firstPlayerWinRatePercent"></param>
+    /// <param name="resultRows"></param>
+    /// <param name="referenceMatchesCsvPath"></param>
     static void WriteFinalStageResultMarkdown(string outputMarkdownPath, string outputCsvPath, string mode, double firstPlayerWinRatePercent, IReadOnlyList<FinalStageResultRow> resultRows, string? referenceMatchesCsvPath = null)
     {
         var directoryPath = Path.GetDirectoryName(outputMarkdownPath);
@@ -778,16 +889,32 @@ internal static partial class Program
         File.WriteAllLines(outputMarkdownPath, lines, new UTF8Encoding(false));
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="labels"></param>
+    /// <returns></returns>
     static string BuildMermaidCategoryList(IEnumerable<string> labels)
     {
         return string.Join(", ", labels.Select(EscapeMermaidLabel));
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="label"></param>
+    /// <returns></returns>
     static string EscapeMermaidLabel(string label)
     {
         return "\"" + label.Replace("\"", "'") + "\"";
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="markdownPath"></param>
+    /// <param name="targetPath"></param>
+    /// <returns></returns>
     static string BuildMarkdownFileLink(string markdownPath, string targetPath)
     {
         var markdownDirectory = Path.GetDirectoryName(Path.GetFullPath(markdownPath)) ?? Path.GetFullPath(".");
@@ -799,6 +926,13 @@ internal static partial class Program
         return $"[{fileName}]({relativePath})";
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="outputCsvPath"></param>
+    /// <param name="stages"></param>
+    /// <param name="players"></param>
+    /// <param name="matchRecords"></param>
     static void WriteTournamentMatchRecordCsv(string outputCsvPath, IReadOnlyList<StageEntry> stages, IReadOnlyList<PlayerEntry> players, IReadOnlyList<TournamentMatchRecord> matchRecords)
     {
         var directoryPath = Path.GetDirectoryName(outputCsvPath);
@@ -839,6 +973,14 @@ internal static partial class Program
         File.WriteAllLines(outputCsvPath, lines, new UTF8Encoding(false));
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="outputMarkdownPath"></param>
+    /// <param name="outputCsvPath"></param>
+    /// <param name="stages"></param>
+    /// <param name="players"></param>
+    /// <param name="matchRecords"></param>
     static void WriteTournamentMatchRecordMarkdown(string outputMarkdownPath, string outputCsvPath, IReadOnlyList<StageEntry> stages, IReadOnlyList<PlayerEntry> players, IReadOnlyList<TournamentMatchRecord> matchRecords)
     {
         var directoryPath = Path.GetDirectoryName(outputMarkdownPath);
