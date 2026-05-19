@@ -89,6 +89,7 @@ internal static partial class Program
         matches = new List<Match>();
         errorMessage = string.Empty;
 
+        // 👓　空でないことを確認
         if (lines.Count == 0) { errorMessage = "対局入力がありません。"; return false; }
 
         if (LooksLikeRoundMatrixInput(lines)) return TryParseMatchesFromRoundMatrix(lines, players, out matches, out errorMessage);
@@ -105,22 +106,27 @@ internal static partial class Program
         for (var i = startIndex; i < lines.Count; i++)
         {
             var columns = SplitCsvLine(lines[i]);
+            // 👓　2 列以上であることを確認
             if (columns.Count < 2) { errorMessage = $"{i + 1} 行目は 2 列以上必要です。"; return false; }
 
             var firstPlayerName = columns[0].Trim();
             var secondPlayerName = columns[1].Trim();
+            // 👓　先手と後手の名前が空でないことを確認
             if (string.IsNullOrWhiteSpace(firstPlayerName) || string.IsNullOrWhiteSpace(secondPlayerName)) { errorMessage = $"{i + 1} 行目の先手または後手が空です。"; return false; }
-
+            // 👓　先手と後手が選手一覧に存在することを確認
             if (!playerIndexes.TryGetValue(firstPlayerName, out var firstPlayerIndex)) { errorMessage = $"{i + 1} 行目の先手 '{firstPlayerName}' が選手一覧にありません。"; return false; }
             if (!playerIndexes.TryGetValue(secondPlayerName, out var secondPlayerIndex)) { errorMessage = $"{i + 1} 行目の後手 '{secondPlayerName}' が選手一覧にありません。"; return false; }
+            // 👓　先手と後手が同じ選手でないことを確認
             if (firstPlayerIndex == secondPlayerIndex) { errorMessage = $"{i + 1} 行目は同じ選手同士の対局です。"; return false; }
 
             var match = new Match(firstPlayerIndex, secondPlayerIndex);
+            // 👓　同じ組み合わせの対局が複数回入力されていないことを確認
             if (!seenPairs.Add(match)) { errorMessage = $"{i + 1} 行目の対局 '{firstPlayerName} vs {secondPlayerName}' が重複しています。"; return false; }
 
             matches.Add(match);
         }
 
+        // 👓　空でないことを確認
         if (matches.Count == 0) { errorMessage = "対局は 1 局以上必要です。"; return false; }
 
         return true;
