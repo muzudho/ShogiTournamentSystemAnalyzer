@@ -1,0 +1,22 @@
+TournamentRule/1
+
+[Engine]
+TimeAxis=Tick
+DefaultMatchResultResolver=EloFirstPlayerWinRate
+
+[Stages]
+Stage(1, "予選A組", Group)
+
+[Flow]
+OnTick:
+	StartScheduledMatches()
+	CompleteFinishedMatches()
+
+[PairingRule]
+When Stage=1: FixedMatch
+
+[RankingRule]
+OverallRanking=ByFinishedResults
+
+[TerminationRule]
+AllMatchesFinished

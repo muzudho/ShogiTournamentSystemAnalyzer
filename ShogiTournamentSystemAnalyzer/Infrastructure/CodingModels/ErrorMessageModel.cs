@@ -3,12 +3,12 @@
 /// <summary>
 /// ［エラーメッセージ］だ。
 /// </summary>
-internal record ErrorMessageModel
+internal readonly record struct ErrorMessageModel(string Value)
 {
-    public ErrorMessageModel(string value)
-    {
-        Value = value;
-    }
+    internal static ErrorMessageModel Empty { get; private set; } = new(string.Empty);
 
-    public string Value { get; }
+    internal static ErrorMessageModel FromString(string value)
+        => string.IsNullOrWhiteSpace(value) ? Empty : new(value);
+
+    public override string ToString() => Value;
 }

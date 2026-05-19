@@ -1,3 +1,4 @@
+using ShogiTournamentSystemAnalyzer.Infrastructure.CodingModels;
 using System.Globalization;
 using System.Text;
 
@@ -8,12 +9,12 @@ internal static partial class Program
     /// </summary>
     /// <param name="lines">CSV の各行を表す文字列のリスト</param>
     /// <param name="players">解析結果として作成される選手のリスト</param>
-    /// <param name="errorMessage">解析中に発生したエラーメッセージ</param>
+    /// <param name="err">解析中に発生したエラーメッセージ</param>
     /// <returns>解析が成功した場合は true、失敗した場合は false</returns>
-    static bool TryParsePlayers(IReadOnlyList<string> lines, out List<Player> players, out string errorMessage)
+    static bool TryParsePlayers(IReadOnlyList<string> lines, out List<Player> players, out ErrorMessageModel err)
     {
         players = new List<Player>();
-        errorMessage = string.Empty;
+        err = ErrorMessageModel.Empty;
 
         var startIndex = 0;
         var firstColumns = SplitCsvLine(lines[0]);
@@ -26,24 +27,24 @@ internal static partial class Program
         {
             var columns = SplitCsvLine(lines[i]);
             // 👓　2 列以上であることを確認
-            if (columns.Count < 2) { errorMessage = $"{i + 1} 行目は 2 列以上必要です。"; return false; }
+            if (columns.Count < 2) { err = ErrorMessageModel.FromString($"{i + 1} 行目は 2 列以上必要です。"); return false; }
 
             var name = columns[0].Trim();
             // 👓　レーティングを数値として解析できることを確認
-            if (string.IsNullOrWhiteSpace(name)) { errorMessage = $"{i + 1} 行目の名前が空です。"; return false; }
-            if (!TryParseDouble(columns[1], out var rating)) { errorMessage = $"{i + 1} 行目の Elo レーティングを数値で入力してください。"; return false; }
+            if (string.IsNullOrWhiteSpace(name)) { err = ErrorMessageModel.FromString($"{i + 1} 行目の名前が空です。"); return false; }
+            if (!TryParseDouble(columns[1], out var rating)) { err = ErrorMessageModel.FromString($"{i + 1} 行目の Elo レーティングを数値で入力してください。"); return false; }
 
             players.Add(new Player(name, rating));
         }
 
         // 👓　空でないことを確認
-        if (players.Count == 0) { errorMessage = "選手は 1 人以上必要です。"; return false; }
+        if (players.Count == 0) { err = ErrorMessageModel.FromString("選手は 1 人以上必要です。"); return false; }
 
         // 👓　名前の重複がないことを確認
         var duplicateName = players
             .GroupBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
             .FirstOrDefault(group => group.Count() > 1);
-        if (duplicateName is not null) { errorMessage = $"選手名 '{duplicateName.Key}' が重複しています。"; return false; }
+        if (duplicateName is not null) { err = ErrorMessageModel.FromString($"選手名 '{duplicateName.Key}' が重複しています。"); return false; }
 
         return true;
     }

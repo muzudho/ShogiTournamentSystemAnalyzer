@@ -12,28 +12,16 @@ internal static partial class Program
             while (true)
             {
                 var line = Console.ReadLine();
-                if (line is null)
-                {
-                    throw new OperationCanceledException("参考対局入力中に入力ストリームが終了しました。");
-                }
+                if (line is null) throw new OperationCanceledException("参考対局入力中に入力ストリームが終了しました。");
 
-                if (line.Trim().Equals("END", StringComparison.OrdinalIgnoreCase))
-                {
-                    break;
-                }
+                if (line.Trim().Equals("END", StringComparison.OrdinalIgnoreCase)) break;
 
                 lines.Add(line);
             }
 
-            if (lines.All(string.IsNullOrWhiteSpace))
-            {
-                return new List<Match>();
-            }
+            if (lines.All(string.IsNullOrWhiteSpace)) return new List<Match>();
 
-            if (TryParseMatches(lines, players, out var matches, out var errorMessage))
-            {
-                return matches;
-            }
+            if (TryParseMatches(lines, players, out var matches, out var errorMessage)) return matches;
 
             Console.WriteLine($"参考対局入力の読み取りに失敗しました: {errorMessage}");
             if (attempt >= InputRetryLimit)
@@ -83,10 +71,7 @@ internal static partial class Program
     {
         Console.Write("評価メモを1行で入力してください（省略可）: ");
         var input = Console.ReadLine();
-        if (input is null)
-        {
-            throw new OperationCanceledException("評価メモ入力中に入力ストリームが終了しました。");
-        }
+        if (input is null) throw new OperationCanceledException("評価メモ入力中に入力ストリームが終了しました。");
 
         Console.WriteLine();
         return input.Trim();
@@ -138,10 +123,7 @@ internal static partial class Program
             while (true)
             {
                 var line = Console.ReadLine();
-                if (string.IsNullOrWhiteSpace(line))
-                {
-                    break;
-                }
+                if (string.IsNullOrWhiteSpace(line)) break;
 
                 lines.Add(line);
             }
@@ -157,10 +139,7 @@ internal static partial class Program
                 continue;
             }
 
-            if (TryParseFinalStageGroups(lines, out var groupMap, out var errorMessage))
-            {
-                return groupMap;
-            }
+            if (TryParseFinalStageGroups(lines, out var groupMap, out var errorMessage)) return groupMap;
 
             Console.WriteLine($"CSVの読み取りに失敗しました: {errorMessage}");
             if (attempt >= InputRetryLimit)
@@ -184,28 +163,19 @@ internal static partial class Program
             while (true)
             {
                 var line = Console.ReadLine();
-                if (string.IsNullOrWhiteSpace(line))
-                {
-                    break;
-                }
+                if (string.IsNullOrWhiteSpace(line)) break;
 
                 lines.Add(line);
             }
 
-            if (lines.Count == 0)
-            {
-                return new List<Player>();
-            }
+            if (lines.Count == 0) return new List<Player>();
 
-            if (TryParsePlayers(lines, out var players, out var errorMessage))
-            {
-                return players;
-            }
+            if (TryParsePlayers(lines, out var players, out var err)) return players;
 
-            Console.WriteLine($"CSVの読み取りに失敗しました: {errorMessage}");
+            Console.WriteLine($"CSVの読み取りに失敗しました: {err.Value}");
             if (attempt >= InputRetryLimit)
             {
-                ThrowInputRetryLimitExceeded("選手一覧CSV", errorMessage);
+                ThrowInputRetryLimitExceeded("選手一覧CSV", err.Value);
             }
             Console.WriteLine("もう一度入力してください。\n");
         }
@@ -224,15 +194,9 @@ internal static partial class Program
             while (true)
             {
                 var line = Console.ReadLine();
-                if (line is null)
-                {
-                    throw new OperationCanceledException("選手一覧CSVの入力中に入力ストリームが終了しました。");
-                }
+                if (line is null) throw new OperationCanceledException("選手一覧CSVの入力中に入力ストリームが終了しました。");
 
-                if (string.IsNullOrWhiteSpace(line))
-                {
-                    break;
-                }
+                if (string.IsNullOrWhiteSpace(line)) break;
 
                 lines.Add(line);
             }
@@ -248,15 +212,12 @@ internal static partial class Program
                 continue;
             }
 
-            if (TryParsePlayers(lines, out var players, out var errorMessage))
-            {
-                return players;
-            }
+            if (TryParsePlayers(lines, out var players, out var err)) return players;
 
-            Console.WriteLine($"CSVの読み取りに失敗しました: {errorMessage}");
+            Console.WriteLine($"CSVの読み取りに失敗しました: {err.Value}");
             if (attempt >= InputRetryLimit)
             {
-                ThrowInputRetryLimitExceeded("選手一覧CSV", errorMessage);
+                ThrowInputRetryLimitExceeded("選手一覧CSV", err.Value);
             }
             Console.WriteLine("もう一度入力してください。\n");
         }
