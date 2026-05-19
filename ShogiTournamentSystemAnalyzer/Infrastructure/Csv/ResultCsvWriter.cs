@@ -838,5 +838,47 @@ internal static partial class Program
 
         File.WriteAllLines(outputCsvPath, lines, new UTF8Encoding(false));
     }
+
+    static void WriteTournamentMatchRecordMarkdown(string outputMarkdownPath, string outputCsvPath, IReadOnlyList<StageEntry> stages, IReadOnlyList<PlayerEntry> players, IReadOnlyList<TournamentMatchRecord> matchRecords)
+    {
+        var directoryPath = Path.GetDirectoryName(outputMarkdownPath);
+        if (!string.IsNullOrWhiteSpace(directoryPath)) Directory.CreateDirectory(directoryPath);
+
+        var stageNameById = stages.ToDictionary(stage => stage.StageId, stage => stage.StageName);
+        var playerNameById = players.ToDictionary(player => player.PlayerId, player => player.Name);
+        var orderedMatches = matchRecords
+            .OrderBy(match => match.StartTime)
+            .ThenBy(match => match.MatchId)
+            .ToArray();
+        var finishedCount = orderedMatches.Count(match => match.Status == MatchStatus.Finished);
+        var cancelledCount = orderedMatches.Count(match => match.Status == MatchStatus.Cancelled);
+
+        var lines = new List<string>
+        {
+            "# 大会結果テーブル",
+            string.Empty,
+            "## 概要",
+            $"- 結果CSV: {BuildMarkdownFileLink(outputMarkdownPath, outputCsvPath)}",
+            $"- 総対局数: {orderedMatches.Length}",
+            $"- ステージ数: {stages.Count}",
+            $"- 完了対局数: {finishedCount}",
+            $"- 中止対局数: {cancelledCount}",
+            string.Empty,
+            "## 一覧表",
+            "| 対局番号 | ステージ | 先手 | 後手 | 開始 | 終了 | 状態 | 結果 | ラウンド |",
+            "| ---: | --- | --- | --- | ---: | ---: | --- | --- | ---: |"
+        };
+
+        foreach (var match in orderedMatches)
+        {
+            var stageName = stageNameById.TryGetValue(match.StageId, out var stage) ? stage : match.StageId.ToString(CultureInfo.InvariantCulture);
+            var firstPlayerName = playerNameById.TryGetValue(match.FirstPlayerId, out var firstPlayer) ? firstPlayer : match.FirstPlayerId.ToString(CultureInfo.InvariantCulture);
+            var secondPlayerName = playerNameById.TryGetValue(match.SecondPlayerId, out var secondPlayer) ? secondPlayer : match.SecondPlayerId.ToString(CultureInfo.InvariantCulture);
+            var roundText = match.RoundNo?.ToString(CultureInfo.InvariantCulture) ?? string.Empty;
+            lines.Add($"| {match.MatchId.ToString(CultureInfo.InvariantCulture)} | {stageName} | {firstPlayerName} | {secondPlayerName} | {match.StartTime.ToString(CultureInfo.InvariantCulture)} | {match.EndTime.ToString(CultureInfo.InvariantCulture)} | {match.Status} | {match.ResultType} | {roundText} |");
+        }
+
+        File.WriteAllLines(outputMarkdownPath, lines, new UTF8Encoding(false));
+    }
 }
 

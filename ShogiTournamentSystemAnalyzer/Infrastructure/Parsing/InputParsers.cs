@@ -17,7 +17,7 @@ internal static partial class Program
         err = ErrorMessageModel.Empty;
 
         var startIndex = 0;
-        var firstColumns = SplitCsvLine(lines[0]);
+        var firstColumns = SplitCsvLine(lines[0]);  // 先頭行をカンマで分割して列を取得
         if (IsHeaderRow(firstColumns))
         {
             startIndex = 1;
@@ -363,14 +363,20 @@ internal static partial class Program
         return columns;
     }
 
+    /// <summary>
+    /// ［ヘッダー行］か。
+    /// </summary>
+    /// <param name="columns"></param>
+    /// <returns></returns>
     static bool IsHeaderRow(IReadOnlyList<string> columns)
     {
-        // 👓　先頭列が "name" または "名前" で、2 列目が "elo", "rating", "eloRating", "eloレーティング", または "レーティング" であることを確認
+        // 👓　2 列以上であることを確認
         if (columns.Count < 2) return false;
 
-        var first = columns[0].Trim();
-        var second = columns[1].Trim();
+        var first = columns[0].Trim();  // 先頭列
+        var second = columns[1].Trim(); // 2 列目
 
+        // 👓　先頭列が "name" または "名前" で、2 列目が "elo", "rating", "eloRating", "eloレーティング", または "レーティング" であることを確認
         return first.Equals("name", StringComparison.OrdinalIgnoreCase)
             || first.Equals("名前", StringComparison.OrdinalIgnoreCase)
             || second.Equals("elo", StringComparison.OrdinalIgnoreCase)
