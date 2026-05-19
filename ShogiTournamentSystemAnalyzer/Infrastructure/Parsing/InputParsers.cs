@@ -487,7 +487,7 @@ internal static partial class Program
     static bool IsMatchHeaderRow(IReadOnlyList<string> columns)
     {
         // 👓　先頭列が "black", "先手", "first", "white", "後手", または "second" であることを確認
-        if (columns.Count < 2) { return false; }
+        if (columns.Count < 2) return false;
 
         var first = columns[0].Trim();
         var second = columns[1].Trim();
