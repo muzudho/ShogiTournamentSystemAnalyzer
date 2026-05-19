@@ -139,6 +139,12 @@ internal static partial class Program
         var analysisFlowMode = ParseAnalysisFlowMode(GetRequiredMetaValue(meta, "AnalysisFlowMode", fullPath));
         var ruleProfileMode = ParseRuleProfileMode(GetRequiredMetaValue(meta, "RuleProfileMode", fullPath));
 
+        if (analysisFlowMode == AnalysisFlowMode.Simulation
+            && GetOptionalMetaValue(meta, "TournamentFrameworkMode") is not null)
+        {
+            return ConvertStsaInput2TournamentFramework(meta, sections, fullPath);
+        }
+
         if (analysisFlowMode != AnalysisFlowMode.QualityEvaluation)
         {
             throw new OperationCanceledException("STSAInput/2 の最小対応は、現在のところ『品質評価』のみです。");
@@ -366,6 +372,37 @@ internal static partial class Program
         }
 
         legacyLines.Add(outputPath);
+        return string.Join(Environment.NewLine, legacyLines);
+    }
+
+    static string ConvertStsaInput2TournamentFramework(
+        Dictionary<string, string> meta,
+        Dictionary<string, List<string>> sections,
+        string fullPath)
+    {
+        var inputs = sections.TryGetValue("Inputs", out var inputLines)
+            ? ParseSectionKeyValues(inputLines, "Inputs", fullPath)
+            : new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+        var playersCsvPath = GetRequiredMetaValue(inputs, "PlayersCsvPath", fullPath);
+        var stagesCsvPath = GetRequiredMetaValue(inputs, "StagesCsvPath", fullPath);
+        var tournamentMatchRecordsCsvPath = GetRequiredMetaValue(inputs, "TournamentMatchRecordsCsvPath", fullPath);
+        var ruleFilePath = GetOptionalMetaValue(inputs, "RuleFilePath")
+            ?? GetOptionalMetaValue(meta, "RuleFilePath")
+            ?? string.Empty;
+        var randomSeed = GetOptionalMetaValue(meta, "RandomSeed") ?? string.Empty;
+
+        var legacyLines = new List<string>
+        {
+            "1",
+            "3",
+            playersCsvPath,
+            stagesCsvPath,
+            tournamentMatchRecordsCsvPath,
+            ruleFilePath,
+            randomSeed,
+        };
+
         return string.Join(Environment.NewLine, legacyLines);
     }
 
