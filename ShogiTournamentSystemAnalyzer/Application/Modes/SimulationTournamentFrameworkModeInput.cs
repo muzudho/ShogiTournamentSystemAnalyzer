@@ -12,6 +12,7 @@ internal static partial class Program
         var tournamentMatchRecordsCsvPath = ReadRequiredFilePath("大会対局記録CSVのパスを入力してください: ");
         var ruleFilePath = ReadOptionalFilePath("大会ルールDSLファイルのパスを入力してください（省略可）: ");
         var randomSeed = ReadOptionalInt("乱数シードを入力してください（省略可）: ");
+        var outputPath = ReadOptionalFilePath("結果CSVの出力先パスまたはフォルダーパスを入力してください（省略可）: ");
         Console.WriteLine();
 
         return new TournamentFrameworkModeContext(
@@ -21,6 +22,7 @@ internal static partial class Program
             ruleFilePath,
             randomSeed,
             firstPlayerWinRatePercent,
-            firstPlayerWinRateRating);
+            firstPlayerWinRateRating,
+            outputPath);
     }
 }

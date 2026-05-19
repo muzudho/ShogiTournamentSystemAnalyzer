@@ -90,6 +90,7 @@ internal static partial class Program
         Console.WriteLine("4. 大会対局記録CSVのファイルパス");
         Console.WriteLine("5. 大会ルールDSLファイルのパス（省略可）");
         Console.WriteLine("6. 乱数シード（省略可）\n");
+        Console.WriteLine("7. 結果CSVの出力先（省略可）\n");
     }
 
     static void PrintQualityEvaluationStandardOverview()

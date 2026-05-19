@@ -140,7 +140,8 @@ internal static partial class Program
         var ruleProfileMode = ParseRuleProfileMode(GetRequiredMetaValue(meta, "RuleProfileMode", fullPath));
 
         if (analysisFlowMode == AnalysisFlowMode.Simulation
-            && GetOptionalMetaValue(meta, "TournamentFrameworkMode") is not null)
+            && (ruleProfileMode == RuleProfileMode.TournamentFramework
+                || GetOptionalMetaValue(meta, "TournamentFrameworkMode") is not null))
         {
             return ConvertStsaInput2TournamentFramework(meta, sections, fullPath);
         }
@@ -390,17 +391,26 @@ internal static partial class Program
         var ruleFilePath = GetOptionalMetaValue(inputs, "RuleFilePath")
             ?? GetOptionalMetaValue(meta, "RuleFilePath")
             ?? string.Empty;
+        var firstPlayerWinRatePercent = GetOptionalMetaValue(meta, "FirstPlayerWinRatePercent") ?? string.Empty;
         var randomSeed = GetOptionalMetaValue(meta, "RandomSeed") ?? string.Empty;
+        var output = sections.TryGetValue("Output", out var outputLines)
+            ? ParseSectionKeyValues(outputLines, "Output", fullPath)
+            : new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        var outputPath = GetOptionalMetaValue(output, "OutputPath")
+            ?? GetOptionalMetaValue(meta, "OutputPath")
+            ?? string.Empty;
 
         var legacyLines = new List<string>
         {
             "1",
             "3",
+            firstPlayerWinRatePercent,
             playersCsvPath,
             stagesCsvPath,
             tournamentMatchRecordsCsvPath,
             ruleFilePath,
             randomSeed,
+            outputPath,
         };
 
         return string.Join(Environment.NewLine, legacyLines);
@@ -510,6 +520,11 @@ internal static partial class Program
 
     static RuleProfileMode ParseRuleProfileMode(string value)
     {
+        if (value.Equals("TournamentFramework", StringComparison.OrdinalIgnoreCase) || value == "3")
+        {
+            return RuleProfileMode.TournamentFramework;
+        }
+
         if (value.Equals("FinalStage", StringComparison.OrdinalIgnoreCase) || value == "2")
         {
             return RuleProfileMode.FinalStage;

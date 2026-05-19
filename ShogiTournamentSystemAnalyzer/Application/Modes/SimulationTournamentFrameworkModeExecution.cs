@@ -51,9 +51,10 @@ internal static partial class Program
         PrintResult(standardPlayers.Length, result, context.FirstPlayerWinRatePercent, resultRows);
 
         var defaultOutputCsvPath = Path.GetFullPath($"tournament_framework_result_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
-        var outputCsvPath = ResolveOutputCsvPath(ReadTextWithDefault(
-            $"\n結果CSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
-            defaultOutputCsvPath));
+        var requestedOutputPath = string.IsNullOrWhiteSpace(context.OutputPath)
+            ? ReadTextWithDefault($"\n結果CSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ", defaultOutputCsvPath)
+            : context.OutputPath!;
+        var outputCsvPath = ResolveOutputCsvPath(requestedOutputPath);
         WriteResultCsv(outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, resultRows);
         var outputMarkdownPath = ChangeOutputExtension(outputCsvPath, ".md");
         WriteResultMarkdown(outputMarkdownPath, outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, resultRows);
