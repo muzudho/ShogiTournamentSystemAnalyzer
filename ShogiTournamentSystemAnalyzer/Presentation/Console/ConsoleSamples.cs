@@ -84,11 +84,12 @@ internal static partial class Program
     static void PrintSimulationTournamentFrameworkOverview()
     {
         Console.WriteLine("このモードでは次を順に入力します。");
-        Console.WriteLine("1. 選手 / Player 一覧CSVのファイルパス");
-        Console.WriteLine("2. ステージ一覧CSVのファイルパス");
-        Console.WriteLine("3. 大会対局記録CSVのファイルパス");
-        Console.WriteLine("4. 大会ルールDSLファイルのパス（省略可）");
-        Console.WriteLine("5. 乱数シード（省略可）\n");
+        Console.WriteLine("1. 同Elo対局時の先手勝率 (%)");
+        Console.WriteLine("2. 選手 / Player 一覧CSVのファイルパス");
+        Console.WriteLine("3. ステージ一覧CSVのファイルパス");
+        Console.WriteLine("4. 大会対局記録CSVのファイルパス");
+        Console.WriteLine("5. 大会ルールDSLファイルのパス（省略可）");
+        Console.WriteLine("6. 乱数シード（省略可）\n");
     }
 
     static void PrintQualityEvaluationStandardOverview()

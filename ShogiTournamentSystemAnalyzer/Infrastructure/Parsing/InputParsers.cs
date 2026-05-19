@@ -158,11 +158,12 @@ internal static partial class Program
             }
         }
 
+        // 👓　Round セクションと First/Second（または Black/White）セクションが存在することを確認
         if (!sections.TryGetValue("Round", out var roundLines)) { errorMessage = "Round セクションがありません。"; return false; }
-
         if (!sections.TryGetValue("Black/White", out var colorLines)
             && !sections.TryGetValue("First/Second", out colorLines)) { errorMessage = "First/Second セクションがありません。"; return false; }
 
+        // 👓　Round セクションと First/Second（または Black/White）セクションの形式が正しいことを確認
         if (!TryParseSquareMatrix(roundLines, "Round", out var roundNames, out var roundValues, out errorMessage)) return false;
         if (!TryParseSquareMatrix(colorLines, "First/Second", out var colorNames, out var colorValues, out errorMessage)) return false;
         if (roundNames.Count != colorNames.Count || !roundNames.SequenceEqual(colorNames, StringComparer.OrdinalIgnoreCase)) { errorMessage = "Round セクションと First/Second セクションの見出しが一致していません。"; return false; }
@@ -171,6 +172,7 @@ internal static partial class Program
         if (sections.TryGetValue("Players", out var aliasLines)
             || sections.TryGetValue("対局記号表", out aliasLines))
         {
+            // 👓　対局記号表セクションがある場合は、Round セクションの見出しを選手名に変換する
             if (!TryParsePlayerAliases(aliasLines, roundNames, out resolvedNames, out errorMessage)) return false;
         }
 
@@ -181,6 +183,7 @@ internal static partial class Program
         var orderedMatches = new List<(int Round, Match Match, int Order)>();
         for (var i = 0; i < roundNames.Count; i++)
         {
+            // 👓　Round セクションの見出し（または対局記号表で解決された名前）が選手一覧に存在することを確認
             if (!playerIndexes.ContainsKey(resolvedNames[i])) { errorMessage = $"対局記号表セクションの選手名 '{resolvedNames[i]}' が選手一覧にありません。"; return false; }
 
             for (var j = i + 1; j < roundNames.Count; j++)
@@ -188,8 +191,8 @@ internal static partial class Program
                 var roundForward = NormalizeMatrixCell(roundValues[i, j]);
                 var roundBackward = NormalizeMatrixCell(roundValues[j, i]);
 
+                // 👓　Round セクションの両方向のセルが両方とも空でない場合は、値が一致していることを確認し、1 以上の整数であることを確認
                 if (string.IsNullOrEmpty(roundForward) && string.IsNullOrEmpty(roundBackward)) continue;
-
                 if (!string.Equals(roundForward, roundBackward, StringComparison.OrdinalIgnoreCase)) { errorMessage = $"Round 表の '{roundNames[i]}' と '{roundNames[j]}' の値が一致していません。"; return false; }
                 if (!int.TryParse(roundForward, NumberStyles.Integer, CultureInfo.InvariantCulture, out var roundNumber) || roundNumber <= 0) { errorMessage = $"Round 表の '{roundNames[i]}' と '{roundNames[j]}' の値は 1 以上の整数で入力してください。"; return false; }
 
@@ -205,12 +208,14 @@ internal static partial class Program
                 {
                     match = new Match(playerIndexes[resolvedNames[j]], playerIndexes[resolvedNames[i]]);
                 }
+                // 👓　Round セクションの両方向のセルが両方とも空でない場合は、片方が f/s（互換で b/w も可）で、もう片方が w/b（互換で s/f も可）であることを確認
                 else { errorMessage = $"First/Second 表の '{roundNames[i]}' と '{roundNames[j]}' は f/s（互換で b/w も可）の組み合わせで入力してください。"; return false; }
 
                 orderedMatches.Add((roundNumber, match, orderedMatches.Count));
             }
         }
 
+        // 👓　対局が空でないことを確認
         if (orderedMatches.Count == 0) { errorMessage = "対局は 1 局以上必要です。"; return false; }
 
         matches = orderedMatches
@@ -227,17 +232,20 @@ internal static partial class Program
         resolvedNames = new List<string>();
         errorMessage = string.Empty;
 
+        // 👓　空でないことを確認
         if (lines.Count == 0) { errorMessage = "対局記号表セクションの内容がありません。"; return false; }
 
         var aliasMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         foreach (var line in lines)
         {
             var columns = SplitCsvLine(line);
+            // 👓　2 列以上であることを確認
             if (columns.Count < 2) { errorMessage = "対局記号表セクションは 2 列以上で入力してください。"; return false; }
 
             var alias = columns[0].Trim();
             var playerName = columns[1].Trim();
 
+            // 👓　記号も選手名も空でないことを確認
             if (string.IsNullOrWhiteSpace(alias) || string.IsNullOrWhiteSpace(playerName)) { errorMessage = "対局記号表セクションの記号または選手名が空です。"; return false; }
             if (aliasMap.ContainsKey(alias)) { errorMessage = $"対局記号表セクションの記号 '{alias}' が重複しています。"; return false; }
 
@@ -246,6 +254,7 @@ internal static partial class Program
 
         foreach (var alias in aliases)
         {
+            // 👓　Round セクションの見出しが対局記号表セクションの記号に存在することを確認
             if (!aliasMap.TryGetValue(alias, out var playerName)) { errorMessage = $"対局記号表セクションに記号 '{alias}' の対応表がありません。"; return false; }
 
             resolvedNames.Add(playerName);
@@ -266,12 +275,15 @@ internal static partial class Program
         values = new string[0, 0];
         errorMessage = string.Empty;
 
+        // 👓　空でないことを確認
         if (lines.Count < 2) { errorMessage = $"{sectionName} セクションの行数が不足しています。"; return false; }
 
         var headerColumns = SplitCsvLine(lines[0]).Select(x => x.Trim()).ToList();
+        // 👓　ヘッダー行が 2 列以上であることを確認
         if (headerColumns.Count < 2) { errorMessage = $"{sectionName} セクションのヘッダーが不正です。"; return false; }
 
         names = headerColumns.Skip(1).ToList();
+        // 👓　見出しが空でないことと重複がないことを確認
         if (names.Any(string.IsNullOrWhiteSpace) || names.Distinct(StringComparer.OrdinalIgnoreCase).Count() != names.Count) { errorMessage = $"{sectionName} セクションの見出しが不正です。"; return false; }
 
         var nameToRowIndex = names
@@ -284,9 +296,11 @@ internal static partial class Program
         for (var lineIndex = 1; lineIndex < lines.Count; lineIndex++)
         {
             var columns = SplitCsvLine(lines[lineIndex]);
+            // 👓　各行が見出しの数 + 1 列以上であることを確認
             if (columns.Count < names.Count + 1) { errorMessage = $"{sectionName} セクションの {lineIndex + 1} 行目の列数が不足しています。"; return false; }
 
             var rowName = columns[0].Trim();
+            // 👓　行の見出しがヘッダーの見出しのいずれかに一致することを確認
             if (!nameToRowIndex.TryGetValue(rowName, out var rowIndex)) { errorMessage = $"{sectionName} セクションの {lineIndex + 1} 行目の記号 '{rowName}' がヘッダーにありません。"; return false; }
             if (seenRows[rowIndex]) { errorMessage = $"{sectionName} セクションの行 '{rowName}' が重複しています。"; return false; }
 
@@ -297,6 +311,7 @@ internal static partial class Program
             }
         }
 
+        // 👓　すべての行が見られていることを確認
         if (seenRows.Any(x => !x)) { errorMessage = $"{sectionName} セクションに不足している行があります。"; return false; }
 
         return true;
@@ -349,6 +364,7 @@ internal static partial class Program
 
     static bool IsHeaderRow(IReadOnlyList<string> columns)
     {
+        // 👓　先頭列が "name" または "名前" で、2 列目が "elo", "rating", "eloRating", "eloレーティング", または "レーティング" であることを確認
         if (columns.Count < 2) return false;
 
         var first = columns[0].Trim();
@@ -365,6 +381,7 @@ internal static partial class Program
 
     static bool IsFinalStageGroupHeaderRow(IReadOnlyList<string> columns)
     {
+        //👓　先頭列が "group" または "グループ" で、2 列目が "name", "名前", "participantName", または "選手名" であることを確認
         if (columns.Count < 2) return false;
 
         var first = columns[0].Trim();
@@ -380,6 +397,7 @@ internal static partial class Program
 
     static bool TryParseFinalStageGroup(string value, out FinalStageGroup group)
     {
+        // 👓　グループが Apex または Innov であることを確認
         if (value.Equals("Apex", StringComparison.OrdinalIgnoreCase)) { group = FinalStageGroup.Apex; return true; }
         if (value.Equals("Innov", StringComparison.OrdinalIgnoreCase)) { group = FinalStageGroup.Innov; return true; }
 
@@ -389,6 +407,7 @@ internal static partial class Program
 
     static bool IsMatchHeaderRow(IReadOnlyList<string> columns)
     {
+        // 👓　先頭列が "black", "先手", "first", "white", "後手", または "second" であることを確認
         if (columns.Count < 2) { return false; }
 
         var first = columns[0].Trim();
