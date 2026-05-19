@@ -1,5 +1,5 @@
-calculationMode,firstPlayerWinRatePercent,playerName,originalElo,effectiveElo,eloDelta,firstPlayerCount,secondPlayerCount,firstPlayerWinRatePercent,secondPlayerWinRatePercent,championshipProbabilityPercent,averagePlace,place1Percent,place2Percent,place3Percent,place4Percent
-大会進行フレームワーク / FixedMatch,51.00,Alice,1500,1507,+7,2,0,51.00,,0.00,2.000,0.00,100.00,0.00,0.00
-大会進行フレームワーク / FixedMatch,51.00,Bob,1480,1480,0,1,1,52.44,46.13,0.00,3.000,0.00,0.00,100.00,0.00
-大会進行フレームワーク / FixedMatch,51.00,Carol,1520,1520,0,1,1,58.12,51.88,100.00,1.000,100.00,0.00,0.00,0.00
-大会進行フレームワーク / FixedMatch,51.00,Dave,1470,1463,-7,0,2,,44.72,0.00,4.000,0.00,0.00,0.00,100.00
+calculationMode,firstPlayerWinRatePercent,playerName,originalElo,effectiveElo,eloDelta,firstPlayerCount,secondPlayerCount,firstPlayerWinRatePercent,secondPlayerWinRatePercent,championshipProbabilityPercent,averagePlace,place1Percent,place1Count,place2Percent,place2Count,place3Percent,place3Count,place4Percent,place4Count
+"大会進行フレームワーク / FixedMatch (200,000回)",51.00,Alice,1500,1507,+7,2,0,51.00,,25.95,2.269,25.95,51900.000,37.84,75685.000,19.59,39187.000,16.61,33228.000
+"大会進行フレームワーク / FixedMatch (200,000回)",51.00,Bob,1480,1480,0,1,1,52.44,46.13,16.91,2.720,16.91,33817.000,19.68,39355.000,37.90,75799.000,25.51,51029.000
+"大会進行フレームワーク / FixedMatch (200,000回)",51.00,Carol,1520,1520,0,1,1,58.12,51.88,42.44,1.928,42.44,84871.000,37.38,74767.000,5.10,10193.000,15.08,30169.000
+"大会進行フレームワーク / FixedMatch (200,000回)",51.00,Dave,1470,1463,-7,0,2,,44.72,14.71,3.083,14.71,29412.000,5.10,10193.000,37.41,74821.000,42.79,85574.000

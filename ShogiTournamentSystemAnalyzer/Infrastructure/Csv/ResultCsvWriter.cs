@@ -4,7 +4,7 @@ using System.Text;
 internal static partial class Program
 {
     /// <summary>
-    /// 
+    /// ［品質評価］サマリーCSVを出力する
     /// </summary>
     /// <param name="outputCsvPath"></param>
     /// <param name="summary"></param>
@@ -12,11 +12,14 @@ internal static partial class Program
     static void WriteQualitySummaryCsv(string outputCsvPath, QualitySummary summary, ExperimentalReportGroupingOptions options)
     {
         var directoryPath = Path.GetDirectoryName(outputCsvPath);
+
+        // 出力先のディレクトリが存在しない場合は作成する
         if (!string.IsNullOrWhiteSpace(directoryPath))
         {
             Directory.CreateDirectory(directoryPath);
         }
 
+        // CSVの内容を作成する
         var lines = new List<string>
         {
             "metricName,metricValue,note",
@@ -28,11 +31,13 @@ internal static partial class Program
             $"mostAdvantagedPlayerDelta,{summary.MostAdvantagedDelta.ToString("F6", CultureInfo.InvariantCulture)},{EscapeCsv(summary.MostAdvantagedPlayerName)}"
         };
 
+        // 評価メモがある場合はCSVの最後に追加する
         if (!string.IsNullOrWhiteSpace(options.EvaluationMemo))
         {
             lines.Add($"evaluationMemo,,{EscapeCsv(options.EvaluationMemo)}");
         }
 
+        // CSVファイルに書き込む
         File.WriteAllLines(outputCsvPath, lines, new UTF8Encoding(false));
     }
 
@@ -46,6 +51,8 @@ internal static partial class Program
     static void WriteQualitySweepMarkdown(string outputMarkdownPath, IReadOnlyList<QualitySweepRow> sweepRows, string sweepCsvPath, ExperimentalReportGroupingOptions options)
     {
         var directoryPath = Path.GetDirectoryName(outputMarkdownPath);
+
+        // 出力先のディレクトリが存在しない場合は作成する
         if (!string.IsNullOrWhiteSpace(directoryPath))
         {
             Directory.CreateDirectory(directoryPath);
@@ -119,6 +126,7 @@ internal static partial class Program
             });
         }
 
+        // CSVファイルに書き込む
         File.WriteAllLines(outputMarkdownPath, lines, new UTF8Encoding(false));
     }
 
@@ -138,6 +146,8 @@ internal static partial class Program
         ExperimentalReportGroupingOptions options)
     {
         var directoryPath = Path.GetDirectoryName(outputMarkdownPath);
+
+        // 出力先のディレクトリが存在しない場合は作成する
         if (!string.IsNullOrWhiteSpace(directoryPath))
         {
             Directory.CreateDirectory(directoryPath);
@@ -244,6 +254,7 @@ internal static partial class Program
             });
         }
 
+        // CSVファイルに書き込む
         File.WriteAllLines(outputMarkdownPath, lines, new UTF8Encoding(false));
     }
 
@@ -256,6 +267,8 @@ internal static partial class Program
     static void WriteQualitySweepCsv(string outputCsvPath, IReadOnlyList<QualitySweepRow> sweepRows, ExperimentalReportGroupingOptions options)
     {
         var directoryPath = Path.GetDirectoryName(outputCsvPath);
+
+        // 出力先のディレクトリが存在しない場合は作成する
         if (!string.IsNullOrWhiteSpace(directoryPath))
         {
             Directory.CreateDirectory(directoryPath);
@@ -282,6 +295,7 @@ internal static partial class Program
             lines.Add($"evaluationMemo,,,,,,,{EscapeCsv(options.EvaluationMemo)},");
         }
 
+        // CSVファイルに書き込む
         File.WriteAllLines(outputCsvPath, lines, new UTF8Encoding(false));
     }
 
@@ -471,6 +485,8 @@ internal static partial class Program
     static void WriteQualityPlayerCsv(string outputCsvPath, IReadOnlyList<QualityPlayerRow> playerRows)
     {
         var directoryPath = Path.GetDirectoryName(outputCsvPath);
+
+        // 出力先のディレクトリが存在しない場合は作成する
         if (!string.IsNullOrWhiteSpace(directoryPath))
         {
             Directory.CreateDirectory(directoryPath);
@@ -491,6 +507,7 @@ internal static partial class Program
             (row.OverallTop1Probability * 100).ToString("F2", CultureInfo.InvariantCulture),
             (row.OverallTop8Probability * 100).ToString("F2", CultureInfo.InvariantCulture))));
 
+        // CSVファイルに書き込む
         File.WriteAllLines(outputCsvPath, lines, new UTF8Encoding(false));
     }
 
@@ -504,6 +521,8 @@ internal static partial class Program
     static void WriteResultCsv(string outputCsvPath, string mode, double firstPlayerWinRatePercent, IReadOnlyList<ResultRow> resultRows)
     {
         var directoryPath = Path.GetDirectoryName(outputCsvPath);
+
+        // 出力先のディレクトリが存在しない場合は作成する
         if (!string.IsNullOrWhiteSpace(directoryPath))
         {
             Directory.CreateDirectory(directoryPath);
@@ -570,6 +589,7 @@ internal static partial class Program
             lines.Add(string.Join(",", columns.Select(EscapeCsv)));
         }
 
+        // CSVファイルに書き込む
         File.WriteAllLines(outputCsvPath, lines, new UTF8Encoding(false));
     }
 
@@ -584,6 +604,8 @@ internal static partial class Program
     static void WriteResultMarkdown(string outputMarkdownPath, string outputCsvPath, string mode, double firstPlayerWinRatePercent, IReadOnlyList<ResultRow> resultRows)
     {
         var directoryPath = Path.GetDirectoryName(outputMarkdownPath);
+
+        // 出力先のディレクトリが存在しない場合は作成する
         if (!string.IsNullOrWhiteSpace(directoryPath))
         {
             Directory.CreateDirectory(directoryPath);
@@ -667,6 +689,7 @@ internal static partial class Program
             });
         }
 
+        // CSVファイルに書き込む
         File.WriteAllLines(outputMarkdownPath, lines, new UTF8Encoding(false));
     }
 
@@ -680,6 +703,8 @@ internal static partial class Program
     static void WriteFinalStageResultCsv(string outputCsvPath, string mode, double firstPlayerWinRatePercent, IReadOnlyList<FinalStageResultRow> resultRows)
     {
         var directoryPath = Path.GetDirectoryName(outputCsvPath);
+
+        // 出力先のディレクトリが存在しない場合は作成する
         if (!string.IsNullOrWhiteSpace(directoryPath))
         {
             Directory.CreateDirectory(directoryPath);
@@ -752,6 +777,7 @@ internal static partial class Program
             lines.Add(string.Join(",", columns.Select(EscapeCsv)));
         }
 
+        // CSVファイルに書き込む
         File.WriteAllLines(outputCsvPath, lines, new UTF8Encoding(false));
     }
 
@@ -767,6 +793,8 @@ internal static partial class Program
     static void WriteFinalStageResultMarkdown(string outputMarkdownPath, string outputCsvPath, string mode, double firstPlayerWinRatePercent, IReadOnlyList<FinalStageResultRow> resultRows, string? referenceMatchesCsvPath = null)
     {
         var directoryPath = Path.GetDirectoryName(outputMarkdownPath);
+
+        // 出力先のディレクトリが存在しない場合は作成する
         if (!string.IsNullOrWhiteSpace(directoryPath))
         {
             Directory.CreateDirectory(directoryPath);
@@ -886,6 +914,7 @@ internal static partial class Program
             });
         }
 
+        // CSVファイルに書き込む
         File.WriteAllLines(outputMarkdownPath, lines, new UTF8Encoding(false));
     }
 
@@ -936,6 +965,8 @@ internal static partial class Program
     static void WriteTournamentMatchRecordCsv(string outputCsvPath, IReadOnlyList<StageEntry> stages, IReadOnlyList<PlayerEntry> players, IReadOnlyList<TournamentMatchRecord> matchRecords)
     {
         var directoryPath = Path.GetDirectoryName(outputCsvPath);
+
+        // 出力先のディレクトリが存在しない場合は作成する
         if (!string.IsNullOrWhiteSpace(directoryPath)) Directory.CreateDirectory(directoryPath);
 
         var stageNameById = stages.ToDictionary(stage => stage.StageId, stage => stage.StageName);
@@ -970,6 +1001,7 @@ internal static partial class Program
             lines.Add(string.Join(",", columns.Select(EscapeCsv)));
         }
 
+        // CSVファイルに書き込む
         File.WriteAllLines(outputCsvPath, lines, new UTF8Encoding(false));
     }
 
@@ -984,6 +1016,8 @@ internal static partial class Program
     static void WriteTournamentMatchRecordMarkdown(string outputMarkdownPath, string outputCsvPath, IReadOnlyList<StageEntry> stages, IReadOnlyList<PlayerEntry> players, IReadOnlyList<TournamentMatchRecord> matchRecords)
     {
         var directoryPath = Path.GetDirectoryName(outputMarkdownPath);
+
+        // 出力先のディレクトリが存在しない場合は作成する
         if (!string.IsNullOrWhiteSpace(directoryPath)) Directory.CreateDirectory(directoryPath);
 
         var stageNameById = stages.ToDictionary(stage => stage.StageId, stage => stage.StageName);
@@ -1020,6 +1054,7 @@ internal static partial class Program
             lines.Add($"| {match.MatchId.ToString(CultureInfo.InvariantCulture)} | {stageName} | {firstPlayerName} | {secondPlayerName} | {match.StartTime.ToString(CultureInfo.InvariantCulture)} | {match.EndTime.ToString(CultureInfo.InvariantCulture)} | {match.Status} | {match.ResultType} | {roundText} |");
         }
 
+        // CSVファイルに書き込む
         File.WriteAllLines(outputMarkdownPath, lines, new UTF8Encoding(false));
     }
 }

@@ -1,5 +1,7 @@
 internal static partial class Program
 {
+    const int DefaultTournamentFrameworkSimulationCount = 200_000;
+
     static void ExecuteTournamentFrameworkMode(TournamentFrameworkModeContext context)
     {
         var players = ReadPlayerEntriesFromCsvPath(context.PlayersCsvPath);
@@ -20,7 +22,8 @@ internal static partial class Program
             AllMatchesFinishedTerminationRule.Instance,
             new StandardLikeMatchResultResolver(context.FirstPlayerWinRateRating));
         var engine = new TournamentEngine(ruleSet, context.RandomSeed);
-        var executionResult = engine.Run(initialState);
+        var aggregateResult = ExecuteTournamentFrameworkModeCalculation(engine, initialState, players, context.SimulationCount);
+        var executionResult = aggregateResult.RepresentativeExecutionResult;
 
         var standardPlayers = players
             .OrderBy(player => player.PlayerId)
@@ -34,11 +37,14 @@ internal static partial class Program
             .Select(match => new Match(playerIndexById[match.FirstPlayerId], playerIndexById[match.SecondPlayerId]))
             .ToArray();
 
-        var result = BuildTournamentFrameworkCalculationResult(players, executionResult.OverallRanking);
+        var result = BuildTournamentFrameworkCalculationResult(aggregateResult);
         var resultRows = BuildResultRows(standardPlayers, standardMatches, result, context.FirstPlayerWinRatePercent);
 
-        Console.WriteLine($"進行Tick数: {executionResult.TickCount}");
-        Console.WriteLine($"自然終了: {(executionResult.CompletedNaturally ? "Yes" : "No")}");
+        Console.WriteLine($"集計試行回数: {aggregateResult.CompletedSimulationCount:N0}");
+        Console.WriteLine($"平均進行Tick数: {aggregateResult.AverageTickCount:F2}");
+        Console.WriteLine($"自然終了率: {aggregateResult.CompletedNaturallyCount:N0}/{aggregateResult.CompletedSimulationCount:N0}");
+        Console.WriteLine($"代表実行Tick数: {executionResult.TickCount}");
+        Console.WriteLine($"代表実行の自然終了: {(executionResult.CompletedNaturally ? "Yes" : "No")}");
         Console.WriteLine($"ステージ数: {stages.Count}");
         Console.WriteLine($"総対局数: {matchRecords.Count}\n");
         if (dslDefinition is not null)
@@ -49,6 +55,10 @@ internal static partial class Program
 
         PrintMatchesCsv(standardPlayers, standardMatches, "大会進行フレームワークで読み込んだ対局CSV:");
         PrintResult(standardPlayers.Length, result, context.FirstPlayerWinRatePercent, resultRows);
+        if (result.Mode.Contains("時間切れ", StringComparison.Ordinal))
+        {
+            Console.WriteLine($"シミュレーションは時間上限 {SimulationTimeLimit.TotalMinutes:F0} 分で打ち切りました。\n");
+        }
 
         var defaultOutputCsvPath = Path.GetFullPath($"tournament_framework_result_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
         var requestedOutputPath = string.IsNullOrWhiteSpace(context.OutputPath)
@@ -104,27 +114,95 @@ internal static partial class Program
         return matches;
     }
 
-    static CalculationResult BuildTournamentFrameworkCalculationResult(IReadOnlyList<PlayerEntry> players, IReadOnlyList<PlayerRankRow> ranking)
+    static TournamentFrameworkSimulationAggregate ExecuteTournamentFrameworkModeCalculation(
+        TournamentEngine engine,
+        TournamentState initialState,
+        IReadOnlyList<PlayerEntry> players,
+        int? requestedSimulationCount)
     {
+        var simulationCount = requestedSimulationCount ?? DefaultTournamentFrameworkSimulationCount;
         var placeProbabilities = new double[players.Count, players.Count];
         var playerIndexById = players
+            .OrderBy(player => player.PlayerId)
             .Select((player, index) => new { player.PlayerId, index })
             .ToDictionary(x => x.PlayerId, x => x.index);
+        var completedSimulationCount = 0;
+        var completedNaturallyCount = 0;
+        long totalTickCount = 0;
+        TournamentFrameworkExecutionResult? representativeExecutionResult = null;
 
+        using var simulationBudget = BeginSimulationBudget();
+        for (var simulation = 0; simulation < simulationCount; simulation++)
+        {
+            if (!HasSimulationTimeRemaining())
+            {
+                break;
+            }
+
+            var executionResult = engine.Run(initialState);
+            AccumulateTournamentFrameworkPlaceProbabilities(players.Count, playerIndexById, executionResult.OverallRanking, placeProbabilities);
+            representativeExecutionResult = executionResult;
+            totalTickCount += executionResult.TickCount;
+            if (executionResult.CompletedNaturally)
+            {
+                completedNaturallyCount++;
+            }
+
+            completedSimulationCount++;
+        }
+
+        if (representativeExecutionResult is null)
+        {
+            throw new OperationCanceledException("大会進行フレームワークのシミュレーションを 1 回も実行できませんでした。");
+        }
+
+        NormalizePlaceProbabilities(placeProbabilities, completedSimulationCount);
+
+        return new TournamentFrameworkSimulationAggregate(
+            placeProbabilities,
+            simulationCount,
+            completedSimulationCount,
+            completedNaturallyCount,
+            completedSimulationCount == 0 ? 0.0 : (double)totalTickCount / completedSimulationCount,
+            representativeExecutionResult);
+    }
+
+    static void AccumulateTournamentFrameworkPlaceProbabilities(
+        int playerCount,
+        IReadOnlyDictionary<int, int> playerIndexById,
+        IReadOnlyList<PlayerRankRow> ranking,
+        double[,] placeProbabilities)
+    {
         foreach (var row in ranking)
         {
             if (!playerIndexById.TryGetValue(row.PlayerId, out var playerIndex)
                 || row.Rank <= 0
-                || row.Rank > players.Count)
+                || row.Rank > playerCount)
             {
                 continue;
             }
 
-            placeProbabilities[playerIndex, row.Rank - 1] = 1.0;
+            placeProbabilities[playerIndex, row.Rank - 1] += 1.0;
         }
-
-        return new CalculationResult(placeProbabilities, "大会進行フレームワーク / FixedMatch", null);
     }
+
+    static CalculationResult BuildTournamentFrameworkCalculationResult(TournamentFrameworkSimulationAggregate aggregateResult)
+    {
+        var modeCoreLabel = "大会進行フレームワーク / FixedMatch";
+        var modeLabel = aggregateResult.CompletedSimulationCount < aggregateResult.RequestedSimulationCount
+            ? $"{modeCoreLabel} ({aggregateResult.CompletedSimulationCount:N0}/{aggregateResult.RequestedSimulationCount:N0}回, 時間切れ)"
+            : $"{modeCoreLabel} ({aggregateResult.CompletedSimulationCount:N0}回)";
+
+        return new CalculationResult(aggregateResult.PlaceProbabilities, modeLabel, aggregateResult.CompletedSimulationCount);
+    }
+
+    sealed record class TournamentFrameworkSimulationAggregate(
+        double[,] PlaceProbabilities,
+        int RequestedSimulationCount,
+        int CompletedSimulationCount,
+        int CompletedNaturallyCount,
+        double AverageTickCount,
+        TournamentFrameworkExecutionResult RepresentativeExecutionResult);
 
     sealed class StandardLikeMatchResultResolver(double firstPlayerWinRateRating) : IMatchResultResolver
     {

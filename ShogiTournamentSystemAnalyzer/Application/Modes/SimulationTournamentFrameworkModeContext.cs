@@ -4,6 +4,7 @@ internal readonly record struct TournamentFrameworkModeContext(
     string TournamentMatchRecordsCsvPath,
     string? RuleFilePath,
     int? RandomSeed,
+    int? SimulationCount,
     double FirstPlayerWinRatePercent,
     double FirstPlayerWinRateRating,
     string? OutputPath);

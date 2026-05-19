@@ -393,6 +393,7 @@ internal static partial class Program
             ?? string.Empty;
         var firstPlayerWinRatePercent = GetOptionalMetaValue(meta, "FirstPlayerWinRatePercent") ?? string.Empty;
         var randomSeed = GetOptionalMetaValue(meta, "RandomSeed") ?? string.Empty;
+        var simulationCount = GetOptionalMetaValue(meta, "SimulationCount") ?? string.Empty;
         var output = sections.TryGetValue("Output", out var outputLines)
             ? ParseSectionKeyValues(outputLines, "Output", fullPath)
             : new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
@@ -410,6 +411,7 @@ internal static partial class Program
             tournamentMatchRecordsCsvPath,
             ruleFilePath,
             randomSeed,
+            simulationCount,
             outputPath,
         };
 
