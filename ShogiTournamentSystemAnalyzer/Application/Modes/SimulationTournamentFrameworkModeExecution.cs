@@ -58,8 +58,14 @@ internal static partial class Program
         WriteResultCsv(outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, resultRows);
         var outputMarkdownPath = ChangeOutputExtension(outputCsvPath, ".md");
         WriteResultMarkdown(outputMarkdownPath, outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, resultRows);
+        var tournamentMatchRecordsCsvPath = BuildSiblingOutputCsvPath(outputCsvPath, "tournament_match_records");
+        var tournamentMatchRecordsMarkdownPath = ChangeOutputExtension(tournamentMatchRecordsCsvPath, ".md");
+        WriteTournamentMatchRecordCsv(tournamentMatchRecordsCsvPath, stages, players, executionResult.FinalState.MatchRecords);
+        WriteTournamentMatchRecordMarkdown(tournamentMatchRecordsMarkdownPath, tournamentMatchRecordsCsvPath, stages, players, executionResult.FinalState.MatchRecords);
         Console.WriteLine($"結果CSVを出力しました: {outputCsvPath}");
         Console.WriteLine($"結果Markdownを出力しました: {outputMarkdownPath}");
+        Console.WriteLine($"大会結果CSVを出力しました: {tournamentMatchRecordsCsvPath}");
+        Console.WriteLine($"大会結果Markdownを出力しました: {tournamentMatchRecordsMarkdownPath}");
     }
 
     static List<PlayerEntry> ReadPlayerEntriesFromCsvPath(string path)

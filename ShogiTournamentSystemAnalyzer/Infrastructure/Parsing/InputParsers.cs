@@ -49,6 +49,13 @@ internal static partial class Program
         return true;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="lines"></param>
+    /// <param name="groupMap"></param>
+    /// <param name="err"></param>
+    /// <returns></returns>
     static bool TryParseFinalStageGroups(IReadOnlyList<string> lines, out Dictionary<string, FinalStageGroup> groupMap, out ErrorMessageModel err)
     {
         groupMap = new Dictionary<string, FinalStageGroup>(StringComparer.OrdinalIgnoreCase);
@@ -85,6 +92,14 @@ internal static partial class Program
         return true;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="lines"></param>
+    /// <param name="players"></param>
+    /// <param name="matches"></param>
+    /// <param name="err"></param>
+    /// <returns></returns>
     static bool TryParseMatches(IReadOnlyList<string> lines, IReadOnlyList<Player> players, out List<Match> matches, out ErrorMessageModel err)
     {
         matches = new List<Match>();
@@ -133,6 +148,14 @@ internal static partial class Program
         return true;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="lines"></param>
+    /// <param name="players"></param>
+    /// <param name="matches"></param>
+    /// <param name="err"></param>
+    /// <returns></returns>
     static bool TryParseMatchesFromRoundMatrix(IReadOnlyList<string> lines, IReadOnlyList<Player> players, out List<Match> matches, out ErrorMessageModel err)
     {
         matches = new List<Match>();
@@ -228,6 +251,14 @@ internal static partial class Program
         return true;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="lines"></param>
+    /// <param name="aliases"></param>
+    /// <param name="resolvedNames"></param>
+    /// <param name="err"></param>
+    /// <returns></returns>
     static bool TryParsePlayerAliases(IReadOnlyList<string> lines, IReadOnlyList<string> aliases, out List<string> resolvedNames, out ErrorMessageModel err)
     {
         resolvedNames = new List<string>();
@@ -264,12 +295,27 @@ internal static partial class Program
         return true;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="input"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
     static bool TryParseDouble(string? input, out double value)
     {
         return double.TryParse(input, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.CurrentCulture, out value)
             || double.TryParse(input, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out value);
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="lines"></param>
+    /// <param name="sectionName"></param>
+    /// <param name="names"></param>
+    /// <param name="values"></param>
+    /// <param name="err"></param>
+    /// <returns></returns>
     static bool TryParseSquareMatrix(IReadOnlyList<string> lines, string sectionName, out List<string> names, out string[,] values, out ErrorMessageModel err)
     {
         names = new List<string>();
@@ -318,12 +364,22 @@ internal static partial class Program
         return true;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
     static string NormalizeMatrixCell(string? value)
     {
         var normalized = value?.Trim() ?? string.Empty;
         return normalized == "-" ? string.Empty : normalized;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="line"></param>
+    /// <returns></returns>
     static List<string> SplitCsvLine(string line)
     {
         var columns = new List<string>();
@@ -386,6 +442,11 @@ internal static partial class Program
             || second.Equals("レーティング", StringComparison.OrdinalIgnoreCase);
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="columns"></param>
+    /// <returns></returns>
     static bool IsFinalStageGroupHeaderRow(IReadOnlyList<string> columns)
     {
         //👓　先頭列が "group" または "グループ" で、2 列目が "name", "名前", "participantName", または "選手名" であることを確認
@@ -402,6 +463,12 @@ internal static partial class Program
                 || second.Equals("選手名", StringComparison.OrdinalIgnoreCase));
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="group"></param>
+    /// <returns></returns>
     static bool TryParseFinalStageGroup(string value, out FinalStageGroup group)
     {
         // 👓　グループが Apex または Innov であることを確認
@@ -412,6 +479,11 @@ internal static partial class Program
         return false;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="columns"></param>
+    /// <returns></returns>
     static bool IsMatchHeaderRow(IReadOnlyList<string> columns)
     {
         // 👓　先頭列が "black", "先手", "first", "white", "後手", または "second" であることを確認
@@ -420,12 +492,21 @@ internal static partial class Program
         var first = columns[0].Trim();
         var second = columns[1].Trim();
 
-        return first.Equals("black", StringComparison.OrdinalIgnoreCase)
+        return first.Equals("first", StringComparison.OrdinalIgnoreCase)
+            || first.Equals("先手", StringComparison.OrdinalIgnoreCase)
+            || first.Equals("black", StringComparison.OrdinalIgnoreCase)
             || first.Equals("黒番", StringComparison.OrdinalIgnoreCase)
+            || second.Equals("second", StringComparison.OrdinalIgnoreCase)
+            || second.Equals("後手", StringComparison.OrdinalIgnoreCase)
             || second.Equals("white", StringComparison.OrdinalIgnoreCase)
             || second.Equals("白番", StringComparison.OrdinalIgnoreCase);
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="lines"></param>
+    /// <returns></returns>
     static bool LooksLikeRoundMatrixInput(IReadOnlyList<string> lines)
     {
         var firstNonEmptyLine = lines.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x));
@@ -433,6 +514,11 @@ internal static partial class Program
             && firstNonEmptyLine.Trim().Equals("Round", StringComparison.OrdinalIgnoreCase);
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="line"></param>
+    /// <returns></returns>
     static bool IsPlayerAliasSectionHeader(string line)
     {
         var header = line.Trim();
