@@ -81,6 +81,16 @@ internal static partial class Program
         Console.WriteLine("10. 結果CSVの出力先\n");
     }
 
+    static void PrintSimulationTournamentFrameworkOverview()
+    {
+        Console.WriteLine("このモードでは次を順に入力します。");
+        Console.WriteLine("1. 選手 / Player 一覧CSVのファイルパス");
+        Console.WriteLine("2. ステージ一覧CSVのファイルパス");
+        Console.WriteLine("3. 大会対局記録CSVのファイルパス");
+        Console.WriteLine("4. 大会ルールDSLファイルのパス（省略可）");
+        Console.WriteLine("5. 乱数シード（省略可）\n");
+    }
+
     static void PrintQualityEvaluationStandardOverview()
     {
         Console.WriteLine("このモードでは次を順に入力します。");

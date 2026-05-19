@@ -25,42 +25,25 @@ internal static partial class Program
         for (var i = startIndex; i < lines.Count; i++)
         {
             var columns = SplitCsvLine(lines[i]);
-            if (columns.Count < 2)
-            {
-                errorMessage = $"{i + 1} 行目は 2 列以上必要です。";
-                return false;
-            }
+            // 👓　2 列以上であることを確認
+            if (columns.Count < 2) { errorMessage = $"{i + 1} 行目は 2 列以上必要です。"; return false; }
 
             var name = columns[0].Trim();
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                errorMessage = $"{i + 1} 行目の名前が空です。";
-                return false;
-            }
-
-            if (!TryParseDouble(columns[1], out var rating))
-            {
-                errorMessage = $"{i + 1} 行目の Elo レーティングを数値で入力してください。";
-                return false;
-            }
+            // 👓　レーティングを数値として解析できることを確認
+            if (string.IsNullOrWhiteSpace(name)) { errorMessage = $"{i + 1} 行目の名前が空です。"; return false; }
+            if (!TryParseDouble(columns[1], out var rating)) { errorMessage = $"{i + 1} 行目の Elo レーティングを数値で入力してください。"; return false; }
 
             players.Add(new Player(name, rating));
         }
 
-        if (players.Count == 0)
-        {
-            errorMessage = "選手は 1 人以上必要です。";
-            return false;
-        }
+        // 👓　空でないことを確認
+        if (players.Count == 0) { errorMessage = "選手は 1 人以上必要です。"; return false; }
 
+        // 👓　名前の重複がないことを確認
         var duplicateName = players
             .GroupBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
             .FirstOrDefault(group => group.Count() > 1);
-        if (duplicateName is not null)
-        {
-            errorMessage = $"選手名 '{duplicateName.Key}' が重複しています。";
-            return false;
-        }
+        if (duplicateName is not null) { errorMessage = $"選手名 '{duplicateName.Key}' が重複しています。"; return false; }
 
         return true;
     }
@@ -80,17 +63,22 @@ internal static partial class Program
         for (var i = startIndex; i < lines.Count; i++)
         {
             var columns = SplitCsvLine(lines[i]);
+            // 👓　2 列以上であることを確認
             if (columns.Count < 2) { errorMessage = $"{i + 1} 行目は 2 列以上必要です。"; return false; }
 
             var groupValue = columns[0].Trim();
             var name = columns[1].Trim();
+            // 👓　グループも選手名も空でないことを確認
             if (string.IsNullOrWhiteSpace(groupValue) || string.IsNullOrWhiteSpace(name)) { errorMessage = $"{i + 1} 行目のグループまたは選手名が空です。"; return false; }
+            // 👓　グループが Apex または Innov であることを確認
             if (!TryParseFinalStageGroup(groupValue, out var group)) { errorMessage = $"{i + 1} 行目のグループ '{groupValue}' は Apex または Innov で入力してください。"; return false; }
+            // 👓　同じ選手名が複数のグループに割り当てられていないことを確認
             if (groupMap.ContainsKey(name)) { errorMessage = $"選手名 '{name}' が重複しています。"; return false; }
 
             groupMap.Add(name, group);
         }
 
+        // 👓　空でないことを確認
         if (groupMap.Count == 0) { errorMessage = "グループ対応は 1 行以上必要です。"; return false; }
 
         return true;
@@ -177,10 +165,7 @@ internal static partial class Program
         if (sections.TryGetValue("Players", out var aliasLines)
             || sections.TryGetValue("対局記号表", out aliasLines))
         {
-            if (!TryParsePlayerAliases(aliasLines, roundNames, out resolvedNames, out errorMessage))
-            {
-                return false;
-            }
+            if (!TryParsePlayerAliases(aliasLines, roundNames, out resolvedNames, out errorMessage)) return false;
         }
 
         var playerIndexes = players
@@ -190,33 +175,17 @@ internal static partial class Program
         var orderedMatches = new List<(int Round, Match Match, int Order)>();
         for (var i = 0; i < roundNames.Count; i++)
         {
-            if (!playerIndexes.ContainsKey(resolvedNames[i]))
-            {
-                errorMessage = $"対局記号表セクションの選手名 '{resolvedNames[i]}' が選手一覧にありません。";
-                return false;
-            }
+            if (!playerIndexes.ContainsKey(resolvedNames[i])) { errorMessage = $"対局記号表セクションの選手名 '{resolvedNames[i]}' が選手一覧にありません。"; return false; }
 
             for (var j = i + 1; j < roundNames.Count; j++)
             {
                 var roundForward = NormalizeMatrixCell(roundValues[i, j]);
                 var roundBackward = NormalizeMatrixCell(roundValues[j, i]);
 
-                if (string.IsNullOrEmpty(roundForward) && string.IsNullOrEmpty(roundBackward))
-                {
-                    continue;
-                }
+                if (string.IsNullOrEmpty(roundForward) && string.IsNullOrEmpty(roundBackward)) continue;
 
-                if (!string.Equals(roundForward, roundBackward, StringComparison.OrdinalIgnoreCase))
-                {
-                    errorMessage = $"Round 表の '{roundNames[i]}' と '{roundNames[j]}' の値が一致していません。";
-                    return false;
-                }
-
-                if (!int.TryParse(roundForward, NumberStyles.Integer, CultureInfo.InvariantCulture, out var roundNumber) || roundNumber <= 0)
-                {
-                    errorMessage = $"Round 表の '{roundNames[i]}' と '{roundNames[j]}' の値は 1 以上の整数で入力してください。";
-                    return false;
-                }
+                if (!string.Equals(roundForward, roundBackward, StringComparison.OrdinalIgnoreCase)) { errorMessage = $"Round 表の '{roundNames[i]}' と '{roundNames[j]}' の値が一致していません。"; return false; }
+                if (!int.TryParse(roundForward, NumberStyles.Integer, CultureInfo.InvariantCulture, out var roundNumber) || roundNumber <= 0) { errorMessage = $"Round 表の '{roundNames[i]}' と '{roundNames[j]}' の値は 1 以上の整数で入力してください。"; return false; }
 
                 var colorForward = NormalizeMatrixCell(colorValues[i, j]).ToLowerInvariant();
                 var colorBackward = NormalizeMatrixCell(colorValues[j, i]).ToLowerInvariant();
@@ -230,21 +199,13 @@ internal static partial class Program
                 {
                     match = new Match(playerIndexes[resolvedNames[j]], playerIndexes[resolvedNames[i]]);
                 }
-                else
-                {
-                    errorMessage = $"First/Second 表の '{roundNames[i]}' と '{roundNames[j]}' は f/s（互換で b/w も可）の組み合わせで入力してください。";
-                    return false;
-                }
+                else { errorMessage = $"First/Second 表の '{roundNames[i]}' と '{roundNames[j]}' は f/s（互換で b/w も可）の組み合わせで入力してください。"; return false; }
 
                 orderedMatches.Add((roundNumber, match, orderedMatches.Count));
             }
         }
 
-        if (orderedMatches.Count == 0)
-        {
-            errorMessage = "対局は 1 局以上必要です。";
-            return false;
-        }
+        if (orderedMatches.Count == 0) { errorMessage = "対局は 1 局以上必要です。"; return false; }
 
         matches = orderedMatches
             .OrderBy(x => x.Round)
@@ -260,47 +221,26 @@ internal static partial class Program
         resolvedNames = new List<string>();
         errorMessage = string.Empty;
 
-        if (lines.Count == 0)
-        {
-            errorMessage = "対局記号表セクションの内容がありません。";
-            return false;
-        }
+        if (lines.Count == 0) { errorMessage = "対局記号表セクションの内容がありません。"; return false; }
 
         var aliasMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         foreach (var line in lines)
         {
             var columns = SplitCsvLine(line);
-            if (columns.Count < 2)
-            {
-                errorMessage = "対局記号表セクションは 2 列以上で入力してください。";
-                return false;
-            }
+            if (columns.Count < 2) { errorMessage = "対局記号表セクションは 2 列以上で入力してください。"; return false; }
 
             var alias = columns[0].Trim();
             var playerName = columns[1].Trim();
 
-            if (string.IsNullOrWhiteSpace(alias) || string.IsNullOrWhiteSpace(playerName))
-            {
-                errorMessage = "対局記号表セクションの記号または選手名が空です。";
-                return false;
-            }
-
-            if (aliasMap.ContainsKey(alias))
-            {
-                errorMessage = $"対局記号表セクションの記号 '{alias}' が重複しています。";
-                return false;
-            }
+            if (string.IsNullOrWhiteSpace(alias) || string.IsNullOrWhiteSpace(playerName)) { errorMessage = "対局記号表セクションの記号または選手名が空です。"; return false; }
+            if (aliasMap.ContainsKey(alias)) { errorMessage = $"対局記号表セクションの記号 '{alias}' が重複しています。"; return false; }
 
             aliasMap.Add(alias, playerName);
         }
 
         foreach (var alias in aliases)
         {
-            if (!aliasMap.TryGetValue(alias, out var playerName))
-            {
-                errorMessage = $"対局記号表セクションに記号 '{alias}' の対応表がありません。";
-                return false;
-            }
+            if (!aliasMap.TryGetValue(alias, out var playerName)) { errorMessage = $"対局記号表セクションに記号 '{alias}' の対応表がありません。"; return false; }
 
             resolvedNames.Add(playerName);
         }
@@ -320,25 +260,13 @@ internal static partial class Program
         values = new string[0, 0];
         errorMessage = string.Empty;
 
-        if (lines.Count < 2)
-        {
-            errorMessage = $"{sectionName} セクションの行数が不足しています。";
-            return false;
-        }
+        if (lines.Count < 2) { errorMessage = $"{sectionName} セクションの行数が不足しています。"; return false; }
 
         var headerColumns = SplitCsvLine(lines[0]).Select(x => x.Trim()).ToList();
-        if (headerColumns.Count < 2)
-        {
-            errorMessage = $"{sectionName} セクションのヘッダーが不正です。";
-            return false;
-        }
+        if (headerColumns.Count < 2) { errorMessage = $"{sectionName} セクションのヘッダーが不正です。"; return false; }
 
         names = headerColumns.Skip(1).ToList();
-        if (names.Any(string.IsNullOrWhiteSpace) || names.Distinct(StringComparer.OrdinalIgnoreCase).Count() != names.Count)
-        {
-            errorMessage = $"{sectionName} セクションの見出しが不正です。";
-            return false;
-        }
+        if (names.Any(string.IsNullOrWhiteSpace) || names.Distinct(StringComparer.OrdinalIgnoreCase).Count() != names.Count) { errorMessage = $"{sectionName} セクションの見出しが不正です。"; return false; }
 
         var nameToRowIndex = names
             .Select((name, index) => new { name, index })
@@ -350,24 +278,11 @@ internal static partial class Program
         for (var lineIndex = 1; lineIndex < lines.Count; lineIndex++)
         {
             var columns = SplitCsvLine(lines[lineIndex]);
-            if (columns.Count < names.Count + 1)
-            {
-                errorMessage = $"{sectionName} セクションの {lineIndex + 1} 行目の列数が不足しています。";
-                return false;
-            }
+            if (columns.Count < names.Count + 1) { errorMessage = $"{sectionName} セクションの {lineIndex + 1} 行目の列数が不足しています。"; return false; }
 
             var rowName = columns[0].Trim();
-            if (!nameToRowIndex.TryGetValue(rowName, out var rowIndex))
-            {
-                errorMessage = $"{sectionName} セクションの {lineIndex + 1} 行目の記号 '{rowName}' がヘッダーにありません。";
-                return false;
-            }
-
-            if (seenRows[rowIndex])
-            {
-                errorMessage = $"{sectionName} セクションの行 '{rowName}' が重複しています。";
-                return false;
-            }
+            if (!nameToRowIndex.TryGetValue(rowName, out var rowIndex)) { errorMessage = $"{sectionName} セクションの {lineIndex + 1} 行目の記号 '{rowName}' がヘッダーにありません。"; return false; }
+            if (seenRows[rowIndex]) { errorMessage = $"{sectionName} セクションの行 '{rowName}' が重複しています。"; return false; }
 
             seenRows[rowIndex] = true;
             for (var columnIndex = 0; columnIndex < names.Count; columnIndex++)
@@ -376,11 +291,7 @@ internal static partial class Program
             }
         }
 
-        if (seenRows.Any(x => !x))
-        {
-            errorMessage = $"{sectionName} セクションに不足している行があります。";
-            return false;
-        }
+        if (seenRows.Any(x => !x)) { errorMessage = $"{sectionName} セクションに不足している行があります。"; return false; }
 
         return true;
     }
@@ -432,10 +343,7 @@ internal static partial class Program
 
     static bool IsHeaderRow(IReadOnlyList<string> columns)
     {
-        if (columns.Count < 2)
-        {
-            return false;
-        }
+        if (columns.Count < 2) return false;
 
         var first = columns[0].Trim();
         var second = columns[1].Trim();
@@ -451,10 +359,7 @@ internal static partial class Program
 
     static bool IsFinalStageGroupHeaderRow(IReadOnlyList<string> columns)
     {
-        if (columns.Count < 2)
-        {
-            return false;
-        }
+        if (columns.Count < 2) return false;
 
         var first = columns[0].Trim();
         var second = columns[1].Trim();
@@ -469,17 +374,8 @@ internal static partial class Program
 
     static bool TryParseFinalStageGroup(string value, out FinalStageGroup group)
     {
-        if (value.Equals("Apex", StringComparison.OrdinalIgnoreCase))
-        {
-            group = FinalStageGroup.Apex;
-            return true;
-        }
-
-        if (value.Equals("Innov", StringComparison.OrdinalIgnoreCase))
-        {
-            group = FinalStageGroup.Innov;
-            return true;
-        }
+        if (value.Equals("Apex", StringComparison.OrdinalIgnoreCase)) { group = FinalStageGroup.Apex; return true; }
+        if (value.Equals("Innov", StringComparison.OrdinalIgnoreCase)) { group = FinalStageGroup.Innov; return true; }
 
         group = default;
         return false;
@@ -487,10 +383,7 @@ internal static partial class Program
 
     static bool IsMatchHeaderRow(IReadOnlyList<string> columns)
     {
-        if (columns.Count < 2)
-        {
-            return false;
-        }
+        if (columns.Count < 2) { return false; }
 
         var first = columns[0].Trim();
         var second = columns[1].Trim();
@@ -515,4 +408,3 @@ internal static partial class Program
             || header.Equals("対局記号表", StringComparison.OrdinalIgnoreCase);
     }
 }
-

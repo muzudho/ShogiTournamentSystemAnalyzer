@@ -45,7 +45,13 @@ internal static partial class Program
         var flowLabel = flowMode == AnalysisFlowMode.Simulation ? "対局シミュレーション" : "品質評価";
         Console.WriteLine($"{flowLabel} の対象ルールを選んでください。");
         Console.WriteLine("1. 通常ルール");
-        Console.WriteLine("2. 本戦ルール\n");
+        Console.WriteLine("2. 本戦ルール");
+        if (flowMode == AnalysisFlowMode.Simulation)
+        {
+            Console.WriteLine("3. 大会進行フレームワーク");
+        }
+
+        Console.WriteLine();
 
         var attempt = 0;
         while (true)
@@ -65,12 +71,20 @@ internal static partial class Program
                 return RuleProfileMode.FinalStage;
             }
 
-            if (attempt >= InputRetryLimit)
+            if (flowMode == AnalysisFlowMode.Simulation && input == "3")
             {
-                ThrowInputRetryLimitExceeded("対象ルール選択", "1 または 2 以外が入力されました");
+                Console.WriteLine();
+                return RuleProfileMode.TournamentFramework;
             }
 
-            Console.WriteLine("1、2 のいずれかを入力してください。\n");
+            if (attempt >= InputRetryLimit)
+            {
+                ThrowInputRetryLimitExceeded("対象ルール選択", flowMode == AnalysisFlowMode.Simulation ? "1、2、3 のいずれでもありません" : "1 または 2 以外が入力されました");
+            }
+
+            Console.WriteLine(flowMode == AnalysisFlowMode.Simulation
+                ? "1、2、3 のいずれかを入力してください。\n"
+                : "1、2 のいずれかを入力してください。\n");
         }
     }
 

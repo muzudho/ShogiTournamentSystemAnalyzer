@@ -313,5 +313,65 @@ internal static partial class Program
             Console.WriteLine("もう一度入力してください。\n");
         }
     }
+
+    static string ReadRequiredFilePath(string prompt)
+    {
+        var attempt = 0;
+        while (true)
+        {
+            attempt++;
+            Console.Write(prompt);
+            var input = Console.ReadLine()?.Trim();
+            if (!string.IsNullOrWhiteSpace(input))
+            {
+                Console.WriteLine();
+                return input;
+            }
+
+            if (attempt >= InputRetryLimit)
+            {
+                ThrowInputRetryLimitExceeded("ファイルパス入力", "空欄のためファイルパスとして扱えません");
+            }
+
+            Console.WriteLine("ファイルパスを入力してください。\n");
+        }
+    }
+
+    static string? ReadOptionalFilePath(string prompt)
+    {
+        Console.Write(prompt);
+        var input = Console.ReadLine()?.Trim();
+        Console.WriteLine();
+        return string.IsNullOrWhiteSpace(input) ? null : input;
+    }
+
+    static int? ReadOptionalInt(string prompt)
+    {
+        var attempt = 0;
+        while (true)
+        {
+            attempt++;
+            Console.Write(prompt);
+            var input = Console.ReadLine()?.Trim();
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                Console.WriteLine();
+                return null;
+            }
+
+            if (int.TryParse(input, out var value))
+            {
+                Console.WriteLine();
+                return value;
+            }
+
+            if (attempt >= InputRetryLimit)
+            {
+                ThrowInputRetryLimitExceeded("整数入力", $"'{input}' は整数ではありません");
+            }
+
+            Console.WriteLine("整数を入力してください。\n");
+        }
+    }
 }
 
