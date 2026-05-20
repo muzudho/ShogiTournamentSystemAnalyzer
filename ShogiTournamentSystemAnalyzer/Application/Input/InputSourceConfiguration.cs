@@ -392,6 +392,7 @@ internal static partial class Program
             ?? GetOptionalMetaValue(meta, "RuleFilePath")
             ?? string.Empty;
         var firstPlayerWinRatePercent = GetOptionalMetaValue(meta, "FirstPlayerWinRatePercent") ?? string.Empty;
+        var tournamentRuleSetMode = ParseTournamentRuleSetSelection(GetOptionalMetaValue(meta, "TournamentRuleSetMode") ?? "1");
         var randomSeed = GetOptionalMetaValue(meta, "RandomSeed") ?? string.Empty;
         var simulationCount = GetOptionalMetaValue(meta, "SimulationCount") ?? string.Empty;
         var output = sections.TryGetValue("Output", out var outputLines)
@@ -406,6 +407,7 @@ internal static partial class Program
             "1",
             "3",
             firstPlayerWinRatePercent,
+            tournamentRuleSetMode,
             playersCsvPath,
             stagesCsvPath,
             tournamentMatchRecordsCsvPath,

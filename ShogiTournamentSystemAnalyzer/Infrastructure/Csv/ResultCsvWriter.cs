@@ -1,3 +1,4 @@
+using ShogiTournamentSystemAnalyzer.Infrastructure.Csv;
 using System.Globalization;
 using System.Text;
 
@@ -11,34 +12,30 @@ internal static partial class Program
     /// <param name="options"></param>
     static void WriteQualitySummaryCsv(string outputCsvPath, QualitySummary summary, ExperimentalReportGroupingOptions options)
     {
-        var directoryPath = Path.GetDirectoryName(outputCsvPath);
+        CsvWriterHelper.WriteCsv(
+            outputCsvPath: outputCsvPath,
+            getCsvLines: () =>
+            {
+                // CSVの内容を作成する
+                var lines = new List<string>
+                {
+                    "metricName,metricValue,note",
+                    $"spearmanCorrelation,{summary.SpearmanCorrelation.ToString("F6", CultureInfo.InvariantCulture)},Elo順位と期待総合順位の相関",
+                    $"meanAbsoluteRankError,{summary.MeanAbsoluteRankError.ToString("F6", CultureInfo.InvariantCulture)},期待総合順位とElo順位のずれの絶対値平均",
+                    $"averageTop8Retention,{summary.AverageTop8Retention.ToString("F6", CultureInfo.InvariantCulture)},Elo上位8名が総合上位8位に残る人数の期待値",
+                    $"eloTop1OverallTop1Probability,{(summary.EloTop1OverallTop1Probability * 100).ToString("F6", CultureInfo.InvariantCulture)},Elo1位が総合1位になる確率(%)",
+                    $"mostPenalizedPlayerDelta,{summary.MostPenalizedDelta.ToString("F6", CultureInfo.InvariantCulture)},{EscapeCsv(summary.MostPenalizedPlayerName)}",
+                    $"mostAdvantagedPlayerDelta,{summary.MostAdvantagedDelta.ToString("F6", CultureInfo.InvariantCulture)},{EscapeCsv(summary.MostAdvantagedPlayerName)}"
+                };
 
-        // 出力先のディレクトリが存在しない場合は作成する
-        if (!string.IsNullOrWhiteSpace(directoryPath))
-        {
-            Directory.CreateDirectory(directoryPath);
-        }
+                // 評価メモがある場合はCSVの最後に追加する
+                if (!string.IsNullOrWhiteSpace(options.EvaluationMemo))
+                {
+                    lines.Add($"evaluationMemo,,{EscapeCsv(options.EvaluationMemo)}");
+                }
 
-        // CSVの内容を作成する
-        var lines = new List<string>
-        {
-            "metricName,metricValue,note",
-            $"spearmanCorrelation,{summary.SpearmanCorrelation.ToString("F6", CultureInfo.InvariantCulture)},Elo順位と期待総合順位の相関",
-            $"meanAbsoluteRankError,{summary.MeanAbsoluteRankError.ToString("F6", CultureInfo.InvariantCulture)},期待総合順位とElo順位のずれの絶対値平均",
-            $"averageTop8Retention,{summary.AverageTop8Retention.ToString("F6", CultureInfo.InvariantCulture)},Elo上位8名が総合上位8位に残る人数の期待値",
-            $"eloTop1OverallTop1Probability,{(summary.EloTop1OverallTop1Probability * 100).ToString("F6", CultureInfo.InvariantCulture)},Elo1位が総合1位になる確率(%)",
-            $"mostPenalizedPlayerDelta,{summary.MostPenalizedDelta.ToString("F6", CultureInfo.InvariantCulture)},{EscapeCsv(summary.MostPenalizedPlayerName)}",
-            $"mostAdvantagedPlayerDelta,{summary.MostAdvantagedDelta.ToString("F6", CultureInfo.InvariantCulture)},{EscapeCsv(summary.MostAdvantagedPlayerName)}"
-        };
-
-        // 評価メモがある場合はCSVの最後に追加する
-        if (!string.IsNullOrWhiteSpace(options.EvaluationMemo))
-        {
-            lines.Add($"evaluationMemo,,{EscapeCsv(options.EvaluationMemo)}");
-        }
-
-        // CSVファイルに書き込む
-        File.WriteAllLines(outputCsvPath, lines, new UTF8Encoding(false));
+                return lines;
+            });
     }
 
     /// <summary>
@@ -266,37 +263,33 @@ internal static partial class Program
     /// <param name="options"></param>
     static void WriteQualitySweepCsv(string outputCsvPath, IReadOnlyList<QualitySweepRow> sweepRows, ExperimentalReportGroupingOptions options)
     {
-        var directoryPath = Path.GetDirectoryName(outputCsvPath);
+        CsvWriterHelper.WriteCsv(
+            outputCsvPath: outputCsvPath,
+            getCsvLines: () =>
+            {
+                var lines = new List<string>
+                {
+                    "firstPlayerWinRatePercent,spearmanCorrelation,meanAbsoluteRankError,averageTop8Retention,eloTop1OverallTop1ProbabilityPercent,mostPenalizedPlayer,mostPenalizedDelta,mostAdvantagedPlayer,mostAdvantagedDelta"
+                };
 
-        // 出力先のディレクトリが存在しない場合は作成する
-        if (!string.IsNullOrWhiteSpace(directoryPath))
-        {
-            Directory.CreateDirectory(directoryPath);
-        }
+                lines.AddRange(sweepRows.Select(row => string.Join(",",
+                    row.FirstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture),
+                    row.SpearmanCorrelation.ToString("F6", CultureInfo.InvariantCulture),
+                    row.MeanAbsoluteRankError.ToString("F6", CultureInfo.InvariantCulture),
+                    row.AverageTop8Retention.ToString("F6", CultureInfo.InvariantCulture),
+                    (row.EloTop1OverallTop1Probability * 100).ToString("F6", CultureInfo.InvariantCulture),
+                    EscapeCsv(row.MostPenalizedPlayerName),
+                    row.MostPenalizedDelta.ToString("F6", CultureInfo.InvariantCulture),
+                    EscapeCsv(row.MostAdvantagedPlayerName),
+                    row.MostAdvantagedDelta.ToString("F6", CultureInfo.InvariantCulture))));
 
-        var lines = new List<string>
-        {
-            "firstPlayerWinRatePercent,spearmanCorrelation,meanAbsoluteRankError,averageTop8Retention,eloTop1OverallTop1ProbabilityPercent,mostPenalizedPlayer,mostPenalizedDelta,mostAdvantagedPlayer,mostAdvantagedDelta"
-        };
+                if (!string.IsNullOrWhiteSpace(options.EvaluationMemo))
+                {
+                    lines.Add($"evaluationMemo,,,,,,,{EscapeCsv(options.EvaluationMemo)},");
+                }
 
-        lines.AddRange(sweepRows.Select(row => string.Join(",",
-            row.FirstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture),
-            row.SpearmanCorrelation.ToString("F6", CultureInfo.InvariantCulture),
-            row.MeanAbsoluteRankError.ToString("F6", CultureInfo.InvariantCulture),
-            row.AverageTop8Retention.ToString("F6", CultureInfo.InvariantCulture),
-            (row.EloTop1OverallTop1Probability * 100).ToString("F6", CultureInfo.InvariantCulture),
-            EscapeCsv(row.MostPenalizedPlayerName),
-            row.MostPenalizedDelta.ToString("F6", CultureInfo.InvariantCulture),
-            EscapeCsv(row.MostAdvantagedPlayerName),
-            row.MostAdvantagedDelta.ToString("F6", CultureInfo.InvariantCulture))));
-
-        if (!string.IsNullOrWhiteSpace(options.EvaluationMemo))
-        {
-            lines.Add($"evaluationMemo,,,,,,,{EscapeCsv(options.EvaluationMemo)},");
-        }
-
-        // CSVファイルに書き込む
-        File.WriteAllLines(outputCsvPath, lines, new UTF8Encoding(false));
+                return lines;
+            });
     }
 
     /// <summary>
@@ -484,31 +477,27 @@ internal static partial class Program
     /// <param name="playerRows"></param>
     static void WriteQualityPlayerCsv(string outputCsvPath, IReadOnlyList<QualityPlayerRow> playerRows)
     {
-        var directoryPath = Path.GetDirectoryName(outputCsvPath);
+        CsvWriterHelper.WriteCsv(
+            outputCsvPath: outputCsvPath,
+            getCsvLines: () =>
+            {
+                var lines = new List<string>
+                {
+                    "playerName,group,originalElo,eloRank,expectedOverallPlace,overallPlaceDeltaFromEloRank,overallTop1ProbabilityPercent,overallTop8ProbabilityPercent"
+                };
 
-        // 出力先のディレクトリが存在しない場合は作成する
-        if (!string.IsNullOrWhiteSpace(directoryPath))
-        {
-            Directory.CreateDirectory(directoryPath);
-        }
+                lines.AddRange(playerRows.Select(row => string.Join(",",
+                    EscapeCsv(row.Name),
+                    EscapeCsv(row.Group),
+                    FormatRating(row.OriginalRating),
+                    row.EloRank.ToString(CultureInfo.InvariantCulture),
+                    row.ExpectedOverallPlace.ToString("F3", CultureInfo.InvariantCulture),
+                    row.OverallPlaceDeltaFromEloRank.ToString("F3", CultureInfo.InvariantCulture),
+                    (row.OverallTop1Probability * 100).ToString("F2", CultureInfo.InvariantCulture),
+                    (row.OverallTop8Probability * 100).ToString("F2", CultureInfo.InvariantCulture))));
 
-        var lines = new List<string>
-        {
-            "playerName,group,originalElo,eloRank,expectedOverallPlace,overallPlaceDeltaFromEloRank,overallTop1ProbabilityPercent,overallTop8ProbabilityPercent"
-        };
-
-        lines.AddRange(playerRows.Select(row => string.Join(",",
-            EscapeCsv(row.Name),
-            EscapeCsv(row.Group),
-            FormatRating(row.OriginalRating),
-            row.EloRank.ToString(CultureInfo.InvariantCulture),
-            row.ExpectedOverallPlace.ToString("F3", CultureInfo.InvariantCulture),
-            row.OverallPlaceDeltaFromEloRank.ToString("F3", CultureInfo.InvariantCulture),
-            (row.OverallTop1Probability * 100).ToString("F2", CultureInfo.InvariantCulture),
-            (row.OverallTop8Probability * 100).ToString("F2", CultureInfo.InvariantCulture))));
-
-        // CSVファイルに書き込む
-        File.WriteAllLines(outputCsvPath, lines, new UTF8Encoding(false));
+                return lines;
+            });
     }
 
     /// <summary>
@@ -520,77 +509,73 @@ internal static partial class Program
     /// <param name="resultRows"></param>
     static void WriteResultCsv(string outputCsvPath, string mode, double firstPlayerWinRatePercent, IReadOnlyList<ResultRow> resultRows)
     {
-        var directoryPath = Path.GetDirectoryName(outputCsvPath);
-
-        // 出力先のディレクトリが存在しない場合は作成する
-        if (!string.IsNullOrWhiteSpace(directoryPath))
-        {
-            Directory.CreateDirectory(directoryPath);
-        }
-
-        var lines = new List<string>();
-        var headerColumns = new List<string>
-        {
-            "calculationMode",
-            "firstPlayerWinRatePercent",
-            "playerName",
-            "originalElo",
-            "effectiveElo",
-            "eloDelta",
-            "firstPlayerCount",
-            "secondPlayerCount",
-            "firstPlayerWinRatePercent",
-            "secondPlayerWinRatePercent",
-            "championshipProbabilityPercent",
-            "averagePlace"
-        };
-
-        if (resultRows.Count > 0)
-        {
-            for (var place = 0; place < resultRows[0].PlaceProbabilities.Length; place++)
+        CsvWriterHelper.WriteCsv(
+            outputCsvPath: outputCsvPath,
+            getCsvLines: () =>
             {
-                headerColumns.Add($"place{place + 1}Percent");
-                if (resultRows[0].PlaceCounts is not null)
+                var lines = new List<string>();
+                var headerColumns = new List<string>
                 {
-                    headerColumns.Add($"place{place + 1}Count");
-                }
-            }
-        }
+                    "calculationMode",
+                    "firstPlayerWinRatePercent",
+                    "playerName",
+                    "originalElo",
+                    "effectiveElo",
+                    "eloDelta",
+                    "firstPlayerCount",
+                    "secondPlayerCount",
+                    "firstPlayerWinRatePercent",
+                    "secondPlayerWinRatePercent",
+                    "championshipProbabilityPercent",
+                    "averagePlace"
+                };
 
-        lines.Add(string.Join(",", headerColumns.Select(EscapeCsv)));
-
-        foreach (var row in resultRows)
-        {
-            var columns = new List<string>
-            {
-                mode,
-                firstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture),
-                row.Name,
-                FormatRating(row.OriginalRating),
-                FormatRating(row.EffectiveRating),
-                FormatSignedRating(row.RatingDelta),
-                row.FirstPlayerCount.ToString(CultureInfo.InvariantCulture),
-                row.SecondPlayerCount.ToString(CultureInfo.InvariantCulture),
-                FormatOptionalPercentValue(row.FirstPlayerWinRate),
-                FormatOptionalPercentValue(row.SecondPlayerWinRate),
-                (row.ChampionshipProbability * 100).ToString("F2", CultureInfo.InvariantCulture),
-                row.AveragePlace.ToString("F3", CultureInfo.InvariantCulture)
-            };
-
-            for (var place = 0; place < row.PlaceProbabilities.Length; place++)
-            {
-                columns.Add((row.PlaceProbabilities[place] * 100).ToString("F2", CultureInfo.InvariantCulture));
-                if (row.PlaceCounts is not null)
+                if (resultRows.Count > 0)
                 {
-                    columns.Add(row.PlaceCounts[place].ToString("F3", CultureInfo.InvariantCulture));
+                    for (var place = 0; place < resultRows[0].PlaceProbabilities.Length; place++)
+                    {
+                        headerColumns.Add($"place{place + 1}Percent");
+                        if (resultRows[0].PlaceCounts is not null)
+                        {
+                            headerColumns.Add($"place{place + 1}Count");
+                        }
+                    }
                 }
-            }
 
-            lines.Add(string.Join(",", columns.Select(EscapeCsv)));
-        }
+                lines.Add(string.Join(",", headerColumns.Select(EscapeCsv)));
 
-        // CSVファイルに書き込む
-        File.WriteAllLines(outputCsvPath, lines, new UTF8Encoding(false));
+                foreach (var row in resultRows)
+                {
+                    var columns = new List<string>
+                    {
+                        mode,
+                        firstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture),
+                        row.Name,
+                        FormatRating(row.OriginalRating),
+                        FormatRating(row.EffectiveRating),
+                        FormatSignedRating(row.RatingDelta),
+                        row.FirstPlayerCount.ToString(CultureInfo.InvariantCulture),
+                        row.SecondPlayerCount.ToString(CultureInfo.InvariantCulture),
+                        FormatOptionalPercentValue(row.FirstPlayerWinRate),
+                        FormatOptionalPercentValue(row.SecondPlayerWinRate),
+                        (row.ChampionshipProbability * 100).ToString("F2", CultureInfo.InvariantCulture),
+                        row.AveragePlace.ToString("F3", CultureInfo.InvariantCulture)
+                    };
+
+                    for (var place = 0; place < row.PlaceProbabilities.Length; place++)
+                    {
+                        columns.Add((row.PlaceProbabilities[place] * 100).ToString("F2", CultureInfo.InvariantCulture));
+                        if (row.PlaceCounts is not null)
+                        {
+                            columns.Add(row.PlaceCounts[place].ToString("F3", CultureInfo.InvariantCulture));
+                        }
+                    }
+
+                    lines.Add(string.Join(",", columns.Select(EscapeCsv)));
+                }
+
+                return lines;
+            });
     }
 
     /// <summary>

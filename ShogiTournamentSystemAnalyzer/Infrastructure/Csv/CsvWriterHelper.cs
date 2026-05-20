@@ -6,7 +6,7 @@ using System.Text;
 
 internal static class CsvWriterHelper
 {
-    static void WriteCsv(
+    internal static void WriteCsv(
         string outputCsvPath,
         Func<IEnumerable<string>> getCsvLines)
     {

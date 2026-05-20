@@ -23,7 +23,7 @@ internal static partial class Program
             AllMatchesFinishedTerminationRule.Instance,
             new StandardLikeMatchResultResolver(context.FirstPlayerWinRateRating));
         var engine = new TournamentEngine(ruleSet, context.RandomSeed);
-        var aggregateResult = ExecuteTournamentFrameworkModeCalculation(engine, initialState, players, context.FirstPlayerWinRateRating, context.SimulationCount);
+        var aggregateResult = ExecuteTournamentFrameworkModeCalculation(engine, initialState, players, context.TournamentRuleSetMode, context.FirstPlayerWinRateRating, context.SimulationCount);
         var executionResult = aggregateResult.RepresentativeExecutionResult;
 
         var standardPlayers = players
@@ -40,6 +40,8 @@ internal static partial class Program
 
         var result = BuildTournamentFrameworkCalculationResult(aggregateResult);
         var resultRows = BuildResultRows(standardPlayers, standardMatches, result, context.FirstPlayerWinRatePercent);
+
+        Console.WriteLine($"順位ルール: {TournamentRuleSetRule.GetLabel(context.TournamentRuleSetMode)}");
 
         if (aggregateResult.IsExactCalculation)
         {
@@ -129,12 +131,13 @@ internal static partial class Program
         TournamentEngine engine,
         TournamentState initialState,
         IReadOnlyList<PlayerEntry> players,
+        TournamentRuleSetMode tournamentRuleSetMode,
         double firstPlayerWinRateRating,
         int? requestedSimulationCount)
     {
         if (initialState.MatchRecords.Count <= TournamentFrameworkExactCalculationMatchThreshold)
         {
-            return CalculateTournamentFrameworkExactly(engine, initialState, players, firstPlayerWinRateRating);
+            return CalculateTournamentFrameworkExactly(engine, initialState, players, tournamentRuleSetMode, firstPlayerWinRateRating);
         }
 
         var simulationCount = requestedSimulationCount ?? DefaultTournamentFrameworkSimulationCount;
@@ -157,7 +160,7 @@ internal static partial class Program
             }
 
             var executionResult = engine.Run(initialState);
-            AccumulateTournamentFrameworkPlaceProbabilities(players, playerIndexById, executionResult.FinalState.MatchRecords, placeProbabilities);
+            AccumulateTournamentFrameworkPlaceProbabilities(players, playerIndexById, executionResult.FinalState.MatchRecords, placeProbabilities, tournamentRuleSetMode);
             representativeExecutionResult = executionResult;
             totalTickCount += executionResult.TickCount;
             if (executionResult.CompletedNaturally)
@@ -182,6 +185,7 @@ internal static partial class Program
             completedNaturallyCount,
             completedSimulationCount == 0 ? 0.0 : (double)totalTickCount / completedSimulationCount,
             false,
+            tournamentRuleSetMode,
             representativeExecutionResult);
     }
 
@@ -189,6 +193,7 @@ internal static partial class Program
         TournamentEngine engine,
         TournamentState initialState,
         IReadOnlyList<PlayerEntry> players,
+        TournamentRuleSetMode tournamentRuleSetMode,
         double firstPlayerWinRateRating)
     {
         var placeProbabilities = new double[players.Count, players.Count];
@@ -209,7 +214,7 @@ internal static partial class Program
                         .Select(match => match with { Status = MatchStatus.Finished })
                         .ToArray(),
                 };
-                AccumulateTournamentFrameworkPlaceProbabilities(players, playerIndexById, finalState.MatchRecords, placeProbabilities, scenarioProbability);
+                AccumulateTournamentFrameworkPlaceProbabilities(players, playerIndexById, finalState.MatchRecords, placeProbabilities, tournamentRuleSetMode, scenarioProbability);
                 return;
             }
 
@@ -253,6 +258,7 @@ internal static partial class Program
             representativeExecutionResult.CompletedNaturally ? 1 : 0,
             representativeExecutionResult.TickCount,
             true,
+            tournamentRuleSetMode,
             representativeExecutionResult);
     }
 
@@ -261,7 +267,24 @@ internal static partial class Program
         IReadOnlyDictionary<int, int> playerIndexById,
         IReadOnlyList<TournamentMatchRecord> matchRecords,
         double[,] placeProbabilities,
+        TournamentRuleSetMode tournamentRuleSetMode,
         double weight = 1.0)
+    {
+        if (tournamentRuleSetMode is TournamentRuleSetMode.Twill or TournamentRuleSetMode.TwillCommonOpponentWeighted)
+        {
+            AccumulateTournamentFrameworkTwillPlaces(players, playerIndexById, matchRecords, placeProbabilities, tournamentRuleSetMode, weight);
+            return;
+        }
+
+        AccumulateTournamentFrameworkNeutralPlaces(players, playerIndexById, matchRecords, placeProbabilities, weight);
+    }
+
+    static void AccumulateTournamentFrameworkNeutralPlaces(
+        IReadOnlyList<PlayerEntry> players,
+        IReadOnlyDictionary<int, int> playerIndexById,
+        IReadOnlyList<TournamentMatchRecord> matchRecords,
+        double[,] placeProbabilities,
+        double weight)
     {
         var pointsByPlayerId = players.ToDictionary(player => player.PlayerId, _ => 0);
         foreach (var match in matchRecords.Where(match => match.Status == MatchStatus.Finished))
@@ -309,11 +332,52 @@ internal static partial class Program
         }
     }
 
+    static void AccumulateTournamentFrameworkTwillPlaces(
+        IReadOnlyList<PlayerEntry> players,
+        IReadOnlyDictionary<int, int> playerIndexById,
+        IReadOnlyList<TournamentMatchRecord> matchRecords,
+        double[,] placeProbabilities,
+        TournamentRuleSetMode tournamentRuleSetMode,
+        double weight)
+    {
+        var standardMatches = new Match[matchRecords.Count];
+        var blackWins = new bool[matchRecords.Count];
+
+        for (var matchIndex = 0; matchIndex < matchRecords.Count; matchIndex++)
+        {
+            var match = matchRecords[matchIndex];
+            standardMatches[matchIndex] = new Match(
+                playerIndexById[match.FirstPlayerId],
+                playerIndexById[match.SecondPlayerId]);
+
+            blackWins[matchIndex] = match.ResultType switch
+            {
+                MatchResultType.FirstPlayerWin or MatchResultType.FirstPlayerForfeitWin => true,
+                MatchResultType.SecondPlayerWin or MatchResultType.SecondPlayerForfeitWin => false,
+                _ => throw new OperationCanceledException($"Twill 系順位ルールでは未対応の対局結果です: {match.ResultType}"),
+            };
+        }
+
+        if (tournamentRuleSetMode == TournamentRuleSetMode.Twill)
+        {
+            TwillTournamentRule.AccumulatePlaceProbabilities(standardMatches, blackWins, weight, placeProbabilities);
+            return;
+        }
+
+        TwillTournamentRule.AccumulatePlaceProbabilitiesWithCommonOpponentWeight(standardMatches, blackWins, weight, placeProbabilities);
+    }
+
     static CalculationResult BuildTournamentFrameworkCalculationResult(TournamentFrameworkSimulationAggregate aggregateResult)
     {
+        var ruleSetModeLabel = aggregateResult.TournamentRuleSetMode switch
+        {
+            TournamentRuleSetMode.Twill => "Twill",
+            TournamentRuleSetMode.TwillCommonOpponentWeighted => "Twill+CommonOpp",
+            _ => "Neutral",
+        };
         var modeCoreLabel = aggregateResult.IsExactCalculation
-            ? "厳密計算 / 大会進行フレームワーク / FixedMatch"
-            : "大会進行フレームワーク / FixedMatch";
+            ? $"厳密計算 / 大会進行フレームワーク / FixedMatch / {ruleSetModeLabel}"
+            : $"大会進行フレームワーク / FixedMatch / {ruleSetModeLabel}";
         if (aggregateResult.IsExactCalculation)
         {
             return new CalculationResult(aggregateResult.PlaceProbabilities, modeCoreLabel, null);
@@ -333,6 +397,7 @@ internal static partial class Program
         int CompletedNaturallyCount,
         double AverageTickCount,
         bool IsExactCalculation,
+        TournamentRuleSetMode TournamentRuleSetMode,
         TournamentFrameworkExecutionResult RepresentativeExecutionResult);
 
     sealed class StandardLikeMatchResultResolver(double firstPlayerWinRateRating) : IMatchResultResolver
