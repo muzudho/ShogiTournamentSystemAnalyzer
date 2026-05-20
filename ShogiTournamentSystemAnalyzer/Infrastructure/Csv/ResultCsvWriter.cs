@@ -606,21 +606,10 @@ internal static partial class Program
         return lines;
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="outputCsvPath"></param>
-    /// <param name="mode"></param>
-    /// <param name="firstPlayerWinRatePercent"></param>
-    /// <param name="resultRows"></param>
-    static void WriteFinalStageResultCsv(string outputCsvPath, string mode, double firstPlayerWinRatePercent, IReadOnlyList<FinalStageResultRow> resultRows)
+    static IEnumerable<string> CreateFinalStageResultCsv(string outputCsvPath, string mode, double firstPlayerWinRatePercent, IReadOnlyList<FinalStageResultRow> resultRows)
     {
-        WriterHelper.WriteText(
-            outputPath: outputCsvPath,
-            getLines: () =>
-            {
-                var lines = new List<string>();
-                var headerColumns = new List<string>
+        var lines = new List<string>();
+        var headerColumns = new List<string>
                 {
                     "calculationMode",
                     "firstPlayerWinRatePercent",
@@ -639,23 +628,23 @@ internal static partial class Program
                     "overallPlaceAverage"
                 };
 
-                if (resultRows.Count > 0)
+        if (resultRows.Count > 0)
+        {
+            for (var place = 0; place < resultRows[0].PlaceProbabilities.Length; place++)
+            {
+                headerColumns.Add($"place{place + 1}Percent");
+                if (resultRows[0].PlaceCounts is not null)
                 {
-                    for (var place = 0; place < resultRows[0].PlaceProbabilities.Length; place++)
-                    {
-                        headerColumns.Add($"place{place + 1}Percent");
-                        if (resultRows[0].PlaceCounts is not null)
-                        {
-                            headerColumns.Add($"place{place + 1}Count");
-                        }
-                    }
+                    headerColumns.Add($"place{place + 1}Count");
                 }
+            }
+        }
 
-                lines.Add(string.Join(",", headerColumns.Select(EscapeCsv)));
+        lines.Add(string.Join(",", headerColumns.Select(EscapeCsv)));
 
-                foreach (var row in resultRows)
-                {
-                    var columns = new List<string>
+        foreach (var row in resultRows)
+        {
+            var columns = new List<string>
                     {
                         mode,
                         firstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture),
@@ -674,20 +663,19 @@ internal static partial class Program
                         row.OverallPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)
                     };
 
-                    for (var place = 0; place < row.PlaceProbabilities.Length; place++)
-                    {
-                        columns.Add((row.PlaceProbabilities[place] * 100).ToString("F2", CultureInfo.InvariantCulture));
-                        if (row.PlaceCounts is not null)
-                        {
-                            columns.Add(row.PlaceCounts[place].ToString("F3", CultureInfo.InvariantCulture));
-                        }
-                    }
-
-                    lines.Add(string.Join(",", columns.Select(EscapeCsv)));
+            for (var place = 0; place < row.PlaceProbabilities.Length; place++)
+            {
+                columns.Add((row.PlaceProbabilities[place] * 100).ToString("F2", CultureInfo.InvariantCulture));
+                if (row.PlaceCounts is not null)
+                {
+                    columns.Add(row.PlaceCounts[place].ToString("F3", CultureInfo.InvariantCulture));
                 }
+            }
 
-                return lines;
-            });
+            lines.Add(string.Join(",", columns.Select(EscapeCsv)));
+        }
+
+        return lines;
     }
 
     /// <summary>

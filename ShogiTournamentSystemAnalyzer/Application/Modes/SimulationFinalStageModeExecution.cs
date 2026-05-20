@@ -118,7 +118,10 @@ internal static partial class Program
             : null;
         if (context.GroupingMode == FinalStageGroupingMode.On)
         {
-            WriteFinalStageResultCsv(outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, finalStageResultRows!);
+            WriterHelper.WriteText(
+                outputPath: outputCsvPath,
+                getLines: () => CreateFinalStageResultCsv(outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, finalStageResultRows!));
+
             WriteFinalStageResultMarkdown(outputMarkdownPath, outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, finalStageResultRows!, referenceMatchesCsvPath);
         }
         else
