@@ -51,6 +51,10 @@ internal static partial class Program
                     RunTournamentFrameworkMode();
                     break;
 
+                case (AnalysisFlowMode.Simulation, RuleProfileMode.Empty):
+                    RunEmptyMode();
+                    break;
+
                 case (AnalysisFlowMode.QualityEvaluation, RuleProfileMode.Standard):
                     RunQualityEvaluationMode(RuleProfileMode.Standard);
                     break;

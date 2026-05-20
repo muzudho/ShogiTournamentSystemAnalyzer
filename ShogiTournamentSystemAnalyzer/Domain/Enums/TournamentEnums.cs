@@ -58,5 +58,6 @@ enum RuleProfileMode
     Standard,
     FinalStage,
     TournamentFramework,
+    Empty,
 }
 

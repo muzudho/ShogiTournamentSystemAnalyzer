@@ -46,6 +46,7 @@ internal static partial class Program
         if (flowMode == AnalysisFlowMode.Simulation)
         {
             Console.WriteLine("3. 大会進行フレームワーク");
+            Console.WriteLine("4. 空ルール");
         }
 
         Console.WriteLine();
@@ -74,10 +75,16 @@ internal static partial class Program
                 return RuleProfileMode.TournamentFramework;
             }
 
-            if (attempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("対象ルール選択", flowMode == AnalysisFlowMode.Simulation ? "1、2、3 のいずれでもありません" : "1 または 2 以外が入力されました");
+            if (flowMode == AnalysisFlowMode.Simulation && input == "4")
+            {
+                Console.WriteLine();
+                return RuleProfileMode.Empty;
+            }
+
+            if (attempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("対象ルール選択", flowMode == AnalysisFlowMode.Simulation ? "1、2、3、4 のいずれでもありません" : "1 または 2 以外が入力されました");
 
             Console.WriteLine(flowMode == AnalysisFlowMode.Simulation
-                ? "1、2、3 のいずれかを入力してください。\n"
+                ? "1、2、3、4 のいずれかを入力してください。\n"
                 : "1、2 のいずれかを入力してください。\n");
         }
     }
