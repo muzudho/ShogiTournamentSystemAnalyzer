@@ -122,6 +122,9 @@ internal static partial class Program
             && (ruleProfileMode == RuleProfileMode.TournamentFramework
                 || GetOptionalMetaValue(meta, "TournamentFrameworkMode") is not null)) return ConvertStsaInput2TournamentFramework(meta, sections, fullPath);
 
+        if (analysisFlowMode == AnalysisFlowMode.Simulation
+            && ruleProfileMode == RuleProfileMode.Empty) return ConvertStsaInput2Empty(meta, sections, fullPath);
+
         if (analysisFlowMode != AnalysisFlowMode.QualityEvaluation) throw new OperationCanceledException("STSAInput/2 の最小対応は、現在のところ『品質評価』のみです。");
 
         return ruleProfileMode == RuleProfileMode.FinalStage
@@ -345,6 +348,28 @@ internal static partial class Program
             ruleFilePath,
             randomSeed,
             simulationCount,
+            outputPath,
+        };
+
+        return string.Join(Environment.NewLine, legacyLines);
+    }
+
+    static string ConvertStsaInput2Empty(
+        Dictionary<string, string> meta,
+        Dictionary<string, List<string>> sections,
+        string fullPath)
+    {
+        var output = sections.TryGetValue("Output", out var outputLines)
+            ? ParseSectionKeyValues(outputLines, "Output", fullPath)
+            : new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        var outputPath = GetOptionalMetaValue(output, "OutputPath")
+            ?? GetOptionalMetaValue(meta, "OutputPath")
+            ?? string.Empty;
+
+        var legacyLines = new List<string>
+        {
+            "1",
+            "4",
             outputPath,
         };
 

@@ -135,6 +135,17 @@ END
 - representative 大会結果 Markdown から、representative 順位表 Markdown と aggregate 順位表 Markdown へ戻れます
 - つまり、集計結果 → 代表順位 → 代表対局記録 → 集計結果、という往復ができます
 
+## 空ルールの出力
+空ルールでは、対局を 1 件も組まないため、結果は最小形だけを出力します。
+
+- `empty_rule_result_*.csv`
+- `empty_rule_result_*.md`
+- `tournament_match_records_empty_*.csv`
+- `tournament_match_records_empty_*.md`
+- 総ペアリング数は `0` です
+- 大会結果件数は `0` です
+- 大会結果テーブルも 0 件のまま出力されます
+
 ## 品質評価CSV
 品質評価モードでは、次の 2 種類の CSV を出力します。
 

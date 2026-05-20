@@ -1,0 +1,12 @@
+#[Format] STSAInput/2
+
+#[Prompt] EmptyRuleMinimal
+#[Section] Meta
+AnalysisFlowMode=Simulation
+RuleProfileMode=Empty
+OutputPath=ShogiTournamentSystemAnalyzer\Output\empty_rule_result_[空ルール_最小].csv
+#[EndSection]
+
+#[Section] Output
+OutputPath=ShogiTournamentSystemAnalyzer\Output\empty_rule_result_[空ルール_最小].csv
+#[EndSection]
