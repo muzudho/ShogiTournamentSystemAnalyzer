@@ -839,7 +839,7 @@ internal static partial class Program
         return $"[{fileName}]({relativePath})";
     }
 
-    static IEnumerable<string> CreateTournamentMatchRecordCsv(string outputCsvPath, IReadOnlyList<StageEntry> stages, IReadOnlyList<PlayerEntry> players, IReadOnlyList<TournamentMatchRecord> matchRecords)
+    static IEnumerable<string> CreateTournamentMatchRecordCsv(IReadOnlyList<StageEntry> stages, IReadOnlyList<PlayerEntry> players, IReadOnlyList<TournamentMatchRecord> matchRecords)
     {
         var stageNameById = stages.ToDictionary(stage => stage.StageId, stage => stage.StageName);
         var playerNameById = players.ToDictionary(player => player.PlayerId, player => player.Name);
@@ -876,30 +876,18 @@ internal static partial class Program
         return lines;
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="outputMarkdownPath"></param>
-    /// <param name="outputCsvPath"></param>
-    /// <param name="stages"></param>
-    /// <param name="players"></param>
-    /// <param name="matchRecords"></param>
-    static void WriteTournamentMatchRecordMarkdown(string outputMarkdownPath, string outputCsvPath, IReadOnlyList<StageEntry> stages, IReadOnlyList<PlayerEntry> players, IReadOnlyList<TournamentMatchRecord> matchRecords, string? overviewNote = null)
+    static IEnumerable<string> CreateTournamentMatchRecordMarkdown(string outputMarkdownPath, string outputCsvPath, IReadOnlyList<StageEntry> stages, IReadOnlyList<PlayerEntry> players, IReadOnlyList<TournamentMatchRecord> matchRecords, string? overviewNote = null)
     {
-        WriterHelper.WriteText(
-            outputPath: outputMarkdownPath,
-            getLines: () =>
-            {
-                var stageNameById = stages.ToDictionary(stage => stage.StageId, stage => stage.StageName);
-                var playerNameById = players.ToDictionary(player => player.PlayerId, player => player.Name);
-                var orderedMatches = matchRecords
-                    .OrderBy(match => match.StartTime)
-                    .ThenBy(match => match.MatchId)
-                    .ToArray();
-                var finishedCount = orderedMatches.Count(match => match.Status == MatchStatus.Finished);
-                var cancelledCount = orderedMatches.Count(match => match.Status == MatchStatus.Cancelled);
+        var stageNameById = stages.ToDictionary(stage => stage.StageId, stage => stage.StageName);
+        var playerNameById = players.ToDictionary(player => player.PlayerId, player => player.Name);
+        var orderedMatches = matchRecords
+            .OrderBy(match => match.StartTime)
+            .ThenBy(match => match.MatchId)
+            .ToArray();
+        var finishedCount = orderedMatches.Count(match => match.Status == MatchStatus.Finished);
+        var cancelledCount = orderedMatches.Count(match => match.Status == MatchStatus.Cancelled);
 
-                var lines = new List<string>
+        var lines = new List<string>
                 {
                     "# 大会結果テーブル",
                     string.Empty,
@@ -915,25 +903,21 @@ internal static partial class Program
                     "| ---: | --- | --- | --- | ---: | ---: | --- | --- | ---: |"
                 };
 
-                if (!string.IsNullOrWhiteSpace(overviewNote))
-                {
-                    lines.Insert(8, $"- 注記: {overviewNote}");
-                }
+        if (!string.IsNullOrWhiteSpace(overviewNote))
+        {
+            lines.Insert(8, $"- 注記: {overviewNote}");
+        }
 
-                foreach (var match in orderedMatches)
-                {
-                    var stageName = stageNameById.TryGetValue(match.StageId, out var stage) ? stage : match.StageId.ToString(CultureInfo.InvariantCulture);
-                    var firstPlayerName = playerNameById.TryGetValue(match.FirstPlayerId, out var firstPlayer) ? firstPlayer : match.FirstPlayerId.ToString(CultureInfo.InvariantCulture);
-                    var secondPlayerName = playerNameById.TryGetValue(match.SecondPlayerId, out var secondPlayer) ? secondPlayer : match.SecondPlayerId.ToString(CultureInfo.InvariantCulture);
-                    var roundText = match.RoundNo?.ToString(CultureInfo.InvariantCulture) ?? string.Empty;
-                    lines.Add($"| {match.MatchId.ToString(CultureInfo.InvariantCulture)} | {stageName} | {firstPlayerName} | {secondPlayerName} | {match.StartTime.ToString(CultureInfo.InvariantCulture)} | {match.EndTime.ToString(CultureInfo.InvariantCulture)} | {match.Status} | {match.ResultType} | {roundText} |");
-                }
+        foreach (var match in orderedMatches)
+        {
+            var stageName = stageNameById.TryGetValue(match.StageId, out var stage) ? stage : match.StageId.ToString(CultureInfo.InvariantCulture);
+            var firstPlayerName = playerNameById.TryGetValue(match.FirstPlayerId, out var firstPlayer) ? firstPlayer : match.FirstPlayerId.ToString(CultureInfo.InvariantCulture);
+            var secondPlayerName = playerNameById.TryGetValue(match.SecondPlayerId, out var secondPlayer) ? secondPlayer : match.SecondPlayerId.ToString(CultureInfo.InvariantCulture);
+            var roundText = match.RoundNo?.ToString(CultureInfo.InvariantCulture) ?? string.Empty;
+            lines.Add($"| {match.MatchId.ToString(CultureInfo.InvariantCulture)} | {stageName} | {firstPlayerName} | {secondPlayerName} | {match.StartTime.ToString(CultureInfo.InvariantCulture)} | {match.EndTime.ToString(CultureInfo.InvariantCulture)} | {match.Status} | {match.ResultType} | {roundText} |");
+        }
 
-                return lines;
-            });
-    }
-    static void CreateTournamentMatchRecordMarkdown(string outputMarkdownPath, string outputCsvPath, IReadOnlyList<StageEntry> stages, IReadOnlyList<PlayerEntry> players, IReadOnlyList<TournamentMatchRecord> matchRecords, string? overviewNote = null)
-    {
+        return lines;
     }
 }
 

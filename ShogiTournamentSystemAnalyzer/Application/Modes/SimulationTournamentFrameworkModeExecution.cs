@@ -109,9 +109,12 @@ internal static partial class Program
         var tournamentMatchRecordsMarkdownPath = ChangeOutputExtension(tournamentMatchRecordsCsvPath, ".md");
         WriterHelper.WriteText(
             outputPath: tournamentMatchRecordsCsvPath,
-            getLines: () => CreateTournamentMatchRecordCsv(tournamentMatchRecordsCsvPath, stages, players, executionResult.FinalState.MatchRecords));
+            getLines: () => CreateTournamentMatchRecordCsv(stages, players, executionResult.FinalState.MatchRecords));
 
-        WriteTournamentMatchRecordMarkdown(tournamentMatchRecordsMarkdownPath, tournamentMatchRecordsCsvPath, stages, players, executionResult.FinalState.MatchRecords);
+        WriterHelper.WriteText(
+            outputPath: tournamentMatchRecordsMarkdownPath,
+            getLines: () => CreateTournamentMatchRecordMarkdown(tournamentMatchRecordsMarkdownPath, tournamentMatchRecordsCsvPath, stages, players, executionResult.FinalState.MatchRecords));
+
         Console.WriteLine($"結果CSVを出力しました: {outputCsvPath}");
         Console.WriteLine($"結果Markdownを出力しました: {outputMarkdownPath}");
         Console.WriteLine($"大会結果CSVを出力しました: {tournamentMatchRecordsCsvPath}");
