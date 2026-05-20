@@ -99,6 +99,7 @@ dotnet run --project .\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyz
 
 ### まずはどこを見ればよいか
 - 入力順を見たい: [モード別ガイド](./docs/Manuals/モード別ガイド.md)
+- 大会進行フレームワークだけを見たい: [大会進行フレームワークガイド](./docs/Manuals/大会進行フレームワークガイド.md)
 - ルールの意味を知りたい: [トーナメントルール](./docs/Manuals/トーナメントルール.md)
 - 実行用入力ファイルで流したい: [入力ファイル仕様](./docs/Manuals/入力ファイル仕様.md)
 - 出力の読み方を知りたい: [CSVと出力](./docs/Manuals/CSVと出力.md)
@@ -153,6 +154,8 @@ dotnet run --project .\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyz
   - 前提ルール、`Neutral`、`Twill` の概要
 - [モード別ガイド](./docs/Manuals/モード別ガイド.md)
 	- 対局シミュレーション / 品質評価 と、通常ルール / 本戦ルール の組み合わせごとの入力順
+- [大会進行フレームワークガイド](./docs/Manuals/大会進行フレームワークガイド.md)
+  - TournamentFramework の入力と出力の見方をまとめた短い案内
 - [品質評価](./docs/Manuals/品質評価.md)
   - 評価指標、比較の考え方、n% スイープ実験、レポート運用
 - [入力ファイル仕様](./docs/Manuals/入力ファイル仕様.md)
