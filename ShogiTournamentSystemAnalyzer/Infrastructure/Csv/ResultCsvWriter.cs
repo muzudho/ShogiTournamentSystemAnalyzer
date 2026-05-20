@@ -437,34 +437,24 @@ internal static partial class Program
             : start.ToString("F2", CultureInfo.InvariantCulture) + "%〜" + end.ToString("F2", CultureInfo.InvariantCulture) + "%";
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="outputCsvPath"></param>
-    /// <param name="playerRows"></param>
-    static void WriteQualityPlayerCsv(string outputCsvPath, IReadOnlyList<QualityPlayerRow> playerRows)
+    static IEnumerable<string> CreateQualityPlayerCsv(string outputCsvPath, IReadOnlyList<QualityPlayerRow> playerRows)
     {
-        WriterHelper.WriteText(
-            outputPath: outputCsvPath,
-            getLines: () =>
-            {
-                var lines = new List<string>
+        var lines = new List<string>
                 {
                     "playerName,group,originalElo,eloRank,expectedOverallPlace,overallPlaceDeltaFromEloRank,overallTop1ProbabilityPercent,overallTop8ProbabilityPercent"
                 };
 
-                lines.AddRange(playerRows.Select(row => string.Join(",",
-                    EscapeCsv(row.Name),
-                    EscapeCsv(row.Group),
-                    FormatRating(row.OriginalRating),
-                    row.EloRank.ToString(CultureInfo.InvariantCulture),
-                    row.ExpectedOverallPlace.ToString("F3", CultureInfo.InvariantCulture),
-                    row.OverallPlaceDeltaFromEloRank.ToString("F3", CultureInfo.InvariantCulture),
-                    (row.OverallTop1Probability * 100).ToString("F2", CultureInfo.InvariantCulture),
-                    (row.OverallTop8Probability * 100).ToString("F2", CultureInfo.InvariantCulture))));
+        lines.AddRange(playerRows.Select(row => string.Join(",",
+            EscapeCsv(row.Name),
+            EscapeCsv(row.Group),
+            FormatRating(row.OriginalRating),
+            row.EloRank.ToString(CultureInfo.InvariantCulture),
+            row.ExpectedOverallPlace.ToString("F3", CultureInfo.InvariantCulture),
+            row.OverallPlaceDeltaFromEloRank.ToString("F3", CultureInfo.InvariantCulture),
+            (row.OverallTop1Probability * 100).ToString("F2", CultureInfo.InvariantCulture),
+            (row.OverallTop8Probability * 100).ToString("F2", CultureInfo.InvariantCulture))));
 
-                return lines;
-            });
+        return lines;
     }
 
     /// <summary>
