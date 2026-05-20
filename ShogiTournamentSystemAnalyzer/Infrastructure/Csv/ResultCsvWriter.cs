@@ -678,50 +678,37 @@ internal static partial class Program
         return lines;
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="outputMarkdownPath"></param>
-    /// <param name="outputCsvPath"></param>
-    /// <param name="mode"></param>
-    /// <param name="firstPlayerWinRatePercent"></param>
-    /// <param name="resultRows"></param>
-    /// <param name="referenceMatchesCsvPath"></param>
-    static void WriteFinalStageResultMarkdown(string outputMarkdownPath, string outputCsvPath, string mode, double firstPlayerWinRatePercent, IReadOnlyList<FinalStageResultRow> resultRows, string? referenceMatchesCsvPath = null)
+    static IEnumerable<string> CreateFinalStageResultMarkdown(string outputMarkdownPath, string outputCsvPath, string mode, double firstPlayerWinRatePercent, IReadOnlyList<FinalStageResultRow> resultRows, string? referenceMatchesCsvPath = null)
     {
-        WriterHelper.WriteText(
-            outputPath: outputMarkdownPath,
-            getLines: () =>
-            {
-                var topRows = resultRows
-                    .OrderByDescending(row => row.OverallPlace1Probability)
-                    .ThenBy(row => row.OverallPlaceAverage)
-                    .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
-                    .Take(8)
-                    .ToArray();
-                var apexRows = resultRows
-                    .Where(row => string.Equals(row.Group, "Apex", StringComparison.OrdinalIgnoreCase))
-                    .OrderByDescending(row => row.GroupPlace1Probability)
-                    .ThenBy(row => row.GroupPlaceAverage)
-                    .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
-                    .Take(4)
-                    .ToArray();
-                var innovRows = resultRows
-                    .Where(row => string.Equals(row.Group, "Innov", StringComparison.OrdinalIgnoreCase))
-                    .OrderByDescending(row => row.GroupPlace1Probability)
-                    .ThenBy(row => row.GroupPlaceAverage)
-                    .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
-                    .Take(4)
-                    .ToArray();
-                var bestOverallRow = resultRows
-                    .OrderByDescending(row => row.OverallPlace1Probability)
-                    .ThenBy(row => row.OverallPlaceAverage)
-                    .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
-                    .FirstOrDefault();
-                var bestApexRow = apexRows.FirstOrDefault();
-                var bestInnovRow = innovRows.FirstOrDefault();
+        var topRows = resultRows
+            .OrderByDescending(row => row.OverallPlace1Probability)
+            .ThenBy(row => row.OverallPlaceAverage)
+            .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
+            .Take(8)
+            .ToArray();
+        var apexRows = resultRows
+            .Where(row => string.Equals(row.Group, "Apex", StringComparison.OrdinalIgnoreCase))
+            .OrderByDescending(row => row.GroupPlace1Probability)
+            .ThenBy(row => row.GroupPlaceAverage)
+            .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
+            .Take(4)
+            .ToArray();
+        var innovRows = resultRows
+            .Where(row => string.Equals(row.Group, "Innov", StringComparison.OrdinalIgnoreCase))
+            .OrderByDescending(row => row.GroupPlace1Probability)
+            .ThenBy(row => row.GroupPlaceAverage)
+            .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
+            .Take(4)
+            .ToArray();
+        var bestOverallRow = resultRows
+            .OrderByDescending(row => row.OverallPlace1Probability)
+            .ThenBy(row => row.OverallPlaceAverage)
+            .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
+            .FirstOrDefault();
+        var bestApexRow = apexRows.FirstOrDefault();
+        var bestInnovRow = innovRows.FirstOrDefault();
 
-                var lines = new List<string>
+        var lines = new List<string>
                 {
                     "# 本戦モード結果レポート",
                     string.Empty,
@@ -747,46 +734,46 @@ internal static partial class Program
                     "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |"
                 };
 
-                if (!string.IsNullOrWhiteSpace(referenceMatchesCsvPath))
-                {
-                    lines.Insert(4, $"- 参考対局CSV: {BuildMarkdownFileLink(outputMarkdownPath, referenceMatchesCsvPath)}");
-                }
+        if (!string.IsNullOrWhiteSpace(referenceMatchesCsvPath))
+        {
+            lines.Insert(4, $"- 参考対局CSV: {BuildMarkdownFileLink(outputMarkdownPath, referenceMatchesCsvPath)}");
+        }
 
-                lines.AddRange(topRows.Select(row =>
-                    $"| {row.Name} | {row.Group} | {FormatRating(row.OriginalRating)} | {FormatRating(row.EffectiveRating)} | {FormatSignedRating(row.RatingDelta)} | {(row.GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {(row.OverallPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {row.OverallPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} |"));
+        lines.AddRange(topRows.Select(row =>
+            $"| {row.Name} | {row.Group} | {FormatRating(row.OriginalRating)} | {FormatRating(row.EffectiveRating)} | {FormatSignedRating(row.RatingDelta)} | {(row.GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {(row.OverallPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {row.OverallPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} |"));
 
-                if (apexRows.Length > 0)
-                {
-                    lines.AddRange(new[]
-                    {
+        if (apexRows.Length > 0)
+        {
+            lines.AddRange(new[]
+            {
                         string.Empty,
                         "## Apex 注目候補",
                         "| 選手 | 元Elo | 実効Elo | グループ1位確率 | グループ平均順位 | 総合平均順位 |",
                         "| --- | ---: | ---: | ---: | ---: | ---: |"
                     });
 
-                    lines.AddRange(apexRows.Select(row =>
-                        $"| {row.Name} | {FormatRating(row.OriginalRating)} | {FormatRating(row.EffectiveRating)} | {(row.GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {row.GroupPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} | {row.OverallPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} |"));
-                }
+            lines.AddRange(apexRows.Select(row =>
+                $"| {row.Name} | {FormatRating(row.OriginalRating)} | {FormatRating(row.EffectiveRating)} | {(row.GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {row.GroupPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} | {row.OverallPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} |"));
+        }
 
-                if (innovRows.Length > 0)
-                {
-                    lines.AddRange(new[]
-                    {
+        if (innovRows.Length > 0)
+        {
+            lines.AddRange(new[]
+            {
                         string.Empty,
                         "## Innov 注目候補",
                         "| 選手 | 元Elo | 実効Elo | グループ1位確率 | グループ平均順位 | 総合平均順位 |",
                         "| --- | ---: | ---: | ---: | ---: | ---: |"
                     });
 
-                    lines.AddRange(innovRows.Select(row =>
-                        $"| {row.Name} | {FormatRating(row.OriginalRating)} | {FormatRating(row.EffectiveRating)} | {(row.GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {row.GroupPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} | {row.OverallPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} |"));
-                }
+            lines.AddRange(innovRows.Select(row =>
+                $"| {row.Name} | {FormatRating(row.OriginalRating)} | {FormatRating(row.EffectiveRating)} | {(row.GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {row.GroupPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} | {row.OverallPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} |"));
+        }
 
-                if (topRows.Length > 0)
-                {
-                    lines.AddRange(new[]
-                    {
+        if (topRows.Length > 0)
+        {
+            lines.AddRange(new[]
+            {
                         string.Empty,
                         "## Mermaid 図",
                         "```mermaid",
@@ -805,10 +792,9 @@ internal static partial class Program
                         "    bar [" + string.Join(", ", topRows.Select(row => (row.GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture))) + "]",
                         "```"
                     });
-                }
+        }
 
-                return lines;
-            });
+        return lines;
     }
 
     /// <summary>

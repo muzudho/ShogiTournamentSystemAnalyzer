@@ -122,7 +122,9 @@ internal static partial class Program
                 outputPath: outputCsvPath,
                 getLines: () => CreateFinalStageResultCsv(outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, finalStageResultRows!));
 
-            WriteFinalStageResultMarkdown(outputMarkdownPath, outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, finalStageResultRows!, referenceMatchesCsvPath);
+            WriterHelper.WriteText(
+                outputPath: outputMarkdownPath,
+                getLines: () => CreateFinalStageResultMarkdown(outputMarkdownPath, outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, finalStageResultRows!, referenceMatchesCsvPath));
         }
         else
         {
