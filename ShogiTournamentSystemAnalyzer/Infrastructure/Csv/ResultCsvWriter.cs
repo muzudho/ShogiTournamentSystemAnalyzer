@@ -687,83 +687,79 @@ internal static partial class Program
     /// <param name="resultRows"></param>
     static void WriteFinalStageResultCsv(string outputCsvPath, string mode, double firstPlayerWinRatePercent, IReadOnlyList<FinalStageResultRow> resultRows)
     {
-        var directoryPath = Path.GetDirectoryName(outputCsvPath);
-
-        // 出力先のディレクトリが存在しない場合は作成する
-        if (!string.IsNullOrWhiteSpace(directoryPath))
-        {
-            Directory.CreateDirectory(directoryPath);
-        }
-
-        var lines = new List<string>();
-        var headerColumns = new List<string>
-        {
-            "calculationMode",
-            "firstPlayerWinRatePercent",
-            "playerName",
-            "group",
-            "originalElo",
-            "effectiveElo",
-            "eloDelta",
-            "firstPlayerCount",
-            "secondPlayerCount",
-            "firstPlayerWinRatePercent",
-            "secondPlayerWinRatePercent",
-            "groupPlace1ProbabilityPercent",
-            "groupPlaceAverage",
-            "overallPlace1ProbabilityPercent",
-            "overallPlaceAverage"
-        };
-
-        if (resultRows.Count > 0)
-        {
-            for (var place = 0; place < resultRows[0].PlaceProbabilities.Length; place++)
+        CsvWriterHelper.WriteCsv(
+            outputCsvPath: outputCsvPath,
+            getCsvLines: () =>
             {
-                headerColumns.Add($"place{place + 1}Percent");
-                if (resultRows[0].PlaceCounts is not null)
+                var lines = new List<string>();
+                var headerColumns = new List<string>
                 {
-                    headerColumns.Add($"place{place + 1}Count");
-                }
-            }
-        }
+                    "calculationMode",
+                    "firstPlayerWinRatePercent",
+                    "playerName",
+                    "group",
+                    "originalElo",
+                    "effectiveElo",
+                    "eloDelta",
+                    "firstPlayerCount",
+                    "secondPlayerCount",
+                    "firstPlayerWinRatePercent",
+                    "secondPlayerWinRatePercent",
+                    "groupPlace1ProbabilityPercent",
+                    "groupPlaceAverage",
+                    "overallPlace1ProbabilityPercent",
+                    "overallPlaceAverage"
+                };
 
-        lines.Add(string.Join(",", headerColumns.Select(EscapeCsv)));
-
-        foreach (var row in resultRows)
-        {
-            var columns = new List<string>
-            {
-                mode,
-                firstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture),
-                row.Name,
-                row.Group,
-                FormatRating(row.OriginalRating),
-                FormatRating(row.EffectiveRating),
-                FormatSignedRating(row.RatingDelta),
-                row.FirstPlayerCount.ToString(CultureInfo.InvariantCulture),
-                row.SecondPlayerCount.ToString(CultureInfo.InvariantCulture),
-                FormatOptionalPercentValue(row.FirstPlayerWinRate),
-                FormatOptionalPercentValue(row.SecondPlayerWinRate),
-                (row.GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture),
-                row.GroupPlaceAverage.ToString("F3", CultureInfo.InvariantCulture),
-                (row.OverallPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture),
-                row.OverallPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)
-            };
-
-            for (var place = 0; place < row.PlaceProbabilities.Length; place++)
-            {
-                columns.Add((row.PlaceProbabilities[place] * 100).ToString("F2", CultureInfo.InvariantCulture));
-                if (row.PlaceCounts is not null)
+                if (resultRows.Count > 0)
                 {
-                    columns.Add(row.PlaceCounts[place].ToString("F3", CultureInfo.InvariantCulture));
+                    for (var place = 0; place < resultRows[0].PlaceProbabilities.Length; place++)
+                    {
+                        headerColumns.Add($"place{place + 1}Percent");
+                        if (resultRows[0].PlaceCounts is not null)
+                        {
+                            headerColumns.Add($"place{place + 1}Count");
+                        }
+                    }
                 }
-            }
 
-            lines.Add(string.Join(",", columns.Select(EscapeCsv)));
-        }
+                lines.Add(string.Join(",", headerColumns.Select(EscapeCsv)));
 
-        // CSVファイルに書き込む
-        File.WriteAllLines(outputCsvPath, lines, new UTF8Encoding(false));
+                foreach (var row in resultRows)
+                {
+                    var columns = new List<string>
+                    {
+                        mode,
+                        firstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture),
+                        row.Name,
+                        row.Group,
+                        FormatRating(row.OriginalRating),
+                        FormatRating(row.EffectiveRating),
+                        FormatSignedRating(row.RatingDelta),
+                        row.FirstPlayerCount.ToString(CultureInfo.InvariantCulture),
+                        row.SecondPlayerCount.ToString(CultureInfo.InvariantCulture),
+                        FormatOptionalPercentValue(row.FirstPlayerWinRate),
+                        FormatOptionalPercentValue(row.SecondPlayerWinRate),
+                        (row.GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture),
+                        row.GroupPlaceAverage.ToString("F3", CultureInfo.InvariantCulture),
+                        (row.OverallPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture),
+                        row.OverallPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)
+                    };
+
+                    for (var place = 0; place < row.PlaceProbabilities.Length; place++)
+                    {
+                        columns.Add((row.PlaceProbabilities[place] * 100).ToString("F2", CultureInfo.InvariantCulture));
+                        if (row.PlaceCounts is not null)
+                        {
+                            columns.Add(row.PlaceCounts[place].ToString("F3", CultureInfo.InvariantCulture));
+                        }
+                    }
+
+                    lines.Add(string.Join(",", columns.Select(EscapeCsv)));
+                }
+
+                return lines;
+            });
     }
 
     /// <summary>
@@ -949,45 +945,44 @@ internal static partial class Program
     /// <param name="matchRecords"></param>
     static void WriteTournamentMatchRecordCsv(string outputCsvPath, IReadOnlyList<StageEntry> stages, IReadOnlyList<PlayerEntry> players, IReadOnlyList<TournamentMatchRecord> matchRecords)
     {
-        var directoryPath = Path.GetDirectoryName(outputCsvPath);
-
-        // 出力先のディレクトリが存在しない場合は作成する
-        if (!string.IsNullOrWhiteSpace(directoryPath)) Directory.CreateDirectory(directoryPath);
-
-        var stageNameById = stages.ToDictionary(stage => stage.StageId, stage => stage.StageName);
-        var playerNameById = players.ToDictionary(player => player.PlayerId, player => player.Name);
-        var lines = new List<string>
-        {
-            "matchId,stageId,stageName,firstPlayerId,firstPlayerName,secondPlayerId,secondPlayerName,startTime,endTime,status,resultType,roundNo"
-        };
-
-        foreach (var match in matchRecords.OrderBy(match => match.StartTime).ThenBy(match => match.MatchId))
-        {
-            var stageName = stageNameById.TryGetValue(match.StageId, out var stage) ? stage : string.Empty;
-            var firstPlayerName = playerNameById.TryGetValue(match.FirstPlayerId, out var firstPlayer) ? firstPlayer : string.Empty;
-            var secondPlayerName = playerNameById.TryGetValue(match.SecondPlayerId, out var secondPlayer) ? secondPlayer : string.Empty;
-
-            var columns = new[]
+        CsvWriterHelper.WriteCsv(
+            outputCsvPath: outputCsvPath,
+            getCsvLines: () =>
             {
-                match.MatchId.ToString(CultureInfo.InvariantCulture),
-                match.StageId.ToString(CultureInfo.InvariantCulture),
-                stageName,
-                match.FirstPlayerId.ToString(CultureInfo.InvariantCulture),
-                firstPlayerName,
-                match.SecondPlayerId.ToString(CultureInfo.InvariantCulture),
-                secondPlayerName,
-                match.StartTime.ToString(CultureInfo.InvariantCulture),
-                match.EndTime.ToString(CultureInfo.InvariantCulture),
-                match.Status.ToString(),
-                match.ResultType.ToString(),
-                match.RoundNo?.ToString(CultureInfo.InvariantCulture) ?? string.Empty,
-            };
+                var stageNameById = stages.ToDictionary(stage => stage.StageId, stage => stage.StageName);
+                var playerNameById = players.ToDictionary(player => player.PlayerId, player => player.Name);
+                var lines = new List<string>
+                {
+                    "matchId,stageId,stageName,firstPlayerId,firstPlayerName,secondPlayerId,secondPlayerName,startTime,endTime,status,resultType,roundNo"
+                };
 
-            lines.Add(string.Join(",", columns.Select(EscapeCsv)));
-        }
+                foreach (var match in matchRecords.OrderBy(match => match.StartTime).ThenBy(match => match.MatchId))
+                {
+                    var stageName = stageNameById.TryGetValue(match.StageId, out var stage) ? stage : string.Empty;
+                    var firstPlayerName = playerNameById.TryGetValue(match.FirstPlayerId, out var firstPlayer) ? firstPlayer : string.Empty;
+                    var secondPlayerName = playerNameById.TryGetValue(match.SecondPlayerId, out var secondPlayer) ? secondPlayer : string.Empty;
 
-        // CSVファイルに書き込む
-        File.WriteAllLines(outputCsvPath, lines, new UTF8Encoding(false));
+                    var columns = new[]
+                    {
+                        match.MatchId.ToString(CultureInfo.InvariantCulture),
+                        match.StageId.ToString(CultureInfo.InvariantCulture),
+                        stageName,
+                        match.FirstPlayerId.ToString(CultureInfo.InvariantCulture),
+                        firstPlayerName,
+                        match.SecondPlayerId.ToString(CultureInfo.InvariantCulture),
+                        secondPlayerName,
+                        match.StartTime.ToString(CultureInfo.InvariantCulture),
+                        match.EndTime.ToString(CultureInfo.InvariantCulture),
+                        match.Status.ToString(),
+                        match.ResultType.ToString(),
+                        match.RoundNo?.ToString(CultureInfo.InvariantCulture) ?? string.Empty,
+                    };
+
+                    lines.Add(string.Join(",", columns.Select(EscapeCsv)));
+                }
+
+                return lines;
+            });
     }
 
     /// <summary>
