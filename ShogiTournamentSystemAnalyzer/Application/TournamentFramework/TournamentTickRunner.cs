@@ -37,20 +37,11 @@ sealed class TournamentTickRunner
 
     TournamentMatchRecord AdvanceMatch(TournamentState state, TournamentMatchRecord match)
     {
-        if (match.Status is MatchStatus.Finished or MatchStatus.Cancelled)
-        {
-            return match;
-        }
+        if (match.Status is MatchStatus.Finished or MatchStatus.Cancelled) return match;
 
-        if (state.CurrentTime < match.StartTime)
-        {
-            return match with { Status = MatchStatus.Scheduled };
-        }
+        if (state.CurrentTime < match.StartTime) return match with { Status = MatchStatus.Scheduled };
 
-        if (state.CurrentTime < match.EndTime)
-        {
-            return match with { Status = MatchStatus.Running };
-        }
+        if (state.CurrentTime < match.EndTime) return match with { Status = MatchStatus.Running };
 
         var resolvedMatch = _ruleSet.MatchResultResolver.Resolve(state, match, _random);
         return resolvedMatch with { Status = MatchStatus.Finished };

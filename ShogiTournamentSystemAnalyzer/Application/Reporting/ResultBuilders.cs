@@ -169,10 +169,7 @@ internal static partial class Program
 
     static double CalculateSpearmanCorrelation(IReadOnlyList<QualityPlayerRow> playerRows)
     {
-        if (playerRows.Count <= 1)
-        {
-            return 1.0;
-        }
+        if (playerRows.Count <= 1) return 1.0;
 
         var eloRanks = playerRows
             .OrderBy(x => x.EloRank)
@@ -229,10 +226,7 @@ internal static partial class Program
             varianceY += dy * dy;
         }
 
-        if (varianceX <= 0.0 || varianceY <= 0.0)
-        {
-            return 1.0;
-        }
+        if (varianceX <= 0.0 || varianceY <= 0.0) return 1.0;
 
         return covariance / Math.Sqrt(varianceX * varianceY);
     }
