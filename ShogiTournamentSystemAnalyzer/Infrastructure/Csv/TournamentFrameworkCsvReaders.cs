@@ -80,26 +80,16 @@ internal static partial class Program
                 parentStageId = parentStageIdValue;
             }
 
-            if (!int.TryParse(columns[4].Trim(), out var orderNo))
-            {
-                errorMessage = $"{i + 1} 行目の orderNo を整数で入力してください。";
-                return false;
-            }
+            // 👓　［orderNo］が整数で入力されていることを確認
+            if (!int.TryParse(columns[4].Trim(), out var orderNo)) { errorMessage = $"{i + 1} 行目の orderNo を整数で入力してください。"; return false; }
 
             stages.Add(new StageEntry(stageId, stageName, stageType, parentStageId, orderNo));
         }
 
-        if (stages.Count == 0)
-        {
-            errorMessage = "ステージは 1 件以上必要です。";
-            return false;
-        }
-
-        if (stages.GroupBy(stage => stage.StageId).Any(group => group.Count() > 1))
-        {
-            errorMessage = "stageId が重複しています。";
-            return false;
-        }
+        // 👓　ステージが 1 つ以上あることを確認
+        if (stages.Count == 0) { errorMessage = "ステージは 1 件以上必要です。"; return false; }
+        // 👓　stageId が重複していないことを確認
+        if (stages.GroupBy(stage => stage.StageId).Any(group => group.Count() > 1)) { errorMessage = "stageId が重複しています。"; return false; }
 
         return true;
     }

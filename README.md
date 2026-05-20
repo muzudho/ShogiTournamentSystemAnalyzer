@@ -101,6 +101,8 @@ dotnet run --project .\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyz
 - 入力順を見たい: [モード別ガイド](./docs/Manuals/モード別ガイド.md)
 - ルールの意味を知りたい: [トーナメントルール](./docs/Manuals/トーナメントルール.md)
 - 実行用入力ファイルで流したい: [入力ファイル仕様](./docs/Manuals/入力ファイル仕様.md)
+- 出力の読み方を知りたい: [CSVと出力](./docs/Manuals/CSVと出力.md)
+  - 大会進行フレームワークの `aggregate` / `representative` の違いもここで案内しています
 - 次世代の入力ファイル方式案を見たい: [STSAInput/2 仕様](./docs/Manuals/STSAInput2仕様.md)
   - `FirstPlayerWinRatePercent` のような安定キーで入力する案
 

@@ -99,6 +99,30 @@ END
 - 本戦モードでは、グループ情報、グループ1位確率、総合1位確率も含めてまとめます
 - 出力先は結果CSVと同名で、拡張子だけ `.md` になります
 
+## 大会進行フレームワークの出力
+大会進行フレームワークでは、通常の結果表に加えて、代表実行 1 件ぶんの大会結果テーブルも出力します。
+
+### aggregate 結果
+- `tournament_framework_aggregate_result_*.csv`
+- `tournament_framework_aggregate_result_*.md`
+- これは **複数回試行を集計した順位表** です
+- `優勝確率` や `平均順位` は、この aggregate 結果を見ます
+- CSV には `note` 列が付き、aggregate 結果であることを明示します
+
+### representative 大会結果
+- `tournament_match_records_representative_*.csv`
+- `tournament_match_records_representative_*.md`
+- これは **代表実行 1 件の対局記録** です
+- aggregate の順位表と 1 対 1 には対応しません
+- どんな対局順・勝敗例になったかを確認したいときに見ます
+- CSV には `note` 列が付き、representative であることを明示します
+
+### どう見分けるか
+- ファイル名に `aggregate` が入っていれば、集計済みの順位表です
+- ファイル名に `representative` が入っていれば、代表実行 1 件の大会結果です
+- Markdown には概要欄の注記が入ります
+- コンソールにも同じ趣旨の注記が出ます
+
 ## 品質評価CSV
 品質評価モードでは、次の 2 種類の CSV を出力します。
 
