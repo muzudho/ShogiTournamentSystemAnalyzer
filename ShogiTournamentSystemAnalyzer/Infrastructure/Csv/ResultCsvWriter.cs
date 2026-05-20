@@ -233,41 +233,30 @@ internal static partial class Program
         return lines;
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="outputCsvPath"></param>
-    /// <param name="sweepRows"></param>
-    /// <param name="options"></param>
-    static void WriteQualitySweepCsv(string outputCsvPath, IReadOnlyList<QualitySweepRow> sweepRows, ExperimentalReportGroupingOptions options)
+    static IEnumerable<string> CreateQualitySweepCsv(string outputCsvPath, IReadOnlyList<QualitySweepRow> sweepRows, ExperimentalReportGroupingOptions options)
     {
-        WriterHelper.WriteText(
-            outputPath: outputCsvPath,
-            getLines: () =>
-            {
-                var lines = new List<string>
+        var lines = new List<string>
                 {
                     "firstPlayerWinRatePercent,spearmanCorrelation,meanAbsoluteRankError,averageTop8Retention,eloTop1OverallTop1ProbabilityPercent,mostPenalizedPlayer,mostPenalizedDelta,mostAdvantagedPlayer,mostAdvantagedDelta"
                 };
 
-                lines.AddRange(sweepRows.Select(row => string.Join(",",
-                    row.FirstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture),
-                    row.SpearmanCorrelation.ToString("F6", CultureInfo.InvariantCulture),
-                    row.MeanAbsoluteRankError.ToString("F6", CultureInfo.InvariantCulture),
-                    row.AverageTop8Retention.ToString("F6", CultureInfo.InvariantCulture),
-                    (row.EloTop1OverallTop1Probability * 100).ToString("F6", CultureInfo.InvariantCulture),
-                    EscapeCsv(row.MostPenalizedPlayerName),
-                    row.MostPenalizedDelta.ToString("F6", CultureInfo.InvariantCulture),
-                    EscapeCsv(row.MostAdvantagedPlayerName),
-                    row.MostAdvantagedDelta.ToString("F6", CultureInfo.InvariantCulture))));
+        lines.AddRange(sweepRows.Select(row => string.Join(",",
+            row.FirstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture),
+            row.SpearmanCorrelation.ToString("F6", CultureInfo.InvariantCulture),
+            row.MeanAbsoluteRankError.ToString("F6", CultureInfo.InvariantCulture),
+            row.AverageTop8Retention.ToString("F6", CultureInfo.InvariantCulture),
+            (row.EloTop1OverallTop1Probability * 100).ToString("F6", CultureInfo.InvariantCulture),
+            EscapeCsv(row.MostPenalizedPlayerName),
+            row.MostPenalizedDelta.ToString("F6", CultureInfo.InvariantCulture),
+            EscapeCsv(row.MostAdvantagedPlayerName),
+            row.MostAdvantagedDelta.ToString("F6", CultureInfo.InvariantCulture))));
 
-                if (!string.IsNullOrWhiteSpace(options.EvaluationMemo))
-                {
-                    lines.Add($"evaluationMemo,,,,,,,{EscapeCsv(options.EvaluationMemo)},");
-                }
+        if (!string.IsNullOrWhiteSpace(options.EvaluationMemo))
+        {
+            lines.Add($"evaluationMemo,,,,,,,{EscapeCsv(options.EvaluationMemo)},");
+        }
 
-                return lines;
-            });
+        return lines;
     }
 
     /// <summary>

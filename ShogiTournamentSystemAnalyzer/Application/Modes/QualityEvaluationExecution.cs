@@ -42,7 +42,10 @@ internal static partial class Program
         }
 
         var outputOptions = ReadQualitySweepOutputOptions(ruleDefinition);
-        WriteQualitySweepCsv(outputOptions.OutputCsvPath, sweepRows, outputOptions.ReportGroupingOptions);
+        WriterHelper.WriteText(
+            outputPath: outputOptions.OutputCsvPath,
+            getLines: () => CreateQualitySweepCsv(outputOptions.OutputCsvPath, sweepRows, outputOptions.ReportGroupingOptions));
+
         var sweepMarkdownPath = ChangeOutputExtension(outputOptions.OutputCsvPath, ".md");
         WriterHelper.WriteText(
             outputPath: sweepMarkdownPath,
