@@ -20,17 +20,10 @@ internal static partial class Program
         for (var i = startIndex; i < lines.Count; i++)
         {
             var columns = SplitCsvLine(lines[i]);
-            if (columns.Count < 3)
-            {
-                errorMessage = $"{i + 1} 行目は 3 列以上必要です。";
-                return false;
-            }
-
-            if (!int.TryParse(columns[0].Trim(), out var playerId))
-            {
-                errorMessage = $"{i + 1} 行目の playerId を整数で入力してください。";
-                return false;
-            }
+            // 👓　列数の確認
+            if (columns.Count < 3) { errorMessage = $"{i + 1} 行目は 3 列以上必要です。"; return false; }
+            // 👓　［プレイヤーＩｄ］の型確認
+            if (!int.TryParse(columns[0].Trim(), out var playerId)) { errorMessage = $"{i + 1} 行目の playerId を整数で入力してください。"; return false; }
 
             var name = columns[1].Trim();
             if (string.IsNullOrWhiteSpace(name))

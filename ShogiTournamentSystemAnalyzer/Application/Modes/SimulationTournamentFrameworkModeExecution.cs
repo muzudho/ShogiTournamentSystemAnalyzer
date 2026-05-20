@@ -92,7 +92,11 @@ internal static partial class Program
         var outputCsvPath = ResolveOutputCsvPath(requestedOutputPath);
         WriterHelper.WriteText(
             outputPath: outputCsvPath,
-            getLines: () => CreateResultCsv(result.Mode, context.FirstPlayerWinRatePercent, resultRows));
+            getLines: () => CreateResultCsv(
+                result.Mode,
+                context.FirstPlayerWinRatePercent,
+                resultRows,
+                overviewNote: "この順位表は複数回試行の aggregate 結果です。大会結果CSVとは 1 対 1 には対応しません。"));
 
         var outputMarkdownPath = ChangeOutputExtension(outputCsvPath, ".md");
         WriterHelper.WriteText(
@@ -109,7 +113,11 @@ internal static partial class Program
         var tournamentMatchRecordsMarkdownPath = ChangeOutputExtension(tournamentMatchRecordsCsvPath, ".md");
         WriterHelper.WriteText(
             outputPath: tournamentMatchRecordsCsvPath,
-            getLines: () => CreateTournamentMatchRecordCsv(stages, players, executionResult.FinalState.MatchRecords));
+            getLines: () => CreateTournamentMatchRecordCsv(
+                stages,
+                players,
+                executionResult.FinalState.MatchRecords,
+                overviewNote: "この大会結果テーブルは代表実行 1 件の対局記録です。順位表の aggregate 結果そのものではありません。"));
 
         WriterHelper.WriteText(
             outputPath: tournamentMatchRecordsMarkdownPath,

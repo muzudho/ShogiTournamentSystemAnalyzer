@@ -1,4 +1,3 @@
-using ShogiTournamentSystemAnalyzer.Infrastructure.Csv;
 using System.Globalization;
 
 internal static partial class Program
@@ -457,7 +456,7 @@ internal static partial class Program
         return lines;
     }
 
-    static IEnumerable<string> CreateResultCsv(string mode, double firstPlayerWinRatePercent, IReadOnlyList<ResultRow> resultRows)
+    static IEnumerable<string> CreateResultCsv(string mode, double firstPlayerWinRatePercent, IReadOnlyList<ResultRow> resultRows, string? overviewNote = null)
     {
         var lines = new List<string>();
         var headerColumns = new List<string>
@@ -475,6 +474,11 @@ internal static partial class Program
                     "championshipProbabilityPercent",
                     "averagePlace"
                 };
+
+        if (!string.IsNullOrWhiteSpace(overviewNote))
+        {
+            headerColumns.Add("note");
+        }
 
         if (resultRows.Count > 0)
         {
@@ -507,6 +511,11 @@ internal static partial class Program
                         (row.ChampionshipProbability * 100).ToString("F2", CultureInfo.InvariantCulture),
                         row.AveragePlace.ToString("F3", CultureInfo.InvariantCulture)
                     };
+
+            if (!string.IsNullOrWhiteSpace(overviewNote))
+            {
+                columns.Add(overviewNote);
+            }
 
             for (var place = 0; place < row.PlaceProbabilities.Length; place++)
             {
@@ -803,31 +812,31 @@ internal static partial class Program
     }
 
     /// <summary>
-    /// 
+    /// Builds a comma-separated list of labels for Mermaid charts, escaping necessary characters.
     /// </summary>
-    /// <param name="labels"></param>
-    /// <returns></returns>
+    /// <param name="labels">The labels to include in the list.</param>
+    /// <returns>A comma-separated list of escaped labels.</returns>
     static string BuildMermaidCategoryList(IEnumerable<string> labels)
     {
         return string.Join(", ", labels.Select(EscapeMermaidLabel));
     }
 
     /// <summary>
-    /// 
+    /// Escapes a label for use in a Mermaid chart.
     /// </summary>
-    /// <param name="label"></param>
-    /// <returns></returns>
+    /// <param name="label">The label to escape.</param>
+    /// <returns>The escaped label.</returns>
     static string EscapeMermaidLabel(string label)
     {
         return "\"" + label.Replace("\"", "'") + "\"";
     }
 
     /// <summary>
-    /// 
+    /// Builds a relative file link for use in a Markdown file.
     /// </summary>
-    /// <param name="markdownPath"></param>
-    /// <param name="targetPath"></param>
-    /// <returns></returns>
+    /// <param name="markdownPath">The path to the Markdown file.</param>
+    /// <param name="targetPath">The path to the target file.</param>
+    /// <returns>A relative file link for use in a Markdown file.</returns>
     static string BuildMarkdownFileLink(string markdownPath, string targetPath)
     {
         var markdownDirectory = Path.GetDirectoryName(Path.GetFullPath(markdownPath)) ?? Path.GetFullPath(".");
@@ -839,13 +848,15 @@ internal static partial class Program
         return $"[{fileName}]({relativePath})";
     }
 
-    static IEnumerable<string> CreateTournamentMatchRecordCsv(IReadOnlyList<StageEntry> stages, IReadOnlyList<PlayerEntry> players, IReadOnlyList<TournamentMatchRecord> matchRecords)
+    static IEnumerable<string> CreateTournamentMatchRecordCsv(IReadOnlyList<StageEntry> stages, IReadOnlyList<PlayerEntry> players, IReadOnlyList<TournamentMatchRecord> matchRecords, string? overviewNote = null)
     {
         var stageNameById = stages.ToDictionary(stage => stage.StageId, stage => stage.StageName);
         var playerNameById = players.ToDictionary(player => player.PlayerId, player => player.Name);
         var lines = new List<string>
                 {
-                    "matchId,stageId,stageName,firstPlayerId,firstPlayerName,secondPlayerId,secondPlayerName,startTime,endTime,status,resultType,roundNo"
+                    string.IsNullOrWhiteSpace(overviewNote)
+                        ? "matchId,stageId,stageName,firstPlayerId,firstPlayerName,secondPlayerId,secondPlayerName,startTime,endTime,status,resultType,roundNo"
+                        : "matchId,stageId,stageName,firstPlayerId,firstPlayerName,secondPlayerId,secondPlayerName,startTime,endTime,status,resultType,roundNo,note"
                 };
 
         foreach (var match in matchRecords.OrderBy(match => match.StartTime).ThenBy(match => match.MatchId))
@@ -854,8 +865,8 @@ internal static partial class Program
             var firstPlayerName = playerNameById.TryGetValue(match.FirstPlayerId, out var firstPlayer) ? firstPlayer : string.Empty;
             var secondPlayerName = playerNameById.TryGetValue(match.SecondPlayerId, out var secondPlayer) ? secondPlayer : string.Empty;
 
-            var columns = new[]
-            {
+            var columns = new List<string>
+                    {
                         match.MatchId.ToString(CultureInfo.InvariantCulture),
                         match.StageId.ToString(CultureInfo.InvariantCulture),
                         stageName,
@@ -869,6 +880,11 @@ internal static partial class Program
                         match.ResultType.ToString(),
                         match.RoundNo?.ToString(CultureInfo.InvariantCulture) ?? string.Empty,
                     };
+
+            if (!string.IsNullOrWhiteSpace(overviewNote))
+            {
+                columns.Add(overviewNote);
+            }
 
             lines.Add(string.Join(",", columns.Select(EscapeCsv)));
         }
