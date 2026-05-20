@@ -4,18 +4,6 @@ using System.Globalization;
 internal static partial class Program
 {
     /// <summary>
-    /// ［品質評価］サマリーCSVを出力する
-    /// </summary>
-    /// <param name="outputCsvPath"></param>
-    /// <param name="summary"></param>
-    /// <param name="options"></param>
-    static void WriteQualitySummaryCsv(string outputCsvPath, QualitySummary summary, ExperimentalReportGroupingOptions options)
-    {
-        WriterHelper.WriteText(
-            outputPath: outputCsvPath,
-            getLines: () => CreateQualitySummaryCsv(summary, options));
-    }
-    /// <summary>
     /// ［品質評価］サマリーCSVを作成する
     /// </summary>
     /// <param name="summary"></param>
@@ -51,27 +39,24 @@ internal static partial class Program
     /// <param name="sweepRows"></param>
     /// <param name="sweepCsvPath"></param>
     /// <param name="options"></param>
-    static void WriteQualitySweepMarkdown(string outputMarkdownPath, IReadOnlyList<QualitySweepRow> sweepRows, string sweepCsvPath, ExperimentalReportGroupingOptions options)
+    /// <returns></returns>
+    static IEnumerable<string> CreateQualitySweepMarkdown(string outputMarkdownPath, IReadOnlyList<QualitySweepRow> sweepRows, string sweepCsvPath, ExperimentalReportGroupingOptions options)
     {
-        WriterHelper.WriteText(
-            outputPath: outputMarkdownPath,
-            getLines: () =>
-            {
-                var bestSpearmanRow = sweepRows
-                    .OrderByDescending(row => row.SpearmanCorrelation)
-                    .ThenBy(row => row.MeanAbsoluteRankError)
-                    .ThenBy(row => row.FirstPlayerWinRatePercent)
-                    .FirstOrDefault();
-                var bestMaeRow = sweepRows
-                    .OrderBy(row => row.MeanAbsoluteRankError)
-                    .ThenBy(row => row.FirstPlayerWinRatePercent)
-                    .FirstOrDefault();
-                var bestTop1Row = sweepRows
-                    .OrderByDescending(row => row.EloTop1OverallTop1Probability)
-                    .ThenBy(row => row.FirstPlayerWinRatePercent)
-                    .FirstOrDefault();
+        var bestSpearmanRow = sweepRows
+            .OrderByDescending(row => row.SpearmanCorrelation)
+            .ThenBy(row => row.MeanAbsoluteRankError)
+            .ThenBy(row => row.FirstPlayerWinRatePercent)
+            .FirstOrDefault();
+        var bestMaeRow = sweepRows
+            .OrderBy(row => row.MeanAbsoluteRankError)
+            .ThenBy(row => row.FirstPlayerWinRatePercent)
+            .FirstOrDefault();
+        var bestTop1Row = sweepRows
+            .OrderByDescending(row => row.EloTop1OverallTop1Probability)
+            .ThenBy(row => row.FirstPlayerWinRatePercent)
+            .FirstOrDefault();
 
-                var lines = new List<string>
+        var lines = new List<string>
                 {
                     "# n% スイープ結果レポート",
                     string.Empty,
@@ -80,21 +65,21 @@ internal static partial class Program
                     $"- 出力CSV: {BuildMarkdownFileLink(outputMarkdownPath, sweepCsvPath)}"
                 };
 
-                if (!string.IsNullOrWhiteSpace(options.EvaluationMemo))
-                {
-                    lines.Add($"- 評価メモ: {options.EvaluationMemo}");
-                }
+        if (!string.IsNullOrWhiteSpace(options.EvaluationMemo))
+        {
+            lines.Add($"- 評価メモ: {options.EvaluationMemo}");
+        }
 
-                if (sweepRows.Count > 0)
-                {
-                    var recommendedRows = sweepRows
-                        .Where(row => row.SpearmanCorrelation >= bestSpearmanRow.SpearmanCorrelation - 0.001
-                            && row.MeanAbsoluteRankError <= bestMaeRow.MeanAbsoluteRankError + 0.05)
-                        .OrderBy(row => row.FirstPlayerWinRatePercent)
-                        .ToArray();
+        if (sweepRows.Count > 0)
+        {
+            var recommendedRows = sweepRows
+                .Where(row => row.SpearmanCorrelation >= bestSpearmanRow.SpearmanCorrelation - 0.001
+                    && row.MeanAbsoluteRankError <= bestMaeRow.MeanAbsoluteRankError + 0.05)
+                .OrderBy(row => row.FirstPlayerWinRatePercent)
+                .ToArray();
 
-                    lines.AddRange(new[]
-                    {
+            lines.AddRange(new[]
+            {
                         string.Empty,
                         "## 注目ポイント",
                         $"- Spearman 相関が最良の点: **{bestSpearmanRow.FirstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture)}%**（{bestSpearmanRow.SpearmanCorrelation.ToString("F6", CultureInfo.InvariantCulture)}）",
@@ -107,11 +92,11 @@ internal static partial class Program
                         "| ---: | ---: | ---: | ---: | ---: | --- | --- |"
                     });
 
-                    lines.AddRange(sweepRows.Select(row =>
-                        $"| {row.FirstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture)}% | {row.SpearmanCorrelation.ToString("F6", CultureInfo.InvariantCulture)} | {row.MeanAbsoluteRankError.ToString("F6", CultureInfo.InvariantCulture)} | {row.AverageTop8Retention.ToString("F6", CultureInfo.InvariantCulture)} | {(row.EloTop1OverallTop1Probability * 100).ToString("F6", CultureInfo.InvariantCulture)}% | {row.MostPenalizedPlayerName} ({FormatSignedDelta(row.MostPenalizedDelta)}) | {row.MostAdvantagedPlayerName} ({FormatSignedDelta(row.MostAdvantagedDelta)}) |"));
+            lines.AddRange(sweepRows.Select(row =>
+                $"| {row.FirstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture)}% | {row.SpearmanCorrelation.ToString("F6", CultureInfo.InvariantCulture)} | {row.MeanAbsoluteRankError.ToString("F6", CultureInfo.InvariantCulture)} | {row.AverageTop8Retention.ToString("F6", CultureInfo.InvariantCulture)} | {(row.EloTop1OverallTop1Probability * 100).ToString("F6", CultureInfo.InvariantCulture)}% | {row.MostPenalizedPlayerName} ({FormatSignedDelta(row.MostPenalizedDelta)}) | {row.MostAdvantagedPlayerName} ({FormatSignedDelta(row.MostAdvantagedDelta)}) |"));
 
-                    lines.AddRange(new[]
-                    {
+            lines.AddRange(new[]
+            {
                         string.Empty,
                         "## 推移図",
                         "```mermaid",
@@ -123,10 +108,9 @@ internal static partial class Program
                         "    line \"Elo上位8名残留\" [" + string.Join(", ", sweepRows.Select(row => row.AverageTop8Retention.ToString("F2", CultureInfo.InvariantCulture))) + "]",
                         "```"
                     });
-                }
+        }
 
-                return lines;
-            });
+        return lines;
     }
 
     /// <summary>

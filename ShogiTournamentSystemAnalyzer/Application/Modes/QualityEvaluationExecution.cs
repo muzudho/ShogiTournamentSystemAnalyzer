@@ -1,3 +1,5 @@
+using ShogiTournamentSystemAnalyzer.Infrastructure.Csv;
+
 internal static partial class Program
 {
     static void RunQualitySweepExperiment(
@@ -42,7 +44,9 @@ internal static partial class Program
         var outputOptions = ReadQualitySweepOutputOptions(ruleDefinition);
         WriteQualitySweepCsv(outputOptions.OutputCsvPath, sweepRows, outputOptions.ReportGroupingOptions);
         var sweepMarkdownPath = ChangeOutputExtension(outputOptions.OutputCsvPath, ".md");
-        WriteQualitySweepMarkdown(sweepMarkdownPath, sweepRows, outputOptions.OutputCsvPath, outputOptions.ReportGroupingOptions);
+        WriterHelper.WriteText(
+            outputPath: sweepMarkdownPath,
+            getLines: () => CreateQualitySweepMarkdown(sweepMarkdownPath, sweepRows, outputOptions.OutputCsvPath, outputOptions.ReportGroupingOptions));
 
         Console.WriteLine($"n%スイープ結果CSVを出力しました: {outputOptions.OutputCsvPath}");
         Console.WriteLine($"n%スイープ結果Markdownを出力しました: {sweepMarkdownPath}");
