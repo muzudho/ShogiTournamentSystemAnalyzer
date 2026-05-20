@@ -95,6 +95,12 @@ internal static partial class Program
         Console.WriteLine("9. 結果CSVの出力先（省略可）\n");
     }
 
+    static void PrintSimulationEmptyOverview()
+    {
+        Console.WriteLine("このモードでは対局入力を行いません。");
+        Console.WriteLine("1. 結果CSVの出力先だけを入力します。\n");
+    }
+
     static void PrintQualityEvaluationStandardOverview()
     {
         Console.WriteLine("このモードでは次を順に入力します。");
