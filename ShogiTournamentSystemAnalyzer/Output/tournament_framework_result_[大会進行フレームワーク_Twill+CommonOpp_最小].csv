@@ -1,0 +1,5 @@
+calculationMode,firstPlayerWinRatePercent,playerName,originalElo,effectiveElo,eloDelta,firstPlayerCount,secondPlayerCount,firstPlayerWinRatePercent,secondPlayerWinRatePercent,championshipProbabilityPercent,averagePlace,place1Percent,place2Percent,place3Percent,place4Percent
+厳密計算 / 大会進行フレームワーク / FixedMatch / Twill+CommonOpp,51.00,Alice,1500,1507,+7,2,0,51.00,,23.34,2.471,23.34,30.14,22.59,23.93
+厳密計算 / 大会進行フレームワーク / FixedMatch / Twill+CommonOpp,51.00,Bob,1480,1480,0,1,1,52.44,46.13,20.54,2.680,20.54,20.09,30.19,29.18
+厳密計算 / 大会進行フレームワーク / FixedMatch / Twill+CommonOpp,51.00,Carol,1520,1520,0,1,1,58.12,51.88,26.51,2.480,26.51,22.71,27.07,23.71
+厳密計算 / 大会進行フレームワーク / FixedMatch / Twill+CommonOpp,51.00,Dave,1470,1463,-7,0,2,,44.72,29.61,2.369,29.61,27.05,20.15,23.18

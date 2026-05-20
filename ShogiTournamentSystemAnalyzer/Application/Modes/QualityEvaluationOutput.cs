@@ -66,7 +66,9 @@ internal static partial class Program
         var playerCsvPath = BuildSiblingOutputCsvPath(outputOptions.OutputCsvPath, "quality_players");
         WriteQualityPlayerCsv(playerCsvPath, qualityEvaluationRun.PlayerRows);
         var summaryMarkdownPath = ChangeOutputExtension(outputOptions.OutputCsvPath, ".md");
-        WriteQualitySummaryMarkdown(summaryMarkdownPath, qualityEvaluationRun, outputOptions.OutputCsvPath, playerCsvPath, outputOptions.ReportGroupingOptions);
+        WriterHelper.WriteText(
+            outputPath: summaryMarkdownPath,
+            getLines: () => CreateQualitySummaryMarkdown(summaryMarkdownPath, qualityEvaluationRun, outputOptions.OutputCsvPath, playerCsvPath, outputOptions.ReportGroupingOptions));
 
         Console.WriteLine($"品質評価サマリーCSVを出力しました: {outputOptions.OutputCsvPath}");
         Console.WriteLine($"品質評価選手別CSVを出力しました: {playerCsvPath}");

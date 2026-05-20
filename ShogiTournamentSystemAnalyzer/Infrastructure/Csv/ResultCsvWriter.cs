@@ -121,35 +121,32 @@ internal static partial class Program
     /// <param name="summaryCsvPath"></param>
     /// <param name="playerCsvPath"></param>
     /// <param name="options"></param>
-    static void WriteQualitySummaryMarkdown(
+    /// <returns></returns>
+    static IEnumerable<string> CreateQualitySummaryMarkdown(
         string outputMarkdownPath,
         QualityEvaluationRun qualityEvaluationRun,
         string summaryCsvPath,
         string playerCsvPath,
         ExperimentalReportGroupingOptions options)
     {
-        WriterHelper.WriteText(
-            outputPath: outputMarkdownPath,
-            getLines: () =>
-            {
-                var summary = qualityEvaluationRun.Summary;
-                var topPenalizedPlayers = qualityEvaluationRun.PlayerRows
-                    .OrderByDescending(row => row.OverallPlaceDeltaFromEloRank)
-                    .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
-                    .Take(3)
-                    .ToArray();
-                var topAdvantagedPlayers = qualityEvaluationRun.PlayerRows
-                    .OrderBy(row => row.OverallPlaceDeltaFromEloRank)
-                    .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
-                    .Take(3)
-                    .ToArray();
-                var bestTop1Row = qualityEvaluationRun.PlayerRows
-                    .OrderByDescending(row => row.OverallTop1Probability)
-                    .ThenBy(row => row.ExpectedOverallPlace)
-                    .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
-                    .FirstOrDefault();
+        var summary = qualityEvaluationRun.Summary;
+        var topPenalizedPlayers = qualityEvaluationRun.PlayerRows
+            .OrderByDescending(row => row.OverallPlaceDeltaFromEloRank)
+            .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
+            .Take(3)
+            .ToArray();
+        var topAdvantagedPlayers = qualityEvaluationRun.PlayerRows
+            .OrderBy(row => row.OverallPlaceDeltaFromEloRank)
+            .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
+            .Take(3)
+            .ToArray();
+        var bestTop1Row = qualityEvaluationRun.PlayerRows
+            .OrderByDescending(row => row.OverallTop1Probability)
+            .ThenBy(row => row.ExpectedOverallPlace)
+            .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
+            .FirstOrDefault();
 
-                var lines = new List<string>
+        var lines = new List<string>
                 {
                     "# 品質評価サマリーレポート",
                     string.Empty,
@@ -160,13 +157,13 @@ internal static partial class Program
                     $"- 選手別CSV: {BuildMarkdownFileLink(outputMarkdownPath, playerCsvPath)}"
                 };
 
-                if (!string.IsNullOrWhiteSpace(options.EvaluationMemo))
-                {
-                    lines.Add($"- 評価メモ: {options.EvaluationMemo}");
-                }
+        if (!string.IsNullOrWhiteSpace(options.EvaluationMemo))
+        {
+            lines.Add($"- 評価メモ: {options.EvaluationMemo}");
+        }
 
-                lines.AddRange(new[]
-                {
+        lines.AddRange(new[]
+        {
                     string.Empty,
                     "## 指標サマリー",
                     "| 指標 | 値 | 意味 |",
@@ -192,27 +189,27 @@ internal static partial class Program
                     "| --- | ---: | ---: | ---: | ---: | ---: |"
                 });
 
-                lines.AddRange(topPenalizedPlayers.Select(BuildQualityPlayerMarkdownRow));
+        lines.AddRange(topPenalizedPlayers.Select(BuildQualityPlayerMarkdownRow));
 
-                lines.AddRange(new[]
-                {
+        lines.AddRange(new[]
+        {
                     string.Empty,
                     "### 利益が大きい選手",
                     "| 選手 | Elo順位 | 期待総合順位 | ずれ | 総合1位確率 | 総合上位8位確率 |",
                     "| --- | ---: | ---: | ---: | ---: | ---: |"
                 });
 
-                lines.AddRange(topAdvantagedPlayers.Select(BuildQualityPlayerMarkdownRow));
+        lines.AddRange(topAdvantagedPlayers.Select(BuildQualityPlayerMarkdownRow));
 
-                if (qualityEvaluationRun.PlayerRows.Count > 0)
-                {
-                    var chartRows = qualityEvaluationRun.PlayerRows
-                        .OrderBy(row => row.EloRank)
-                        .Take(8)
-                        .ToArray();
+        if (qualityEvaluationRun.PlayerRows.Count > 0)
+        {
+            var chartRows = qualityEvaluationRun.PlayerRows
+                .OrderBy(row => row.EloRank)
+                .Take(8)
+                .ToArray();
 
-                    lines.AddRange(new[]
-                    {
+            lines.AddRange(new[]
+            {
                         string.Empty,
                         "## Mermaid 図",
                         "```mermaid",
@@ -231,10 +228,9 @@ internal static partial class Program
                         "    bar [" + string.Join(", ", chartRows.Select(row => (row.OverallTop1Probability * 100).ToString("F2", CultureInfo.InvariantCulture))) + "]",
                         "```"
                     });
-                }
+        }
 
-                return lines;
-            });
+        return lines;
     }
 
     /// <summary>
