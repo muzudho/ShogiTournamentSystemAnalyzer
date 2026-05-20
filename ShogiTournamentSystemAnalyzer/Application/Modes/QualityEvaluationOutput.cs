@@ -1,3 +1,4 @@
+using ShogiTournamentSystemAnalyzer.Infrastructure.Csv;
 using System.Globalization;
 
 internal static partial class Program
@@ -58,7 +59,9 @@ internal static partial class Program
         QualityEvaluationRun qualityEvaluationRun,
         QualityEvaluationOutputOptions outputOptions)
     {
-        WriteQualitySummaryCsv(outputOptions.OutputCsvPath, qualityEvaluationRun.Summary, outputOptions.ReportGroupingOptions);
+        WriterHelper.WriteText(
+            outputPath: outputOptions.OutputCsvPath,
+            getLines: () => CreateQualitySummaryCsv(qualityEvaluationRun.Summary, outputOptions.ReportGroupingOptions));
 
         var playerCsvPath = BuildSiblingOutputCsvPath(outputOptions.OutputCsvPath, "quality_players");
         WriteQualityPlayerCsv(playerCsvPath, qualityEvaluationRun.PlayerRows);

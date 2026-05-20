@@ -1,6 +1,5 @@
 using ShogiTournamentSystemAnalyzer.Infrastructure.Csv;
 using System.Globalization;
-using System.Text;
 
 internal static partial class Program
 {
@@ -14,28 +13,35 @@ internal static partial class Program
     {
         WriterHelper.WriteText(
             outputPath: outputCsvPath,
-            getLines: () =>
-            {
-                // CSVの内容を作成する
-                var lines = new List<string>
-                {
-                    "metricName,metricValue,note",
-                    $"spearmanCorrelation,{summary.SpearmanCorrelation.ToString("F6", CultureInfo.InvariantCulture)},Elo順位と期待総合順位の相関",
-                    $"meanAbsoluteRankError,{summary.MeanAbsoluteRankError.ToString("F6", CultureInfo.InvariantCulture)},期待総合順位とElo順位のずれの絶対値平均",
-                    $"averageTop8Retention,{summary.AverageTop8Retention.ToString("F6", CultureInfo.InvariantCulture)},Elo上位8名が総合上位8位に残る人数の期待値",
-                    $"eloTop1OverallTop1Probability,{(summary.EloTop1OverallTop1Probability * 100).ToString("F6", CultureInfo.InvariantCulture)},Elo1位が総合1位になる確率(%)",
-                    $"mostPenalizedPlayerDelta,{summary.MostPenalizedDelta.ToString("F6", CultureInfo.InvariantCulture)},{EscapeCsv(summary.MostPenalizedPlayerName)}",
-                    $"mostAdvantagedPlayerDelta,{summary.MostAdvantagedDelta.ToString("F6", CultureInfo.InvariantCulture)},{EscapeCsv(summary.MostAdvantagedPlayerName)}"
-                };
+            getLines: () => CreateQualitySummaryCsv(summary, options));
+    }
+    /// <summary>
+    /// ［品質評価］サマリーCSVを作成する
+    /// </summary>
+    /// <param name="summary"></param>
+    /// <param name="options"></param>
+    /// <returns></returns>
+    static IEnumerable<string> CreateQualitySummaryCsv(QualitySummary summary, ExperimentalReportGroupingOptions options)
+    {
+        // CSVの内容を作成する
+        var lines = new List<string>
+        {
+            "metricName,metricValue,note",
+            $"spearmanCorrelation,{summary.SpearmanCorrelation.ToString("F6", CultureInfo.InvariantCulture)},Elo順位と期待総合順位の相関",
+            $"meanAbsoluteRankError,{summary.MeanAbsoluteRankError.ToString("F6", CultureInfo.InvariantCulture)},期待総合順位とElo順位のずれの絶対値平均",
+            $"averageTop8Retention,{summary.AverageTop8Retention.ToString("F6", CultureInfo.InvariantCulture)},Elo上位8名が総合上位8位に残る人数の期待値",
+            $"eloTop1OverallTop1Probability,{(summary.EloTop1OverallTop1Probability * 100).ToString("F6", CultureInfo.InvariantCulture)},Elo1位が総合1位になる確率(%)",
+            $"mostPenalizedPlayerDelta,{summary.MostPenalizedDelta.ToString("F6", CultureInfo.InvariantCulture)},{EscapeCsv(summary.MostPenalizedPlayerName)}",
+            $"mostAdvantagedPlayerDelta,{summary.MostAdvantagedDelta.ToString("F6", CultureInfo.InvariantCulture)},{EscapeCsv(summary.MostAdvantagedPlayerName)}"
+        };
 
-                // 評価メモがある場合はCSVの最後に追加する
-                if (!string.IsNullOrWhiteSpace(options.EvaluationMemo))
-                {
-                    lines.Add($"evaluationMemo,,{EscapeCsv(options.EvaluationMemo)}");
-                }
+        // 評価メモがある場合はCSVの最後に追加する
+        if (!string.IsNullOrWhiteSpace(options.EvaluationMemo))
+        {
+            lines.Add($"evaluationMemo,,{EscapeCsv(options.EvaluationMemo)}");
+        }
 
-                return lines;
-            });
+        return lines;
     }
 
     /// <summary>

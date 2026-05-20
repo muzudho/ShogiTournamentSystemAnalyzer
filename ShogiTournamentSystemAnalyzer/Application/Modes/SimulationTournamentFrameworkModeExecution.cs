@@ -17,9 +17,15 @@ internal static partial class Program
         }
 
         var initialState = new TournamentState(0, players, stages, matchRecords);
+        IRankingRule rankingRule = context.TournamentRuleSetMode switch
+        {
+            TournamentRuleSetMode.Twill => TwillTournamentRankingRule.Instance,
+            TournamentRuleSetMode.TwillCommonOpponentWeighted => TwillTournamentRankingRule.CommonOpponentWeightedInstance,
+            _ => ByFinishedResultsRankingRule.Instance,
+        };
         var ruleSet = new TournamentFrameworkRuleSet(
             FixedMatchPairingRule.Instance,
-            ByFinishedResultsRankingRule.Instance,
+            rankingRule,
             AllMatchesFinishedTerminationRule.Instance,
             new StandardLikeMatchResultResolver(context.FirstPlayerWinRateRating));
         var engine = new TournamentEngine(ruleSet, context.RandomSeed);
@@ -37,7 +43,7 @@ internal static partial class Program
         var standardMatches = executionResult.FinalState.MatchRecords
             .Select(match => new Match(playerIndexById[match.FirstPlayerId], playerIndexById[match.SecondPlayerId]))
             .ToArray();
-        var representativeExecutionRankRows = BuildRepresentativeExecutionRankRows(players, executionResult.FinalState.MatchRecords, context.TournamentRuleSetMode);
+        var representativeExecutionRankRows = BuildRepresentativeExecutionRankRows(players, executionResult.OverallRanking);
 
         var result = BuildTournamentFrameworkCalculationResult(aggregateResult);
         var resultRows = BuildResultRows(standardPlayers, standardMatches, result, context.FirstPlayerWinRatePercent);
@@ -357,55 +363,30 @@ internal static partial class Program
 
     static List<RepresentativeExecutionRankRow> BuildRepresentativeExecutionRankRows(
         IReadOnlyList<PlayerEntry> players,
-        IReadOnlyList<TournamentMatchRecord> matchRecords,
-        TournamentRuleSetMode tournamentRuleSetMode)
+        IReadOnlyList<PlayerRankRow> ranking)
     {
-        var orderedPlayers = players
-            .OrderBy(player => player.PlayerId)
-            .ToArray();
-        var playerIndexById = orderedPlayers
-            .Select((player, index) => new { player.PlayerId, index })
-            .ToDictionary(x => x.PlayerId, x => x.index);
-        var placeProbabilities = new double[orderedPlayers.Length, orderedPlayers.Length];
-        AccumulateTournamentFrameworkPlaceProbabilities(orderedPlayers, playerIndexById, matchRecords, placeProbabilities, tournamentRuleSetMode);
-        var pointsByPlayerId = BuildTournamentFrameworkPointsByPlayerId(orderedPlayers, matchRecords);
+        var playerNameById = players.ToDictionary(player => player.PlayerId, player => player.Name);
 
-        return orderedPlayers
-            .Select(player =>
+        return ranking
+            .GroupBy(row => row.Rank)
+            .OrderBy(group => group.Key)
+            .SelectMany(group =>
             {
-                var playerIndex = playerIndexById[player.PlayerId];
-                var firstPlace = -1;
-                var lastPlace = -1;
-                var averagePlace = 0.0;
-                for (var place = 0; place < orderedPlayers.Length; place++)
-                {
-                    var probability = placeProbabilities[playerIndex, place];
-                    if (probability <= 0.0)
-                    {
-                        continue;
-                    }
+                var rows = group.ToArray();
+                var lastRank = group.Key + rows.Length - 1;
+                var averagePlace = (group.Key + lastRank) / 2.0;
+                var rankLabel = rows.Length == 1
+                    ? group.Key.ToString()
+                    : $"{group.Key}-{lastRank}";
+                var firstPlaceProbability = group.Key == 1 ? 1.0 / rows.Length : 0.0;
 
-                    if (firstPlace < 0)
-                    {
-                        firstPlace = place;
-                    }
-
-                    lastPlace = place;
-                    averagePlace += (place + 1) * probability;
-                }
-
-                var rankLabel = firstPlace < 0
-                    ? "-"
-                    : firstPlace == lastPlace
-                        ? (firstPlace + 1).ToString()
-                        : $"{firstPlace + 1}-{lastPlace + 1}";
-
-                return new RepresentativeExecutionRankRow(
-                    player.Name,
-                    pointsByPlayerId[player.PlayerId],
-                    rankLabel,
-                    averagePlace,
-                    placeProbabilities[playerIndex, 0]);
+                return rows
+                    .Select(row => new RepresentativeExecutionRankRow(
+                        playerNameById[row.PlayerId],
+                        row.Points,
+                        rankLabel,
+                        averagePlace,
+                        firstPlaceProbability));
             })
             .OrderBy(row => row.AveragePlace)
             .ThenByDescending(row => row.Points)

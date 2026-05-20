@@ -1,5 +1,21 @@
 internal static class TwillTournamentRule
 {
+    internal static IReadOnlyList<List<int>> BuildRankingGroups(
+        IReadOnlyList<Match> matches,
+        IReadOnlyList<bool> blackWins,
+        int participantCount)
+    {
+        return BuildRankingGroupsCore(matches, blackWins, participantCount, useCommonOpponentWeight: false);
+    }
+
+    internal static IReadOnlyList<List<int>> BuildRankingGroupsWithCommonOpponentWeight(
+        IReadOnlyList<Match> matches,
+        IReadOnlyList<bool> blackWins,
+        int participantCount)
+    {
+        return BuildRankingGroupsCore(matches, blackWins, participantCount, useCommonOpponentWeight: true);
+    }
+
     internal static void AccumulatePlaceProbabilities(
         IReadOnlyList<Match> matches,
         IReadOnlyList<bool> blackWins,
@@ -25,7 +41,16 @@ internal static class TwillTournamentRule
         double[,] placeProbabilities,
         bool useCommonOpponentWeight)
     {
-        var participantCount = placeProbabilities.GetLength(0);
+        var finalGroups = BuildRankingGroupsCore(matches, blackWins, placeProbabilities.GetLength(0), useCommonOpponentWeight);
+        AccumulateGroupedPlaces(finalGroups, scenarioProbability, placeProbabilities);
+    }
+
+    private static List<List<int>> BuildRankingGroupsCore(
+        IReadOnlyList<Match> matches,
+        IReadOnlyList<bool> blackWins,
+        int participantCount,
+        bool useCommonOpponentWeight)
+    {
         var nodeCount = participantCount * 2;
         var adjacency = Enumerable.Range(0, nodeCount)
             .Select(_ => new HashSet<int>())
@@ -65,7 +90,7 @@ internal static class TwillTournamentRule
             .SelectMany(group => RefineGroupByDirectEncounter(group, matches, blackWins))
             .ToList();
 
-        AccumulateGroupedPlaces(finalGroups, scenarioProbability, placeProbabilities);
+        return finalGroups;
     }
 
     private static int GetBlackNodeIndex(int participantIndex)
