@@ -472,7 +472,8 @@ internal static partial class Program
         string outputCsvPath,
         TournamentRuleSetMode tournamentRuleSetMode,
         IReadOnlyList<RepresentativeExecutionRankRow> rows,
-        string? overviewNote = null)
+        string? overviewNote = null,
+        string? representativeMatchRecordsMarkdownPath = null)
     {
         var bestRow = rows
             .OrderBy(row => row.AveragePlace)
@@ -489,6 +490,11 @@ internal static partial class Program
             $"- 順位ルール: {TournamentRuleSetRule.GetLabel(tournamentRuleSetMode)}",
             $"- 対象選手数: {rows.Count}"
         };
+
+        if (!string.IsNullOrWhiteSpace(representativeMatchRecordsMarkdownPath))
+        {
+            lines.Add($"- representative大会結果: {BuildMarkdownFileLink(outputMarkdownPath, representativeMatchRecordsMarkdownPath)}");
+        }
 
         if (!string.IsNullOrWhiteSpace(overviewNote))
         {
@@ -634,7 +640,14 @@ internal static partial class Program
         return lines;
     }
 
-    static IEnumerable<string> CreateResultMarkdown(string outputMarkdownPath, string outputCsvPath, string mode, double firstPlayerWinRatePercent, IReadOnlyList<ResultRow> resultRows, string? overviewNote = null)
+    static IEnumerable<string> CreateResultMarkdown(
+        string outputMarkdownPath,
+        string outputCsvPath,
+        string mode,
+        double firstPlayerWinRatePercent,
+        IReadOnlyList<ResultRow> resultRows,
+        string? overviewNote = null,
+        string? representativeRankingMarkdownPath = null)
     {
         var topChampionshipRows = resultRows
             .OrderByDescending(row => row.ChampionshipProbability)
@@ -686,6 +699,11 @@ internal static partial class Program
                     "| 選手 | 元Elo | 実効Elo | 差分 | 優勝確率 | 平均順位 |",
                     "| --- | ---: | ---: | ---: | ---: | ---: |"
                 };
+
+        if (!string.IsNullOrWhiteSpace(representativeRankingMarkdownPath))
+        {
+            lines.Insert(7, $"- representative順位表: {BuildMarkdownFileLink(outputMarkdownPath, representativeRankingMarkdownPath)}");
+        }
 
         if (!string.IsNullOrWhiteSpace(overviewNote))
         {

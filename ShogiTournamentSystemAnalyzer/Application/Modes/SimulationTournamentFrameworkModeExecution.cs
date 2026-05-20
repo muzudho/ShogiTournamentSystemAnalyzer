@@ -99,6 +99,11 @@ internal static partial class Program
                 overviewNote: "この順位表は複数回試行の aggregate 結果です。大会結果CSVとは 1 対 1 には対応しません。"));
 
         var outputMarkdownPath = ChangeOutputExtension(outputCsvPath, ".md");
+        var representativeRankingCsvPath = BuildSiblingOutputCsvPath(outputCsvPath, "tournament_framework_representative_ranking");
+        var representativeRankingMarkdownPath = ChangeOutputExtension(representativeRankingCsvPath, ".md");
+        var tournamentMatchRecordsCsvPath = BuildSiblingOutputCsvPath(outputCsvPath, "tournament_match_records_representative");
+        var tournamentMatchRecordsMarkdownPath = ChangeOutputExtension(tournamentMatchRecordsCsvPath, ".md");
+
         WriterHelper.WriteText(
             outputPath: outputMarkdownPath,
             getLines: () => CreateResultMarkdown(
@@ -107,10 +112,9 @@ internal static partial class Program
                 result.Mode,
                 context.FirstPlayerWinRatePercent,
                 resultRows,
-                overviewNote: "この順位表は複数回試行の aggregate 結果です。下記の大会結果テーブルとは 1 対 1 には対応しません。"));
+                overviewNote: "この順位表は複数回試行の aggregate 結果です。下記の大会結果テーブルとは 1 対 1 には対応しません。",
+                representativeRankingMarkdownPath: representativeRankingMarkdownPath));
 
-        var representativeRankingCsvPath = BuildSiblingOutputCsvPath(outputCsvPath, "tournament_framework_representative_ranking");
-        var representativeRankingMarkdownPath = ChangeOutputExtension(representativeRankingCsvPath, ".md");
         WriterHelper.WriteText(
             outputPath: representativeRankingCsvPath,
             getLines: () => CreateRepresentativeExecutionRankCsv(
@@ -125,10 +129,9 @@ internal static partial class Program
                 representativeRankingCsvPath,
                 context.TournamentRuleSetMode,
                 representativeExecutionRankRows,
-                overviewNote: "この順位表は代表実行 1 件の順位です。aggregate 結果の順位表そのものではありません。"));
+                overviewNote: "この順位表は代表実行 1 件の順位です。aggregate 結果の順位表そのものではありません。",
+                representativeMatchRecordsMarkdownPath: tournamentMatchRecordsMarkdownPath));
 
-        var tournamentMatchRecordsCsvPath = BuildSiblingOutputCsvPath(outputCsvPath, "tournament_match_records_representative");
-        var tournamentMatchRecordsMarkdownPath = ChangeOutputExtension(tournamentMatchRecordsCsvPath, ".md");
         WriterHelper.WriteText(
             outputPath: tournamentMatchRecordsCsvPath,
             getLines: () => CreateTournamentMatchRecordCsv(

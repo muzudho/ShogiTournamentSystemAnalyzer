@@ -153,21 +153,12 @@ internal static partial class Program
 
             if (trimmed.StartsWith("#[Section]", StringComparison.OrdinalIgnoreCase))
             {
-                if (currentLines is not null)
-                {
-                    throw new OperationCanceledException($"STSAInput/2 のセクション '{currentSectionName}' が #[EndSection] で閉じられていません: {fullPath}");
-                }
+                if (currentLines is not null) throw new OperationCanceledException($"STSAInput/2 のセクション '{currentSectionName}' が #[EndSection] で閉じられていません: {fullPath}");
 
                 var sectionName = trimmed[11..].Trim();
-                if (string.IsNullOrWhiteSpace(sectionName))
-                {
-                    throw new OperationCanceledException($"STSAInput/2 の #[Section] にセクション名がありません: {fullPath}");
-                }
+                if (string.IsNullOrWhiteSpace(sectionName)) throw new OperationCanceledException($"STSAInput/2 の #[Section] にセクション名がありません: {fullPath}");
 
-                if (sections.ContainsKey(sectionName))
-                {
-                    throw new OperationCanceledException($"STSAInput/2 のセクション '{sectionName}' が重複しています: {fullPath}");
-                }
+                if (sections.ContainsKey(sectionName)) throw new OperationCanceledException($"STSAInput/2 のセクション '{sectionName}' が重複しています: {fullPath}");
 
                 currentSectionName = sectionName;
                 currentLines = new List<string>();
@@ -176,10 +167,7 @@ internal static partial class Program
 
             if (trimmed.Equals("#[EndSection]", StringComparison.OrdinalIgnoreCase))
             {
-                if (currentLines is null || currentSectionName is null)
-                {
-                    throw new OperationCanceledException($"STSAInput/2 の #[EndSection] に対応する #[Section] がありません: {fullPath}");
-                }
+                if (currentLines is null || currentSectionName is null) throw new OperationCanceledException($"STSAInput/2 の #[EndSection] に対応する #[Section] がありません: {fullPath}");
 
                 sections[currentSectionName] = currentLines;
                 currentLines = null;
@@ -187,28 +175,16 @@ internal static partial class Program
                 continue;
             }
 
-            if (trimmed.StartsWith('#'))
-            {
-                continue;
-            }
+            if (trimmed.StartsWith('#')) continue;
 
-            if (currentLines is null)
-            {
-                throw new OperationCanceledException($"STSAInput/2 の制御タグ外に本文があります: {rawLine}");
-            }
+            if (currentLines is null) throw new OperationCanceledException($"STSAInput/2 の制御タグ外に本文があります: {rawLine}");
 
             currentLines.Add(rawLine);
         }
 
-        if (!formatFound)
-        {
-            throw new OperationCanceledException($"STSAInput/2 の #[Format] 宣言が見つかりません: {fullPath}");
-        }
+        if (!formatFound) throw new OperationCanceledException($"STSAInput/2 の #[Format] 宣言が見つかりません: {fullPath}");
 
-        if (currentLines is not null)
-        {
-            throw new OperationCanceledException($"STSAInput/2 のセクション '{currentSectionName}' が #[EndSection] で閉じられていません: {fullPath}");
-        }
+        if (currentLines is not null) throw new OperationCanceledException($"STSAInput/2 のセクション '{currentSectionName}' が #[EndSection] で閉じられていません: {fullPath}");
 
         return sections;
     }
@@ -219,23 +195,14 @@ internal static partial class Program
         foreach (var line in lines)
         {
             var trimmed = line.Trim();
-            if (string.IsNullOrWhiteSpace(trimmed) || trimmed.StartsWith('#'))
-            {
-                continue;
-            }
+            if (string.IsNullOrWhiteSpace(trimmed) || trimmed.StartsWith('#')) continue;
 
             var separatorIndex = line.IndexOf('=');
-            if (separatorIndex <= 0)
-            {
-                throw new OperationCanceledException($"STSAInput/2 の {sectionName} セクションで key=value 形式ではない行があります: {line} ({fullPath})");
-            }
+            if (separatorIndex <= 0) throw new OperationCanceledException($"STSAInput/2 の {sectionName} セクションで key=value 形式ではない行があります: {line} ({fullPath})");
 
             var key = line[..separatorIndex].Trim();
             var value = line[(separatorIndex + 1)..].Trim();
-            if (values.ContainsKey(key))
-            {
-                throw new OperationCanceledException($"STSAInput/2 の {sectionName} セクションでキー '{key}' が重複しています: {fullPath}");
-            }
+            if (values.ContainsKey(key)) throw new OperationCanceledException($"STSAInput/2 の {sectionName} セクションでキー '{key}' が重複しています: {fullPath}");
 
             values[key] = value;
         }
@@ -245,10 +212,7 @@ internal static partial class Program
 
     static IReadOnlyList<string> GetRequiredSectionLines(Dictionary<string, List<string>> sections, string sectionName, string fullPath)
     {
-        if (!sections.TryGetValue(sectionName, out var lines))
-        {
-            throw new OperationCanceledException($"STSAInput/2 の必須セクション '{sectionName}' がありません: {fullPath}");
-        }
+        if (!sections.TryGetValue(sectionName, out var lines)) throw new OperationCanceledException($"STSAInput/2 の必須セクション '{sectionName}' がありません: {fullPath}");
 
         return lines;
     }
@@ -262,10 +226,7 @@ internal static partial class Program
 
     static string GetRequiredMetaValue(Dictionary<string, string> meta, string key, string fullPath)
     {
-        if (!meta.TryGetValue(key, out var value) || string.IsNullOrWhiteSpace(value))
-        {
-            throw new OperationCanceledException($"STSAInput/2 の Meta セクションに必須キー '{key}' がありません: {fullPath}");
-        }
+        if (!meta.TryGetValue(key, out var value) || string.IsNullOrWhiteSpace(value)) throw new OperationCanceledException($"STSAInput/2 の Meta セクションに必須キー '{key}' がありません: {fullPath}");
 
         return value;
     }
@@ -340,10 +301,7 @@ internal static partial class Program
             ?? GetOptionalMetaValue(output, "OutputPath")
             ?? GetOptionalMetaValue(meta, "SummaryOutputPath")
             ?? GetOptionalMetaValue(meta, "OutputPath");
-        if (string.IsNullOrWhiteSpace(outputPath))
-        {
-            throw new OperationCanceledException($"STSAInput/2 の Output セクションまたは Meta セクションに出力先パスがありません: {fullPath}");
-        }
+        if (string.IsNullOrWhiteSpace(outputPath)) throw new OperationCanceledException($"STSAInput/2 の Output セクションまたは Meta セクションに出力先パスがありません: {fullPath}");
 
         legacyLines.Add(outputPath);
         return string.Join(Environment.NewLine, legacyLines);
@@ -451,10 +409,7 @@ internal static partial class Program
             ?? GetOptionalMetaValue(output, "OutputPath")
             ?? GetOptionalMetaValue(meta, isSweep ? "SweepOutputPath" : "SummaryOutputPath")
             ?? GetOptionalMetaValue(meta, "OutputPath");
-        if (string.IsNullOrWhiteSpace(outputPath))
-        {
-            throw new OperationCanceledException($"STSAInput/2 の Output セクションまたは Meta セクションに出力先パスがありません: {fullPath}");
-        }
+        if (string.IsNullOrWhiteSpace(outputPath)) throw new OperationCanceledException($"STSAInput/2 の Output セクションまたは Meta セクションに出力先パスがありません: {fullPath}");
 
         legacyLines.Add(outputPath);
         return string.Join(Environment.NewLine, legacyLines);
@@ -482,87 +437,51 @@ internal static partial class Program
 
     static AnalysisFlowMode ParseAnalysisFlowMode(string value)
     {
-        if (value.Equals("QualityEvaluation", StringComparison.OrdinalIgnoreCase) || value == "2")
-        {
-            return AnalysisFlowMode.QualityEvaluation;
-        }
+        if (value.Equals("QualityEvaluation", StringComparison.OrdinalIgnoreCase) || value == "2") return AnalysisFlowMode.QualityEvaluation;
 
-        if (value.Equals("Simulation", StringComparison.OrdinalIgnoreCase) || value == "1")
-        {
-            return AnalysisFlowMode.Simulation;
-        }
+        if (value.Equals("Simulation", StringComparison.OrdinalIgnoreCase) || value == "1") return AnalysisFlowMode.Simulation;
 
         throw new OperationCanceledException($"STSAInput/2 の AnalysisFlowMode の値が解釈できません: {value}");
     }
 
     static RuleProfileMode ParseRuleProfileMode(string value)
     {
-        if (value.Equals("TournamentFramework", StringComparison.OrdinalIgnoreCase) || value == "3")
-        {
-            return RuleProfileMode.TournamentFramework;
-        }
+        if (value.Equals("TournamentFramework", StringComparison.OrdinalIgnoreCase) || value == "3") return RuleProfileMode.TournamentFramework;
 
-        if (value.Equals("FinalStage", StringComparison.OrdinalIgnoreCase) || value == "2")
-        {
-            return RuleProfileMode.FinalStage;
-        }
+        if (value.Equals("FinalStage", StringComparison.OrdinalIgnoreCase) || value == "2") return RuleProfileMode.FinalStage;
 
-        if (value.Equals("Standard", StringComparison.OrdinalIgnoreCase) || value == "1")
-        {
-            return RuleProfileMode.Standard;
-        }
+        if (value.Equals("Standard", StringComparison.OrdinalIgnoreCase) || value == "1") return RuleProfileMode.Standard;
 
         throw new OperationCanceledException($"STSAInput/2 の RuleProfileMode の値が解釈できません: {value}");
     }
 
     static string ParseOffOnSelection(string value, string offNumber, string onNumber, string keyName)
     {
-        if (value.Equals("Off", StringComparison.OrdinalIgnoreCase) || value == offNumber)
-        {
-            return offNumber;
-        }
+        if (value.Equals("Off", StringComparison.OrdinalIgnoreCase) || value == offNumber) return offNumber;
 
-        if (value.Equals("On", StringComparison.OrdinalIgnoreCase) || value == onNumber)
-        {
-            return onNumber;
-        }
+        if (value.Equals("On", StringComparison.OrdinalIgnoreCase) || value == onNumber) return onNumber;
 
         throw new OperationCanceledException($"STSAInput/2 の {keyName} の値が解釈できません: {value}");
     }
 
     static string ParseGoodBadSelection(string value, string keyName)
     {
-        if (value.Equals("Good", StringComparison.OrdinalIgnoreCase) || value == "1")
-        {
-            return "1";
-        }
+        if (value.Equals("Good", StringComparison.OrdinalIgnoreCase) || value == "1") return "1";
 
-        if (value.Equals("Bad", StringComparison.OrdinalIgnoreCase) || value == "2")
-        {
-            return "2";
-        }
+        if (value.Equals("Bad", StringComparison.OrdinalIgnoreCase) || value == "2") return "2";
 
         throw new OperationCanceledException($"STSAInput/2 の {keyName} の値が解釈できません: {value}");
     }
 
     static string ParseTournamentRuleSetSelection(string value)
     {
-        if (value.Equals("Neutral", StringComparison.OrdinalIgnoreCase) || value == "1")
-        {
-            return "1";
-        }
+        if (value.Equals("Neutral", StringComparison.OrdinalIgnoreCase) || value == "1") return "1";
 
-        if (value.Equals("Twill", StringComparison.OrdinalIgnoreCase) || value == "2")
-        {
-            return "2";
-        }
+        if (value.Equals("Twill", StringComparison.OrdinalIgnoreCase) || value == "2") return "2";
 
         if (value.Equals("TwillCommonOpponentWeighted", StringComparison.OrdinalIgnoreCase)
             || value.Equals("TwillCommonOpp", StringComparison.OrdinalIgnoreCase)
-            || value == "3")
-        {
-            return "3";
-        }
+            || value == "3") return "3";
 
         throw new OperationCanceledException($"STSAInput/2 の TournamentRuleSetMode の値が解釈できません: {value}");
     }
