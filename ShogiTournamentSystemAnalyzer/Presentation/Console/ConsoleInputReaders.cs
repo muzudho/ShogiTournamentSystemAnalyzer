@@ -58,10 +58,7 @@ internal static partial class Program
                 return new ExperimentalReportGroupingOptions(true, outcome, evaluationMemo);
             }
 
-            if (attempt >= InputRetryLimit)
-            {
-                ThrowInputRetryLimitExceeded("実験レポートの Good / Bad 分離", "1 または 2 以外が入力されました");
-            }
+            if (attempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("実験レポートの Good / Bad 分離", "1 または 2 以外が入力されました");
 
             Console.WriteLine("1 か 2 を入力してください。\n");
         }
@@ -101,10 +98,7 @@ internal static partial class Program
                 return ExperimentalReportOutcome.Bad;
             }
 
-            if (attempt >= InputRetryLimit)
-            {
-                ThrowInputRetryLimitExceeded("実験レポート評価", "1 または 2 以外が入力されました");
-            }
+            if (attempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("実験レポート評価", "1 または 2 以外が入力されました");
 
             Console.WriteLine("1 か 2 を入力してください。\n");
         }
@@ -130,10 +124,7 @@ internal static partial class Program
 
             if (lines.Count == 0)
             {
-                if (attempt >= InputRetryLimit)
-                {
-                    ThrowInputRetryLimitExceeded("グループ対応CSV", "CSVが入力されていません");
-                }
+                if (attempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("グループ対応CSV", "CSVが入力されていません");
 
                 Console.WriteLine("CSVが入力されていません。再入力してください。\n");
                 continue;
@@ -142,10 +133,7 @@ internal static partial class Program
             if (TryParseFinalStageGroups(lines, out var groupMap, out var err)) return groupMap;
 
             Console.WriteLine($"CSVの読み取りに失敗しました: {err.Value}");
-            if (attempt >= InputRetryLimit)
-            {
-                ThrowInputRetryLimitExceeded("グループ対応CSV", err.Value);
-            }
+            if (attempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("グループ対応CSV", err.Value);
             Console.WriteLine("もう一度入力してください。\n");
         }
     }
