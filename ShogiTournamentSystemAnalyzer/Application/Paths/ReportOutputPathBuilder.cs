@@ -3,10 +3,7 @@ internal static partial class Program
     static string BuildQualitySummaryDefaultOutputPath(AdditionalApexPlacementMode placementMode, BoundaryRescueMode boundaryRescueMode, ExperimentalReportGroupingOptions options)
     {
         var fileName = $"quality_summary_{placementMode}_{boundaryRescueMode}_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
-        if (!options.IsEnabled)
-        {
-            return Path.GetFullPath(fileName);
-        }
+        if (!options.IsEnabled) return Path.GetFullPath(fileName);
 
         var outcomeFolderName = options.Outcome == ExperimentalReportOutcome.Bad ? "Bad" : "Good";
         var baseDirectory = Path.Combine(Path.GetFullPath("."), "docs", "Reports", outcomeFolderName);
@@ -19,10 +16,7 @@ internal static partial class Program
         if (groupingMode == FinalStageGroupingMode.Off)
         {
             var fileName = $"quality_summary_neutral_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
-            if (!options.IsEnabled)
-            {
-                return Path.GetFullPath(fileName);
-            }
+            if (!options.IsEnabled) return Path.GetFullPath(fileName);
 
             var outcomeFolderName = options.Outcome == ExperimentalReportOutcome.Bad ? "Bad" : "Good";
             var baseDirectory = Path.Combine(Path.GetFullPath("."), "docs", "Reports", outcomeFolderName);
@@ -39,10 +33,7 @@ internal static partial class Program
         {
             var ruleName = tournamentRuleSetMode == TournamentRuleSetMode.Twill ? "twill" : "neutral";
             var fileName = $"quality_summary_{ruleName}_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
-            if (!options.IsEnabled)
-            {
-                return Path.GetFullPath(fileName);
-            }
+            if (!options.IsEnabled) return Path.GetFullPath(fileName);
 
             var outcomeFolderName = options.Outcome == ExperimentalReportOutcome.Bad ? "Bad" : "Good";
             var baseDirectory = Path.Combine(Path.GetFullPath("."), "docs", "Reports", outcomeFolderName);
@@ -56,10 +47,7 @@ internal static partial class Program
     static string BuildQualitySweepDefaultOutputPath(AdditionalApexPlacementMode placementMode, BoundaryRescueMode boundaryRescueMode, ExperimentalReportGroupingOptions options)
     {
         var fileName = $"quality_sweep_{placementMode}_{boundaryRescueMode}_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
-        if (!options.IsEnabled)
-        {
-            return Path.GetFullPath(fileName);
-        }
+        if (!options.IsEnabled) return Path.GetFullPath(fileName);
 
         var outcomeFolderName = options.Outcome == ExperimentalReportOutcome.Bad ? "Bad" : "Good";
         var baseDirectory = Path.Combine(Path.GetFullPath("."), "docs", "Reports", outcomeFolderName);
@@ -72,10 +60,7 @@ internal static partial class Program
         if (groupingMode == FinalStageGroupingMode.Off)
         {
             var fileName = $"quality_sweep_neutral_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
-            if (!options.IsEnabled)
-            {
-                return Path.GetFullPath(fileName);
-            }
+            if (!options.IsEnabled) return Path.GetFullPath(fileName);
 
             var outcomeFolderName = options.Outcome == ExperimentalReportOutcome.Bad ? "Bad" : "Good";
             var baseDirectory = Path.Combine(Path.GetFullPath("."), "docs", "Reports", outcomeFolderName);
@@ -92,10 +77,7 @@ internal static partial class Program
         {
             var ruleName = tournamentRuleSetMode == TournamentRuleSetMode.Twill ? "twill" : "neutral";
             var fileName = $"quality_sweep_{ruleName}_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
-            if (!options.IsEnabled)
-            {
-                return Path.GetFullPath(fileName);
-            }
+            if (!options.IsEnabled) return Path.GetFullPath(fileName);
 
             var outcomeFolderName = options.Outcome == ExperimentalReportOutcome.Bad ? "Bad" : "Good";
             var baseDirectory = Path.Combine(Path.GetFullPath("."), "docs", "Reports", outcomeFolderName);
