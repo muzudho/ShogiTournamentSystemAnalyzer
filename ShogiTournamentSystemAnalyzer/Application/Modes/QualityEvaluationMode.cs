@@ -16,15 +16,10 @@ internal static partial class Program
         var players = ReadPlayersFromCsv();
         Console.WriteLine();
 
-        if (!TryReadQualityEvaluationRuleDefinition(players, ruleProfileMode, out var ruleDefinition))
-        {
-            return;
-        }
+        if (!TryReadQualityEvaluationRuleDefinition(players, ruleProfileMode, out var ruleDefinition)) return;
 
-        if (!TryReadQualityEvaluationInput(players, ruleDefinition, out var input))
-        {
-            return;
-        }
+        if (!TryReadQualityEvaluationInput(players, ruleDefinition, out var input)) return;
+
 
         var executionOptions = ReadQualityEvaluationExecutionOptions(input, ruleDefinition);
         PrintQualityEvaluationContext(input, ruleDefinition);
