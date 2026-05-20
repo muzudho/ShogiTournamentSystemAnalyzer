@@ -32,10 +32,7 @@ internal static partial class Program
                 return TournamentRuleSetMode.TwillCommonOpponentWeighted;
             }
 
-            if (attempt >= InputRetryLimit)
-            {
-                ThrowInputRetryLimitExceeded("順位ルール選択", "1、2、3 のいずれでもありません");
-            }
+            if (attempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("順位ルール選択", "1、2、3 のいずれでもありません");
 
             Console.WriteLine("1、2、3 のいずれかを入力してください。\n");
         }
@@ -65,10 +62,7 @@ internal static partial class Program
                 return FinalStageGroupingMode.Off;
             }
 
-            if (attempt >= InputRetryLimit)
-            {
-                ThrowInputRetryLimitExceeded("Apex / Innov の分け方", "1 または 2 以外が入力されました");
-            }
+            if (attempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("Apex / Innov の分け方", "1 または 2 以外が入力されました");
 
             Console.WriteLine("1 か 2 を入力してください。\n");
         }
@@ -99,10 +93,7 @@ internal static partial class Program
                 return AdditionalApexPlacementMode.On;
             }
 
-            if (attempt >= InputRetryLimit)
-            {
-                ThrowInputRetryLimitExceeded("本戦不出場Apexの扱い", "1 または 2 以外が入力されました");
-            }
+            if (attempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("本戦不出場Apexの扱い", "1 または 2 以外が入力されました");
 
             Console.WriteLine("1 か 2 を入力してください。\n");
         }
@@ -133,10 +124,7 @@ internal static partial class Program
                 return BoundaryRescueMode.On;
             }
 
-            if (attempt >= InputRetryLimit)
-            {
-                ThrowInputRetryLimitExceeded("境界救済戦", "1 または 2 以外が入力されました");
-            }
+            if (attempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("境界救済戦", "1 または 2 以外が入力されました");
 
             Console.WriteLine("1 か 2 を入力してください。\n");
         }
@@ -167,10 +155,7 @@ internal static partial class Program
                 return VariableTop8Mode.On;
             }
 
-            if (attempt >= InputRetryLimit)
-            {
-                ThrowInputRetryLimitExceeded("可変定員8ルール", "1 または 2 以外が入力されました");
-            }
+            if (attempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("可変定員8ルール", "1 または 2 以外が入力されました");
 
             Console.WriteLine("1 か 2 を入力してください。\n");
         }
@@ -201,10 +186,7 @@ internal static partial class Program
                 return QualityInnovExpectedRankOffsetMode.On;
             }
 
-            if (attempt >= InputRetryLimit)
-            {
-                ThrowInputRetryLimitExceeded("品質評価の Innov 比較基準順位補正", "1 または 2 以外が入力されました");
-            }
+            if (attempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("品質評価の Innov 比較基準順位補正", "1 または 2 以外が入力されました");
 
             Console.WriteLine("1 か 2 を入力してください。\n");
         }

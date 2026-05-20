@@ -129,6 +129,12 @@ END
 - Markdown には概要欄の注記が入ります
 - コンソールにも同じ趣旨の注記が出ます
 
+### Markdown の行き来
+- aggregate 順位表 Markdown から、representative 順位表 Markdown へ移れます
+- representative 順位表 Markdown から、representative 大会結果 Markdown へ移れます
+- representative 大会結果 Markdown から、representative 順位表 Markdown と aggregate 順位表 Markdown へ戻れます
+- つまり、集計結果 → 代表順位 → 代表対局記録 → 集計結果、という往復ができます
+
 ## 品質評価CSV
 品質評価モードでは、次の 2 種類の CSV を出力します。
 
