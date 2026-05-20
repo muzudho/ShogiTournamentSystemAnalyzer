@@ -76,6 +76,8 @@ internal static partial class Program
         }
 
         PrintMatchesCsv(standardPlayers, standardMatches, "大会進行フレームワークで読み込んだ対局CSV:");
+        Console.WriteLine("注記: これ以降の順位表は複数回試行の aggregate 結果です。");
+        Console.WriteLine("注記: あとで出力する大会結果CSV/Markdownは代表実行1件の対局記録です。\n");
         PrintRepresentativeExecutionRanking(representativeExecutionRankRows, context.TournamentRuleSetMode);
         PrintResult(standardPlayers.Length, result, context.FirstPlayerWinRatePercent, resultRows);
         if (result.Mode.Contains("時間切れ", StringComparison.Ordinal))
@@ -95,11 +97,20 @@ internal static partial class Program
         var outputMarkdownPath = ChangeOutputExtension(outputCsvPath, ".md");
         WriterHelper.WriteText(
             outputPath: outputMarkdownPath,
-            getLines: () => CreateResultMarkdown(outputMarkdownPath, outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, resultRows));
+            getLines: () => CreateResultMarkdown(
+                outputMarkdownPath,
+                outputCsvPath,
+                result.Mode,
+                context.FirstPlayerWinRatePercent,
+                resultRows,
+                overviewNote: "この順位表は複数回試行の aggregate 結果です。下記の大会結果テーブルとは 1 対 1 には対応しません。"));
 
         var tournamentMatchRecordsCsvPath = BuildSiblingOutputCsvPath(outputCsvPath, "tournament_match_records");
         var tournamentMatchRecordsMarkdownPath = ChangeOutputExtension(tournamentMatchRecordsCsvPath, ".md");
-        WriteTournamentMatchRecordCsv(tournamentMatchRecordsCsvPath, stages, players, executionResult.FinalState.MatchRecords);
+        WriterHelper.WriteText(
+            outputPath: tournamentMatchRecordsCsvPath,
+            getLines: () => CreateTournamentMatchRecordCsv(tournamentMatchRecordsCsvPath, stages, players, executionResult.FinalState.MatchRecords));
+
         WriteTournamentMatchRecordMarkdown(tournamentMatchRecordsMarkdownPath, tournamentMatchRecordsCsvPath, stages, players, executionResult.FinalState.MatchRecords);
         Console.WriteLine($"結果CSVを出力しました: {outputCsvPath}");
         Console.WriteLine($"結果Markdownを出力しました: {outputMarkdownPath}");

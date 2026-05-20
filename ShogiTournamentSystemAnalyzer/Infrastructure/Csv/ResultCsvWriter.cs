@@ -523,7 +523,7 @@ internal static partial class Program
         return lines;
     }
 
-    static IEnumerable<string> CreateResultMarkdown(string outputMarkdownPath, string outputCsvPath, string mode, double firstPlayerWinRatePercent, IReadOnlyList<ResultRow> resultRows)
+    static IEnumerable<string> CreateResultMarkdown(string outputMarkdownPath, string outputCsvPath, string mode, double firstPlayerWinRatePercent, IReadOnlyList<ResultRow> resultRows, string? overviewNote = null)
     {
         var topChampionshipRows = resultRows
             .OrderByDescending(row => row.ChampionshipProbability)
@@ -575,6 +575,11 @@ internal static partial class Program
                     "| 選手 | 元Elo | 実効Elo | 差分 | 優勝確率 | 平均順位 |",
                     "| --- | ---: | ---: | ---: | ---: | ---: |"
                 };
+
+        if (!string.IsNullOrWhiteSpace(overviewNote))
+        {
+            lines.Insert(7, $"- 注記: {overviewNote}");
+        }
 
         lines.AddRange(topChampionshipRows.Select(row =>
             $"| {row.Name} | {FormatRating(row.OriginalRating)} | {FormatRating(row.EffectiveRating)} | {FormatSignedRating(row.RatingDelta)} | {(row.ChampionshipProbability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {row.AveragePlace.ToString("F3", CultureInfo.InvariantCulture)} |"));
@@ -834,34 +839,23 @@ internal static partial class Program
         return $"[{fileName}]({relativePath})";
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="outputCsvPath"></param>
-    /// <param name="stages"></param>
-    /// <param name="players"></param>
-    /// <param name="matchRecords"></param>
-    static void WriteTournamentMatchRecordCsv(string outputCsvPath, IReadOnlyList<StageEntry> stages, IReadOnlyList<PlayerEntry> players, IReadOnlyList<TournamentMatchRecord> matchRecords)
+    static IEnumerable<string> CreateTournamentMatchRecordCsv(string outputCsvPath, IReadOnlyList<StageEntry> stages, IReadOnlyList<PlayerEntry> players, IReadOnlyList<TournamentMatchRecord> matchRecords)
     {
-        WriterHelper.WriteText(
-            outputPath: outputCsvPath,
-            getLines: () =>
-            {
-                var stageNameById = stages.ToDictionary(stage => stage.StageId, stage => stage.StageName);
-                var playerNameById = players.ToDictionary(player => player.PlayerId, player => player.Name);
-                var lines = new List<string>
+        var stageNameById = stages.ToDictionary(stage => stage.StageId, stage => stage.StageName);
+        var playerNameById = players.ToDictionary(player => player.PlayerId, player => player.Name);
+        var lines = new List<string>
                 {
                     "matchId,stageId,stageName,firstPlayerId,firstPlayerName,secondPlayerId,secondPlayerName,startTime,endTime,status,resultType,roundNo"
                 };
 
-                foreach (var match in matchRecords.OrderBy(match => match.StartTime).ThenBy(match => match.MatchId))
-                {
-                    var stageName = stageNameById.TryGetValue(match.StageId, out var stage) ? stage : string.Empty;
-                    var firstPlayerName = playerNameById.TryGetValue(match.FirstPlayerId, out var firstPlayer) ? firstPlayer : string.Empty;
-                    var secondPlayerName = playerNameById.TryGetValue(match.SecondPlayerId, out var secondPlayer) ? secondPlayer : string.Empty;
+        foreach (var match in matchRecords.OrderBy(match => match.StartTime).ThenBy(match => match.MatchId))
+        {
+            var stageName = stageNameById.TryGetValue(match.StageId, out var stage) ? stage : string.Empty;
+            var firstPlayerName = playerNameById.TryGetValue(match.FirstPlayerId, out var firstPlayer) ? firstPlayer : string.Empty;
+            var secondPlayerName = playerNameById.TryGetValue(match.SecondPlayerId, out var secondPlayer) ? secondPlayer : string.Empty;
 
-                    var columns = new[]
-                    {
+            var columns = new[]
+            {
                         match.MatchId.ToString(CultureInfo.InvariantCulture),
                         match.StageId.ToString(CultureInfo.InvariantCulture),
                         stageName,
@@ -876,11 +870,10 @@ internal static partial class Program
                         match.RoundNo?.ToString(CultureInfo.InvariantCulture) ?? string.Empty,
                     };
 
-                    lines.Add(string.Join(",", columns.Select(EscapeCsv)));
-                }
+            lines.Add(string.Join(",", columns.Select(EscapeCsv)));
+        }
 
-                return lines;
-            });
+        return lines;
     }
 
     /// <summary>
@@ -891,7 +884,7 @@ internal static partial class Program
     /// <param name="stages"></param>
     /// <param name="players"></param>
     /// <param name="matchRecords"></param>
-    static void WriteTournamentMatchRecordMarkdown(string outputMarkdownPath, string outputCsvPath, IReadOnlyList<StageEntry> stages, IReadOnlyList<PlayerEntry> players, IReadOnlyList<TournamentMatchRecord> matchRecords)
+    static void WriteTournamentMatchRecordMarkdown(string outputMarkdownPath, string outputCsvPath, IReadOnlyList<StageEntry> stages, IReadOnlyList<PlayerEntry> players, IReadOnlyList<TournamentMatchRecord> matchRecords, string? overviewNote = null)
     {
         WriterHelper.WriteText(
             outputPath: outputMarkdownPath,
@@ -922,6 +915,11 @@ internal static partial class Program
                     "| ---: | --- | --- | --- | ---: | ---: | --- | --- | ---: |"
                 };
 
+                if (!string.IsNullOrWhiteSpace(overviewNote))
+                {
+                    lines.Insert(8, $"- 注記: {overviewNote}");
+                }
+
                 foreach (var match in orderedMatches)
                 {
                     var stageName = stageNameById.TryGetValue(match.StageId, out var stage) ? stage : match.StageId.ToString(CultureInfo.InvariantCulture);
@@ -933,6 +931,9 @@ internal static partial class Program
 
                 return lines;
             });
+    }
+    static void CreateTournamentMatchRecordMarkdown(string outputMarkdownPath, string outputCsvPath, IReadOnlyList<StageEntry> stages, IReadOnlyList<PlayerEntry> players, IReadOnlyList<TournamentMatchRecord> matchRecords, string? overviewNote = null)
+    {
     }
 }
 
