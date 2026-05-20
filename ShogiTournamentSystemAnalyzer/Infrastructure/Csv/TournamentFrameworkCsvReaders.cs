@@ -98,11 +98,8 @@ internal static partial class Program
     {
         matches = new List<TournamentMatchRecord>();
         errorMessage = string.Empty;
-        if (lines.Count == 0)
-        {
-            errorMessage = "対局記録入力がありません。";
-            return false;
-        }
+        // 👓　対局記録入力があることを確認
+        if (lines.Count == 0) { errorMessage = "対局記録入力がありません。"; return false; }
 
         var startIndex = 0;
         var firstColumns = SplitCsvLine(lines[0]);
@@ -114,44 +111,27 @@ internal static partial class Program
         for (var i = startIndex; i < lines.Count; i++)
         {
             var columns = SplitCsvLine(lines[i]);
-            if (columns.Count < 9)
-            {
-                errorMessage = $"{i + 1} 行目は 9 列以上必要です。";
-                return false;
-            }
+            // 👓　列数の確認
+            if (columns.Count < 9) { errorMessage = $"{i + 1} 行目は 9 列以上必要です。"; return false; }
 
+            // 👓　［対局Ｉｄ］［ステージＩｄ］［先手プレイヤーＩｄ］［後手プレイヤーＩｄ］［開始時間］［終了時間］の型確認
             if (!int.TryParse(columns[0].Trim(), out var matchId)
                 || !int.TryParse(columns[1].Trim(), out var stageId)
                 || !int.TryParse(columns[2].Trim(), out var firstPlayerId)
                 || !int.TryParse(columns[3].Trim(), out var secondPlayerId)
                 || !int.TryParse(columns[4].Trim(), out var startTime)
-                || !int.TryParse(columns[5].Trim(), out var endTime))
-            {
-                errorMessage = $"{i + 1} 行目の ID / time 列を整数で入力してください。";
-                return false;
-            }
-
-            if (!TryParseMatchStatus(columns[6].Trim(), out var status))
-            {
-                errorMessage = $"{i + 1} 行目の status '{columns[6].Trim()}' が不正です。";
-                return false;
-            }
-
-            if (!TryParseMatchResultType(columns[7].Trim(), out var resultType))
-            {
-                errorMessage = $"{i + 1} 行目の resultType '{columns[7].Trim()}' が不正です。";
-                return false;
-            }
+                || !int.TryParse(columns[5].Trim(), out var endTime)) { errorMessage = $"{i + 1} 行目の ID / time 列を整数で入力してください。"; return false; }
+            // 👓　［ステータス］があることを確認
+            if (!TryParseMatchStatus(columns[6].Trim(), out var status)) { errorMessage = $"{i + 1} 行目の status '{columns[6].Trim()}' が不正です。"; return false; }
+            // 👓　［結果タイプ］があることを確認
+            if (!TryParseMatchResultType(columns[7].Trim(), out var resultType)) { errorMessage = $"{i + 1} 行目の resultType '{columns[7].Trim()}' が不正です。"; return false; }
 
             int? roundNo = null;
             var roundText = columns[8].Trim();
             if (!string.IsNullOrWhiteSpace(roundText))
             {
-                if (!int.TryParse(roundText, out var roundNoValue))
-                {
-                    errorMessage = $"{i + 1} 行目の roundNo を整数で入力してください。";
-                    return false;
-                }
+                // 👓　［ラウンド番号］の型確認
+                if (!int.TryParse(roundText, out var roundNoValue)) { errorMessage = $"{i + 1} 行目の roundNo を整数で入力してください。"; return false; }
 
                 roundNo = roundNoValue;
             }
@@ -159,27 +139,17 @@ internal static partial class Program
             matches.Add(new TournamentMatchRecord(matchId, stageId, firstPlayerId, secondPlayerId, startTime, endTime, status, resultType, roundNo));
         }
 
-        if (matches.Count == 0)
-        {
-            errorMessage = "対局記録は 1 件以上必要です。";
-            return false;
-        }
-
-        if (matches.GroupBy(match => match.MatchId).Any(group => group.Count() > 1))
-        {
-            errorMessage = "matchId が重複しています。";
-            return false;
-        }
+        // 👓　対局記録が 1 件以上あることを確認
+        if (matches.Count == 0) { errorMessage = "対局記録は 1 件以上必要です。"; return false; }
+        // 👓　matchId が重複していないことを確認
+        if (matches.GroupBy(match => match.MatchId).Any(group => group.Count() > 1)) { errorMessage = "matchId が重複しています。"; return false; }
 
         return true;
     }
 
     static bool TryParseMatchStatus(string value, out MatchStatus status)
     {
-        if (Enum.TryParse<MatchStatus>(value, ignoreCase: true, out status))
-        {
-            return true;
-        }
+        if (Enum.TryParse<MatchStatus>(value, ignoreCase: true, out status)) return true;
 
         status = default;
         return false;
@@ -187,10 +157,7 @@ internal static partial class Program
 
     static bool TryParseMatchResultType(string value, out MatchResultType resultType)
     {
-        if (Enum.TryParse<MatchResultType>(value, ignoreCase: true, out resultType))
-        {
-            return true;
-        }
+        if (Enum.TryParse<MatchResultType>(value, ignoreCase: true, out resultType)) return true;
 
         resultType = default;
         return false;
