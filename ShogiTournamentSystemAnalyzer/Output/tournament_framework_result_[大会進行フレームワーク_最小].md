@@ -2,7 +2,7 @@
 
 ## 概要
 - 結果CSV: [tournament_framework_result_[大会進行フレームワーク_最小].csv](tournament_framework_result_[大会進行フレームワーク_最小].csv)
-- 計算モード: 厳密計算 / 大会進行フレームワーク / FixedMatch
+- 計算モード: 厳密計算 / 大会進行フレームワーク / FixedMatch / Neutral
 - 同Elo対局時の先手勝率: 51.00%
 - 対象選手数: 4
 

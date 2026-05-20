@@ -4,9 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-internal static class CsvWriterHelper
+internal static class WriterHelper
 {
-    internal static void WriteCsv(
+    internal static void WriteText(
         string outputCsvPath,
         Func<IEnumerable<string>> getCsvLines)
     {

@@ -1,5 +1,5 @@
 calculationMode,firstPlayerWinRatePercent,playerName,originalElo,effectiveElo,eloDelta,firstPlayerCount,secondPlayerCount,firstPlayerWinRatePercent,secondPlayerWinRatePercent,championshipProbabilityPercent,averagePlace,place1Percent,place2Percent,place3Percent,place4Percent
-厳密計算 / 大会進行フレームワーク / FixedMatch,51.00,Alice,1500,1507,+7,2,0,51.00,,26.41,2.459,26.41,24.59,25.65,23.35
-厳密計算 / 大会進行フレームワーク / FixedMatch,51.00,Bob,1480,1480,0,1,1,52.44,46.13,23.61,2.532,23.61,25.67,24.61,26.11
-厳密計算 / 大会進行フレームワーク / FixedMatch,51.00,Carol,1520,1520,0,1,1,58.12,51.88,29.57,2.361,29.57,25.43,24.36,20.64
-厳密計算 / 大会進行フレームワーク / FixedMatch,51.00,Dave,1470,1463,-7,0,2,,44.72,20.40,2.648,20.40,24.32,25.38,29.90
+厳密計算 / 大会進行フレームワーク / FixedMatch / Neutral,51.00,Alice,1500,1507,+7,2,0,51.00,,26.41,2.459,26.41,24.59,25.65,23.35
+厳密計算 / 大会進行フレームワーク / FixedMatch / Neutral,51.00,Bob,1480,1480,0,1,1,52.44,46.13,23.61,2.532,23.61,25.67,24.61,26.11
+厳密計算 / 大会進行フレームワーク / FixedMatch / Neutral,51.00,Carol,1520,1520,0,1,1,58.12,51.88,29.57,2.361,29.57,25.43,24.36,20.64
+厳密計算 / 大会進行フレームワーク / FixedMatch / Neutral,51.00,Dave,1470,1463,-7,0,2,,44.72,20.40,2.648,20.40,24.32,25.38,29.90
