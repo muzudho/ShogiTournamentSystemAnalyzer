@@ -157,7 +157,7 @@ internal static partial class Program
             }
 
             var executionResult = engine.Run(initialState);
-            AccumulateTournamentFrameworkPlaceProbabilities(players.Count, playerIndexById, executionResult.OverallRanking, placeProbabilities);
+            AccumulateTournamentFrameworkPlaceProbabilities(players, playerIndexById, executionResult.FinalState.MatchRecords, placeProbabilities);
             representativeExecutionResult = executionResult;
             totalTickCount += executionResult.TickCount;
             if (executionResult.CompletedNaturally)
@@ -209,8 +209,7 @@ internal static partial class Program
                         .Select(match => match with { Status = MatchStatus.Finished })
                         .ToArray(),
                 };
-                var ranking = ByFinishedResultsRankingRule.Instance.Rank(finalState, stageId: null);
-                AccumulateTournamentFrameworkPlaceProbabilities(players.Count, playerIndexById, ranking, placeProbabilities, scenarioProbability);
+                AccumulateTournamentFrameworkPlaceProbabilities(players, playerIndexById, finalState.MatchRecords, placeProbabilities, scenarioProbability);
                 return;
             }
 
@@ -258,22 +257,55 @@ internal static partial class Program
     }
 
     static void AccumulateTournamentFrameworkPlaceProbabilities(
-        int playerCount,
+        IReadOnlyList<PlayerEntry> players,
         IReadOnlyDictionary<int, int> playerIndexById,
-        IReadOnlyList<PlayerRankRow> ranking,
+        IReadOnlyList<TournamentMatchRecord> matchRecords,
         double[,] placeProbabilities,
         double weight = 1.0)
     {
-        foreach (var row in ranking)
+        var pointsByPlayerId = players.ToDictionary(player => player.PlayerId, _ => 0);
+        foreach (var match in matchRecords.Where(match => match.Status == MatchStatus.Finished))
         {
-            if (!playerIndexById.TryGetValue(row.PlayerId, out var playerIndex)
-                || row.Rank <= 0
-                || row.Rank > playerCount)
+            switch (match.ResultType)
             {
-                continue;
+                case MatchResultType.FirstPlayerWin:
+                case MatchResultType.FirstPlayerForfeitWin:
+                    pointsByPlayerId[match.FirstPlayerId]++;
+                    break;
+                case MatchResultType.SecondPlayerWin:
+                case MatchResultType.SecondPlayerForfeitWin:
+                    pointsByPlayerId[match.SecondPlayerId]++;
+                    break;
+            }
+        }
+
+        var ranking = players
+            .Select(player => new PlayerScore(playerIndexById[player.PlayerId], pointsByPlayerId[player.PlayerId]))
+            .OrderByDescending(score => score.Wins)
+            .ThenBy(score => score.PlayerIndex)
+            .ToArray();
+
+        var currentPlace = 0;
+        while (currentPlace < ranking.Length)
+        {
+            var groupEnd = currentPlace + 1;
+            while (groupEnd < ranking.Length && ranking[groupEnd].Wins == ranking[currentPlace].Wins)
+            {
+                groupEnd++;
             }
 
-            placeProbabilities[playerIndex, row.Rank - 1] += weight;
+            var groupSize = groupEnd - currentPlace;
+            var splitWeight = weight / groupSize;
+            for (var i = currentPlace; i < groupEnd; i++)
+            {
+                var playerIndex = ranking[i].PlayerIndex;
+                for (var place = currentPlace; place < groupEnd; place++)
+                {
+                    placeProbabilities[playerIndex, place] += splitWeight;
+                }
+            }
+
+            currentPlace = groupEnd;
         }
     }
 
