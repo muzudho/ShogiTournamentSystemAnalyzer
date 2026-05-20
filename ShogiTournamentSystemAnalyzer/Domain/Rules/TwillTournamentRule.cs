@@ -116,10 +116,7 @@ internal static class TwillTournamentRule
         while (stack.Count > 0)
         {
             var node = stack.Pop();
-            if (visited[node])
-            {
-                continue;
-            }
+            if (visited[node]) continue;
 
             visited[node] = true;
             reachableCount++;
@@ -147,10 +144,7 @@ internal static class TwillTournamentRule
         var best = 0;
         foreach (var next in adjacency[nodeIndex])
         {
-            if (visited[next])
-            {
-                continue;
-            }
+            if (visited[next]) continue;
 
             var candidate = 1 + CalculateLongestPathLengthCore(next, adjacency, visited);
             if (candidate > best)
@@ -303,10 +297,7 @@ internal static class TwillTournamentRule
         var directWins = group.ToDictionary(participantIndex => participantIndex, _ => 0);
         foreach (var (match, blackWon) in matches.Zip(blackWins, static (match, blackWon) => (match, blackWon)))
         {
-            if (!groupSet.Contains(match.FirstPlayer) || !groupSet.Contains(match.SecondPlayer))
-            {
-                continue;
-            }
+            if (!groupSet.Contains(match.FirstPlayer) || !groupSet.Contains(match.SecondPlayer)) continue;
 
             var winnerIndex = blackWon ? match.FirstPlayer : match.SecondPlayer;
             directWins[winnerIndex]++;
@@ -412,37 +403,25 @@ internal static class TwillTournamentRule
         IReadOnlyDictionary<int, Dictionary<int, bool>> outcomesByPlayer)
     {
         if (!outcomesByPlayer.TryGetValue(leftPlayerIndex, out var leftOutcomes)
-            || !outcomesByPlayer.TryGetValue(rightPlayerIndex, out var rightOutcomes))
-        {
-            return 0.0;
-        }
+            || !outcomesByPlayer.TryGetValue(rightPlayerIndex, out var rightOutcomes)) return 0.0;
 
         var commonOpponentIndexes = leftOutcomes.Keys
             .Intersect(rightOutcomes.Keys)
             .Where(opponentIndex => opponentIndex != leftPlayerIndex && opponentIndex != rightPlayerIndex)
             .ToArray();
-        if (commonOpponentIndexes.Length == 0)
-        {
-            return 0.0;
-        }
+        if (commonOpponentIndexes.Length == 0) return 0.0;
 
         var rawEvidence = 0;
         foreach (var opponentIndex in commonOpponentIndexes)
         {
             var leftWon = leftOutcomes[opponentIndex];
             var rightWon = rightOutcomes[opponentIndex];
-            if (leftWon == rightWon)
-            {
-                continue;
-            }
+            if (leftWon == rightWon) continue;
 
             rawEvidence += leftWon ? 1 : -1;
         }
 
-        if (rawEvidence == 0)
-        {
-            return 0.0;
-        }
+        if (rawEvidence == 0) return 0.0;
 
         return (double)rawEvidence / commonOpponentIndexes.Length * GetCommonOpponentReliability(commonOpponentIndexes.Length);
     }
@@ -485,20 +464,11 @@ internal static class TwillTournamentRule
 
         public int Compare(int[]? x, int[]? y)
         {
-            if (ReferenceEquals(x, y))
-            {
-                return 0;
-            }
+            if (ReferenceEquals(x, y)) return 0;
 
-            if (x is null)
-            {
-                return -1;
-            }
+            if (x is null) return -1;
 
-            if (y is null)
-            {
-                return 1;
-            }
+            if (y is null) return 1;
 
             var maxLength = Math.Max(x.Length, y.Length);
             for (var index = 0; index < maxLength; index++)
@@ -506,10 +476,7 @@ internal static class TwillTournamentRule
                 var left = index < x.Length ? x[index] : int.MaxValue;
                 var right = index < y.Length ? y[index] : int.MaxValue;
                 var comparison = left.CompareTo(right);
-                if (comparison != 0)
-                {
-                    return comparison;
-                }
+                if (comparison != 0) return comparison;
             }
 
             return 0;

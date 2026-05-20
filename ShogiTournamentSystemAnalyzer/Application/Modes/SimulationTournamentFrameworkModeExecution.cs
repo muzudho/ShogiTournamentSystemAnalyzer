@@ -138,9 +138,7 @@ internal static partial class Program
                 stages,
                 players,
                 executionResult.FinalState.MatchRecords,
-                overviewNote: "この大会結果テーブルは代表実行 1 件の対局記録です。順位表の aggregate 結果そのものではありません。",
-                aggregateResultMarkdownPath: outputMarkdownPath,
-                representativeRankingMarkdownPath: representativeRankingMarkdownPath));
+                overviewNote: "この大会結果テーブルは代表実行 1 件の対局記録です。順位表の aggregate 結果そのものではありません。"));
 
         WriterHelper.WriteText(
             outputPath: tournamentMatchRecordsMarkdownPath,
@@ -150,7 +148,9 @@ internal static partial class Program
                 stages,
                 players,
                 executionResult.FinalState.MatchRecords,
-                overviewNote: "この大会結果テーブルは代表実行 1 件の対局記録です。順位表の aggregate 結果そのものではありません。"));
+                overviewNote: "この大会結果テーブルは代表実行 1 件の対局記録です。順位表の aggregate 結果そのものではありません。",
+                aggregateResultMarkdownPath: outputMarkdownPath,
+                representativeRankingMarkdownPath: representativeRankingMarkdownPath));
 
         Console.WriteLine($"aggregate結果CSVを出力しました: {outputCsvPath}");
         Console.WriteLine($"aggregate結果Markdownを出力しました: {outputMarkdownPath}");
