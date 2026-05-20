@@ -162,10 +162,7 @@ internal static partial class Program
     {
         var fullPath = Path.GetFullPath(path);
         var lines = File.ReadAllLines(fullPath);
-        if (!TryParsePlayerEntries(lines, out var players, out var errorMessage))
-        {
-            throw new OperationCanceledException($"選手一覧CSVの読み取りに失敗しました: {errorMessage} ({fullPath})");
-        }
+        if (!TryParsePlayerEntries(lines, out var players, out var errorMessage)) throw new OperationCanceledException($"選手一覧CSVの読み取りに失敗しました: {errorMessage} ({fullPath})");
 
         return players;
     }
@@ -174,10 +171,7 @@ internal static partial class Program
     {
         var fullPath = Path.GetFullPath(path);
         var lines = File.ReadAllLines(fullPath);
-        if (!TryParseStageEntries(lines, out var stages, out var errorMessage))
-        {
-            throw new OperationCanceledException($"ステージ一覧CSVの読み取りに失敗しました: {errorMessage} ({fullPath})");
-        }
+        if (!TryParseStageEntries(lines, out var stages, out var errorMessage)) throw new OperationCanceledException($"ステージ一覧CSVの読み取りに失敗しました: {errorMessage} ({fullPath})");
 
         return stages;
     }
@@ -186,10 +180,7 @@ internal static partial class Program
     {
         var fullPath = Path.GetFullPath(path);
         var lines = File.ReadAllLines(fullPath);
-        if (!TryParseTournamentMatchRecords(lines, out var matches, out var errorMessage))
-        {
-            throw new OperationCanceledException($"大会対局記録CSVの読み取りに失敗しました: {errorMessage} ({fullPath})");
-        }
+        if (!TryParseTournamentMatchRecords(lines, out var matches, out var errorMessage)) throw new OperationCanceledException($"大会対局記録CSVの読み取りに失敗しました: {errorMessage} ({fullPath})");
 
         return matches;
     }
@@ -202,10 +193,7 @@ internal static partial class Program
         double firstPlayerWinRateRating,
         int? requestedSimulationCount)
     {
-        if (initialState.MatchRecords.Count <= TournamentFrameworkExactCalculationMatchThreshold)
-        {
-            return CalculateTournamentFrameworkExactly(engine, initialState, players, tournamentRuleSetMode, firstPlayerWinRateRating);
-        }
+        if (initialState.MatchRecords.Count <= TournamentFrameworkExactCalculationMatchThreshold) return CalculateTournamentFrameworkExactly(engine, initialState, players, tournamentRuleSetMode, firstPlayerWinRateRating);
 
         var simulationCount = requestedSimulationCount ?? DefaultTournamentFrameworkSimulationCount;
         var placeProbabilities = new double[players.Count, players.Count];
@@ -221,10 +209,7 @@ internal static partial class Program
         using var simulationBudget = BeginSimulationBudget();
         for (var simulation = 0; simulation < simulationCount; simulation++)
         {
-            if (!HasSimulationTimeRemaining())
-            {
-                break;
-            }
+            if (!HasSimulationTimeRemaining()) break;
 
             var executionResult = engine.Run(initialState);
             AccumulateTournamentFrameworkPlaceProbabilities(players, playerIndexById, executionResult.FinalState.MatchRecords, placeProbabilities, tournamentRuleSetMode);
@@ -238,10 +223,7 @@ internal static partial class Program
             completedSimulationCount++;
         }
 
-        if (representativeExecutionResult is null)
-        {
-            throw new OperationCanceledException("大会進行フレームワークのシミュレーションを 1 回も実行できませんでした。");
-        }
+        if (representativeExecutionResult is null) throw new OperationCanceledException("大会進行フレームワークのシミュレーションを 1 回も実行できませんでした。");
 
         NormalizePlaceProbabilities(placeProbabilities, completedSimulationCount);
 
@@ -522,10 +504,7 @@ internal static partial class Program
 
         public TournamentMatchRecord Resolve(TournamentState state, TournamentMatchRecord match, Random random)
         {
-            if (match.ResultType != MatchResultType.None)
-            {
-                return match;
-            }
+            if (match.ResultType != MatchResultType.None) return match;
 
             var playerMap = state.Players.ToDictionary(player => player.PlayerId);
             var firstPlayerEntry = playerMap[match.FirstPlayerId];

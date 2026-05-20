@@ -7,7 +7,7 @@ TournamentFrameworkMode=On
 FirstPlayerWinRatePercent=51
 RuleFilePath=ShogiTournamentSystemAnalyzer\Data\RuleSets\tournament_rule_[大会進行フレームワーク_最小].trule
 RandomSeed=12345
-OutputPath=ShogiTournamentSystemAnalyzer\Output\tournament_framework_result_[大会進行フレームワーク_最小].csv
+OutputPath=ShogiTournamentSystemAnalyzer\Output\tournament_framework_aggregate_result_[大会進行フレームワーク_最小].csv
 #[EndSection]
 
 #[Section] Inputs
@@ -18,5 +18,5 @@ RuleFilePath=ShogiTournamentSystemAnalyzer\Data\RuleSets\tournament_rule_[大会
 #[EndSection]
 
 #[Section] Output
-OutputPath=ShogiTournamentSystemAnalyzer\Output\tournament_framework_result_[大会進行フレームワーク_最小].csv
+OutputPath=ShogiTournamentSystemAnalyzer\Output\tournament_framework_aggregate_result_[大会進行フレームワーク_最小].csv
 #[EndSection]
