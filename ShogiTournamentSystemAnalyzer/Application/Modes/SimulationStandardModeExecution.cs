@@ -1,3 +1,5 @@
+using ShogiTournamentSystemAnalyzer.Infrastructure.Csv;
+
 internal static partial class Program
 {
     static void ExecuteStandardMode(StandardModeContext context)
@@ -24,9 +26,15 @@ internal static partial class Program
         var outputCsvPath = ResolveOutputCsvPath(ReadTextWithDefault(
             $"\n結果CSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
             defaultOutputCsvPath));
-        WriteResultCsv(outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, resultRows);
+        WriterHelper.WriteText(
+            outputPath: outputCsvPath,
+            getLines: () => CreateResultCsv(result.Mode, context.FirstPlayerWinRatePercent, resultRows));
+
         var outputMarkdownPath = ChangeOutputExtension(outputCsvPath, ".md");
-        WriteResultMarkdown(outputMarkdownPath, outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, resultRows);
+        WriterHelper.WriteText(
+            outputPath: outputMarkdownPath,
+            getLines: () => CreateResultMarkdown(outputMarkdownPath, outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, resultRows));
+
         Console.WriteLine($"結果CSVを出力しました: {outputCsvPath}");
         Console.WriteLine($"結果Markdownを出力しました: {outputMarkdownPath}");
     }

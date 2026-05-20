@@ -1,3 +1,5 @@
+using ShogiTournamentSystemAnalyzer.Infrastructure.Csv;
+
 internal static partial class Program
 {
     static CalculationResult ExecuteFinalStageMode(
@@ -121,8 +123,14 @@ internal static partial class Program
         }
         else
         {
-            WriteResultCsv(outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, standardResultRows!);
-            WriteResultMarkdown(outputMarkdownPath, outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, standardResultRows!);
+            WriterHelper.WriteText(
+                outputPath: outputCsvPath,
+                getLines: () => CreateResultCsv(result.Mode, context.FirstPlayerWinRatePercent, standardResultRows!));
+
+            WriterHelper.WriteText(
+                outputPath: outputMarkdownPath,
+                getLines: () => CreateResultMarkdown(outputMarkdownPath, outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, standardResultRows!));
+
         }
         Console.WriteLine($"結果CSVを出力しました: {outputCsvPath}");
         Console.WriteLine($"結果Markdownを出力しました: {outputMarkdownPath}");

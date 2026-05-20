@@ -66,7 +66,7 @@ internal static partial class Program
         var playerCsvPath = BuildSiblingOutputCsvPath(outputOptions.OutputCsvPath, "quality_players");
         WriterHelper.WriteText(
             outputPath: playerCsvPath,
-            getLines: () => CreateQualityPlayerCsv(playerCsvPath, qualityEvaluationRun.PlayerRows));
+            getLines: () => CreateQualityPlayerCsv(qualityEvaluationRun.PlayerRows));
 
         var summaryMarkdownPath = ChangeOutputExtension(outputOptions.OutputCsvPath, ".md");
         WriterHelper.WriteText(

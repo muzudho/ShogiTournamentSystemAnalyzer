@@ -233,12 +233,12 @@ internal static partial class Program
         return lines;
     }
 
-    static IEnumerable<string> CreateQualitySweepCsv(string outputCsvPath, IReadOnlyList<QualitySweepRow> sweepRows, ExperimentalReportGroupingOptions options)
+    static IEnumerable<string> CreateQualitySweepCsv(IReadOnlyList<QualitySweepRow> sweepRows, ExperimentalReportGroupingOptions options)
     {
         var lines = new List<string>
-                {
-                    "firstPlayerWinRatePercent,spearmanCorrelation,meanAbsoluteRankError,averageTop8Retention,eloTop1OverallTop1ProbabilityPercent,mostPenalizedPlayer,mostPenalizedDelta,mostAdvantagedPlayer,mostAdvantagedDelta"
-                };
+        {
+            "firstPlayerWinRatePercent,spearmanCorrelation,meanAbsoluteRankError,averageTop8Retention,eloTop1OverallTop1ProbabilityPercent,mostPenalizedPlayer,mostPenalizedDelta,mostAdvantagedPlayer,mostAdvantagedDelta"
+        };
 
         lines.AddRange(sweepRows.Select(row => string.Join(",",
             row.FirstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture),
@@ -437,7 +437,7 @@ internal static partial class Program
             : start.ToString("F2", CultureInfo.InvariantCulture) + "%〜" + end.ToString("F2", CultureInfo.InvariantCulture) + "%";
     }
 
-    static IEnumerable<string> CreateQualityPlayerCsv(string outputCsvPath, IReadOnlyList<QualityPlayerRow> playerRows)
+    static IEnumerable<string> CreateQualityPlayerCsv(IReadOnlyList<QualityPlayerRow> playerRows)
     {
         var lines = new List<string>
                 {
@@ -457,21 +457,10 @@ internal static partial class Program
         return lines;
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="outputCsvPath"></param>
-    /// <param name="mode"></param>
-    /// <param name="firstPlayerWinRatePercent"></param>
-    /// <param name="resultRows"></param>
-    static void WriteResultCsv(string outputCsvPath, string mode, double firstPlayerWinRatePercent, IReadOnlyList<ResultRow> resultRows)
+    static IEnumerable<string> CreateResultCsv(string mode, double firstPlayerWinRatePercent, IReadOnlyList<ResultRow> resultRows)
     {
-        WriterHelper.WriteText(
-            outputPath: outputCsvPath,
-            getLines: () =>
-            {
-                var lines = new List<string>();
-                var headerColumns = new List<string>
+        var lines = new List<string>();
+        var headerColumns = new List<string>
                 {
                     "calculationMode",
                     "firstPlayerWinRatePercent",
@@ -487,23 +476,23 @@ internal static partial class Program
                     "averagePlace"
                 };
 
-                if (resultRows.Count > 0)
+        if (resultRows.Count > 0)
+        {
+            for (var place = 0; place < resultRows[0].PlaceProbabilities.Length; place++)
+            {
+                headerColumns.Add($"place{place + 1}Percent");
+                if (resultRows[0].PlaceCounts is not null)
                 {
-                    for (var place = 0; place < resultRows[0].PlaceProbabilities.Length; place++)
-                    {
-                        headerColumns.Add($"place{place + 1}Percent");
-                        if (resultRows[0].PlaceCounts is not null)
-                        {
-                            headerColumns.Add($"place{place + 1}Count");
-                        }
-                    }
+                    headerColumns.Add($"place{place + 1}Count");
                 }
+            }
+        }
 
-                lines.Add(string.Join(",", headerColumns.Select(EscapeCsv)));
+        lines.Add(string.Join(",", headerColumns.Select(EscapeCsv)));
 
-                foreach (var row in resultRows)
-                {
-                    var columns = new List<string>
+        foreach (var row in resultRows)
+        {
+            var columns = new List<string>
                     {
                         mode,
                         firstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture),
@@ -519,62 +508,49 @@ internal static partial class Program
                         row.AveragePlace.ToString("F3", CultureInfo.InvariantCulture)
                     };
 
-                    for (var place = 0; place < row.PlaceProbabilities.Length; place++)
-                    {
-                        columns.Add((row.PlaceProbabilities[place] * 100).ToString("F2", CultureInfo.InvariantCulture));
-                        if (row.PlaceCounts is not null)
-                        {
-                            columns.Add(row.PlaceCounts[place].ToString("F3", CultureInfo.InvariantCulture));
-                        }
-                    }
-
-                    lines.Add(string.Join(",", columns.Select(EscapeCsv)));
+            for (var place = 0; place < row.PlaceProbabilities.Length; place++)
+            {
+                columns.Add((row.PlaceProbabilities[place] * 100).ToString("F2", CultureInfo.InvariantCulture));
+                if (row.PlaceCounts is not null)
+                {
+                    columns.Add(row.PlaceCounts[place].ToString("F3", CultureInfo.InvariantCulture));
                 }
+            }
 
-                return lines;
-            });
+            lines.Add(string.Join(",", columns.Select(EscapeCsv)));
+        }
+
+        return lines;
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="outputMarkdownPath"></param>
-    /// <param name="outputCsvPath"></param>
-    /// <param name="mode"></param>
-    /// <param name="firstPlayerWinRatePercent"></param>
-    /// <param name="resultRows"></param>
-    static void WriteResultMarkdown(string outputMarkdownPath, string outputCsvPath, string mode, double firstPlayerWinRatePercent, IReadOnlyList<ResultRow> resultRows)
+    static IEnumerable<string> CreateResultMarkdown(string outputMarkdownPath, string outputCsvPath, string mode, double firstPlayerWinRatePercent, IReadOnlyList<ResultRow> resultRows)
     {
-        WriterHelper.WriteText(
-            outputPath: outputMarkdownPath,
-            getLines: () =>
-            {
-                var topChampionshipRows = resultRows
-                    .OrderByDescending(row => row.ChampionshipProbability)
-                    .ThenBy(row => row.AveragePlace)
-                    .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
-                    .Take(8)
-                    .ToArray();
-                var bestChampionshipRow = resultRows
-                    .OrderByDescending(row => row.ChampionshipProbability)
-                    .ThenBy(row => row.AveragePlace)
-                    .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
-                    .FirstOrDefault();
-                var bestAveragePlaceRow = resultRows
-                    .OrderBy(row => row.AveragePlace)
-                    .ThenByDescending(row => row.ChampionshipProbability)
-                    .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
-                    .FirstOrDefault();
-                var biggestBoostRow = resultRows
-                    .OrderByDescending(row => row.RatingDelta)
-                    .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
-                    .FirstOrDefault();
-                var biggestDropRow = resultRows
-                    .OrderBy(row => row.RatingDelta)
-                    .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
-                    .FirstOrDefault();
+        var topChampionshipRows = resultRows
+            .OrderByDescending(row => row.ChampionshipProbability)
+            .ThenBy(row => row.AveragePlace)
+            .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
+            .Take(8)
+            .ToArray();
+        var bestChampionshipRow = resultRows
+            .OrderByDescending(row => row.ChampionshipProbability)
+            .ThenBy(row => row.AveragePlace)
+            .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
+            .FirstOrDefault();
+        var bestAveragePlaceRow = resultRows
+            .OrderBy(row => row.AveragePlace)
+            .ThenByDescending(row => row.ChampionshipProbability)
+            .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
+            .FirstOrDefault();
+        var biggestBoostRow = resultRows
+            .OrderByDescending(row => row.RatingDelta)
+            .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
+            .FirstOrDefault();
+        var biggestDropRow = resultRows
+            .OrderBy(row => row.RatingDelta)
+            .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
+            .FirstOrDefault();
 
-                var lines = new List<string>
+        var lines = new List<string>
                 {
                     "# 通常モード結果レポート",
                     string.Empty,
@@ -600,13 +576,13 @@ internal static partial class Program
                     "| --- | ---: | ---: | ---: | ---: | ---: |"
                 };
 
-                lines.AddRange(topChampionshipRows.Select(row =>
-                    $"| {row.Name} | {FormatRating(row.OriginalRating)} | {FormatRating(row.EffectiveRating)} | {FormatSignedRating(row.RatingDelta)} | {(row.ChampionshipProbability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {row.AveragePlace.ToString("F3", CultureInfo.InvariantCulture)} |"));
+        lines.AddRange(topChampionshipRows.Select(row =>
+            $"| {row.Name} | {FormatRating(row.OriginalRating)} | {FormatRating(row.EffectiveRating)} | {FormatSignedRating(row.RatingDelta)} | {(row.ChampionshipProbability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {row.AveragePlace.ToString("F3", CultureInfo.InvariantCulture)} |"));
 
-                if (topChampionshipRows.Length > 0)
-                {
-                    lines.AddRange(new[]
-                    {
+        if (topChampionshipRows.Length > 0)
+        {
+            lines.AddRange(new[]
+            {
                         string.Empty,
                         "## Mermaid 図",
                         "```mermaid",
@@ -625,10 +601,9 @@ internal static partial class Program
                         "    bar [" + string.Join(", ", topChampionshipRows.Select(row => row.AveragePlace.ToString("F3", CultureInfo.InvariantCulture))) + "]",
                         "```"
                     });
-                }
+        }
 
-                return lines;
-            });
+        return lines;
     }
 
     /// <summary>

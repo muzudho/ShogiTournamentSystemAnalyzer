@@ -44,7 +44,7 @@ internal static partial class Program
         var outputOptions = ReadQualitySweepOutputOptions(ruleDefinition);
         WriterHelper.WriteText(
             outputPath: outputOptions.OutputCsvPath,
-            getLines: () => CreateQualitySweepCsv(outputOptions.OutputCsvPath, sweepRows, outputOptions.ReportGroupingOptions));
+            getLines: () => CreateQualitySweepCsv(sweepRows, outputOptions.ReportGroupingOptions));
 
         var sweepMarkdownPath = ChangeOutputExtension(outputOptions.OutputCsvPath, ".md");
         WriterHelper.WriteText(

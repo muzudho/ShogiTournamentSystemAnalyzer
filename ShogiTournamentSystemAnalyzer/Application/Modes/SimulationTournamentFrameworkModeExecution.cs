@@ -1,3 +1,5 @@
+using ShogiTournamentSystemAnalyzer.Infrastructure.Csv;
+
 internal static partial class Program
 {
     const int DefaultTournamentFrameworkSimulationCount = 200_000;
@@ -86,9 +88,15 @@ internal static partial class Program
             ? ReadTextWithDefault($"\n結果CSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ", defaultOutputCsvPath)
             : context.OutputPath!;
         var outputCsvPath = ResolveOutputCsvPath(requestedOutputPath);
-        WriteResultCsv(outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, resultRows);
+        WriterHelper.WriteText(
+            outputPath: outputCsvPath,
+            getLines: () => CreateResultCsv(result.Mode, context.FirstPlayerWinRatePercent, resultRows));
+
         var outputMarkdownPath = ChangeOutputExtension(outputCsvPath, ".md");
-        WriteResultMarkdown(outputMarkdownPath, outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, resultRows);
+        WriterHelper.WriteText(
+            outputPath: outputMarkdownPath,
+            getLines: () => CreateResultMarkdown(outputMarkdownPath, outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, resultRows));
+
         var tournamentMatchRecordsCsvPath = BuildSiblingOutputCsvPath(outputCsvPath, "tournament_match_records");
         var tournamentMatchRecordsMarkdownPath = ChangeOutputExtension(tournamentMatchRecordsCsvPath, ".md");
         WriteTournamentMatchRecordCsv(tournamentMatchRecordsCsvPath, stages, players, executionResult.FinalState.MatchRecords);
