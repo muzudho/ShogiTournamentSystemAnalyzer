@@ -19,10 +19,7 @@ internal static partial class Program
             attempt++;
             Console.Write("入力方法を選んでください [1]: ");
             var input = Console.ReadLine()?.Trim();
-            if (input is null)
-            {
-                throw new OperationCanceledException("入力方法の選択中に入力ストリームが終了しました。");
-            }
+            if (input is null) throw new OperationCanceledException("入力方法の選択中に入力ストリームが終了しました。");
 
             if (string.IsNullOrEmpty(input) || input == "1")
             {
@@ -37,10 +34,7 @@ internal static partial class Program
                 return;
             }
 
-            if (attempt >= InputRetryLimit)
-            {
-                ThrowInputRetryLimitExceeded("入力方法選択", "1 または 2 以外が入力されました");
-            }
+            if (attempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("入力方法選択", "1 または 2 以外が入力されました");
 
             Console.WriteLine("1 か 2 を入力してください。\n");
         }
@@ -54,17 +48,11 @@ internal static partial class Program
             attempt++;
             Console.Write("入力ファイルのパスを入力してください: ");
             var input = Console.ReadLine()?.Trim();
-            if (input is null)
-            {
-                throw new OperationCanceledException("入力ファイルパスの入力中に入力ストリームが終了しました。");
-            }
+            if (input is null) throw new OperationCanceledException("入力ファイルパスの入力中に入力ストリームが終了しました。");
 
             if (string.IsNullOrWhiteSpace(input))
             {
-                if (attempt >= InputRetryLimit)
-                {
-                    ThrowInputRetryLimitExceeded("入力ファイルパス", "空欄のためファイルパスとして扱えません");
-                }
+                if (attempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("入力ファイルパス", "空欄のためファイルパスとして扱えません");
 
                 Console.WriteLine("ファイルパスを入力してください。\n");
                 continue;
@@ -81,19 +69,13 @@ internal static partial class Program
             var arg = args[index];
             if (arg.Equals("--input-file", StringComparison.OrdinalIgnoreCase))
             {
-                if (index + 1 >= args.Count)
-                {
-                    throw new OperationCanceledException("--input-file の後ろにファイルパスを指定してください。");
-                }
+                if (index + 1 >= args.Count) throw new OperationCanceledException("--input-file の後ろにファイルパスを指定してください。");
 
                 return args[index + 1];
             }
 
             const string inputFilePrefix = "--input-file=";
-            if (arg.StartsWith(inputFilePrefix, StringComparison.OrdinalIgnoreCase))
-            {
-                return arg[inputFilePrefix.Length..];
-            }
+            if (arg.StartsWith(inputFilePrefix, StringComparison.OrdinalIgnoreCase)) return arg[inputFilePrefix.Length..];
         }
 
         return null;
@@ -102,10 +84,7 @@ internal static partial class Program
     static void ApplyInputFile(string inputFilePath)
     {
         var fullPath = Path.GetFullPath(inputFilePath);
-        if (!File.Exists(fullPath))
-        {
-            throw new OperationCanceledException($"入力ファイルが見つかりません: {fullPath}");
-        }
+        if (!File.Exists(fullPath)) throw new OperationCanceledException($"入力ファイルが見つかりません: {fullPath}");
 
         var rawLines = File.ReadAllLines(fullPath);
         var filteredInput = IsStsaInput2(rawLines)
@@ -141,15 +120,9 @@ internal static partial class Program
 
         if (analysisFlowMode == AnalysisFlowMode.Simulation
             && (ruleProfileMode == RuleProfileMode.TournamentFramework
-                || GetOptionalMetaValue(meta, "TournamentFrameworkMode") is not null))
-        {
-            return ConvertStsaInput2TournamentFramework(meta, sections, fullPath);
-        }
+                || GetOptionalMetaValue(meta, "TournamentFrameworkMode") is not null)) return ConvertStsaInput2TournamentFramework(meta, sections, fullPath);
 
-        if (analysisFlowMode != AnalysisFlowMode.QualityEvaluation)
-        {
-            throw new OperationCanceledException("STSAInput/2 の最小対応は、現在のところ『品質評価』のみです。");
-        }
+        if (analysisFlowMode != AnalysisFlowMode.QualityEvaluation) throw new OperationCanceledException("STSAInput/2 の最小対応は、現在のところ『品質評価』のみです。");
 
         return ruleProfileMode == RuleProfileMode.FinalStage
             ? ConvertStsaInput2QualityEvaluationFinalStage(meta, sections, fullPath)

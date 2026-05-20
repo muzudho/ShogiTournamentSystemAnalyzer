@@ -419,6 +419,108 @@ internal static partial class Program
         };
     }
 
+    static IEnumerable<string> CreateRepresentativeExecutionRankCsv(
+        TournamentRuleSetMode tournamentRuleSetMode,
+        IReadOnlyList<RepresentativeExecutionRankRow> rows,
+        string? overviewNote = null)
+    {
+        var headerColumns = new List<string>
+        {
+            "tournamentRuleSetMode",
+            "playerName",
+            "points",
+            "rankBand",
+            "averagePlace",
+            "firstPlaceProbabilityPercent"
+        };
+
+        if (!string.IsNullOrWhiteSpace(overviewNote))
+        {
+            headerColumns.Add("note");
+        }
+
+        var lines = new List<string>
+        {
+            string.Join(",", headerColumns.Select(EscapeCsv))
+        };
+
+        foreach (var row in rows)
+        {
+            var columns = new List<string>
+            {
+                TournamentRuleSetRule.GetLabel(tournamentRuleSetMode),
+                row.Name,
+                row.Points.ToString(CultureInfo.InvariantCulture),
+                row.RankLabel,
+                row.AveragePlace.ToString("F3", CultureInfo.InvariantCulture),
+                (row.FirstPlaceProbability * 100).ToString("F2", CultureInfo.InvariantCulture)
+            };
+
+            if (!string.IsNullOrWhiteSpace(overviewNote))
+            {
+                columns.Add(overviewNote);
+            }
+
+            lines.Add(string.Join(",", columns.Select(EscapeCsv)));
+        }
+
+        return lines;
+    }
+
+    static IEnumerable<string> CreateRepresentativeExecutionRankMarkdown(
+        string outputMarkdownPath,
+        string outputCsvPath,
+        TournamentRuleSetMode tournamentRuleSetMode,
+        IReadOnlyList<RepresentativeExecutionRankRow> rows,
+        string? overviewNote = null)
+    {
+        var bestRow = rows
+            .OrderBy(row => row.AveragePlace)
+            .ThenByDescending(row => row.Points)
+            .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
+            .FirstOrDefault();
+
+        var lines = new List<string>
+        {
+            "# representative順位表",
+            string.Empty,
+            "## 概要",
+            $"- 結果CSV: {BuildMarkdownFileLink(outputMarkdownPath, outputCsvPath)}",
+            $"- 順位ルール: {TournamentRuleSetRule.GetLabel(tournamentRuleSetMode)}",
+            $"- 対象選手数: {rows.Count}"
+        };
+
+        if (!string.IsNullOrWhiteSpace(overviewNote))
+        {
+            lines.Add($"- 注記: {overviewNote}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(bestRow.Name))
+        {
+            lines.AddRange(new[]
+            {
+                string.Empty,
+                "## 注目ポイント",
+                $"- representative 1位帯の先頭表示: **{bestRow.Name}**",
+                $"- 勝点: **{bestRow.Points.ToString(CultureInfo.InvariantCulture)}**",
+                $"- 順位帯: **{bestRow.RankLabel}**"
+            });
+        }
+
+        lines.AddRange(new[]
+        {
+            string.Empty,
+            "## 一覧表",
+            "| 対局者 | 勝点 | 順位帯 | 平均順位 | 1位確率 |",
+            "| --- | ---: | ---: | ---: | ---: |"
+        });
+
+        lines.AddRange(rows.Select(row =>
+            $"| {row.Name} | {row.Points.ToString(CultureInfo.InvariantCulture)} | {row.RankLabel} | {row.AveragePlace.ToString("F3", CultureInfo.InvariantCulture)} | {(row.FirstPlaceProbability * 100).ToString("F2", CultureInfo.InvariantCulture)}% |"));
+
+        return lines;
+    }
+
     /// <summary>
     /// 
     /// </summary>

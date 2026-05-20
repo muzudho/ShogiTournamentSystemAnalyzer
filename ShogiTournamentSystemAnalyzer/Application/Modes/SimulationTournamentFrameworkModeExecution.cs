@@ -109,6 +109,24 @@ internal static partial class Program
                 resultRows,
                 overviewNote: "この順位表は複数回試行の aggregate 結果です。下記の大会結果テーブルとは 1 対 1 には対応しません。"));
 
+        var representativeRankingCsvPath = BuildSiblingOutputCsvPath(outputCsvPath, "tournament_framework_representative_ranking");
+        var representativeRankingMarkdownPath = ChangeOutputExtension(representativeRankingCsvPath, ".md");
+        WriterHelper.WriteText(
+            outputPath: representativeRankingCsvPath,
+            getLines: () => CreateRepresentativeExecutionRankCsv(
+                context.TournamentRuleSetMode,
+                representativeExecutionRankRows,
+                overviewNote: "この順位表は代表実行 1 件の順位です。aggregate 結果の順位表そのものではありません。"));
+
+        WriterHelper.WriteText(
+            outputPath: representativeRankingMarkdownPath,
+            getLines: () => CreateRepresentativeExecutionRankMarkdown(
+                representativeRankingMarkdownPath,
+                representativeRankingCsvPath,
+                context.TournamentRuleSetMode,
+                representativeExecutionRankRows,
+                overviewNote: "この順位表は代表実行 1 件の順位です。aggregate 結果の順位表そのものではありません。"));
+
         var tournamentMatchRecordsCsvPath = BuildSiblingOutputCsvPath(outputCsvPath, "tournament_match_records_representative");
         var tournamentMatchRecordsMarkdownPath = ChangeOutputExtension(tournamentMatchRecordsCsvPath, ".md");
         WriterHelper.WriteText(
@@ -131,6 +149,8 @@ internal static partial class Program
 
         Console.WriteLine($"aggregate結果CSVを出力しました: {outputCsvPath}");
         Console.WriteLine($"aggregate結果Markdownを出力しました: {outputMarkdownPath}");
+        Console.WriteLine($"representative順位表CSVを出力しました: {representativeRankingCsvPath}");
+        Console.WriteLine($"representative順位表Markdownを出力しました: {representativeRankingMarkdownPath}");
         Console.WriteLine($"representative大会結果CSVを出力しました: {tournamentMatchRecordsCsvPath}");
         Console.WriteLine($"representative大会結果Markdownを出力しました: {tournamentMatchRecordsMarkdownPath}");
     }

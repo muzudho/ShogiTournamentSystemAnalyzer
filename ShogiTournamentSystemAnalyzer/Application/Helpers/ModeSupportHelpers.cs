@@ -2,10 +2,7 @@ internal static partial class Program
 {
     static Dictionary<string, FinalStageGroup>? ReadOptionalFinalStageGroupMap(FinalStageGroupingMode groupingMode, IReadOnlyList<Player> participants)
     {
-        if (groupingMode == FinalStageGroupingMode.Off)
-        {
-            return null;
-        }
+        if (groupingMode == FinalStageGroupingMode.Off) return null;
 
         return ReadFinalStageGroupMap();
     }

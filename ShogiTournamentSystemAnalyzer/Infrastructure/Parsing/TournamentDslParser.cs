@@ -15,15 +15,9 @@ internal static partial class Program
         foreach (var rawLine in lines)
         {
             var line = rawLine.Trim();
-            if (string.IsNullOrWhiteSpace(line) || line.StartsWith('#'))
-            {
-                continue;
-            }
+            if (string.IsNullOrWhiteSpace(line) || line.StartsWith('#')) continue;
 
-            if (line.Equals("TournamentRule/1", StringComparison.OrdinalIgnoreCase))
-            {
-                continue;
-            }
+            if (line.Equals("TournamentRule/1", StringComparison.OrdinalIgnoreCase)) continue;
 
             if (line.StartsWith('[') && line.EndsWith(']'))
             {
@@ -84,22 +78,13 @@ internal static partial class Program
 
     static StageEntry ParseStageLine(string line, string sourceLabel)
     {
-        if (!line.StartsWith("Stage(", StringComparison.OrdinalIgnoreCase) || !line.EndsWith(')'))
-        {
-            throw new OperationCanceledException($"DSL の Stage 行が不正です: {line} ({sourceLabel})");
-        }
+        if (!line.StartsWith("Stage(", StringComparison.OrdinalIgnoreCase) || !line.EndsWith(')')) throw new OperationCanceledException($"DSL の Stage 行が不正です: {line} ({sourceLabel})");
 
         var inner = line[6..^1];
         var columns = SplitCsvLine(inner);
-        if (columns.Count < 3)
-        {
-            throw new OperationCanceledException($"DSL の Stage 行は 3 項目以上必要です: {line} ({sourceLabel})");
-        }
+        if (columns.Count < 3) throw new OperationCanceledException($"DSL の Stage 行は 3 項目以上必要です: {line} ({sourceLabel})");
 
-        if (!int.TryParse(columns[0].Trim(), out var stageId))
-        {
-            throw new OperationCanceledException($"DSL の Stage id を整数で入力してください: {line} ({sourceLabel})");
-        }
+        if (!int.TryParse(columns[0].Trim(), out var stageId)) throw new OperationCanceledException($"DSL の Stage id を整数で入力してください: {line} ({sourceLabel})");
 
         var stageName = columns[1].Trim().Trim('"');
         var stageType = columns[2].Trim();
@@ -108,29 +93,17 @@ internal static partial class Program
 
     static void ParsePairingRuleLine(string line, string sourceLabel, Dictionary<int, string> pairingRuleNames)
     {
-        if (!line.StartsWith("When ", StringComparison.OrdinalIgnoreCase))
-        {
-            return;
-        }
+        if (!line.StartsWith("When ", StringComparison.OrdinalIgnoreCase)) return;
 
         var parts = line.Split(':', 2);
-        if (parts.Length != 2)
-        {
-            throw new OperationCanceledException($"DSL の PairingRule 行が不正です: {line} ({sourceLabel})");
-        }
+        if (parts.Length != 2) throw new OperationCanceledException($"DSL の PairingRule 行が不正です: {line} ({sourceLabel})");
 
         var left = parts[0].Trim();
         var right = parts[1].Trim();
         const string prefix = "When Stage=";
-        if (!left.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
-        {
-            throw new OperationCanceledException($"DSL の PairingRule 行が不正です: {line} ({sourceLabel})");
-        }
+        if (!left.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)) throw new OperationCanceledException($"DSL の PairingRule 行が不正です: {line} ({sourceLabel})");
 
-        if (!int.TryParse(left[prefix.Length..].Trim(), out var stageId))
-        {
-            throw new OperationCanceledException($"DSL の PairingRule の stageId を整数で入力してください: {line} ({sourceLabel})");
-        }
+        if (!int.TryParse(left[prefix.Length..].Trim(), out var stageId)) throw new OperationCanceledException($"DSL の PairingRule の stageId を整数で入力してください: {line} ({sourceLabel})");
 
         pairingRuleNames[stageId] = right;
     }
@@ -147,10 +120,7 @@ internal static partial class Program
     static KeyValuePair<string, string> SplitKeyValue(string line, string sourceLabel, string sectionName)
     {
         var separatorIndex = line.IndexOf('=');
-        if (separatorIndex <= 0)
-        {
-            throw new OperationCanceledException($"DSL の {sectionName} セクションで key=value 形式ではない行があります: {line} ({sourceLabel})");
-        }
+        if (separatorIndex <= 0) throw new OperationCanceledException($"DSL の {sectionName} セクションで key=value 形式ではない行があります: {line} ({sourceLabel})");
 
         return new KeyValuePair<string, string>(
             line[..separatorIndex].Trim(),

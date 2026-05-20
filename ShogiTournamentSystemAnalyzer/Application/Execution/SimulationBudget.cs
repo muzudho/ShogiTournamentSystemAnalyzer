@@ -18,10 +18,7 @@ internal static partial class Program
 
     static void NormalizePlaceProbabilities(double[,] placeProbabilities, int sampleCount)
     {
-        if (sampleCount <= 0)
-        {
-            return;
-        }
+        if (sampleCount <= 0) return;
 
         for (var row = 0; row < placeProbabilities.GetLength(0); row++)
         {

@@ -110,6 +110,12 @@ END
 - CSV には `note` 列が付き、aggregate 結果であることを明示します
 
 ### representative 大会結果
+- `tournament_framework_representative_ranking_*.csv`
+- `tournament_framework_representative_ranking_*.md`
+- これは **代表実行 1 件の順位表** です
+- コンソールに出る `代表実行順位` と同じ系統の情報です
+- aggregate の順位表とは別物です
+
 - `tournament_match_records_representative_*.csv`
 - `tournament_match_records_representative_*.md`
 - これは **代表実行 1 件の対局記録** です
