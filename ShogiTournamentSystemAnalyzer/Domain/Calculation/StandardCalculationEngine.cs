@@ -81,10 +81,7 @@ internal static partial class Program
 
         for (var simulation = 0; simulation < simulationCount; simulation++)
         {
-            if (!HasSimulationTimeRemaining())
-            {
-                break;
-            }
+            if (!HasSimulationTimeRemaining()) break;
 
             if (tournamentRuleSetMode == TournamentRuleSetMode.Neutral)
             {

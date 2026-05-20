@@ -1012,7 +1012,15 @@ internal static partial class Program
         return lines;
     }
 
-    static IEnumerable<string> CreateTournamentMatchRecordMarkdown(string outputMarkdownPath, string outputCsvPath, IReadOnlyList<StageEntry> stages, IReadOnlyList<PlayerEntry> players, IReadOnlyList<TournamentMatchRecord> matchRecords, string? overviewNote = null)
+    static IEnumerable<string> CreateTournamentMatchRecordMarkdown(
+        string outputMarkdownPath,
+        string outputCsvPath,
+        IReadOnlyList<StageEntry> stages,
+        IReadOnlyList<PlayerEntry> players,
+        IReadOnlyList<TournamentMatchRecord> matchRecords,
+        string? overviewNote = null,
+        string? aggregateResultMarkdownPath = null,
+        string? representativeRankingMarkdownPath = null)
     {
         var stageNameById = stages.ToDictionary(stage => stage.StageId, stage => stage.StageName);
         var playerNameById = players.ToDictionary(player => player.PlayerId, player => player.Name);
@@ -1038,6 +1046,16 @@ internal static partial class Program
                     "| 対局番号 | ステージ | 先手 | 後手 | 開始 | 終了 | 状態 | 結果 | ラウンド |",
                     "| ---: | --- | --- | --- | ---: | ---: | --- | --- | ---: |"
                 };
+
+        if (!string.IsNullOrWhiteSpace(aggregateResultMarkdownPath))
+        {
+            lines.Insert(8, $"- aggregate順位表: {BuildMarkdownFileLink(outputMarkdownPath, aggregateResultMarkdownPath)}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(representativeRankingMarkdownPath))
+        {
+            lines.Insert(8, $"- representative順位表: {BuildMarkdownFileLink(outputMarkdownPath, representativeRankingMarkdownPath)}");
+        }
 
         if (!string.IsNullOrWhiteSpace(overviewNote))
         {
