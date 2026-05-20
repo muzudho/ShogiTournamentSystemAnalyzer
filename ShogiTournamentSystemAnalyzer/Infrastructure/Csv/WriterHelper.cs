@@ -7,10 +7,10 @@ using System.Text;
 internal static class WriterHelper
 {
     internal static void WriteText(
-        string outputCsvPath,
-        Func<IEnumerable<string>> getCsvLines)
+        string outputPath,
+        Func<IEnumerable<string>> getLines)
     {
-        var directoryPath = Path.GetDirectoryName(outputCsvPath);
+        var directoryPath = Path.GetDirectoryName(outputPath);
 
         // 出力先のディレクトリが存在しない場合は作成する。
         if (!string.IsNullOrWhiteSpace(directoryPath))
@@ -18,10 +18,10 @@ internal static class WriterHelper
             Directory.CreateDirectory(directoryPath);
         }
 
-        // CSVの内容を取得する。
-        var lines = getCsvLines();
+        // 内容を取得する。
+        var lines = getLines();
 
-        // CSVファイルに書き込む。
-        File.WriteAllLines(outputCsvPath, lines, new UTF8Encoding(false));
+        // ファイルに書き込む。
+        File.WriteAllLines(outputPath, lines, new UTF8Encoding(false));
     }
 }

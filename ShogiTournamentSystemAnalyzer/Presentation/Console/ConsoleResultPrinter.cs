@@ -69,6 +69,31 @@ internal static partial class Program
         }
     }
 
+    static void PrintRepresentativeExecutionRanking(IReadOnlyList<RepresentativeExecutionRankRow> rows, TournamentRuleSetMode tournamentRuleSetMode)
+    {
+        Console.WriteLine($"代表実行順位（{TournamentRuleSetRule.GetLabel(tournamentRuleSetMode)}）:");
+        var nameWidth = Math.Max(6, rows.Max(x => x.Name.Length) + 2);
+        var header = "対局者".PadRight(nameWidth)
+            + "勝点".PadLeft(8)
+            + "順位帯".PadLeft(10)
+            + "平均順位".PadLeft(12)
+            + "1位確率".PadLeft(12);
+
+        Console.WriteLine(header);
+        Console.WriteLine(new string('-', header.Length));
+        foreach (var row in rows)
+        {
+            var line = row.Name.PadRight(nameWidth)
+                + row.Points.ToString(CultureInfo.InvariantCulture).PadLeft(8)
+                + row.RankLabel.PadLeft(10)
+                + row.AveragePlace.ToString("F3", CultureInfo.InvariantCulture).PadLeft(12)
+                + FormatPercent(row.FirstPlaceProbability).PadLeft(12);
+            Console.WriteLine(line);
+        }
+
+        Console.WriteLine();
+    }
+
     static void PrintFinalStageResult(CalculationResult result, double firstPlayerWinRatePercent, IReadOnlyList<FinalStageResultRow> resultRows)
     {
         Console.WriteLine($"計算方法: {result.Mode}\n");

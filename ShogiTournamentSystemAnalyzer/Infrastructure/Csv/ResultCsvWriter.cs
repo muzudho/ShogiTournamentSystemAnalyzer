@@ -13,8 +13,8 @@ internal static partial class Program
     static void WriteQualitySummaryCsv(string outputCsvPath, QualitySummary summary, ExperimentalReportGroupingOptions options)
     {
         WriterHelper.WriteText(
-            outputCsvPath: outputCsvPath,
-            getCsvLines: () =>
+            outputPath: outputCsvPath,
+            getLines: () =>
             {
                 // CSVの内容を作成する
                 var lines = new List<string>
@@ -48,8 +48,8 @@ internal static partial class Program
     static void WriteQualitySweepMarkdown(string outputMarkdownPath, IReadOnlyList<QualitySweepRow> sweepRows, string sweepCsvPath, ExperimentalReportGroupingOptions options)
     {
         WriterHelper.WriteText(
-            outputCsvPath: outputMarkdownPath,
-            getCsvLines: () =>
+            outputPath: outputMarkdownPath,
+            getLines: () =>
             {
                 var bestSpearmanRow = sweepRows
                     .OrderByDescending(row => row.SpearmanCorrelation)
@@ -139,8 +139,8 @@ internal static partial class Program
         ExperimentalReportGroupingOptions options)
     {
         WriterHelper.WriteText(
-            outputCsvPath: outputMarkdownPath,
-            getCsvLines: () =>
+            outputPath: outputMarkdownPath,
+            getLines: () =>
             {
                 var summary = qualityEvaluationRun.Summary;
                 var topPenalizedPlayers = qualityEvaluationRun.PlayerRows
@@ -256,8 +256,8 @@ internal static partial class Program
     static void WriteQualitySweepCsv(string outputCsvPath, IReadOnlyList<QualitySweepRow> sweepRows, ExperimentalReportGroupingOptions options)
     {
         WriterHelper.WriteText(
-            outputCsvPath: outputCsvPath,
-            getCsvLines: () =>
+            outputPath: outputCsvPath,
+            getLines: () =>
             {
                 var lines = new List<string>
                 {
@@ -470,8 +470,8 @@ internal static partial class Program
     static void WriteQualityPlayerCsv(string outputCsvPath, IReadOnlyList<QualityPlayerRow> playerRows)
     {
         WriterHelper.WriteText(
-            outputCsvPath: outputCsvPath,
-            getCsvLines: () =>
+            outputPath: outputCsvPath,
+            getLines: () =>
             {
                 var lines = new List<string>
                 {
@@ -502,8 +502,8 @@ internal static partial class Program
     static void WriteResultCsv(string outputCsvPath, string mode, double firstPlayerWinRatePercent, IReadOnlyList<ResultRow> resultRows)
     {
         WriterHelper.WriteText(
-            outputCsvPath: outputCsvPath,
-            getCsvLines: () =>
+            outputPath: outputCsvPath,
+            getLines: () =>
             {
                 var lines = new List<string>();
                 var headerColumns = new List<string>
@@ -581,8 +581,8 @@ internal static partial class Program
     static void WriteResultMarkdown(string outputMarkdownPath, string outputCsvPath, string mode, double firstPlayerWinRatePercent, IReadOnlyList<ResultRow> resultRows)
     {
         WriterHelper.WriteText(
-            outputCsvPath: outputMarkdownPath,
-            getCsvLines: () =>
+            outputPath: outputMarkdownPath,
+            getLines: () =>
             {
                 var topChampionshipRows = resultRows
                     .OrderByDescending(row => row.ChampionshipProbability)
@@ -676,8 +676,8 @@ internal static partial class Program
     static void WriteFinalStageResultCsv(string outputCsvPath, string mode, double firstPlayerWinRatePercent, IReadOnlyList<FinalStageResultRow> resultRows)
     {
         WriterHelper.WriteText(
-            outputCsvPath: outputCsvPath,
-            getCsvLines: () =>
+            outputPath: outputCsvPath,
+            getLines: () =>
             {
                 var lines = new List<string>();
                 var headerColumns = new List<string>
@@ -762,8 +762,8 @@ internal static partial class Program
     static void WriteFinalStageResultMarkdown(string outputMarkdownPath, string outputCsvPath, string mode, double firstPlayerWinRatePercent, IReadOnlyList<FinalStageResultRow> resultRows, string? referenceMatchesCsvPath = null)
     {
         WriterHelper.WriteText(
-            outputCsvPath: outputMarkdownPath,
-            getCsvLines: () =>
+            outputPath: outputMarkdownPath,
+            getLines: () =>
             {
                 var topRows = resultRows
                     .OrderByDescending(row => row.OverallPlace1Probability)
@@ -930,8 +930,8 @@ internal static partial class Program
     static void WriteTournamentMatchRecordCsv(string outputCsvPath, IReadOnlyList<StageEntry> stages, IReadOnlyList<PlayerEntry> players, IReadOnlyList<TournamentMatchRecord> matchRecords)
     {
         WriterHelper.WriteText(
-            outputCsvPath: outputCsvPath,
-            getCsvLines: () =>
+            outputPath: outputCsvPath,
+            getLines: () =>
             {
                 var stageNameById = stages.ToDictionary(stage => stage.StageId, stage => stage.StageName);
                 var playerNameById = players.ToDictionary(player => player.PlayerId, player => player.Name);
@@ -980,8 +980,8 @@ internal static partial class Program
     static void WriteTournamentMatchRecordMarkdown(string outputMarkdownPath, string outputCsvPath, IReadOnlyList<StageEntry> stages, IReadOnlyList<PlayerEntry> players, IReadOnlyList<TournamentMatchRecord> matchRecords)
     {
         WriterHelper.WriteText(
-            outputCsvPath: outputMarkdownPath,
-            getCsvLines: () =>
+            outputPath: outputMarkdownPath,
+            getLines: () =>
             {
                 var stageNameById = stages.ToDictionary(stage => stage.StageId, stage => stage.StageName);
                 var playerNameById = players.ToDictionary(player => player.PlayerId, player => player.Name);

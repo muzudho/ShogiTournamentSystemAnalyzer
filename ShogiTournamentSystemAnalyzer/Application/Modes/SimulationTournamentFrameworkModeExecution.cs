@@ -37,6 +37,7 @@ internal static partial class Program
         var standardMatches = executionResult.FinalState.MatchRecords
             .Select(match => new Match(playerIndexById[match.FirstPlayerId], playerIndexById[match.SecondPlayerId]))
             .ToArray();
+        var representativeExecutionRankRows = BuildRepresentativeExecutionRankRows(players, executionResult.FinalState.MatchRecords, context.TournamentRuleSetMode);
 
         var result = BuildTournamentFrameworkCalculationResult(aggregateResult);
         var resultRows = BuildResultRows(standardPlayers, standardMatches, result, context.FirstPlayerWinRatePercent);
@@ -67,6 +68,7 @@ internal static partial class Program
         }
 
         PrintMatchesCsv(standardPlayers, standardMatches, "大会進行フレームワークで読み込んだ対局CSV:");
+        PrintRepresentativeExecutionRanking(representativeExecutionRankRows, context.TournamentRuleSetMode);
         PrintResult(standardPlayers.Length, result, context.FirstPlayerWinRatePercent, resultRows);
         if (result.Mode.Contains("時間切れ", StringComparison.Ordinal))
         {
@@ -286,21 +288,7 @@ internal static partial class Program
         double[,] placeProbabilities,
         double weight)
     {
-        var pointsByPlayerId = players.ToDictionary(player => player.PlayerId, _ => 0);
-        foreach (var match in matchRecords.Where(match => match.Status == MatchStatus.Finished))
-        {
-            switch (match.ResultType)
-            {
-                case MatchResultType.FirstPlayerWin:
-                case MatchResultType.FirstPlayerForfeitWin:
-                    pointsByPlayerId[match.FirstPlayerId]++;
-                    break;
-                case MatchResultType.SecondPlayerWin:
-                case MatchResultType.SecondPlayerForfeitWin:
-                    pointsByPlayerId[match.SecondPlayerId]++;
-                    break;
-            }
-        }
+        var pointsByPlayerId = BuildTournamentFrameworkPointsByPlayerId(players, matchRecords);
 
         var ranking = players
             .Select(player => new PlayerScore(playerIndexById[player.PlayerId], pointsByPlayerId[player.PlayerId]))
@@ -367,6 +355,87 @@ internal static partial class Program
         TwillTournamentRule.AccumulatePlaceProbabilitiesWithCommonOpponentWeight(standardMatches, blackWins, weight, placeProbabilities);
     }
 
+    static List<RepresentativeExecutionRankRow> BuildRepresentativeExecutionRankRows(
+        IReadOnlyList<PlayerEntry> players,
+        IReadOnlyList<TournamentMatchRecord> matchRecords,
+        TournamentRuleSetMode tournamentRuleSetMode)
+    {
+        var orderedPlayers = players
+            .OrderBy(player => player.PlayerId)
+            .ToArray();
+        var playerIndexById = orderedPlayers
+            .Select((player, index) => new { player.PlayerId, index })
+            .ToDictionary(x => x.PlayerId, x => x.index);
+        var placeProbabilities = new double[orderedPlayers.Length, orderedPlayers.Length];
+        AccumulateTournamentFrameworkPlaceProbabilities(orderedPlayers, playerIndexById, matchRecords, placeProbabilities, tournamentRuleSetMode);
+        var pointsByPlayerId = BuildTournamentFrameworkPointsByPlayerId(orderedPlayers, matchRecords);
+
+        return orderedPlayers
+            .Select(player =>
+            {
+                var playerIndex = playerIndexById[player.PlayerId];
+                var firstPlace = -1;
+                var lastPlace = -1;
+                var averagePlace = 0.0;
+                for (var place = 0; place < orderedPlayers.Length; place++)
+                {
+                    var probability = placeProbabilities[playerIndex, place];
+                    if (probability <= 0.0)
+                    {
+                        continue;
+                    }
+
+                    if (firstPlace < 0)
+                    {
+                        firstPlace = place;
+                    }
+
+                    lastPlace = place;
+                    averagePlace += (place + 1) * probability;
+                }
+
+                var rankLabel = firstPlace < 0
+                    ? "-"
+                    : firstPlace == lastPlace
+                        ? (firstPlace + 1).ToString()
+                        : $"{firstPlace + 1}-{lastPlace + 1}";
+
+                return new RepresentativeExecutionRankRow(
+                    player.Name,
+                    pointsByPlayerId[player.PlayerId],
+                    rankLabel,
+                    averagePlace,
+                    placeProbabilities[playerIndex, 0]);
+            })
+            .OrderBy(row => row.AveragePlace)
+            .ThenByDescending(row => row.Points)
+            .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+    }
+
+    static Dictionary<int, int> BuildTournamentFrameworkPointsByPlayerId(
+        IReadOnlyList<PlayerEntry> players,
+        IReadOnlyList<TournamentMatchRecord> matchRecords)
+    {
+        var pointsByPlayerId = players.ToDictionary(player => player.PlayerId, _ => 0);
+        foreach (var match in matchRecords.Where(match => match.Status == MatchStatus.Finished))
+        {
+            switch (match.ResultType)
+            {
+                case MatchResultType.FirstPlayerWin:
+                case MatchResultType.FirstPlayerForfeitWin:
+                    pointsByPlayerId[match.FirstPlayerId]++;
+                    break;
+                case MatchResultType.SecondPlayerWin:
+                case MatchResultType.SecondPlayerForfeitWin:
+                    pointsByPlayerId[match.SecondPlayerId]++;
+                    break;
+            }
+        }
+
+        return pointsByPlayerId;
+    }
+
     static CalculationResult BuildTournamentFrameworkCalculationResult(TournamentFrameworkSimulationAggregate aggregateResult)
     {
         var ruleSetModeLabel = aggregateResult.TournamentRuleSetMode switch
@@ -399,6 +468,13 @@ internal static partial class Program
         bool IsExactCalculation,
         TournamentRuleSetMode TournamentRuleSetMode,
         TournamentFrameworkExecutionResult RepresentativeExecutionResult);
+
+    readonly record struct RepresentativeExecutionRankRow(
+        string Name,
+        int Points,
+        string RankLabel,
+        double AveragePlace,
+        double FirstPlaceProbability);
 
     sealed class StandardLikeMatchResultResolver(double firstPlayerWinRateRating) : IMatchResultResolver
     {
