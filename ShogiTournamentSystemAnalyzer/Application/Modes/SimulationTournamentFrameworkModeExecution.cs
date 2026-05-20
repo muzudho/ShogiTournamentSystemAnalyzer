@@ -85,9 +85,9 @@ internal static partial class Program
             Console.WriteLine($"シミュレーションは時間上限 {SimulationTimeLimit.TotalMinutes:F0} 分で打ち切りました。\n");
         }
 
-        var defaultOutputCsvPath = Path.GetFullPath($"tournament_framework_result_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
+        var defaultOutputCsvPath = Path.GetFullPath($"tournament_framework_aggregate_result_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
         var requestedOutputPath = string.IsNullOrWhiteSpace(context.OutputPath)
-            ? ReadTextWithDefault($"\n結果CSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ", defaultOutputCsvPath)
+            ? ReadTextWithDefault($"\naggregate結果CSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ", defaultOutputCsvPath)
             : context.OutputPath!;
         var outputCsvPath = ResolveOutputCsvPath(requestedOutputPath);
         WriterHelper.WriteText(
@@ -109,7 +109,7 @@ internal static partial class Program
                 resultRows,
                 overviewNote: "この順位表は複数回試行の aggregate 結果です。下記の大会結果テーブルとは 1 対 1 には対応しません。"));
 
-        var tournamentMatchRecordsCsvPath = BuildSiblingOutputCsvPath(outputCsvPath, "tournament_match_records");
+        var tournamentMatchRecordsCsvPath = BuildSiblingOutputCsvPath(outputCsvPath, "tournament_match_records_representative");
         var tournamentMatchRecordsMarkdownPath = ChangeOutputExtension(tournamentMatchRecordsCsvPath, ".md");
         WriterHelper.WriteText(
             outputPath: tournamentMatchRecordsCsvPath,
@@ -121,12 +121,18 @@ internal static partial class Program
 
         WriterHelper.WriteText(
             outputPath: tournamentMatchRecordsMarkdownPath,
-            getLines: () => CreateTournamentMatchRecordMarkdown(tournamentMatchRecordsMarkdownPath, tournamentMatchRecordsCsvPath, stages, players, executionResult.FinalState.MatchRecords));
+            getLines: () => CreateTournamentMatchRecordMarkdown(
+                tournamentMatchRecordsMarkdownPath,
+                tournamentMatchRecordsCsvPath,
+                stages,
+                players,
+                executionResult.FinalState.MatchRecords,
+                overviewNote: "この大会結果テーブルは代表実行 1 件の対局記録です。順位表の aggregate 結果そのものではありません。"));
 
-        Console.WriteLine($"結果CSVを出力しました: {outputCsvPath}");
-        Console.WriteLine($"結果Markdownを出力しました: {outputMarkdownPath}");
-        Console.WriteLine($"大会結果CSVを出力しました: {tournamentMatchRecordsCsvPath}");
-        Console.WriteLine($"大会結果Markdownを出力しました: {tournamentMatchRecordsMarkdownPath}");
+        Console.WriteLine($"aggregate結果CSVを出力しました: {outputCsvPath}");
+        Console.WriteLine($"aggregate結果Markdownを出力しました: {outputMarkdownPath}");
+        Console.WriteLine($"representative大会結果CSVを出力しました: {tournamentMatchRecordsCsvPath}");
+        Console.WriteLine($"representative大会結果Markdownを出力しました: {tournamentMatchRecordsMarkdownPath}");
     }
 
     static List<PlayerEntry> ReadPlayerEntriesFromCsvPath(string path)

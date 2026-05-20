@@ -1,14 +1,18 @@
 internal static partial class Program
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="lines"></param>
+    /// <param name="players"></param>
+    /// <param name="errorMessage"></param>
+    /// <returns></returns>
     static bool TryParsePlayerEntries(IReadOnlyList<string> lines, out List<PlayerEntry> players, out string errorMessage)
     {
         players = new List<PlayerEntry>();
         errorMessage = string.Empty;
-        if (lines.Count == 0)
-        {
-            errorMessage = "選手入力がありません。";
-            return false;
-        }
+        // 👓　選手入力があることを確認
+        if (lines.Count == 0) { errorMessage = "選手入力がありません。"; return false; }
 
         var startIndex = 0;
         var firstColumns = SplitCsvLine(lines[0]);
@@ -26,32 +30,18 @@ internal static partial class Program
             if (!int.TryParse(columns[0].Trim(), out var playerId)) { errorMessage = $"{i + 1} 行目の playerId を整数で入力してください。"; return false; }
 
             var name = columns[1].Trim();
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                errorMessage = $"{i + 1} 行目の名前が空です。";
-                return false;
-            }
-
-            if (!TryParseDouble(columns[2], out var rating))
-            {
-                errorMessage = $"{i + 1} 行目の rating を数値で入力してください。";
-                return false;
-            }
+            // 👓　［名前］が入力されていることを確認
+            if (string.IsNullOrWhiteSpace(name)) { errorMessage = $"{i + 1} 行目の名前が空です。"; return false; }
+            // 👓　［レーティング］の型確認
+            if (!TryParseDouble(columns[2], out var rating)) { errorMessage = $"{i + 1} 行目の rating を数値で入力してください。"; return false; }
 
             players.Add(new PlayerEntry(playerId, name, rating));
         }
 
-        if (players.Count == 0)
-        {
-            errorMessage = "選手は 1 人以上必要です。";
-            return false;
-        }
-
-        if (players.GroupBy(player => player.PlayerId).Any(group => group.Count() > 1))
-        {
-            errorMessage = "playerId が重複しています。";
-            return false;
-        }
+        // 👓　選手が 1 人以上いることを確認
+        if (players.Count == 0) { errorMessage = "選手は 1 人以上必要です。"; return false; }
+        // 👓　playerId が重複していないことを確認
+        if (players.GroupBy(player => player.PlayerId).Any(group => group.Count() > 1)) { errorMessage = "playerId が重複しています。"; return false; }
 
         return true;
     }
@@ -60,11 +50,8 @@ internal static partial class Program
     {
         stages = new List<StageEntry>();
         errorMessage = string.Empty;
-        if (lines.Count == 0)
-        {
-            errorMessage = "ステージ入力がありません。";
-            return false;
-        }
+        // 👓　ステージ入力があることを確認
+        if (lines.Count == 0) { errorMessage = "ステージ入力がありません。"; return false; }
 
         var startIndex = 0;
         var firstColumns = SplitCsvLine(lines[0]);
@@ -76,17 +63,10 @@ internal static partial class Program
         for (var i = startIndex; i < lines.Count; i++)
         {
             var columns = SplitCsvLine(lines[i]);
-            if (columns.Count < 5)
-            {
-                errorMessage = $"{i + 1} 行目は 5 列以上必要です。";
-                return false;
-            }
-
-            if (!int.TryParse(columns[0].Trim(), out var stageId))
-            {
-                errorMessage = $"{i + 1} 行目の stageId を整数で入力してください。";
-                return false;
-            }
+            // 👓　列数の確認
+            if (columns.Count < 5) { errorMessage = $"{i + 1} 行目は 5 列以上必要です。"; return false; }
+            // 👓　［ステージＩｄ］の型確認
+            if (!int.TryParse(columns[0].Trim(), out var stageId)) { errorMessage = $"{i + 1} 行目の stageId を整数で入力してください。"; return false; }
 
             var stageName = columns[1].Trim();
             var stageType = columns[2].Trim();
@@ -94,11 +74,8 @@ internal static partial class Program
             var parentStageIdText = columns[3].Trim();
             if (!string.IsNullOrWhiteSpace(parentStageIdText))
             {
-                if (!int.TryParse(parentStageIdText, out var parentStageIdValue))
-                {
-                    errorMessage = $"{i + 1} 行目の parentStageId を整数で入力してください。";
-                    return false;
-                }
+                // 👓　［親ステージＩｄ］の型確認
+                if (!int.TryParse(parentStageIdText, out var parentStageIdValue)) { errorMessage = $"{i + 1} 行目の parentStageId を整数で入力してください。"; return false; }
 
                 parentStageId = parentStageIdValue;
             }
