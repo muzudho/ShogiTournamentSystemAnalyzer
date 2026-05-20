@@ -1,6 +1,7 @@
 internal static partial class Program
 {
     const int DefaultTournamentFrameworkSimulationCount = 200_000;
+    const int TournamentFrameworkExactCalculationMatchThreshold = 20;
 
     static void ExecuteTournamentFrameworkMode(TournamentFrameworkModeContext context)
     {
@@ -22,7 +23,7 @@ internal static partial class Program
             AllMatchesFinishedTerminationRule.Instance,
             new StandardLikeMatchResultResolver(context.FirstPlayerWinRateRating));
         var engine = new TournamentEngine(ruleSet, context.RandomSeed);
-        var aggregateResult = ExecuteTournamentFrameworkModeCalculation(engine, initialState, players, context.SimulationCount);
+        var aggregateResult = ExecuteTournamentFrameworkModeCalculation(engine, initialState, players, context.FirstPlayerWinRateRating, context.SimulationCount);
         var executionResult = aggregateResult.RepresentativeExecutionResult;
 
         var standardPlayers = players
@@ -40,9 +41,19 @@ internal static partial class Program
         var result = BuildTournamentFrameworkCalculationResult(aggregateResult);
         var resultRows = BuildResultRows(standardPlayers, standardMatches, result, context.FirstPlayerWinRatePercent);
 
-        Console.WriteLine($"集計試行回数: {aggregateResult.CompletedSimulationCount:N0}");
-        Console.WriteLine($"平均進行Tick数: {aggregateResult.AverageTickCount:F2}");
-        Console.WriteLine($"自然終了率: {aggregateResult.CompletedNaturallyCount:N0}/{aggregateResult.CompletedSimulationCount:N0}");
+        if (aggregateResult.IsExactCalculation)
+        {
+            Console.WriteLine("計算種別: 厳密計算");
+            Console.WriteLine($"進行Tick数: {aggregateResult.AverageTickCount:F2}");
+            Console.WriteLine($"自然終了: {(aggregateResult.CompletedNaturallyCount > 0 ? "Yes" : "No")}");
+        }
+        else
+        {
+            Console.WriteLine($"集計試行回数: {aggregateResult.CompletedSimulationCount:N0}");
+            Console.WriteLine($"平均進行Tick数: {aggregateResult.AverageTickCount:F2}");
+            Console.WriteLine($"自然終了率: {aggregateResult.CompletedNaturallyCount:N0}/{aggregateResult.CompletedSimulationCount:N0}");
+        }
+
         Console.WriteLine($"代表実行Tick数: {executionResult.TickCount}");
         Console.WriteLine($"代表実行の自然終了: {(executionResult.CompletedNaturally ? "Yes" : "No")}");
         Console.WriteLine($"ステージ数: {stages.Count}");
@@ -118,8 +129,14 @@ internal static partial class Program
         TournamentEngine engine,
         TournamentState initialState,
         IReadOnlyList<PlayerEntry> players,
+        double firstPlayerWinRateRating,
         int? requestedSimulationCount)
     {
+        if (initialState.MatchRecords.Count <= TournamentFrameworkExactCalculationMatchThreshold)
+        {
+            return CalculateTournamentFrameworkExactly(engine, initialState, players, firstPlayerWinRateRating);
+        }
+
         var simulationCount = requestedSimulationCount ?? DefaultTournamentFrameworkSimulationCount;
         var placeProbabilities = new double[players.Count, players.Count];
         var playerIndexById = players
@@ -164,6 +181,79 @@ internal static partial class Program
             completedSimulationCount,
             completedNaturallyCount,
             completedSimulationCount == 0 ? 0.0 : (double)totalTickCount / completedSimulationCount,
+            false,
+            representativeExecutionResult);
+    }
+
+    static TournamentFrameworkSimulationAggregate CalculateTournamentFrameworkExactly(
+        TournamentEngine engine,
+        TournamentState initialState,
+        IReadOnlyList<PlayerEntry> players,
+        double firstPlayerWinRateRating)
+    {
+        var placeProbabilities = new double[players.Count, players.Count];
+        var playerIndexById = players
+            .OrderBy(player => player.PlayerId)
+            .Select((player, index) => new { player.PlayerId, index })
+            .ToDictionary(x => x.PlayerId, x => x.index);
+        var playerById = players.ToDictionary(player => player.PlayerId);
+        var matches = initialState.MatchRecords.ToArray();
+
+        void Explore(int matchIndex, double scenarioProbability)
+        {
+            if (matchIndex == matches.Length)
+            {
+                var finalState = initialState with
+                {
+                    MatchRecords = matches
+                        .Select(match => match with { Status = MatchStatus.Finished })
+                        .ToArray(),
+                };
+                var ranking = ByFinishedResultsRankingRule.Instance.Rank(finalState, stageId: null);
+                AccumulateTournamentFrameworkPlaceProbabilities(players.Count, playerIndexById, ranking, placeProbabilities, scenarioProbability);
+                return;
+            }
+
+            var match = matches[matchIndex];
+            if (match.ResultType != MatchResultType.None)
+            {
+                matches[matchIndex] = match with { Status = MatchStatus.Finished };
+                Explore(matchIndex + 1, scenarioProbability);
+                matches[matchIndex] = match;
+                return;
+            }
+
+            var firstPlayerEntry = playerById[match.FirstPlayerId];
+            var secondPlayerEntry = playerById[match.SecondPlayerId];
+            var firstPlayer = new Player(firstPlayerEntry.Name, firstPlayerEntry.Rating);
+            var secondPlayer = new Player(secondPlayerEntry.Name, secondPlayerEntry.Rating);
+            var firstPlayerWinProbability = GetWinProbability(firstPlayer, secondPlayer, firstPlayerWinRateRating);
+
+            matches[matchIndex] = match with
+            {
+                Status = MatchStatus.Finished,
+                ResultType = MatchResultType.FirstPlayerWin,
+            };
+            Explore(matchIndex + 1, scenarioProbability * firstPlayerWinProbability);
+
+            matches[matchIndex] = match with
+            {
+                Status = MatchStatus.Finished,
+                ResultType = MatchResultType.SecondPlayerWin,
+            };
+            Explore(matchIndex + 1, scenarioProbability * (1.0 - firstPlayerWinProbability));
+            matches[matchIndex] = match;
+        }
+
+        Explore(0, 1.0);
+        var representativeExecutionResult = engine.Run(initialState);
+        return new TournamentFrameworkSimulationAggregate(
+            placeProbabilities,
+            1,
+            1,
+            representativeExecutionResult.CompletedNaturally ? 1 : 0,
+            representativeExecutionResult.TickCount,
+            true,
             representativeExecutionResult);
     }
 
@@ -171,7 +261,8 @@ internal static partial class Program
         int playerCount,
         IReadOnlyDictionary<int, int> playerIndexById,
         IReadOnlyList<PlayerRankRow> ranking,
-        double[,] placeProbabilities)
+        double[,] placeProbabilities,
+        double weight = 1.0)
     {
         foreach (var row in ranking)
         {
@@ -182,13 +273,20 @@ internal static partial class Program
                 continue;
             }
 
-            placeProbabilities[playerIndex, row.Rank - 1] += 1.0;
+            placeProbabilities[playerIndex, row.Rank - 1] += weight;
         }
     }
 
     static CalculationResult BuildTournamentFrameworkCalculationResult(TournamentFrameworkSimulationAggregate aggregateResult)
     {
-        var modeCoreLabel = "大会進行フレームワーク / FixedMatch";
+        var modeCoreLabel = aggregateResult.IsExactCalculation
+            ? "厳密計算 / 大会進行フレームワーク / FixedMatch"
+            : "大会進行フレームワーク / FixedMatch";
+        if (aggregateResult.IsExactCalculation)
+        {
+            return new CalculationResult(aggregateResult.PlaceProbabilities, modeCoreLabel, null);
+        }
+
         var modeLabel = aggregateResult.CompletedSimulationCount < aggregateResult.RequestedSimulationCount
             ? $"{modeCoreLabel} ({aggregateResult.CompletedSimulationCount:N0}/{aggregateResult.RequestedSimulationCount:N0}回, 時間切れ)"
             : $"{modeCoreLabel} ({aggregateResult.CompletedSimulationCount:N0}回)";
@@ -202,6 +300,7 @@ internal static partial class Program
         int CompletedSimulationCount,
         int CompletedNaturallyCount,
         double AverageTickCount,
+        bool IsExactCalculation,
         TournamentFrameworkExecutionResult RepresentativeExecutionResult);
 
     sealed class StandardLikeMatchResultResolver(double firstPlayerWinRateRating) : IMatchResultResolver
