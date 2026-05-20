@@ -171,10 +171,7 @@ internal static partial class Program
 
                     if (endPercent < startPercent)
                     {
-                        if (sweepAttempt >= InputRetryLimit)
-                        {
-                            ThrowInputRetryLimitExceeded("n% スイープ範囲", "終了する先手勝率が開始する先手勝率未満です");
-                        }
+                        if (sweepAttempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("n% スイープ範囲", "終了する先手勝率が開始する先手勝率未満です");
 
                         Console.WriteLine("終了する先手勝率は開始する先手勝率以上で入力してください。\n");
                         continue;
@@ -184,10 +181,7 @@ internal static partial class Program
                 }
             }
 
-            if (attempt >= InputRetryLimit)
-            {
-                ThrowInputRetryLimitExceeded("品質評価の実行方法", "1 または 2 以外が入力されました");
-            }
+            if (attempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("品質評価の実行方法", "1 または 2 以外が入力されました");
 
             Console.WriteLine("1 か 2 を入力してください。\n");
         }
