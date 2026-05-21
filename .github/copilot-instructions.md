@@ -22,6 +22,12 @@
 - In tournament ranking proposals, do not use original Elo in ranking calculation because participants join without computed original Elo.
 - For tournament naming in this project, prefer names that can be phrased as '○○式トーナメント' in the style of Swiss-system or ladder-style naming, including 'ツイル式トーナメント' as a preferred naming option and considering the Japanese term '斜文' as part of the concept.
 
+## アーキテクチャ
+- 各データ要素の境界を明確に分離する: 大会ルールデータ・プレイヤー一覧データ・順位付けの設定データ・大会結果データ・最終順位データ・大会品質レポート を個別の責務として扱う。
+- 上記の各データ境界をインターフェースとして定義し、具体実装（永続化・読み取り・検証）はインターフェースの実装として Data 配下などに分離する。
+- データ境界の分離により、テスト・差し替え・並列開発を容易にし、Program.cs やドメインロジックから永続化の詳細を切り離す。
+- Data フォルダー構成と連携させ、Data 配下でインターフェース定義と具体実装を整理する（既存の Data フォルダ方針と整合）。
+
 ### 実行・ベンチマーク
 - Start with a 1-trial smoke test before benchmarking with small trial counts (e.g., 10 and 100) to estimate runtime before launching a large sweep.
 
