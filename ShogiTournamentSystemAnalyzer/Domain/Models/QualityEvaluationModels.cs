@@ -1,18 +1,18 @@
 /*
- * ［品質評価］のモデル定義
+ * ［大会品質評価フロー］で使われるモデルの定義
  */
 
 /// <summary>
-/// ［品質評価　＞　選手の行］だ。
+/// ［大会品質評価フロー　＞　選手の行］だ。
 /// </summary>
-/// <param name="Name"></param>
-/// <param name="Group"></param>
-/// <param name="OriginalRating"></param>
-/// <param name="EloRank"></param>
-/// <param name="ExpectedOverallPlace"></param>
-/// <param name="OverallPlaceDeltaFromEloRank"></param>
-/// <param name="OverallTop1Probability"></param>
-/// <param name="OverallTop8Probability"></param>
+/// <param name="Name">選手名</param>
+/// <param name="Group">グループ名</param>
+/// <param name="OriginalRating">元のレーティング</param>
+/// <param name="EloRank">Eloランク</param>
+/// <param name="ExpectedOverallPlace">予想総合順位</param>
+/// <param name="OverallPlaceDeltaFromEloRank">Eloランクからの総合順位の差</param>
+/// <param name="OverallTop1Probability">総合トップ1の確率</param>
+/// <param name="OverallTop8Probability">総合トップ8の確率</param>
 readonly record struct QualityPlayerRow(
     string Name,
     string Group,
@@ -24,16 +24,16 @@ readonly record struct QualityPlayerRow(
     double OverallTop8Probability);
 
 /// <summary>
-/// ［品質評価　＞　合計］だ。
+/// ［大会品質評価フロー　＞　合計］だ。
 /// </summary>
-/// <param name="SpearmanCorrelation"></param>
-/// <param name="MeanAbsoluteRankError"></param>
-/// <param name="AverageTop8Retention"></param>
-/// <param name="EloTop1OverallTop1Probability"></param>
-/// <param name="MostPenalizedPlayerName"></param>
-/// <param name="MostPenalizedDelta"></param>
-/// <param name="MostAdvantagedPlayerName"></param>
-/// <param name="MostAdvantagedDelta"></param>
+/// <param name="SpearmanCorrelation">スピアマン相関係数</param>
+/// <param name="MeanAbsoluteRankError">平均絶対順位誤差</param>
+/// <param name="AverageTop8Retention">平均トップ8保持率</param>
+/// <param name="EloTop1OverallTop1Probability">Eloトップ1の総合トップ1確率</param>
+/// <param name="MostPenalizedPlayerName">最もペナルティを受けた選手名</param>
+/// <param name="MostPenalizedDelta">最もペナルティを受けた選手の差分</param>
+/// <param name="MostAdvantagedPlayerName">最も有利になった選手名</param>
+/// <param name="MostAdvantagedDelta">最も有利になった選手の差分</param>
 readonly record struct QualitySummary(
     double SpearmanCorrelation,
     double MeanAbsoluteRankError,
@@ -45,7 +45,7 @@ readonly record struct QualitySummary(
     double MostAdvantagedDelta);
 
 /// <summary>
-/// ［品質評価　＞　実行］だ。
+/// ［大会品質評価フロー　＞　実行］だ。
 /// </summary>
 /// <param name="PlayerRows">品質評価での選手の各行</param>
 /// <param name="Summary">品質評価の合計</param>
@@ -56,7 +56,7 @@ readonly record struct QualityEvaluationRun(
     string CalculationMode);
 
 /// <summary>
-/// ［品質評価　＞　スイープオプション］だ。
+/// ［大会品質評価フロー　＞　スイープオプション］だ。
 /// </summary>
 /// <param name="IsEnabled"></param>
 /// <param name="StartPercent"></param>
@@ -69,17 +69,17 @@ readonly record struct QualitySweepOptions(
     double StepPercent);
 
 /// <summary>
-/// ［品質評価　＞　スイープ行］だ。
+/// ［大会品質評価フロー　＞　スイープ行］だ。
 /// </summary>
-/// <param name="FirstPlayerWinRatePercent"></param>
-/// <param name="SpearmanCorrelation"></param>
-/// <param name="MeanAbsoluteRankError"></param>
-/// <param name="AverageTop8Retention"></param>
-/// <param name="EloTop1OverallTop1Probability"></param>
-/// <param name="MostPenalizedPlayerName"></param>
-/// <param name="MostPenalizedDelta"></param>
-/// <param name="MostAdvantagedPlayerName"></param>
-/// <param name="MostAdvantagedDelta"></param>
+/// <param name="FirstPlayerWinRatePercent">先手勝率(%)</param>
+/// <param name="SpearmanCorrelation">スピアマン相関係数</param>
+/// <param name="MeanAbsoluteRankError">平均絶対順位誤差</param>
+/// <param name="AverageTop8Retention">平均トップ8保持率</param>
+/// <param name="EloTop1OverallTop1Probability">Eloトップ1の総合トップ1確率</param>
+/// <param name="MostPenalizedPlayerName">最もペナルティを受けた選手名</param>
+/// <param name="MostPenalizedDelta">最もペナルティを受けた選手の差分</param>
+/// <param name="MostAdvantagedPlayerName">最も有利になった選手名</param>
+/// <param name="MostAdvantagedDelta">最も有利になった選手の差分</param>
 readonly record struct QualitySweepRow(
     double FirstPlayerWinRatePercent,
     double SpearmanCorrelation,
@@ -92,7 +92,7 @@ readonly record struct QualitySweepRow(
     double MostAdvantagedDelta);
 
 /// <summary>
-/// ［品質評価　＞　実験的レポートグルーピングオプション］だ。
+/// ［大会品質評価フロー　＞　実験的レポートグルーピングオプション］だ。
 /// </summary>
 /// <param name="IsEnabled"></param>
 /// <param name="Outcome"></param>
