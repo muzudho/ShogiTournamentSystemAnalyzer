@@ -64,8 +64,8 @@ sealed record class FinalRankingData(
 /// <param name="Summary"></param>
 /// <param name="CalculationMode"></param>
 sealed record class TournamentQualityReportData(
-    IReadOnlyList<QualityPlayerRow> PlayerRows,
-    QualitySummary Summary,
+    IReadOnlyList<TournamentQualityReportPlayerRow> PlayerRows,
+    TournamentQualityReportSummary Summary,
     string CalculationMode);
 
 /// <summary>
@@ -74,5 +74,5 @@ sealed record class TournamentQualityReportData(
 /// <param name="SweepRows"></param>
 /// <param name="StoppedByTimeout"></param>
 sealed record class TournamentQualitySweepReportData(
-    IReadOnlyList<QualitySweepRow> SweepRows,
+    IReadOnlyList<TournamentQualitySweepReportRow> SweepRows,
     bool StoppedByTimeout);

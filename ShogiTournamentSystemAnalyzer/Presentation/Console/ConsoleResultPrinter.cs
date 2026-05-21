@@ -2,7 +2,7 @@ using System.Globalization;
 
 internal static partial class Program
 {
-    static void PrintQualitySummary(QualitySummary summary)
+    static void PrintQualitySummary(TournamentQualityReportSummary summary)
     {
         Console.WriteLine("品質評価サマリー:");
         Console.WriteLine($"- Spearman 相関: {summary.SpearmanCorrelation.ToString("F4", CultureInfo.InvariantCulture)}");
@@ -18,7 +18,7 @@ internal static partial class Program
         PrintQualitySummary(tournamentQualityReportData.Summary);
     }
 
-    static void PrintQualityPlayerHighlights(IReadOnlyList<QualityPlayerRow> playerRows)
+    static void PrintQualityPlayerHighlights(IReadOnlyList<TournamentQualityReportPlayerRow> playerRows)
     {
         Console.WriteLine("品質評価 選手別ハイライト:");
         Console.WriteLine("Elo順位  名前                 期待総合順位   ずれ      総合1位確率   総合上位8確率");

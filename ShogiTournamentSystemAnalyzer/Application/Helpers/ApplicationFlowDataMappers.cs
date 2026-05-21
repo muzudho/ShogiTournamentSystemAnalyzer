@@ -43,7 +43,7 @@ internal static partial class Program
             Note: "大会進行フレームワークの最終順位データ");
     }
 
-    static TournamentQualityReportData BuildTournamentQualityReportData(QualityEvaluationRun qualityEvaluationRun)
+    static TournamentQualityReportData BuildTournamentQualityReportData(TournamentQualityReportRun qualityEvaluationRun)
     {
         return new TournamentQualityReportData(
             qualityEvaluationRun.PlayerRows,
@@ -52,7 +52,7 @@ internal static partial class Program
     }
 
     static TournamentQualitySweepReportData BuildTournamentQualitySweepReportData(
-        IReadOnlyList<QualitySweepRow> sweepRows,
+        IReadOnlyList<TournamentQualitySweepReportRow> sweepRows,
         bool stoppedByTimeout)
     {
         return new TournamentQualitySweepReportData(sweepRows, stoppedByTimeout);

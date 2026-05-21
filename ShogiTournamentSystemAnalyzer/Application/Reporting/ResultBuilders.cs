@@ -101,7 +101,7 @@ internal static partial class Program
             .ToList();
     }
 
-    static List<QualityPlayerRow> BuildQualityPlayerRows(
+    static List<TournamentQualityReportPlayerRow> BuildQualityPlayerRows(
         IReadOnlyList<ResultRow> resultRows,
         IReadOnlyDictionary<string, FinalStageGroup>? groupMap,
         IReadOnlyList<Player> additionalApexPlayers,
@@ -130,7 +130,7 @@ internal static partial class Program
                     ? eloRank + innovExpectedRankOffsetCount
                     : eloRank;
                 var overallTop8Probability = row.PlaceProbabilities.Take(Math.Min(8, row.PlaceProbabilities.Length)).Sum();
-                return new QualityPlayerRow(
+                return new TournamentQualityReportPlayerRow(
                     row.Name,
                     groupMap is null ? "Neutral" : groupMap[row.Name].ToString(),
                     row.OriginalRating,
@@ -144,7 +144,7 @@ internal static partial class Program
             .ToList();
     }
 
-    static QualitySummary BuildQualitySummary(IReadOnlyList<QualityPlayerRow> playerRows)
+    static TournamentQualityReportSummary BuildQualitySummary(IReadOnlyList<TournamentQualityReportPlayerRow> playerRows)
     {
         var spearmanCorrelation = CalculateSpearmanCorrelation(playerRows);
         var meanAbsoluteRankError = playerRows.Average(x => Math.Abs(x.OverallPlaceDeltaFromEloRank));
@@ -156,7 +156,7 @@ internal static partial class Program
         var mostPenalizedPlayer = playerRows.OrderByDescending(x => x.OverallPlaceDeltaFromEloRank).First();
         var mostAdvantagedPlayer = playerRows.OrderBy(x => x.OverallPlaceDeltaFromEloRank).First();
 
-        return new QualitySummary(
+        return new TournamentQualityReportSummary(
             spearmanCorrelation,
             meanAbsoluteRankError,
             averageTop8Retention,
@@ -167,7 +167,7 @@ internal static partial class Program
             mostAdvantagedPlayer.OverallPlaceDeltaFromEloRank);
     }
 
-    static double CalculateSpearmanCorrelation(IReadOnlyList<QualityPlayerRow> playerRows)
+    static double CalculateSpearmanCorrelation(IReadOnlyList<TournamentQualityReportPlayerRow> playerRows)
     {
         if (playerRows.Count <= 1) return 1.0;
 

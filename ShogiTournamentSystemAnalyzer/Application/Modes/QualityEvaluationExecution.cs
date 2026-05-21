@@ -33,7 +33,7 @@ internal static partial class Program
         QualityEvaluationRuleDefinition ruleDefinition,
         QualityEvaluationExecutionOptions executionOptions)
     {
-        var sweepRows = new List<QualitySweepRow>();
+        var sweepRows = new List<TournamentQualitySweepReportRow>();
         using var simulationBudget = executionOptions.SimulationCount.HasValue ? BeginSimulationBudget() : default;
         var stoppedByTimeout = false;
         for (var firstPlayerWinRatePercent = executionOptions.SweepOptions.StartPercent; firstPlayerWinRatePercent <= executionOptions.SweepOptions.EndPercent + 1e-9; firstPlayerWinRatePercent += executionOptions.SweepOptions.StepPercent)
@@ -43,7 +43,7 @@ internal static partial class Program
                 ruleDefinition,
                 executionOptions with { FirstPlayerWinRatePercent = firstPlayerWinRatePercent });
 
-            sweepRows.Add(new QualitySweepRow(
+            sweepRows.Add(new TournamentQualitySweepReportRow(
                 firstPlayerWinRatePercent,
                 qualityEvaluationRun.Summary.SpearmanCorrelation,
                 qualityEvaluationRun.Summary.MeanAbsoluteRankError,
@@ -73,7 +73,7 @@ internal static partial class Program
     /// parameters.</param>
     /// <param name="executionOptions">The execution options controlling simulation count and first player win rate percentage.</param>
     /// <returns>A completed quality evaluation run containing player rows, quality summary, and the calculation mode used.</returns>
-    static QualityEvaluationRun ExecuteQualityEvaluationRun(
+    static TournamentQualityReportRun ExecuteQualityEvaluationRun(
         QualityEvaluationInput input,
         QualityEvaluationRuleDefinition ruleDefinition,
         QualityEvaluationExecutionOptions executionOptions)
@@ -98,7 +98,7 @@ internal static partial class Program
             input.InnovExpectedRankOffsetMode,
             input.InnovExpectedRankOffsetCount);
         var qualitySummary = BuildQualitySummary(qualityPlayerRows);
-        return new QualityEvaluationRun(qualityPlayerRows, qualitySummary, result.Mode);
+        return new TournamentQualityReportRun(qualityPlayerRows, qualitySummary, result.Mode);
     }
 
     static TournamentQualityReportData ExecuteTournamentQualityReport(

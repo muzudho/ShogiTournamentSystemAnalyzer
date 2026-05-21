@@ -13,7 +13,7 @@
 /// <param name="OverallPlaceDeltaFromEloRank">Eloランクからの総合順位の差</param>
 /// <param name="OverallTop1Probability">総合トップ1の確率</param>
 /// <param name="OverallTop8Probability">総合トップ8の確率</param>
-readonly record struct QualityPlayerRow(
+readonly record struct TournamentQualityReportPlayerRow(
     string Name,
     string Group,
     double OriginalRating,
@@ -34,7 +34,7 @@ readonly record struct QualityPlayerRow(
 /// <param name="MostPenalizedDelta">最もペナルティを受けた選手の差分</param>
 /// <param name="MostAdvantagedPlayerName">最も有利になった選手名</param>
 /// <param name="MostAdvantagedDelta">最も有利になった選手の差分</param>
-readonly record struct QualitySummary(
+readonly record struct TournamentQualityReportSummary(
     double SpearmanCorrelation,
     double MeanAbsoluteRankError,
     double AverageTop8Retention,
@@ -50,9 +50,9 @@ readonly record struct QualitySummary(
 /// <param name="PlayerRows">品質評価での選手の各行</param>
 /// <param name="Summary">品質評価の合計</param>
 /// <param name="CalculationMode">計算モード</param>
-readonly record struct QualityEvaluationRun(
-    IReadOnlyList<QualityPlayerRow> PlayerRows,
-    QualitySummary Summary,
+readonly record struct TournamentQualityReportRun(
+    IReadOnlyList<TournamentQualityReportPlayerRow> PlayerRows,
+    TournamentQualityReportSummary Summary,
     string CalculationMode);
 
 /// <summary>
@@ -80,7 +80,7 @@ readonly record struct QualitySweepOptions(
 /// <param name="MostPenalizedDelta">最もペナルティを受けた選手の差分</param>
 /// <param name="MostAdvantagedPlayerName">最も有利になった選手名</param>
 /// <param name="MostAdvantagedDelta">最も有利になった選手の差分</param>
-readonly record struct QualitySweepRow(
+readonly record struct TournamentQualitySweepReportRow(
     double FirstPlayerWinRatePercent,
     double SpearmanCorrelation,
     double MeanAbsoluteRankError,

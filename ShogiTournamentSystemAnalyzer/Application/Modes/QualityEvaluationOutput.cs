@@ -102,7 +102,7 @@ internal static partial class Program
         Console.WriteLine($"n%スイープ結果Markdownを出力しました: {sweepMarkdownPath}");
     }
 
-    static void PrintQualitySweepRows(IReadOnlyList<QualitySweepRow> sweepRows)
+    static void PrintQualitySweepRows(IReadOnlyList<TournamentQualitySweepReportRow> sweepRows)
     {
         Console.WriteLine("n%スイープ結果:");
         Console.WriteLine("先手勝率    Spearman   平均順位ずれ   上位8残留   Elo1位総合1位");

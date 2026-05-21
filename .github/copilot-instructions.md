@@ -22,6 +22,7 @@
 - For the 格付けグラフ戦 proposal examples, use the assumption 'the stronger player wins' instead of assuming all ▽ sides lose and ▲ sides win.
 - In tournament ranking proposals, do not use original Elo in ranking calculation because participants join without computed original Elo.
 - For tournament naming in this project, prefer names that can be phrased as '○○式トーナメント' in the style of Swiss-system or ladder-style naming, including 'ツイル式トーナメント' as a preferred naming option and considering the Japanese term '斜文' as part of the concept.
+- Use longer, explicit type names prefixed with the main data boundary names (大会ルールデータ・プレイヤー一覧データ・順位付けの設定データ・大会結果データ・最終順位データ・大会品質レポート) rather than short generic names in this project.
 
 ## アーキテクチャ
 - 各データ要素の境界を明確に分離する: 大会ルールデータ・プレイヤー一覧データ・順位付けの設定データ・大会結果データ・最終順位データ・大会品質レポート を個別の責務として扱う。
