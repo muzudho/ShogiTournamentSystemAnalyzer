@@ -4,9 +4,9 @@
 /// <param name="SimulationCount">シミュレーション回数</param>
 /// <param name="SweepOptions">スイープオプション</param>
 /// <param name="FirstPlayerWinRatePercent">先手勝率（％）</param>
-internal readonly record struct QualityEvaluationExecutionOptions(
+internal readonly record struct TournamentQualityEvaluationExecutionOptions(
     int? SimulationCount,
-    QualitySweepOptions SweepOptions,
+    TournamentQualitySweepOptions SweepOptions,
     double? FirstPlayerWinRatePercent)
 {
     /// <summary>

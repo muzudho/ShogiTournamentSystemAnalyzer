@@ -35,7 +35,7 @@ internal static partial class Program
     /// </summary>
     /// <param name="ruleDefinition"></param>
     /// <returns></returns>
-    static QualityEvaluationOutputOptions ReadTournamentQualityReportOutputOptions(QualityEvaluationRuleDefinition ruleDefinition)
+    static TournamentQualityEvaluationOutputOptions ReadTournamentQualityReportOutputOptions(QualityEvaluationRuleDefinition ruleDefinition)
     {
         var reportGroupingOptions = ReadExperimentalReportGroupingOptions();
         var defaultOutputCsvPath = BuildQualitySummaryDefaultOutputPath(
@@ -47,7 +47,7 @@ internal static partial class Program
         var outputCsvPath = ResolveOutputCsvPath(ReadTextWithDefault(
             $"\n品質評価サマリーCSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
             defaultOutputCsvPath));
-        return new QualityEvaluationOutputOptions(reportGroupingOptions, outputCsvPath);
+        return new TournamentQualityEvaluationOutputOptions(reportGroupingOptions, outputCsvPath);
     }
 
     /// <summary>
@@ -55,10 +55,10 @@ internal static partial class Program
     /// </summary>
     /// <param name="ruleDefinition"></param>
     /// <returns></returns>
-    static QualityEvaluationOutputOptions ReadTournamentQualitySweepReportOutputOptions(QualityEvaluationRuleDefinition ruleDefinition)
+    static TournamentQualityEvaluationOutputOptions ReadTournamentQualitySweepReportOutputOptions(QualityEvaluationRuleDefinition ruleDefinition)
     {
         var reportGroupingOptions = ReadExperimentalReportGroupingOptions();
-        var defaultOutputCsvPath = BuildQualitySweepDefaultOutputPath(
+        var defaultOutputCsvPath = BuildTournamentQualitySweepReportDefaultOutputPath(
             ruleDefinition.GroupingMode,
             ruleDefinition.AdditionalApexPlacementMode,
             ruleDefinition.BoundaryRescueMode,
@@ -67,7 +67,7 @@ internal static partial class Program
         var outputCsvPath = ResolveOutputCsvPath(ReadTextWithDefault(
             $"\nn%スイープ結果CSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
             defaultOutputCsvPath));
-        return new QualityEvaluationOutputOptions(reportGroupingOptions, outputCsvPath);
+        return new TournamentQualityEvaluationOutputOptions(reportGroupingOptions, outputCsvPath);
     }
 
     /// <summary>
@@ -77,7 +77,7 @@ internal static partial class Program
     /// <param name="outputOptions"></param>
     static void WriteTournamentQualityReportOutputs(
         TournamentQualityReportData tournamentQualityReportData,
-        QualityEvaluationOutputOptions outputOptions)
+        TournamentQualityEvaluationOutputOptions outputOptions)
     {
         WriterHelper.WriteText(
             outputPath: outputOptions.OutputCsvPath,
@@ -112,7 +112,7 @@ internal static partial class Program
     /// <param name="outputOptions"></param>
     static void WriteTournamentQualitySweepReportOutputs(
         TournamentQualitySweepReportData tournamentQualitySweepReportData,
-        QualityEvaluationOutputOptions outputOptions)
+        TournamentQualityEvaluationOutputOptions outputOptions)
     {
         WriterHelper.WriteText(
             outputPath: outputOptions.OutputCsvPath,

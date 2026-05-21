@@ -69,7 +69,7 @@ sealed record class TournamentQualityReportData(
     string CalculationMode);
 
 /// <summary>
-/// ［大会品質スイープレポート］だ。
+/// ［大会品質レポート（先手勝率スイープ実験）］だ。
 /// </summary>
 /// <param name="SweepRows"></param>
 /// <param name="StoppedByTimeout"></param>

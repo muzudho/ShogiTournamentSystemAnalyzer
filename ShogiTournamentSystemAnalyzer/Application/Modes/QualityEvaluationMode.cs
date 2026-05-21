@@ -1,6 +1,6 @@
 internal static partial class Program
 {
-    static void RunQualityEvaluationMode(RuleProfileMode ruleProfileMode)
+    static void RunTournamentQualityEvaluationMode(RuleProfileMode ruleProfileMode)
     {
         if (ruleProfileMode == RuleProfileMode.Standard)
         {
@@ -21,12 +21,12 @@ internal static partial class Program
         if (!TryReadQualityEvaluationInput(players, ruleDefinition, out var input)) return;
 
 
-        var executionOptions = ReadQualityEvaluationExecutionOptions(input, ruleDefinition);
+        var executionOptions = ReadTournamentQualityEvaluationExecutionOptions(input, ruleDefinition);
         PrintTournamentQualityEvaluationContext(input, ruleDefinition);
 
         if (executionOptions.IsSweep)
         {
-            RunQualitySweepExperiment(
+            RunTournamentQualitySweepExperiment(
                 input,
                 ruleDefinition,
                 executionOptions);

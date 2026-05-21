@@ -62,7 +62,7 @@ readonly record struct TournamentQualityReportRun(
 /// <param name="StartPercent"></param>
 /// <param name="EndPercent"></param>
 /// <param name="StepPercent"></param>
-readonly record struct QualitySweepOptions(
+readonly record struct TournamentQualitySweepOptions(
     bool IsEnabled,
     double StartPercent,
     double EndPercent,

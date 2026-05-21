@@ -11,10 +11,10 @@ internal static partial class Program
     /// <param name="input"></param>
     /// <param name="ruleDefinition"></param>
     /// <param name="executionOptions"></param>
-    static void RunQualitySweepExperiment(
+    static void RunTournamentQualitySweepExperiment(
         QualityEvaluationInput input,
         QualityEvaluationRuleDefinition ruleDefinition,
-        QualityEvaluationExecutionOptions executionOptions)
+        TournamentQualityEvaluationExecutionOptions executionOptions)
     {
         var tournamentQualitySweepReportData = ExecuteTournamentQualitySweepReport(input, ruleDefinition, executionOptions);
 
@@ -38,14 +38,14 @@ internal static partial class Program
     static TournamentQualitySweepReportData ExecuteTournamentQualitySweepReport(
         QualityEvaluationInput input,
         QualityEvaluationRuleDefinition ruleDefinition,
-        QualityEvaluationExecutionOptions executionOptions)
+        TournamentQualityEvaluationExecutionOptions executionOptions)
     {
         var sweepRows = new List<TournamentQualitySweepReportRow>();
         using var simulationBudget = executionOptions.SimulationCount.HasValue ? BeginSimulationBudget() : default;
         var stoppedByTimeout = false;
         for (var firstPlayerWinRatePercent = executionOptions.SweepOptions.StartPercent; firstPlayerWinRatePercent <= executionOptions.SweepOptions.EndPercent + 1e-9; firstPlayerWinRatePercent += executionOptions.SweepOptions.StepPercent)
         {
-            var qualityEvaluationRun = ExecuteQualityEvaluationRun(
+            var qualityEvaluationRun = ExecuteTournamentQualityEvaluationRun(
                 input,
                 ruleDefinition,
                 executionOptions with { FirstPlayerWinRatePercent = firstPlayerWinRatePercent });
@@ -72,18 +72,17 @@ internal static partial class Program
     }
 
     /// <summary>
-    /// Executes a quality evaluation run by calculating tournament outcomes using the specified input data, rule
-    /// definition, and execution options.
+    /// ［大会品質評価フロー］を実行して［大会品質レポート］を返す。
     /// </summary>
     /// <param name="input">The quality evaluation input containing participants and matches to evaluate.</param>
     /// <param name="ruleDefinition">The tournament rule definition specifying grouping mode, boundary rescue settings, and other tournament
     /// parameters.</param>
     /// <param name="executionOptions">The execution options controlling simulation count and first player win rate percentage.</param>
     /// <returns>A completed quality evaluation run containing player rows, quality summary, and the calculation mode used.</returns>
-    static TournamentQualityReportRun ExecuteQualityEvaluationRun(
+    static TournamentQualityReportRun ExecuteTournamentQualityEvaluationRun(
         QualityEvaluationInput input,
         QualityEvaluationRuleDefinition ruleDefinition,
-        QualityEvaluationExecutionOptions executionOptions)
+        TournamentQualityEvaluationExecutionOptions executionOptions)
     {
         var firstPlayerWinRatePercent = executionOptions.FirstPlayerWinRatePercent!.Value;
         var firstPlayerWinRateRating = ConvertFirstPlayerWinRatePercentToRating(firstPlayerWinRatePercent);
@@ -108,20 +107,27 @@ internal static partial class Program
         return new TournamentQualityReportRun(qualityPlayerRows, qualitySummary, result.Mode);
     }
 
+    /// <summary>
+    /// ［大会品質評価フロー］を実行して［大会品質レポート］を返す。
+    /// </summary>
+    /// <param name="input"></param>
+    /// <param name="ruleDefinition"></param>
+    /// <param name="executionOptions"></param>
+    /// <returns></returns>
     static TournamentQualityReportData ExecuteTournamentQualityReport(
         QualityEvaluationInput input,
         QualityEvaluationRuleDefinition ruleDefinition,
-        QualityEvaluationExecutionOptions executionOptions)
+        TournamentQualityEvaluationExecutionOptions executionOptions)
     {
-        var qualityEvaluationRun = ExecuteQualityEvaluationRun(input, ruleDefinition, executionOptions);
+        var qualityEvaluationRun = ExecuteTournamentQualityEvaluationRun(input, ruleDefinition, executionOptions);
         return BuildTournamentQualityReportData(qualityEvaluationRun);
     }
 
-    static QualityEvaluationExecutionOptions ReadQualityEvaluationExecutionOptions(
+    static TournamentQualityEvaluationExecutionOptions ReadTournamentQualityEvaluationExecutionOptions(
         QualityEvaluationInput input,
         QualityEvaluationRuleDefinition ruleDefinition)
     {
-        var sweepOptions = ReadQualitySweepOptions();
+        var sweepOptions = ReadTournamentQualitySweepOptions();
 
         if (!sweepOptions.IsEnabled)
         {
@@ -165,13 +171,13 @@ internal static partial class Program
                 Console.WriteLine();
             }
 
-            return new QualityEvaluationExecutionOptions(simulationCount, sweepOptions, firstPlayerWinRatePercent);
+            return new TournamentQualityEvaluationExecutionOptions(simulationCount, sweepOptions, firstPlayerWinRatePercent);
         }
 
-        return new QualityEvaluationExecutionOptions(null, sweepOptions, null);
+        return new TournamentQualityEvaluationExecutionOptions(null, sweepOptions, null);
     }
 
-    static QualitySweepOptions ReadQualitySweepOptions()
+    static TournamentQualitySweepOptions ReadTournamentQualitySweepOptions()
     {
         Console.WriteLine("品質評価の実行方法を選んでください。");
         Console.WriteLine("単発評価は現在の条件だけを評価し、n% スイープ実験は先手勝率を範囲で振って比較します。");
@@ -187,7 +193,7 @@ internal static partial class Program
             if (string.IsNullOrEmpty(input) || input == "1")
             {
                 Console.WriteLine();
-                return new QualitySweepOptions(false, 0.0, 0.0, 0.0);
+                return new TournamentQualitySweepOptions(false, 0.0, 0.0, 0.0);
             }
 
             if (input == "2")
@@ -211,7 +217,7 @@ internal static partial class Program
                         continue;
                     }
 
-                    return new QualitySweepOptions(true, startPercent, endPercent, stepPercent);
+                    return new TournamentQualitySweepOptions(true, startPercent, endPercent, stepPercent);
                 }
             }
 
