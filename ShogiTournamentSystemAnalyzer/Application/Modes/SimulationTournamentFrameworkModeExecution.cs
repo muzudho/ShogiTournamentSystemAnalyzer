@@ -34,15 +34,7 @@ internal static partial class Program
         }
 
         // ［大会ルールデータ］
-        var tournamentRuleData = new TournamentRuleData(
-            RuleProfileMode.TournamentFramework,
-            context.TournamentRuleSetMode,
-            context.RuleFilePath,
-            context.FirstPlayerWinRatePercent,
-            context.RandomSeed,
-            dslDefinition is null
-                ? "大会進行フレームワークの大会ルールデータ"
-                : "大会進行フレームワークの大会ルールデータ（DSL読込あり）");
+        var tournamentRuleData = BuildTournamentRuleData(context, dslDefinition);
 
         // ［初回状態］
         var initialState = new TournamentState(0, players, stages, matchRecords);
@@ -72,13 +64,10 @@ internal static partial class Program
         var executionResult = aggregateResult.RepresentativeExecutionResult;
 
         // ［選手一覧データ］
-        var playerListData = new PlayerListData(players);
+        var playerListData = BuildPlayerListData(players);
 
         // ［順位設定データ］
-        var rankingSettingsData = new RankingSettingsData(
-            tournamentRuleData.TournamentRuleSetMode ?? TournamentRuleSetMode.Neutral,
-            IsIntermediate: false,
-            Note: "大会進行フレームワークの最終順位設定データ");
+        var rankingSettingsData = BuildRankingSettingsData(tournamentRuleData);
 
         // ［大会結果データ］
         var tournamentResultData = executionResult.ToTournamentResultData();

@@ -13,7 +13,16 @@ internal static partial class Program
         // CSVの内容を作成する
         var lines = new List<string>
         {
+            // ----------------------------------------
+            // ヘッダー行
+            // ----------------------------------------
+
             "metricName,metricValue,note",
+
+            // ----------------------------------------
+            // ボディ行
+            // ----------------------------------------
+
             $"spearmanCorrelation,{summary.SpearmanCorrelation.ToString("F6", CultureInfo.InvariantCulture)},Elo順位と期待総合順位の相関",
             $"meanAbsoluteRankError,{summary.MeanAbsoluteRankError.ToString("F6", CultureInfo.InvariantCulture)},期待総合順位とElo順位のずれの絶対値平均",
             $"averageTop8Retention,{summary.AverageTop8Retention.ToString("F6", CultureInfo.InvariantCulture)},Elo上位8名が総合上位8位に残る人数の期待値",
@@ -236,8 +245,16 @@ internal static partial class Program
     {
         var lines = new List<string>
         {
+            // ----------------------------------------
+            // ヘッダー行
+            // ----------------------------------------
+
             "firstPlayerWinRatePercent,spearmanCorrelation,meanAbsoluteRankError,averageTop8Retention,eloTop1OverallTop1ProbabilityPercent,mostPenalizedPlayer,mostPenalizedDelta,mostAdvantagedPlayer,mostAdvantagedDelta"
         };
+
+        // ----------------------------------------
+        // ボディ行
+        // ----------------------------------------
 
         lines.AddRange(sweepRows.Select(row => string.Join(",",
             row.FirstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture),
@@ -424,6 +441,10 @@ internal static partial class Program
         IReadOnlyList<RepresentativeExecutionRankRow> rows,
         string? overviewNote = null)
     {
+        // ----------------------------------------
+        // ヘッダー行
+        // ----------------------------------------
+
         var headerColumns = new List<string>
         {
             "tournamentRuleSetMode",
@@ -434,6 +455,7 @@ internal static partial class Program
             "firstPlaceProbabilityPercent"
         };
 
+        // 名前行について、［注記］列は任意
         if (!string.IsNullOrWhiteSpace(overviewNote))
         {
             headerColumns.Add("note");
@@ -444,18 +466,23 @@ internal static partial class Program
             string.Join(",", headerColumns.Select(EscapeCsv))
         };
 
+        // ----------------------------------------
+        // ボディ行
+        // ----------------------------------------
+
         foreach (var row in rows)
         {
             var columns = new List<string>
             {
-                TournamentRuleSetRule.GetLabel(tournamentRuleSetMode),
-                row.Name,
-                row.Points.ToString(CultureInfo.InvariantCulture),
-                row.RankLabel,
-                row.AveragePlace.ToString("F3", CultureInfo.InvariantCulture),
-                (row.FirstPlaceProbability * 100).ToString("F2", CultureInfo.InvariantCulture)
+                TournamentRuleSetRule.GetLabel(tournamentRuleSetMode),  // ［ラベル］
+                row.Name,                                               // ［対局者名］
+                row.Points.ToString(CultureInfo.InvariantCulture),     // ［勝点］
+                row.RankLabel,                                         // ［順位帯］
+                row.AveragePlace.ToString("F3", CultureInfo.InvariantCulture), // ［平均順位］
+                (row.FirstPlaceProbability * 100).ToString("F2", CultureInfo.InvariantCulture) // ［1位確率］
             };
 
+            // ［注記］列は任意
             if (!string.IsNullOrWhiteSpace(overviewNote))
             {
                 columns.Add(overviewNote);
@@ -547,9 +574,17 @@ internal static partial class Program
     static IEnumerable<string> CreateQualityPlayerCsv(IReadOnlyList<QualityPlayerRow> playerRows)
     {
         var lines = new List<string>
-                {
-                    "playerName,group,originalElo,eloRank,expectedOverallPlace,overallPlaceDeltaFromEloRank,overallTop1ProbabilityPercent,overallTop8ProbabilityPercent"
-                };
+        {
+            // ----------------------------------------
+            // ヘッダー行
+            // ----------------------------------------
+
+            "playerName,group,originalElo,eloRank,expectedOverallPlace,overallPlaceDeltaFromEloRank,overallTop1ProbabilityPercent,overallTop8ProbabilityPercent"
+        };
+
+        // ----------------------------------------
+        // ボディ行
+        // ----------------------------------------
 
         lines.AddRange(playerRows.Select(row => string.Join(",",
             EscapeCsv(row.Name),
