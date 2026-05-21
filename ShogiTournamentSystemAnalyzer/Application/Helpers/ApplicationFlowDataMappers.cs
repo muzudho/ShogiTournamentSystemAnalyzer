@@ -42,4 +42,9 @@ internal static partial class Program
             IsIntermediate: false,
             Note: "大会進行フレームワークの最終順位データ");
     }
+
+    static TournamentQualityReportData BuildTournamentQualityReportData(QualityEvaluationRun qualityEvaluationRun)
+    {
+        return new TournamentQualityReportData(qualityEvaluationRun);
+    }
 }
