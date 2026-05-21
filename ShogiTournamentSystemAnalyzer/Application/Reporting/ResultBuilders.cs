@@ -101,7 +101,7 @@ internal static partial class Program
             .ToList();
     }
 
-    static List<TournamentQualityReportPlayerRow> BuildQualityPlayerRows(
+    static List<TournamentQualityReportPlayerRow> BuildTournamentQualityReportPlayerRows(
         IReadOnlyList<ResultRow> resultRows,
         IReadOnlyDictionary<string, FinalStageGroup>? groupMap,
         IReadOnlyList<Player> additionalApexPlayers,
@@ -144,9 +144,9 @@ internal static partial class Program
             .ToList();
     }
 
-    static TournamentQualityReportSummary BuildQualitySummary(IReadOnlyList<TournamentQualityReportPlayerRow> playerRows)
+    static TournamentQualityReportSummary BuildTournamentQualityReportSummary(IReadOnlyList<TournamentQualityReportPlayerRow> playerRows)
     {
-        var spearmanCorrelation = CalculateSpearmanCorrelation(playerRows);
+        var spearmanCorrelation = CalculateTournamentQualityReportSpearmanCorrelation(playerRows);
         var meanAbsoluteRankError = playerRows.Average(x => Math.Abs(x.OverallPlaceDeltaFromEloRank));
         var averageTop8Retention = playerRows
             .Where(x => x.EloRank <= 8)
@@ -167,7 +167,7 @@ internal static partial class Program
             mostAdvantagedPlayer.OverallPlaceDeltaFromEloRank);
     }
 
-    static double CalculateSpearmanCorrelation(IReadOnlyList<TournamentQualityReportPlayerRow> playerRows)
+    static double CalculateTournamentQualityReportSpearmanCorrelation(IReadOnlyList<TournamentQualityReportPlayerRow> playerRows)
     {
         if (playerRows.Count <= 1) return 1.0;
 

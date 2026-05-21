@@ -61,17 +61,17 @@ internal static partial class Program
     {
         WriterHelper.WriteText(
             outputPath: outputOptions.OutputCsvPath,
-            getLines: () => CreateQualitySummaryCsv(tournamentQualityReportData.Summary, outputOptions.ReportGroupingOptions));
+            getLines: () => CreateTournamentQualityReportSummaryCsv(tournamentQualityReportData.Summary, outputOptions.ReportGroupingOptions));
 
         var playerCsvPath = BuildSiblingOutputCsvPath(outputOptions.OutputCsvPath, "quality_players");
         WriterHelper.WriteText(
             outputPath: playerCsvPath,
-            getLines: () => CreateQualityPlayerCsv(tournamentQualityReportData.PlayerRows));
+            getLines: () => CreateTournamentQualityReportPlayerCsv(tournamentQualityReportData.PlayerRows));
 
         var summaryMarkdownPath = ChangeOutputExtension(outputOptions.OutputCsvPath, ".md");
         WriterHelper.WriteText(
             outputPath: summaryMarkdownPath,
-            getLines: () => CreateQualitySummaryMarkdown(
+            getLines: () => CreateTournamentQualityReportSummaryMarkdown(
                 summaryMarkdownPath,
                 tournamentQualityReportData.PlayerRows,
                 tournamentQualityReportData.Summary,
@@ -91,18 +91,18 @@ internal static partial class Program
     {
         WriterHelper.WriteText(
             outputPath: outputOptions.OutputCsvPath,
-            getLines: () => CreateQualitySweepCsv(tournamentQualitySweepReportData.SweepRows, outputOptions.ReportGroupingOptions));
+            getLines: () => CreateTournamentQualitySweepReportCsv(tournamentQualitySweepReportData.SweepRows, outputOptions.ReportGroupingOptions));
 
         var sweepMarkdownPath = ChangeOutputExtension(outputOptions.OutputCsvPath, ".md");
         WriterHelper.WriteText(
             outputPath: sweepMarkdownPath,
-            getLines: () => CreateQualitySweepMarkdown(sweepMarkdownPath, tournamentQualitySweepReportData.SweepRows, outputOptions.OutputCsvPath, outputOptions.ReportGroupingOptions));
+            getLines: () => CreateTournamentQualitySweepReportMarkdown(sweepMarkdownPath, tournamentQualitySweepReportData.SweepRows, outputOptions.OutputCsvPath, outputOptions.ReportGroupingOptions));
 
         Console.WriteLine($"n%スイープ結果CSVを出力しました: {outputOptions.OutputCsvPath}");
         Console.WriteLine($"n%スイープ結果Markdownを出力しました: {sweepMarkdownPath}");
     }
 
-    static void PrintQualitySweepRows(IReadOnlyList<TournamentQualitySweepReportRow> sweepRows)
+    static void PrintTournamentQualitySweepReportTable(IReadOnlyList<TournamentQualitySweepReportRow> sweepRows)
     {
         Console.WriteLine("n%スイープ結果:");
         Console.WriteLine("先手勝率    Spearman   平均順位ずれ   上位8残留   Elo1位総合1位");

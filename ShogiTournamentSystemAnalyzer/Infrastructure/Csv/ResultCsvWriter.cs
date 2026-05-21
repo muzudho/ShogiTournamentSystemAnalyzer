@@ -8,7 +8,7 @@ internal static partial class Program
     /// <param name="summary"></param>
     /// <param name="options"></param>
     /// <returns></returns>
-    static IEnumerable<string> CreateQualitySummaryCsv(TournamentQualityReportSummary summary, ExperimentalReportGroupingOptions options)
+    static IEnumerable<string> CreateTournamentQualityReportSummaryCsv(TournamentQualityReportSummary summary, ExperimentalReportGroupingOptions options)
     {
         // CSVの内容を作成する
         var lines = new List<string>
@@ -48,7 +48,7 @@ internal static partial class Program
     /// <param name="sweepCsvPath"></param>
     /// <param name="options"></param>
     /// <returns></returns>
-    static IEnumerable<string> CreateQualitySweepMarkdown(string outputMarkdownPath, IReadOnlyList<TournamentQualitySweepReportRow> sweepRows, string sweepCsvPath, ExperimentalReportGroupingOptions options)
+    static IEnumerable<string> CreateTournamentQualitySweepReportMarkdown(string outputMarkdownPath, IReadOnlyList<TournamentQualitySweepReportRow> sweepRows, string sweepCsvPath, ExperimentalReportGroupingOptions options)
     {
         var bestSpearmanRow = sweepRows
             .OrderByDescending(row => row.SpearmanCorrelation)
@@ -132,7 +132,7 @@ internal static partial class Program
     /// <param name="playerCsvPath"></param>
     /// <param name="options"></param>
     /// <returns></returns>
-    static IEnumerable<string> CreateQualitySummaryMarkdown(
+    static IEnumerable<string> CreateTournamentQualityReportSummaryMarkdown(
         string outputMarkdownPath,
         IReadOnlyList<TournamentQualityReportPlayerRow> playerRows,
         TournamentQualityReportSummary summary,
@@ -200,7 +200,7 @@ internal static partial class Program
                     "| --- | ---: | ---: | ---: | ---: | ---: |"
                 });
 
-        lines.AddRange(topPenalizedPlayers.Select(BuildQualityPlayerMarkdownRow));
+        lines.AddRange(topPenalizedPlayers.Select(BuildTournamentQualityReportPlayerMarkdownRow));
 
         lines.AddRange(new[]
         {
@@ -210,7 +210,7 @@ internal static partial class Program
                     "| --- | ---: | ---: | ---: | ---: | ---: |"
                 });
 
-        lines.AddRange(topAdvantagedPlayers.Select(BuildQualityPlayerMarkdownRow));
+        lines.AddRange(topAdvantagedPlayers.Select(BuildTournamentQualityReportPlayerMarkdownRow));
 
         if (playerRows.Count > 0)
         {
@@ -244,7 +244,7 @@ internal static partial class Program
         return lines;
     }
 
-    static IEnumerable<string> CreateQualitySweepCsv(IReadOnlyList<TournamentQualitySweepReportRow> sweepRows, ExperimentalReportGroupingOptions options)
+    static IEnumerable<string> CreateTournamentQualitySweepReportCsv(IReadOnlyList<TournamentQualitySweepReportRow> sweepRows, ExperimentalReportGroupingOptions options)
     {
         var lines = new List<string>
         {
@@ -283,7 +283,7 @@ internal static partial class Program
     /// </summary>
     /// <param name="row"></param>
     /// <returns></returns>
-    static string BuildQualityPlayerMarkdownRow(TournamentQualityReportPlayerRow row)
+    static string BuildTournamentQualityReportPlayerMarkdownRow(TournamentQualityReportPlayerRow row)
     {
         return string.Join(" | ",
             "|",
@@ -574,7 +574,7 @@ internal static partial class Program
             : start.ToString("F2", CultureInfo.InvariantCulture) + "%〜" + end.ToString("F2", CultureInfo.InvariantCulture) + "%";
     }
 
-    static IEnumerable<string> CreateQualityPlayerCsv(IReadOnlyList<TournamentQualityReportPlayerRow> playerRows)
+    static IEnumerable<string> CreateTournamentQualityReportPlayerCsv(IReadOnlyList<TournamentQualityReportPlayerRow> playerRows)
     {
         var lines = new List<string>
         {

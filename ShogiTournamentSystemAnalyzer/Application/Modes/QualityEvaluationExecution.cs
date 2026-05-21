@@ -18,7 +18,7 @@ internal static partial class Program
     {
         var tournamentQualitySweepReportData = ExecuteTournamentQualitySweepReport(input, ruleDefinition, executionOptions);
 
-        PrintTournamentQualitySweepReport(tournamentQualitySweepReportData);
+        PrintTournamentQualitySweepReportRows(tournamentQualitySweepReportData);
         if (tournamentQualitySweepReportData.StoppedByTimeout)
         {
             Console.WriteLine($"シミュレーションは時間上限 {SimulationTimeLimit.TotalMinutes:F0} 分で打ち切ったため、n% スイープは途中で終了しました。\n");
@@ -90,14 +90,14 @@ internal static partial class Program
                 : CalculateExactly(input.Participants, input.Matches, firstPlayerWinRateRating, ruleDefinition.TournamentRuleSetMode);
 
         var resultRows = BuildResultRows(input.Participants, input.Matches, result, firstPlayerWinRatePercent);
-        var qualityPlayerRows = BuildQualityPlayerRows(
+        var qualityPlayerRows = BuildTournamentQualityReportPlayerRows(
             resultRows,
             ruleDefinition.GroupMap,
             ruleDefinition.AdditionalApexParticipants,
             ruleDefinition.AdditionalApexPlacementMode,
             input.InnovExpectedRankOffsetMode,
             input.InnovExpectedRankOffsetCount);
-        var qualitySummary = BuildQualitySummary(qualityPlayerRows);
+        var qualitySummary = BuildTournamentQualityReportSummary(qualityPlayerRows);
         return new TournamentQualityReportRun(qualityPlayerRows, qualitySummary, result.Mode);
     }
 
