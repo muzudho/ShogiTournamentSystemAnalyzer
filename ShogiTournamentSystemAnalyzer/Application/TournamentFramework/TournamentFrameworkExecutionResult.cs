@@ -4,7 +4,7 @@ sealed record class TournamentFrameworkExecutionResult(
     int TickCount,
     bool CompletedNaturally)
 {
-    TournamentResultData ToTournamentResultData()
+    internal TournamentResultData ToTournamentResultData()
     {
         return new TournamentResultData(
             FinalState.MatchRecords,
@@ -13,7 +13,7 @@ sealed record class TournamentFrameworkExecutionResult(
             CompletedNaturally);
     }
 
-    FinalRankingData ToFinalRankingData()
+    internal FinalRankingData ToFinalRankingData()
     {
         return new FinalRankingData(
             OverallRanking,

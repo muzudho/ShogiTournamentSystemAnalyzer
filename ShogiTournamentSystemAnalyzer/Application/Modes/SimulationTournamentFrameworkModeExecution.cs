@@ -2,15 +2,30 @@ using ShogiTournamentSystemAnalyzer.Infrastructure.Csv;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// ［大会フレームワーク　＞　シミュレーション回数　＞　既定値］
+    /// </summary>
     const int DefaultTournamentFrameworkSimulationCount = 200_000;
+
+    /// <summary>
+    /// ［大会フレームワーク　＞　明瞭計算対局　＞　閾値］
+    /// </summary>
     const int TournamentFrameworkExactCalculationMatchThreshold = 20;
 
+    /// <summary>
+    /// ［大会フレームワーク・モード］実行
+    /// </summary>
+    /// <param name="context"></param>
     static void ExecuteTournamentFrameworkMode(TournamentFrameworkModeContext context)
     {
+        // ［選手一覧データ］読込
         var players = ReadPlayerEntriesFromCsvPath(context.PlayersCsvPath);
+
+        // ［段階マスターデータ］読込
         var stages = ReadStageEntriesFromCsvPath(context.StagesCsvPath);
         var matchRecords = ReadTournamentMatchRecordsFromCsvPath(context.TournamentMatchRecordsCsvPath);
 
+        // ［大会ルールＤＳＬ定義］
         TournamentDslDefinition? dslDefinition = null;
         if (!string.IsNullOrWhiteSpace(context.RuleFilePath))
         {
@@ -18,39 +33,57 @@ internal static partial class Program
             Console.WriteLine($"大会ルールDSLを読み込みました: {context.RuleFilePath}");
         }
 
+        // ［初回状態］
         var initialState = new TournamentState(0, players, stages, matchRecords);
+
+        // ［順位付けの設定］選択
         IRankingRule rankingRule = context.TournamentRuleSetMode switch
         {
             TournamentRuleSetMode.Twill => TwillTournamentRankingRule.Instance,
             TournamentRuleSetMode.TwillCommonOpponentWeighted => TwillTournamentRankingRule.CommonOpponentWeightedInstance,
             _ => ByFinishedResultsRankingRule.Instance,
         };
+
+        // ［大会ルールセット］
         var ruleSet = new TournamentFrameworkRuleSet(
             FixedMatchPairingRule.Instance,
             rankingRule,
             AllMatchesFinishedTerminationRule.Instance,
             new StandardLikeMatchResultResolver(context.FirstPlayerWinRateRating));
-        var engine = new TournamentEngine(ruleSet, context.RandomSeed);
-        var aggregateResult = ExecuteTournamentFrameworkModeCalculation(engine, initialState, players, context.TournamentRuleSetMode, context.FirstPlayerWinRateRating, context.SimulationCount);
-        var executionResult = aggregateResult.RepresentativeExecutionResult;
 
-        var standardPlayers = players
+        // ［大会エンジン］
+        var engine = new TournamentEngine(ruleSet, context.RandomSeed);
+
+        // ［集計結果］
+        var aggregateResult = ExecuteTournamentFrameworkModeCalculation(engine, initialState, players, context.TournamentRuleSetMode, context.FirstPlayerWinRateRating, context.SimulationCount);
+
+        // ［実行結果］
+        var executionResult = aggregateResult.RepresentativeExecutionResult;
+        var playerListData = new PlayerListData(players);
+        var rankingSettingsData = new RankingSettingsData(
+            context.TournamentRuleSetMode,
+            IsIntermediate: false,
+            Note: "大会進行フレームワークの最終順位設定データ");
+        var tournamentResultData = executionResult.ToTournamentResultData();
+        var finalRankingData = executionResult.ToFinalRankingData();
+
+        var standardPlayers = playerListData.Players
             .OrderBy(player => player.PlayerId)
             .Select(player => new Player(player.Name, player.Rating))
             .ToArray();
-        var playerIndexById = players
+        var playerIndexById = playerListData.Players
             .OrderBy(player => player.PlayerId)
             .Select((player, index) => new { player.PlayerId, index })
             .ToDictionary(x => x.PlayerId, x => x.index);
-        var standardMatches = executionResult.FinalState.MatchRecords
+        var standardMatches = tournamentResultData.MatchRecords
             .Select(match => new Match(playerIndexById[match.FirstPlayerId], playerIndexById[match.SecondPlayerId]))
             .ToArray();
-        var representativeExecutionRankRows = BuildRepresentativeExecutionRankRows(players, executionResult.OverallRanking);
+        var representativeExecutionRankRows = BuildRepresentativeExecutionRankRows(playerListData.Players, finalRankingData.RankRows);
 
         var result = BuildTournamentFrameworkCalculationResult(aggregateResult);
         var resultRows = BuildResultRows(standardPlayers, standardMatches, result, context.FirstPlayerWinRatePercent);
 
-        Console.WriteLine($"順位ルール: {TournamentRuleSetRule.GetLabel(context.TournamentRuleSetMode)}");
+        Console.WriteLine($"順位ルール: {TournamentRuleSetRule.GetLabel(rankingSettingsData.TournamentRuleSetMode)}");
 
         if (aggregateResult.IsExactCalculation)
         {
@@ -65,8 +98,8 @@ internal static partial class Program
             Console.WriteLine($"自然終了率: {aggregateResult.CompletedNaturallyCount:N0}/{aggregateResult.CompletedSimulationCount:N0}");
         }
 
-        Console.WriteLine($"代表実行Tick数: {executionResult.TickCount}");
-        Console.WriteLine($"代表実行の自然終了: {(executionResult.CompletedNaturally ? "Yes" : "No")}");
+        Console.WriteLine($"代表実行Tick数: {tournamentResultData.TickCount}");
+        Console.WriteLine($"代表実行の自然終了: {(tournamentResultData.CompletedNaturally ? "Yes" : "No")}");
         Console.WriteLine($"ステージ数: {stages.Count}");
         Console.WriteLine($"総対局数: {matchRecords.Count}\n");
         if (dslDefinition is not null)
@@ -78,7 +111,7 @@ internal static partial class Program
         PrintMatchesCsv(standardPlayers, standardMatches, "大会進行フレームワークで読み込んだ対局CSV:");
         Console.WriteLine("注記: これ以降の順位表は複数回試行の aggregate 結果です。");
         Console.WriteLine("注記: あとで出力する大会結果CSV/Markdownは代表実行1件の対局記録です。\n");
-        PrintRepresentativeExecutionRanking(representativeExecutionRankRows, context.TournamentRuleSetMode);
+        PrintRepresentativeExecutionRanking(representativeExecutionRankRows, rankingSettingsData.TournamentRuleSetMode);
         PrintResult(standardPlayers.Length, result, context.FirstPlayerWinRatePercent, resultRows);
         if (result.Mode.Contains("時間切れ", StringComparison.Ordinal))
         {
@@ -118,7 +151,7 @@ internal static partial class Program
         WriterHelper.WriteText(
             outputPath: representativeRankingCsvPath,
             getLines: () => CreateRepresentativeExecutionRankCsv(
-                context.TournamentRuleSetMode,
+                rankingSettingsData.TournamentRuleSetMode,
                 representativeExecutionRankRows,
                 overviewNote: "この順位表は代表実行 1 件の順位です。aggregate 結果の順位表そのものではありません。"));
 
@@ -127,7 +160,7 @@ internal static partial class Program
             getLines: () => CreateRepresentativeExecutionRankMarkdown(
                 representativeRankingMarkdownPath,
                 representativeRankingCsvPath,
-                context.TournamentRuleSetMode,
+                rankingSettingsData.TournamentRuleSetMode,
                 representativeExecutionRankRows,
                 overviewNote: "この順位表は代表実行 1 件の順位です。aggregate 結果の順位表そのものではありません。",
                 representativeMatchRecordsMarkdownPath: tournamentMatchRecordsMarkdownPath));
@@ -137,7 +170,7 @@ internal static partial class Program
             getLines: () => CreateTournamentMatchRecordCsv(
                 stages,
                 players,
-                executionResult.FinalState.MatchRecords,
+                tournamentResultData.MatchRecords,
                 overviewNote: "この大会結果テーブルは代表実行 1 件の対局記録です。順位表の aggregate 結果そのものではありません。"));
 
         WriterHelper.WriteText(
@@ -147,7 +180,7 @@ internal static partial class Program
                 tournamentMatchRecordsCsvPath,
                 stages,
                 players,
-                executionResult.FinalState.MatchRecords,
+                tournamentResultData.MatchRecords,
                 overviewNote: "この大会結果テーブルは代表実行 1 件の対局記録です。順位表の aggregate 結果そのものではありません。",
                 aggregateResultMarkdownPath: outputMarkdownPath,
                 representativeRankingMarkdownPath: representativeRankingMarkdownPath));
