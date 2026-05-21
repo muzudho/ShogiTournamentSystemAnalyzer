@@ -30,6 +30,7 @@
 - 上記の各データ境界をインターフェースとして定義し、具体実装（永続化・読み取り・検証）はインターフェースの実装として Data 配下などに分離する。
 - データ境界の分離により、テスト・差し替え・並列開発を容易にし、Program.cs やドメインロジックから永続化の詳細を切り離す。
 - Data フォルダー構成と連携させ、Data 配下でインターフェース定義と具体実装を整理する（既存の Data フォルダ方針と整合）。
+- このプロジェクトでは設計の骨格として『5大域』と『6大境界』を使う。6大境界の基準名は TournamentRule, PlayerList, RankingSettings, TournamentResult, FinalRanking, TournamentQualityReport とする。
 
 ### 実行・ベンチマーク
 - Start with a 1-trial smoke test before benchmarking with small trial counts (e.g., 10 and 100) to estimate runtime before launching a large sweep.
