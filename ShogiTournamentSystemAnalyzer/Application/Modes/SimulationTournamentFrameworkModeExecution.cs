@@ -33,11 +33,22 @@ internal static partial class Program
             Console.WriteLine($"大会ルールDSLを読み込みました: {context.RuleFilePath}");
         }
 
+        // ［大会ルールデータ］
+        var tournamentRuleData = new TournamentRuleData(
+            RuleProfileMode.TournamentFramework,
+            context.TournamentRuleSetMode,
+            context.RuleFilePath,
+            context.FirstPlayerWinRatePercent,
+            context.RandomSeed,
+            dslDefinition is null
+                ? "大会進行フレームワークの大会ルールデータ"
+                : "大会進行フレームワークの大会ルールデータ（DSL読込あり）");
+
         // ［初回状態］
         var initialState = new TournamentState(0, players, stages, matchRecords);
 
         // ［順位付けの設定］選択
-        IRankingRule rankingRule = context.TournamentRuleSetMode switch
+        IRankingRule rankingRule = tournamentRuleData.TournamentRuleSetMode switch
         {
             TournamentRuleSetMode.Twill => TwillTournamentRankingRule.Instance,
             TournamentRuleSetMode.TwillCommonOpponentWeighted => TwillTournamentRankingRule.CommonOpponentWeightedInstance,
@@ -52,10 +63,10 @@ internal static partial class Program
             new StandardLikeMatchResultResolver(context.FirstPlayerWinRateRating));
 
         // ［大会エンジン］
-        var engine = new TournamentEngine(ruleSet, context.RandomSeed);
+        var engine = new TournamentEngine(ruleSet, tournamentRuleData.RandomSeed);
 
         // ［集計結果］
-        var aggregateResult = ExecuteTournamentFrameworkModeCalculation(engine, initialState, players, context.TournamentRuleSetMode, context.FirstPlayerWinRateRating, context.SimulationCount);
+        var aggregateResult = ExecuteTournamentFrameworkModeCalculation(engine, initialState, players, tournamentRuleData.TournamentRuleSetMode ?? TournamentRuleSetMode.Neutral, context.FirstPlayerWinRateRating, context.SimulationCount);
 
         // ［実行結果］
         var executionResult = aggregateResult.RepresentativeExecutionResult;
@@ -65,7 +76,7 @@ internal static partial class Program
 
         // ［順位設定データ］
         var rankingSettingsData = new RankingSettingsData(
-            context.TournamentRuleSetMode,
+            tournamentRuleData.TournamentRuleSetMode ?? TournamentRuleSetMode.Neutral,
             IsIntermediate: false,
             Note: "大会進行フレームワークの最終順位設定データ");
 
@@ -92,7 +103,7 @@ internal static partial class Program
         var representativeExecutionRankRows = BuildRepresentativeExecutionRankRows(playerListData.Players, finalRankingData.RankRows);
 
         var result = BuildTournamentFrameworkCalculationResult(aggregateResult);
-        var resultRows = BuildResultRows(standardPlayers, standardMatches, result, context.FirstPlayerWinRatePercent);
+        var resultRows = BuildResultRows(standardPlayers, standardMatches, result, tournamentRuleData.FirstPlayerWinRatePercent ?? context.FirstPlayerWinRatePercent);
 
         Console.WriteLine($"順位ルール: {TournamentRuleSetRule.GetLabel(rankingSettingsData.TournamentRuleSetMode)}");
 
@@ -123,7 +134,7 @@ internal static partial class Program
         Console.WriteLine("注記: これ以降の順位表は複数回試行の aggregate 結果です。");
         Console.WriteLine("注記: あとで出力する大会結果CSV/Markdownは代表実行1件の対局記録です。\n");
         PrintRepresentativeExecutionRanking(representativeExecutionRankRows, rankingSettingsData.TournamentRuleSetMode);
-        PrintResult(standardPlayers.Length, result, context.FirstPlayerWinRatePercent, resultRows);
+        PrintResult(standardPlayers.Length, result, tournamentRuleData.FirstPlayerWinRatePercent ?? context.FirstPlayerWinRatePercent, resultRows);
         if (result.Mode.Contains("時間切れ", StringComparison.Ordinal))
         {
             Console.WriteLine($"シミュレーションは時間上限 {SimulationTimeLimit.TotalMinutes:F0} 分で打ち切りました。\n");
@@ -138,7 +149,7 @@ internal static partial class Program
             outputPath: outputCsvPath,
             getLines: () => CreateResultCsv(
                 result.Mode,
-                context.FirstPlayerWinRatePercent,
+                tournamentRuleData.FirstPlayerWinRatePercent ?? context.FirstPlayerWinRatePercent,
                 resultRows,
                 overviewNote: "この順位表は複数回試行の aggregate 結果です。大会結果CSVとは 1 対 1 には対応しません。"));
 
@@ -154,7 +165,7 @@ internal static partial class Program
                 outputMarkdownPath,
                 outputCsvPath,
                 result.Mode,
-                context.FirstPlayerWinRatePercent,
+                tournamentRuleData.FirstPlayerWinRatePercent ?? context.FirstPlayerWinRatePercent,
                 resultRows,
                 overviewNote: "この順位表は複数回試行の aggregate 結果です。下記の大会結果テーブルとは 1 対 1 には対応しません。",
                 representativeRankingMarkdownPath: representativeRankingMarkdownPath));
