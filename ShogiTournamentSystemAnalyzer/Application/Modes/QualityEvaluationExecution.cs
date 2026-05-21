@@ -24,8 +24,8 @@ internal static partial class Program
             Console.WriteLine($"シミュレーションは時間上限 {SimulationTimeLimit.TotalMinutes:F0} 分で打ち切ったため、n% スイープは途中で終了しました。\n");
         }
 
-        var outputOptions = ReadQualitySweepOutputOptions(ruleDefinition);
-        WriteQualitySweepOutputs(tournamentQualitySweepReportData, outputOptions);
+        var outputOptions = ReadTournamentQualitySweepReportOutputOptions(ruleDefinition);
+        WriteTournamentQualitySweepReportOutputs(tournamentQualitySweepReportData, outputOptions);
     }
 
     static TournamentQualitySweepReportData ExecuteTournamentQualitySweepReport(

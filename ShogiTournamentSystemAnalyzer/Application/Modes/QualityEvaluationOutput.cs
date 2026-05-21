@@ -3,7 +3,12 @@ using System.Globalization;
 
 internal static partial class Program
 {
-    static void PrintQualityEvaluationContext(
+    /// <summary>
+    /// ［大会品質評価フロー］
+    /// </summary>
+    /// <param name="input"></param>
+    /// <param name="ruleDefinition"></param>
+    static void PrintTournamentQualityEvaluationContext(
         QualityEvaluationInput input,
         QualityEvaluationRuleDefinition ruleDefinition)
     {
@@ -25,7 +30,12 @@ internal static partial class Program
         }
     }
 
-    static QualityEvaluationOutputOptions ReadQualitySummaryOutputOptions(QualityEvaluationRuleDefinition ruleDefinition)
+    /// <summary>
+    /// ［大会品質レポート］
+    /// </summary>
+    /// <param name="ruleDefinition"></param>
+    /// <returns></returns>
+    static QualityEvaluationOutputOptions ReadTournamentQualityReportOutputOptions(QualityEvaluationRuleDefinition ruleDefinition)
     {
         var reportGroupingOptions = ReadExperimentalReportGroupingOptions();
         var defaultOutputCsvPath = BuildQualitySummaryDefaultOutputPath(
@@ -40,7 +50,12 @@ internal static partial class Program
         return new QualityEvaluationOutputOptions(reportGroupingOptions, outputCsvPath);
     }
 
-    static QualityEvaluationOutputOptions ReadQualitySweepOutputOptions(QualityEvaluationRuleDefinition ruleDefinition)
+    /// <summary>
+    /// ［大会品質レポート］
+    /// </summary>
+    /// <param name="ruleDefinition"></param>
+    /// <returns></returns>
+    static QualityEvaluationOutputOptions ReadTournamentQualitySweepReportOutputOptions(QualityEvaluationRuleDefinition ruleDefinition)
     {
         var reportGroupingOptions = ReadExperimentalReportGroupingOptions();
         var defaultOutputCsvPath = BuildQualitySweepDefaultOutputPath(
@@ -55,7 +70,12 @@ internal static partial class Program
         return new QualityEvaluationOutputOptions(reportGroupingOptions, outputCsvPath);
     }
 
-    static void WriteQualityEvaluationOutputs(
+    /// <summary>
+    /// ［大会品質レポート］
+    /// </summary>
+    /// <param name="tournamentQualityReportData"></param>
+    /// <param name="outputOptions"></param>
+    static void WriteTournamentQualityReportOutputs(
         TournamentQualityReportData tournamentQualityReportData,
         QualityEvaluationOutputOptions outputOptions)
     {
@@ -85,7 +105,12 @@ internal static partial class Program
         Console.WriteLine($"品質評価サマリーMarkdownを出力しました: {summaryMarkdownPath}");
     }
 
-    static void WriteQualitySweepOutputs(
+    /// <summary>
+    /// ［大会品質レポート］
+    /// </summary>
+    /// <param name="tournamentQualitySweepReportData"></param>
+    /// <param name="outputOptions"></param>
+    static void WriteTournamentQualitySweepReportOutputs(
         TournamentQualitySweepReportData tournamentQualitySweepReportData,
         QualityEvaluationOutputOptions outputOptions)
     {
@@ -102,6 +127,10 @@ internal static partial class Program
         Console.WriteLine($"n%スイープ結果Markdownを出力しました: {sweepMarkdownPath}");
     }
 
+    /// <summary>
+    /// ［大会品質レポート］
+    /// </summary>
+    /// <param name="sweepRows"></param>
     static void PrintTournamentQualitySweepReportTable(IReadOnlyList<TournamentQualitySweepReportRow> sweepRows)
     {
         Console.WriteLine("n%スイープ結果:");
