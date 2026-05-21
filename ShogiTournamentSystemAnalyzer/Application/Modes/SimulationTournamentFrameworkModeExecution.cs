@@ -59,18 +59,29 @@ internal static partial class Program
 
         // ［実行結果］
         var executionResult = aggregateResult.RepresentativeExecutionResult;
+
+        // ［選手一覧データ］
         var playerListData = new PlayerListData(players);
+
+        // ［順位設定データ］
         var rankingSettingsData = new RankingSettingsData(
             context.TournamentRuleSetMode,
             IsIntermediate: false,
             Note: "大会進行フレームワークの最終順位設定データ");
+
+        // ［大会結果データ］
         var tournamentResultData = executionResult.ToTournamentResultData();
+
+        // ［最終順位データ］
         var finalRankingData = executionResult.ToFinalRankingData();
 
+        // ［大会進行フレームワークで使用する標準的な選手・対局表］
         var standardPlayers = playerListData.Players
             .OrderBy(player => player.PlayerId)
             .Select(player => new Player(player.Name, player.Rating))
             .ToArray();
+
+        // 大会進行フレームワークの順位ルールで対局結果を反映させるための標準的な対局表を作成する。これをもとに順位ルールのロジックを適用して、代表実行の順位表と同じ形式の順位表を作成する。
         var playerIndexById = playerListData.Players
             .OrderBy(player => player.PlayerId)
             .Select((player, index) => new { player.PlayerId, index })
