@@ -1,12 +1,12 @@
 /*
- * ［大会品質評価］の実行
+ * ［大会品質評価フロー］の実行
  */
 using ShogiTournamentSystemAnalyzer.Infrastructure.Csv;
 
 internal static partial class Program
 {
     /// <summary>
-    /// ［大会品質評価］の実行。単発評価か n% スイープ実験のどちらかを選択して実行します。
+    /// ［大会品質評価フロー］の実行。単発評価か n% スイープ実験のどちらかを選択して実行します。
     /// </summary>
     /// <param name="input"></param>
     /// <param name="ruleDefinition"></param>
@@ -28,6 +28,13 @@ internal static partial class Program
         WriteTournamentQualitySweepReportOutputs(tournamentQualitySweepReportData, outputOptions);
     }
 
+    /// <summary>
+    /// ［大会品質評価フロー］を実行して［大会品質レポート（スイープ）］を返す。
+    /// </summary>
+    /// <param name="input"></param>
+    /// <param name="ruleDefinition"></param>
+    /// <param name="executionOptions"></param>
+    /// <returns></returns>
     static TournamentQualitySweepReportData ExecuteTournamentQualitySweepReport(
         QualityEvaluationInput input,
         QualityEvaluationRuleDefinition ruleDefinition,
