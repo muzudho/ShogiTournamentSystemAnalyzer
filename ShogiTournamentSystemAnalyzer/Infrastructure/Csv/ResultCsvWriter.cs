@@ -601,22 +601,25 @@ internal static partial class Program
 
     static IEnumerable<string> CreateResultCsv(string mode, double firstPlayerWinRatePercent, IReadOnlyList<ResultRow> resultRows, string? overviewNote = null)
     {
-        var lines = new List<string>();
+        // ----------------------------------------
+        // ヘッダー行
+        // ----------------------------------------
+
         var headerColumns = new List<string>
-                {
-                    "calculationMode",
-                    "firstPlayerWinRatePercent",
-                    "playerName",
-                    "originalElo",
-                    "effectiveElo",
-                    "eloDelta",
-                    "firstPlayerCount",
-                    "secondPlayerCount",
-                    "firstPlayerWinRatePercent",
-                    "secondPlayerWinRatePercent",
-                    "championshipProbabilityPercent",
-                    "averagePlace"
-                };
+        {
+            "calculationMode",
+            "firstPlayerWinRatePercent",
+            "playerName",
+            "originalElo",
+            "effectiveElo",
+            "eloDelta",
+            "firstPlayerCount",
+            "secondPlayerCount",
+            "firstPlayerWinRatePercent",
+            "secondPlayerWinRatePercent",
+            "championshipProbabilityPercent",
+            "averagePlace"
+        };
 
         if (!string.IsNullOrWhiteSpace(overviewNote))
         {
@@ -635,25 +638,30 @@ internal static partial class Program
             }
         }
 
+        var lines = new List<string>();
         lines.Add(string.Join(",", headerColumns.Select(EscapeCsv)));
+
+        // ----------------------------------------
+        // ボディ行
+        // ----------------------------------------
 
         foreach (var row in resultRows)
         {
             var columns = new List<string>
-                    {
-                        mode,
-                        firstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture),
-                        row.Name,
-                        FormatRating(row.OriginalRating),
-                        FormatRating(row.EffectiveRating),
-                        FormatSignedRating(row.RatingDelta),
-                        row.FirstPlayerCount.ToString(CultureInfo.InvariantCulture),
-                        row.SecondPlayerCount.ToString(CultureInfo.InvariantCulture),
-                        FormatOptionalPercentValue(row.FirstPlayerWinRate),
-                        FormatOptionalPercentValue(row.SecondPlayerWinRate),
-                        (row.ChampionshipProbability * 100).ToString("F2", CultureInfo.InvariantCulture),
-                        row.AveragePlace.ToString("F3", CultureInfo.InvariantCulture)
-                    };
+            {
+                mode,
+                firstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture),
+                row.Name,
+                FormatRating(row.OriginalRating),
+                FormatRating(row.EffectiveRating),
+                FormatSignedRating(row.RatingDelta),
+                row.FirstPlayerCount.ToString(CultureInfo.InvariantCulture),
+                row.SecondPlayerCount.ToString(CultureInfo.InvariantCulture),
+                FormatOptionalPercentValue(row.FirstPlayerWinRate),
+                FormatOptionalPercentValue(row.SecondPlayerWinRate),
+                (row.ChampionshipProbability * 100).ToString("F2", CultureInfo.InvariantCulture),
+                row.AveragePlace.ToString("F3", CultureInfo.InvariantCulture)
+            };
 
             if (!string.IsNullOrWhiteSpace(overviewNote))
             {
@@ -777,25 +785,28 @@ internal static partial class Program
 
     static IEnumerable<string> CreateFinalStageResultCsv(string outputCsvPath, string mode, double firstPlayerWinRatePercent, IReadOnlyList<FinalStageResultRow> resultRows)
     {
-        var lines = new List<string>();
+        // ----------------------------------------
+        // ヘッダー行
+        // ----------------------------------------
+
         var headerColumns = new List<string>
-                {
-                    "calculationMode",
-                    "firstPlayerWinRatePercent",
-                    "playerName",
-                    "group",
-                    "originalElo",
-                    "effectiveElo",
-                    "eloDelta",
-                    "firstPlayerCount",
-                    "secondPlayerCount",
-                    "firstPlayerWinRatePercent",
-                    "secondPlayerWinRatePercent",
-                    "groupPlace1ProbabilityPercent",
-                    "groupPlaceAverage",
-                    "overallPlace1ProbabilityPercent",
-                    "overallPlaceAverage"
-                };
+        {
+            "calculationMode",
+            "firstPlayerWinRatePercent",
+            "playerName",
+            "group",
+            "originalElo",
+            "effectiveElo",
+            "eloDelta",
+            "firstPlayerCount",
+            "secondPlayerCount",
+            "firstPlayerWinRatePercent",
+            "secondPlayerWinRatePercent",
+            "groupPlace1ProbabilityPercent",
+            "groupPlaceAverage",
+            "overallPlace1ProbabilityPercent",
+            "overallPlaceAverage"
+        };
 
         if (resultRows.Count > 0)
         {
@@ -809,28 +820,33 @@ internal static partial class Program
             }
         }
 
+        var lines = new List<string>();
         lines.Add(string.Join(",", headerColumns.Select(EscapeCsv)));
+
+        // ----------------------------------------
+        // ボディ行
+        // ----------------------------------------
 
         foreach (var row in resultRows)
         {
             var columns = new List<string>
-                    {
-                        mode,
-                        firstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture),
-                        row.Name,
-                        row.Group,
-                        FormatRating(row.OriginalRating),
-                        FormatRating(row.EffectiveRating),
-                        FormatSignedRating(row.RatingDelta),
-                        row.FirstPlayerCount.ToString(CultureInfo.InvariantCulture),
-                        row.SecondPlayerCount.ToString(CultureInfo.InvariantCulture),
-                        FormatOptionalPercentValue(row.FirstPlayerWinRate),
-                        FormatOptionalPercentValue(row.SecondPlayerWinRate),
-                        (row.GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture),
-                        row.GroupPlaceAverage.ToString("F3", CultureInfo.InvariantCulture),
-                        (row.OverallPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture),
-                        row.OverallPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)
-                    };
+            {
+                mode,
+                firstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture),
+                row.Name,
+                row.Group,
+                FormatRating(row.OriginalRating),
+                FormatRating(row.EffectiveRating),
+                FormatSignedRating(row.RatingDelta),
+                row.FirstPlayerCount.ToString(CultureInfo.InvariantCulture),
+                row.SecondPlayerCount.ToString(CultureInfo.InvariantCulture),
+                FormatOptionalPercentValue(row.FirstPlayerWinRate),
+                FormatOptionalPercentValue(row.SecondPlayerWinRate),
+                (row.GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture),
+                row.GroupPlaceAverage.ToString("F3", CultureInfo.InvariantCulture),
+                (row.OverallPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture),
+                row.OverallPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)
+            };
 
             for (var place = 0; place < row.PlaceProbabilities.Length; place++)
             {
@@ -1008,11 +1024,19 @@ internal static partial class Program
         var stageNameById = stages.ToDictionary(stage => stage.StageId, stage => stage.StageName);
         var playerNameById = players.ToDictionary(player => player.PlayerId, player => player.Name);
         var lines = new List<string>
-                {
-                    string.IsNullOrWhiteSpace(overviewNote)
-                        ? "matchId,stageId,stageName,firstPlayerId,firstPlayerName,secondPlayerId,secondPlayerName,startTime,endTime,status,resultType,roundNo"
-                        : "matchId,stageId,stageName,firstPlayerId,firstPlayerName,secondPlayerId,secondPlayerName,startTime,endTime,status,resultType,roundNo,note"
-                };
+        {
+            // ----------------------------------------
+            // ヘッダー行
+            // ----------------------------------------
+
+            string.IsNullOrWhiteSpace(overviewNote)
+                ? "matchId,stageId,stageName,firstPlayerId,firstPlayerName,secondPlayerId,secondPlayerName,startTime,endTime,status,resultType,roundNo"
+                : "matchId,stageId,stageName,firstPlayerId,firstPlayerName,secondPlayerId,secondPlayerName,startTime,endTime,status,resultType,roundNo,note"
+        };
+
+        // ----------------------------------------
+        // ボディ行
+        // ----------------------------------------
 
         foreach (var match in matchRecords.OrderBy(match => match.StartTime).ThenBy(match => match.MatchId))
         {

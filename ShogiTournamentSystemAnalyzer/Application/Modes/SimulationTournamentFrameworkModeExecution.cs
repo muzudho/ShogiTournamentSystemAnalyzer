@@ -70,10 +70,10 @@ internal static partial class Program
         var rankingSettingsData = BuildRankingSettingsData(tournamentRuleData);
 
         // ［大会結果データ］
-        var tournamentResultData = executionResult.ToTournamentResultData();
+        var tournamentResultData = BuildTournamentResultData(executionResult);
 
         // ［最終順位データ］
-        var finalRankingData = executionResult.ToFinalRankingData();
+        var finalRankingData = BuildFinalRankingData(executionResult);
 
         // ［大会進行フレームワークで使用する標準的な選手・対局表］
         var standardPlayers = playerListData.Players

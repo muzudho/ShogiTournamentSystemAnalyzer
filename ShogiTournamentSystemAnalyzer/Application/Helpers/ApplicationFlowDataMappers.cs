@@ -25,4 +25,21 @@ internal static partial class Program
             IsIntermediate: false,
             Note: "大会進行フレームワークの最終順位設定データ");
     }
+
+    static TournamentResultData BuildTournamentResultData(TournamentFrameworkExecutionResult executionResult)
+    {
+        return new TournamentResultData(
+            executionResult.FinalState.MatchRecords,
+            executionResult.FinalState.CurrentTime,
+            executionResult.TickCount,
+            executionResult.CompletedNaturally);
+    }
+
+    static FinalRankingData BuildFinalRankingData(TournamentFrameworkExecutionResult executionResult)
+    {
+        return new FinalRankingData(
+            executionResult.OverallRanking,
+            IsIntermediate: false,
+            Note: "大会進行フレームワークの最終順位データ");
+    }
 }
