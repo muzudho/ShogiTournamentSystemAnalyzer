@@ -125,30 +125,33 @@ internal static partial class Program
     /// 
     /// </summary>
     /// <param name="outputMarkdownPath"></param>
-    /// <param name="qualityEvaluationRun"></param>
+    /// <param name="playerRows"></param>
+    /// <param name="summary"></param>
+    /// <param name="calculationMode"></param>
     /// <param name="summaryCsvPath"></param>
     /// <param name="playerCsvPath"></param>
     /// <param name="options"></param>
     /// <returns></returns>
     static IEnumerable<string> CreateQualitySummaryMarkdown(
         string outputMarkdownPath,
-        QualityEvaluationRun qualityEvaluationRun,
+        IReadOnlyList<QualityPlayerRow> playerRows,
+        QualitySummary summary,
+        string calculationMode,
         string summaryCsvPath,
         string playerCsvPath,
         ExperimentalReportGroupingOptions options)
     {
-        var summary = qualityEvaluationRun.Summary;
-        var topPenalizedPlayers = qualityEvaluationRun.PlayerRows
+        var topPenalizedPlayers = playerRows
             .OrderByDescending(row => row.OverallPlaceDeltaFromEloRank)
             .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
             .Take(3)
             .ToArray();
-        var topAdvantagedPlayers = qualityEvaluationRun.PlayerRows
+        var topAdvantagedPlayers = playerRows
             .OrderBy(row => row.OverallPlaceDeltaFromEloRank)
             .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
             .Take(3)
             .ToArray();
-        var bestTop1Row = qualityEvaluationRun.PlayerRows
+        var bestTop1Row = playerRows
             .OrderByDescending(row => row.OverallTop1Probability)
             .ThenBy(row => row.ExpectedOverallPlace)
             .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
@@ -159,8 +162,8 @@ internal static partial class Program
                     "# 品質評価サマリーレポート",
                     string.Empty,
                     "## 概要",
-                    $"- 計算モード: {qualityEvaluationRun.CalculationMode}",
-                    $"- 対象選手数: {qualityEvaluationRun.PlayerRows.Count}",
+                    $"- 計算モード: {calculationMode}",
+                    $"- 対象選手数: {playerRows.Count}",
                     $"- サマリーCSV: {BuildMarkdownFileLink(outputMarkdownPath, summaryCsvPath)}",
                     $"- 選手別CSV: {BuildMarkdownFileLink(outputMarkdownPath, playerCsvPath)}"
                 };
@@ -209,9 +212,9 @@ internal static partial class Program
 
         lines.AddRange(topAdvantagedPlayers.Select(BuildQualityPlayerMarkdownRow));
 
-        if (qualityEvaluationRun.PlayerRows.Count > 0)
+        if (playerRows.Count > 0)
         {
-            var chartRows = qualityEvaluationRun.PlayerRows
+            var chartRows = playerRows
                 .OrderBy(row => row.EloRank)
                 .Take(8)
                 .ToArray();
@@ -224,7 +227,7 @@ internal static partial class Program
                         "xychart-beta",
                         "    title \"Elo上位8名の期待総合順位\"",
                         "    x-axis [" + BuildMermaidCategoryList(chartRows.Select(row => row.Name)) + "]",
-                        "    y-axis \"期待総合順位\" 1 --> " + Math.Max(8, qualityEvaluationRun.PlayerRows.Count).ToString(CultureInfo.InvariantCulture),
+                        "    y-axis \"期待総合順位\" 1 --> " + Math.Max(8, playerRows.Count).ToString(CultureInfo.InvariantCulture),
                         "    bar [" + string.Join(", ", chartRows.Select(row => row.ExpectedOverallPlace.ToString("F3", CultureInfo.InvariantCulture))) + "]",
                         "```",
                         string.Empty,

@@ -13,6 +13,11 @@ internal static partial class Program
         Console.WriteLine($"- 最大利益: {summary.MostAdvantagedPlayerName} ({summary.MostAdvantagedDelta.ToString("+0.000;-0.000;0.000", CultureInfo.InvariantCulture)})\n");
     }
 
+    static void PrintTournamentQualityReportSummary(TournamentQualityReportData tournamentQualityReportData)
+    {
+        PrintQualitySummary(tournamentQualityReportData.Summary);
+    }
+
     static void PrintQualityPlayerHighlights(IReadOnlyList<QualityPlayerRow> playerRows)
     {
         Console.WriteLine("品質評価 選手別ハイライト:");
@@ -30,6 +35,11 @@ internal static partial class Program
         }
 
         Console.WriteLine();
+    }
+
+    static void PrintTournamentQualityReportPlayerHighlights(TournamentQualityReportData tournamentQualityReportData)
+    {
+        PrintQualityPlayerHighlights(tournamentQualityReportData.PlayerRows);
     }
 
     static void PrintResult(int playerCount, CalculationResult result, double firstPlayerWinRatePercent, IReadOnlyList<ResultRow> resultRows)

@@ -33,15 +33,14 @@ internal static partial class Program
             return;
         }
 
-        var qualityEvaluationRun = ExecuteQualityEvaluationRun(
+        var tournamentQualityReportData = ExecuteTournamentQualityReport(
             input,
             ruleDefinition,
             executionOptions);
-        var tournamentQualityReportData = BuildTournamentQualityReportData(qualityEvaluationRun);
 
-        PrintQualitySummary(qualityEvaluationRun.Summary);
-        PrintQualityPlayerHighlights(qualityEvaluationRun.PlayerRows);
-        if (qualityEvaluationRun.CalculationMode.Contains("時間切れ", StringComparison.Ordinal))
+        PrintTournamentQualityReportSummary(tournamentQualityReportData);
+        PrintTournamentQualityReportPlayerHighlights(tournamentQualityReportData);
+        if (tournamentQualityReportData.CalculationMode.Contains("時間切れ", StringComparison.Ordinal))
         {
             Console.WriteLine($"シミュレーションは時間上限 {SimulationTimeLimit.TotalMinutes:F0} 分で打ち切りました。\n");
         }

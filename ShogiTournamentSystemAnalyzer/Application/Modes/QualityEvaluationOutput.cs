@@ -61,17 +61,24 @@ internal static partial class Program
     {
         WriterHelper.WriteText(
             outputPath: outputOptions.OutputCsvPath,
-            getLines: () => CreateQualitySummaryCsv(tournamentQualityReportData.EvaluationRun.Summary, outputOptions.ReportGroupingOptions));
+            getLines: () => CreateQualitySummaryCsv(tournamentQualityReportData.Summary, outputOptions.ReportGroupingOptions));
 
         var playerCsvPath = BuildSiblingOutputCsvPath(outputOptions.OutputCsvPath, "quality_players");
         WriterHelper.WriteText(
             outputPath: playerCsvPath,
-            getLines: () => CreateQualityPlayerCsv(tournamentQualityReportData.EvaluationRun.PlayerRows));
+            getLines: () => CreateQualityPlayerCsv(tournamentQualityReportData.PlayerRows));
 
         var summaryMarkdownPath = ChangeOutputExtension(outputOptions.OutputCsvPath, ".md");
         WriterHelper.WriteText(
             outputPath: summaryMarkdownPath,
-            getLines: () => CreateQualitySummaryMarkdown(summaryMarkdownPath, tournamentQualityReportData.EvaluationRun, outputOptions.OutputCsvPath, playerCsvPath, outputOptions.ReportGroupingOptions));
+            getLines: () => CreateQualitySummaryMarkdown(
+                summaryMarkdownPath,
+                tournamentQualityReportData.PlayerRows,
+                tournamentQualityReportData.Summary,
+                tournamentQualityReportData.CalculationMode,
+                outputOptions.OutputCsvPath,
+                playerCsvPath,
+                outputOptions.ReportGroupingOptions));
 
         Console.WriteLine($"品質評価サマリーCSVを出力しました: {outputOptions.OutputCsvPath}");
         Console.WriteLine($"品質評価選手別CSVを出力しました: {playerCsvPath}");

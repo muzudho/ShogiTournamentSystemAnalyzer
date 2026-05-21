@@ -60,6 +60,10 @@ sealed record class FinalRankingData(
 /// <summary>
 /// ［大会品質レポート］だ。
 /// </summary>
-/// <param name="EvaluationRun"></param>
+/// <param name="PlayerRows"></param>
+/// <param name="Summary"></param>
+/// <param name="CalculationMode"></param>
 sealed record class TournamentQualityReportData(
-    QualityEvaluationRun EvaluationRun);
+    IReadOnlyList<QualityPlayerRow> PlayerRows,
+    QualitySummary Summary,
+    string CalculationMode);

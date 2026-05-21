@@ -45,6 +45,9 @@ internal static partial class Program
 
     static TournamentQualityReportData BuildTournamentQualityReportData(QualityEvaluationRun qualityEvaluationRun)
     {
-        return new TournamentQualityReportData(qualityEvaluationRun);
+        return new TournamentQualityReportData(
+            qualityEvaluationRun.PlayerRows,
+            qualityEvaluationRun.Summary,
+            qualityEvaluationRun.CalculationMode);
     }
 }

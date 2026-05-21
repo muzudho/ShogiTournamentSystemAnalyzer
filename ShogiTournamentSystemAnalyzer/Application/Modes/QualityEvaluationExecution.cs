@@ -83,6 +83,15 @@ internal static partial class Program
         return new QualityEvaluationRun(qualityPlayerRows, qualitySummary, result.Mode);
     }
 
+    static TournamentQualityReportData ExecuteTournamentQualityReport(
+        QualityEvaluationInput input,
+        QualityEvaluationRuleDefinition ruleDefinition,
+        QualityEvaluationExecutionOptions executionOptions)
+    {
+        var qualityEvaluationRun = ExecuteQualityEvaluationRun(input, ruleDefinition, executionOptions);
+        return BuildTournamentQualityReportData(qualityEvaluationRun);
+    }
+
     static QualityEvaluationExecutionOptions ReadQualityEvaluationExecutionOptions(
         QualityEvaluationInput input,
         QualityEvaluationRuleDefinition ruleDefinition)
