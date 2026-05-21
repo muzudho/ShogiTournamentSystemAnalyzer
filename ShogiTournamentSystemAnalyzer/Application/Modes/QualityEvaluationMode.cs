@@ -37,6 +37,7 @@ internal static partial class Program
             input,
             ruleDefinition,
             executionOptions);
+        var tournamentQualityReportData = BuildTournamentQualityReportData(qualityEvaluationRun);
 
         PrintQualitySummary(qualityEvaluationRun.Summary);
         PrintQualityPlayerHighlights(qualityEvaluationRun.PlayerRows);
@@ -46,7 +47,7 @@ internal static partial class Program
         }
 
         var outputOptions = ReadQualitySummaryOutputOptions(ruleDefinition);
-        WriteQualityEvaluationOutputs(qualityEvaluationRun, outputOptions);
+        WriteQualityEvaluationOutputs(tournamentQualityReportData, outputOptions);
     }
 
     static bool TryReadQualityEvaluationRuleDefinition(

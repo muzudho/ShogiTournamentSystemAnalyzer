@@ -56,22 +56,22 @@ internal static partial class Program
     }
 
     static void WriteQualityEvaluationOutputs(
-        QualityEvaluationRun qualityEvaluationRun,
+        TournamentQualityReportData tournamentQualityReportData,
         QualityEvaluationOutputOptions outputOptions)
     {
         WriterHelper.WriteText(
             outputPath: outputOptions.OutputCsvPath,
-            getLines: () => CreateQualitySummaryCsv(qualityEvaluationRun.Summary, outputOptions.ReportGroupingOptions));
+            getLines: () => CreateQualitySummaryCsv(tournamentQualityReportData.EvaluationRun.Summary, outputOptions.ReportGroupingOptions));
 
         var playerCsvPath = BuildSiblingOutputCsvPath(outputOptions.OutputCsvPath, "quality_players");
         WriterHelper.WriteText(
             outputPath: playerCsvPath,
-            getLines: () => CreateQualityPlayerCsv(qualityEvaluationRun.PlayerRows));
+            getLines: () => CreateQualityPlayerCsv(tournamentQualityReportData.EvaluationRun.PlayerRows));
 
         var summaryMarkdownPath = ChangeOutputExtension(outputOptions.OutputCsvPath, ".md");
         WriterHelper.WriteText(
             outputPath: summaryMarkdownPath,
-            getLines: () => CreateQualitySummaryMarkdown(summaryMarkdownPath, qualityEvaluationRun, outputOptions.OutputCsvPath, playerCsvPath, outputOptions.ReportGroupingOptions));
+            getLines: () => CreateQualitySummaryMarkdown(summaryMarkdownPath, tournamentQualityReportData.EvaluationRun, outputOptions.OutputCsvPath, playerCsvPath, outputOptions.ReportGroupingOptions));
 
         Console.WriteLine($"品質評価サマリーCSVを出力しました: {outputOptions.OutputCsvPath}");
         Console.WriteLine($"品質評価選手別CSVを出力しました: {playerCsvPath}");
