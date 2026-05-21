@@ -3,6 +3,7 @@
 ## 一般ガイドライン
 - 反復作業の抑制を必須としない。必要なら通常どおり反復作業を継続する。
 - この開発環境では `run_build` と `rg` コマンドが使えない場合があるため、コンパイル確認には `dotnet build` を優先し、ワークスペース調査は組み込みの検索ツールを優先する。
+- ドキュメントのみの変更では、原則としてビルド確認を省略する。ビルド確認が必要な場合は上記の手順に従う。
 
 ## プロジェクト ガイドライン
 - README は利用者の導線を優先し、最初の 1 回を通すための入口として構成する。特に冒頭では『何のツールか』『起動方法』『大会ルールの入力方法』を先に案内し、思想・背景・用語の重い説明はサブドキュメントへ分離する。
@@ -39,4 +40,4 @@
 
 ## Experimental Improvement Reports
 - Experimental improvement reports should be kept separated by good/bad outcome.
-- The behavior of the reports should be switchable with an On/Off option to prevent mixing results.- The behavior of the reports should be switchable with an On/Off option to prevent mixing results.
+- The behavior of the reports should be switchable with an On/Off option to prevent mixing results。
