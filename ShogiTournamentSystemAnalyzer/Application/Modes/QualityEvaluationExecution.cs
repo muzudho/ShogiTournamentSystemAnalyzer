@@ -1,8 +1,34 @@
+/*
+ * ［大会品質評価］の実行
+ */
 using ShogiTournamentSystemAnalyzer.Infrastructure.Csv;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// ［大会品質評価］の実行。単発評価か n% スイープ実験のどちらかを選択して実行します。
+    /// </summary>
+    /// <param name="input"></param>
+    /// <param name="ruleDefinition"></param>
+    /// <param name="executionOptions"></param>
     static void RunQualitySweepExperiment(
+        QualityEvaluationInput input,
+        QualityEvaluationRuleDefinition ruleDefinition,
+        QualityEvaluationExecutionOptions executionOptions)
+    {
+        var tournamentQualitySweepReportData = ExecuteTournamentQualitySweepReport(input, ruleDefinition, executionOptions);
+
+        PrintTournamentQualitySweepReport(tournamentQualitySweepReportData);
+        if (tournamentQualitySweepReportData.StoppedByTimeout)
+        {
+            Console.WriteLine($"シミュレーションは時間上限 {SimulationTimeLimit.TotalMinutes:F0} 分で打ち切ったため、n% スイープは途中で終了しました。\n");
+        }
+
+        var outputOptions = ReadQualitySweepOutputOptions(ruleDefinition);
+        WriteQualitySweepOutputs(tournamentQualitySweepReportData, outputOptions);
+    }
+
+    static TournamentQualitySweepReportData ExecuteTournamentQualitySweepReport(
         QualityEvaluationInput input,
         QualityEvaluationRuleDefinition ruleDefinition,
         QualityEvaluationExecutionOptions executionOptions)
@@ -35,26 +61,18 @@ internal static partial class Program
             }
         }
 
-        PrintQualitySweepRows(sweepRows);
-        if (stoppedByTimeout)
-        {
-            Console.WriteLine($"シミュレーションは時間上限 {SimulationTimeLimit.TotalMinutes:F0} 分で打ち切ったため、n% スイープは途中で終了しました。\n");
-        }
-
-        var outputOptions = ReadQualitySweepOutputOptions(ruleDefinition);
-        WriterHelper.WriteText(
-            outputPath: outputOptions.OutputCsvPath,
-            getLines: () => CreateQualitySweepCsv(sweepRows, outputOptions.ReportGroupingOptions));
-
-        var sweepMarkdownPath = ChangeOutputExtension(outputOptions.OutputCsvPath, ".md");
-        WriterHelper.WriteText(
-            outputPath: sweepMarkdownPath,
-            getLines: () => CreateQualitySweepMarkdown(sweepMarkdownPath, sweepRows, outputOptions.OutputCsvPath, outputOptions.ReportGroupingOptions));
-
-        Console.WriteLine($"n%スイープ結果CSVを出力しました: {outputOptions.OutputCsvPath}");
-        Console.WriteLine($"n%スイープ結果Markdownを出力しました: {sweepMarkdownPath}");
+        return BuildTournamentQualitySweepReportData(sweepRows, stoppedByTimeout);
     }
 
+    /// <summary>
+    /// Executes a quality evaluation run by calculating tournament outcomes using the specified input data, rule
+    /// definition, and execution options.
+    /// </summary>
+    /// <param name="input">The quality evaluation input containing participants and matches to evaluate.</param>
+    /// <param name="ruleDefinition">The tournament rule definition specifying grouping mode, boundary rescue settings, and other tournament
+    /// parameters.</param>
+    /// <param name="executionOptions">The execution options controlling simulation count and first player win rate percentage.</param>
+    /// <returns>A completed quality evaluation run containing player rows, quality summary, and the calculation mode used.</returns>
     static QualityEvaluationRun ExecuteQualityEvaluationRun(
         QualityEvaluationInput input,
         QualityEvaluationRuleDefinition ruleDefinition,

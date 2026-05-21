@@ -50,4 +50,11 @@ internal static partial class Program
             qualityEvaluationRun.Summary,
             qualityEvaluationRun.CalculationMode);
     }
+
+    static TournamentQualitySweepReportData BuildTournamentQualitySweepReportData(
+        IReadOnlyList<QualitySweepRow> sweepRows,
+        bool stoppedByTimeout)
+    {
+        return new TournamentQualitySweepReportData(sweepRows, stoppedByTimeout);
+    }
 }

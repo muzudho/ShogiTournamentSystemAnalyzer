@@ -1,3 +1,7 @@
+/*
+ * ［品質評価］のモデル定義
+ */
+
 /// <summary>
 /// ［品質評価　＞　選手の行］だ。
 /// </summary>
@@ -20,7 +24,7 @@ readonly record struct QualityPlayerRow(
     double OverallTop8Probability);
 
 /// <summary>
-/// ［品質評価　＞　集計］だ。
+/// ［品質評価　＞　合計］だ。
 /// </summary>
 /// <param name="SpearmanCorrelation"></param>
 /// <param name="MeanAbsoluteRankError"></param>
@@ -43,9 +47,9 @@ readonly record struct QualitySummary(
 /// <summary>
 /// ［品質評価　＞　実行］だ。
 /// </summary>
-/// <param name="PlayerRows"></param>
-/// <param name="Summary"></param>
-/// <param name="CalculationMode"></param>
+/// <param name="PlayerRows">品質評価での選手の各行</param>
+/// <param name="Summary">品質評価の合計</param>
+/// <param name="CalculationMode">計算モード</param>
 readonly record struct QualityEvaluationRun(
     IReadOnlyList<QualityPlayerRow> PlayerRows,
     QualitySummary Summary,

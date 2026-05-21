@@ -1,22 +1,26 @@
+/*
+ * ［大会］に関する構造体定義
+ */
+
 /// <summary>
 /// ［選手］だ。
 /// </summary>
-/// <param name="Name"></param>
-/// <param name="Rating"></param>
+/// <param name="Name">選手名</param>
+/// <param name="Rating">選手のレーティング</param>
 readonly record struct Player(string Name, double Rating);
 
 /// <summary>
 /// ［対局者のペア］だ。
 /// </summary>
-/// <param name="FirstPlayer"></param>
-/// <param name="SecondPlayer"></param>
+/// <param name="FirstPlayer">先手選手</param>
+/// <param name="SecondPlayer">後手選手</param>
 readonly record struct Match(int FirstPlayer, int SecondPlayer);
 
 /// <summary>
 /// 選手の［勝ち星数］だ。
 /// </summary>
-/// <param name="PlayerIndex"></param>
-/// <param name="Wins"></param>
+/// <param name="PlayerIndex">選手インデックス</param>
+/// <param name="Wins">勝ち星数</param>
 readonly record struct PlayerScore(int PlayerIndex, int Wins);
 
 /// <summary>

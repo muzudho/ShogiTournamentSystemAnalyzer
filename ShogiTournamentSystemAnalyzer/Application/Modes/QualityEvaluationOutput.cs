@@ -85,6 +85,23 @@ internal static partial class Program
         Console.WriteLine($"品質評価サマリーMarkdownを出力しました: {summaryMarkdownPath}");
     }
 
+    static void WriteQualitySweepOutputs(
+        TournamentQualitySweepReportData tournamentQualitySweepReportData,
+        QualityEvaluationOutputOptions outputOptions)
+    {
+        WriterHelper.WriteText(
+            outputPath: outputOptions.OutputCsvPath,
+            getLines: () => CreateQualitySweepCsv(tournamentQualitySweepReportData.SweepRows, outputOptions.ReportGroupingOptions));
+
+        var sweepMarkdownPath = ChangeOutputExtension(outputOptions.OutputCsvPath, ".md");
+        WriterHelper.WriteText(
+            outputPath: sweepMarkdownPath,
+            getLines: () => CreateQualitySweepMarkdown(sweepMarkdownPath, tournamentQualitySweepReportData.SweepRows, outputOptions.OutputCsvPath, outputOptions.ReportGroupingOptions));
+
+        Console.WriteLine($"n%スイープ結果CSVを出力しました: {outputOptions.OutputCsvPath}");
+        Console.WriteLine($"n%スイープ結果Markdownを出力しました: {sweepMarkdownPath}");
+    }
+
     static void PrintQualitySweepRows(IReadOnlyList<QualitySweepRow> sweepRows)
     {
         Console.WriteLine("n%スイープ結果:");

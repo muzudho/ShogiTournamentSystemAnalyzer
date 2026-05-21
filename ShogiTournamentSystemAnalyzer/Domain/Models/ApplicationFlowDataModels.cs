@@ -67,3 +67,12 @@ sealed record class TournamentQualityReportData(
     IReadOnlyList<QualityPlayerRow> PlayerRows,
     QualitySummary Summary,
     string CalculationMode);
+
+/// <summary>
+/// ［大会品質スイープレポート］だ。
+/// </summary>
+/// <param name="SweepRows"></param>
+/// <param name="StoppedByTimeout"></param>
+sealed record class TournamentQualitySweepReportData(
+    IReadOnlyList<QualitySweepRow> SweepRows,
+    bool StoppedByTimeout);

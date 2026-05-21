@@ -42,6 +42,11 @@ internal static partial class Program
         PrintQualityPlayerHighlights(tournamentQualityReportData.PlayerRows);
     }
 
+    static void PrintTournamentQualitySweepReport(TournamentQualitySweepReportData tournamentQualitySweepReportData)
+    {
+        PrintQualitySweepRows(tournamentQualitySweepReportData.SweepRows);
+    }
+
     static void PrintResult(int playerCount, CalculationResult result, double firstPlayerWinRatePercent, IReadOnlyList<ResultRow> resultRows)
     {
         Console.WriteLine($"計算方法: {result.Mode}\n");
