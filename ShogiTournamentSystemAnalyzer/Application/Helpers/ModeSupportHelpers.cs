@@ -13,7 +13,7 @@ internal static class ModeSupportHelpers
     {
         if (groupingMode == FinalStageGroupingMode.Off) return null;
 
-        return Program.ReadFinalStageGroupMap();
+        return ConsoleInputReaders.ReadFinalStageGroupMap();
     }
 
     internal static (List<Player> Participants, List<Match> Matches) FilterToScheduledParticipants(IReadOnlyList<Player> participants, IReadOnlyList<Match> matches)

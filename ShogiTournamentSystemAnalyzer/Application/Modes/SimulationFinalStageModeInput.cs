@@ -17,7 +17,7 @@ internal static partial class Program
         var firstPlayerWinRateRating = SimulationRatingMath.ConvertFirstPlayerWinRatePercentToRating(firstPlayerWinRatePercent);
         Console.WriteLine();
 
-        var participants = ReadPlayersFromCsv();
+        var participants = ConsoleInputReaders.ReadPlayersFromCsv();
         Console.WriteLine();
 
         var groupingMode = FinalStageGroupingMode.On;
@@ -39,7 +39,7 @@ internal static partial class Program
         if (groupingMode == FinalStageGroupingMode.On)
         {
             Console.WriteLine();
-            additionalApexParticipants = ReadOptionalPlayersFromCsv("本戦不出場Apex一覧CSVを貼り付けてください。");
+            additionalApexParticipants = ConsoleInputReaders.ReadOptionalPlayersFromCsv("本戦不出場Apex一覧CSVを貼り付けてください。");
             if (!ValidateAdditionalApexParticipants(participants, groupMap!, additionalApexParticipants, out errorMessage))
             {
                 Console.WriteLine($"本戦不出場Apex一覧の検証に失敗しました: {errorMessage}\n");
@@ -61,7 +61,7 @@ internal static partial class Program
 
         Console.WriteLine("本戦参加者の入力を受け付けました。\n");
 
-        var matches = ReadMatchesFromCsv(participants);
+        var matches = ConsoleInputReaders.ReadMatchesFromCsv(participants);
         var matchesAreValid = ValidateFinalStageMatches(participants, groupMap!, matches, out errorMessage);
         if (!matchesAreValid)
         {
@@ -71,7 +71,7 @@ internal static partial class Program
         }
 
         Console.WriteLine();
-        var referenceMatches = ReadOptionalMatchesFromCsv(participants, "参考対局CSVまたは Round/Black-White/対局記号表を貼り付けてください。大会記録に含めない場合だけ使います。");
+        var referenceMatches = ConsoleInputReaders.ReadOptionalMatchesFromCsv(participants, "参考対局CSVまたは Round/Black-White/対局記号表を貼り付けてください。大会記録に含めない場合だけ使います。");
 
         context = new FinalStageModeContext(
             firstPlayerWinRatePercent,

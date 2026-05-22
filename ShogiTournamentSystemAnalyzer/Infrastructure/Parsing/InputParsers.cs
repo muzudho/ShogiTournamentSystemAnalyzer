@@ -18,7 +18,7 @@ internal static partial class Program
     /// <param name="players">解析結果として作成される選手のリスト</param>
     /// <param name="err">解析中に発生したエラーメッセージ</param>
     /// <returns>解析が成功した場合は true、失敗した場合は false</returns>
-    static bool TryParsePlayers(IReadOnlyList<string> lines, out List<Player> players, out ErrorMessageModel err)
+    internal static bool TryParsePlayers(IReadOnlyList<string> lines, out List<Player> players, out ErrorMessageModel err)
     {
         players = new List<Player>();
         err = ErrorMessageModel.Empty;
@@ -63,7 +63,7 @@ internal static partial class Program
     /// <param name="groupMap"></param>
     /// <param name="err"></param>
     /// <returns></returns>
-    static bool TryParseFinalStageGroups(IReadOnlyList<string> lines, out Dictionary<string, FinalStageGroup> groupMap, out ErrorMessageModel err)
+    internal static bool TryParseFinalStageGroups(IReadOnlyList<string> lines, out Dictionary<string, FinalStageGroup> groupMap, out ErrorMessageModel err)
     {
         groupMap = new Dictionary<string, FinalStageGroup>(StringComparer.OrdinalIgnoreCase);
         err = ErrorMessageModel.Empty;
@@ -107,7 +107,7 @@ internal static partial class Program
     /// <param name="matches"></param>
     /// <param name="err"></param>
     /// <returns></returns>
-    static bool TryParseMatches(IReadOnlyList<string> lines, IReadOnlyList<Player> players, out List<Match> matches, out ErrorMessageModel err)
+    internal static bool TryParseMatches(IReadOnlyList<string> lines, IReadOnlyList<Player> players, out List<Match> matches, out ErrorMessageModel err)
     {
         matches = new List<Match>();
         err = ErrorMessageModel.Empty;

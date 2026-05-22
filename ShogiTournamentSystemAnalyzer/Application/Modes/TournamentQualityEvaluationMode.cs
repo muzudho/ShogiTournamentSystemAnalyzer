@@ -23,7 +23,7 @@ internal static partial class Program
             ConsoleSamplePrinter.PrintQualityEvaluationFinalStageOverview();
         }
 
-        var players = ReadPlayersFromCsv();
+        var players = ConsoleInputReaders.ReadPlayersFromCsv();
         Console.WriteLine();
 
         if (!TryReadQualityEvaluationRuleDefinition(players, ruleProfileMode, out var ruleDefinition)) return;
@@ -94,7 +94,7 @@ internal static partial class Program
         if (groupingMode == FinalStageGroupingMode.On)
         {
             Console.WriteLine();
-            additionalApexPlayers = ReadOptionalPlayersFromCsv("本戦不出場Apex一覧CSVを貼り付けてください。");
+            additionalApexPlayers = ConsoleInputReaders.ReadOptionalPlayersFromCsv("本戦不出場Apex一覧CSVを貼り付けてください。");
             if (!ValidateAdditionalApexParticipants(players, groupMap!, additionalApexPlayers, out errorMessage))
             {
                 Console.WriteLine($"本戦不出場Apex一覧の検証に失敗しました: {errorMessage}\n");
@@ -131,7 +131,7 @@ internal static partial class Program
         TournamentQualityEvaluationRuleDefinition ruleDefinition,
         out TournamentQualityEvaluationInput input)
     {
-        var matches = ReadMatchesFromCsv(players);
+        var matches = ConsoleInputReaders.ReadMatchesFromCsv(players);
         var matchesAreValid = ruleDefinition.UsesFinalStageGrouping
             ? ValidateFinalStageMatches(players, ruleDefinition.GroupMap!, matches, out var errorMessage)
             : ValidateFinalStageMatches(players, matches, out errorMessage);
@@ -144,7 +144,7 @@ internal static partial class Program
         }
 
         Console.WriteLine();
-        var referenceMatches = ReadOptionalMatchesFromCsv(players, "参考対局CSVまたは Round/Black-White/対局記号表を貼り付けてください。大会記録に含めない場合だけ使います。");
+        var referenceMatches = ConsoleInputReaders.ReadOptionalMatchesFromCsv(players, "参考対局CSVまたは Round/Black-White/対局記号表を貼り付けてください。大会記録に含めない場合だけ使います。");
         var innovExpectedRankOffsetMode = TournamentQualityEvaluationInnovExpectedRankOffsetMode.Off;
         var innovExpectedRankOffsetCount = 0;
         if (ruleDefinition.UsesFinalStageGrouping)

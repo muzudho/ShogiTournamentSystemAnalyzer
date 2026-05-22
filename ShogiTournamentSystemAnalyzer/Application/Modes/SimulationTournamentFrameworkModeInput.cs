@@ -15,13 +15,13 @@ internal static partial class Program
         var tournamentRuleSetMode = ConsoleRuleReaders.ReadTournamentRuleSetMode();
         Console.WriteLine();
 
-        var playersCsvPath = ReadRequiredFilePath("選手一覧CSVのパスを入力してください: ");
-        var stagesCsvPath = ReadRequiredFilePath("ステージ一覧CSVのパスを入力してください: ");
-        var tournamentMatchRecordsCsvPath = ReadRequiredFilePath("大会対局記録CSVのパスを入力してください: ");
-        var ruleFilePath = ReadOptionalFilePath("大会ルールDSLファイルのパスを入力してください（省略可）: ");
-        var randomSeed = ReadOptionalInt("乱数シードを入力してください（省略可）: ");
-        var simulationCount = ReadOptionalInt("試行回数を入力してください（省略可）: ");
-        var outputPath = ReadOptionalFilePath("結果CSVの出力先パスまたはフォルダーパスを入力してください（省略可）: ");
+        var playersCsvPath = ConsoleInputReaders.ReadRequiredFilePath("選手一覧CSVのパスを入力してください: ");
+        var stagesCsvPath = ConsoleInputReaders.ReadRequiredFilePath("ステージ一覧CSVのパスを入力してください: ");
+        var tournamentMatchRecordsCsvPath = ConsoleInputReaders.ReadRequiredFilePath("大会対局記録CSVのパスを入力してください: ");
+        var ruleFilePath = ConsoleInputReaders.ReadOptionalFilePath("大会ルールDSLファイルのパスを入力してください（省略可）: ");
+        var randomSeed = ConsoleInputReaders.ReadOptionalInt("乱数シードを入力してください（省略可）: ");
+        var simulationCount = ConsoleInputReaders.ReadOptionalInt("試行回数を入力してください（省略可）: ");
+        var outputPath = ConsoleInputReaders.ReadOptionalFilePath("結果CSVの出力先パスまたはフォルダーパスを入力してください（省略可）: ");
         Console.WriteLine();
 
         return new TournamentFrameworkModeContext(

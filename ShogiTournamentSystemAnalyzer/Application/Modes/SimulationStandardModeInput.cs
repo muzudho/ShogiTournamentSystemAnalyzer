@@ -16,8 +16,8 @@ internal static partial class Program
         var firstPlayerWinRateRating = SimulationRatingMath.ConvertFirstPlayerWinRatePercentToRating(firstPlayerWinRatePercent);
 
         Console.WriteLine();
-        var allParticipants = ReadPlayersFromCsv();
-        var allMatches = ReadMatchesFromCsv(allParticipants);
+        var allParticipants = ConsoleInputReaders.ReadPlayersFromCsv();
+        var allMatches = ConsoleInputReaders.ReadMatchesFromCsv(allParticipants);
         var (participants, matches) = ModeSupportHelpers.FilterToScheduledParticipants(allParticipants, allMatches);
 
         return new StandardModeContext(

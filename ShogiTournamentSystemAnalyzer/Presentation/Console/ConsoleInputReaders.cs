@@ -7,9 +7,9 @@ using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
 
-internal static partial class Program
+internal static class ConsoleInputReaders
 {
-    static List<Match> ReadOptionalMatchesFromCsv(IReadOnlyList<Player> players, string prompt)
+    internal static List<Match> ReadOptionalMatchesFromCsv(IReadOnlyList<Player> players, string prompt)
     {
         var attempt = 0;
         while (true)
@@ -30,7 +30,7 @@ internal static partial class Program
 
             if (lines.All(string.IsNullOrWhiteSpace)) return new List<Match>();
 
-            if (TryParseMatches(lines, players, out var matches, out var err)) return matches;
+            if (Program.TryParseMatches(lines, players, out var matches, out var err)) return matches;
 
             Console.WriteLine($"参考対局入力の読み取りに失敗しました: {err.Value}");
             if (attempt >= ConsolePromptReaders.InputRetryLimit)
@@ -41,7 +41,7 @@ internal static partial class Program
         }
     }
 
-    static TournamentQualityEvaluationReportGroupingOptions ReadTournamentQualityEvaluationReportGroupingOptions()
+    internal static TournamentQualityEvaluationReportGroupingOptions ReadTournamentQualityEvaluationReportGroupingOptions()
     {
         Console.WriteLine("実験レポートの Good / Bad 分離を使いますか？");
         Console.WriteLine("1. Off: 分離しない");
@@ -139,7 +139,7 @@ internal static partial class Program
                 continue;
             }
 
-            if (TryParseFinalStageGroups(lines, out var groupMap, out var err)) return groupMap;
+            if (Program.TryParseFinalStageGroups(lines, out var groupMap, out var err)) return groupMap;
 
             Console.WriteLine($"CSVの読み取りに失敗しました: {err.Value}");
             if (attempt >= ConsolePromptReaders.InputRetryLimit) ConsolePromptReaders.ThrowInputRetryLimitExceeded("グループ対応CSV", err.Value);
@@ -147,7 +147,7 @@ internal static partial class Program
         }
     }
 
-    static List<Player> ReadOptionalPlayersFromCsv(string prompt)
+    internal static List<Player> ReadOptionalPlayersFromCsv(string prompt)
     {
         var attempt = 0;
         while (true)
@@ -167,7 +167,7 @@ internal static partial class Program
 
             if (lines.Count == 0) return new List<Player>();
 
-            if (TryParsePlayers(lines, out var players, out var err)) return players;
+            if (Program.TryParsePlayers(lines, out var players, out var err)) return players;
 
             Console.WriteLine($"CSVの読み取りに失敗しました: {err.Value}");
             if (attempt >= ConsolePromptReaders.InputRetryLimit) ConsolePromptReaders.ThrowInputRetryLimitExceeded("選手一覧CSV", err.Value);
@@ -175,7 +175,7 @@ internal static partial class Program
         }
     }
 
-    static List<Player> ReadPlayersFromCsv()
+    internal static List<Player> ReadPlayersFromCsv()
     {
         var attempt = 0;
         while (true)
@@ -206,7 +206,7 @@ internal static partial class Program
                 continue;
             }
 
-            if (TryParsePlayers(lines, out var players, out var err)) return players;
+            if (Program.TryParsePlayers(lines, out var players, out var err)) return players;
 
             Console.WriteLine($"CSVの読み取りに失敗しました: {err.Value}");
             if (attempt >= ConsolePromptReaders.InputRetryLimit) ConsolePromptReaders.ThrowInputRetryLimitExceeded("選手一覧CSV", err.Value);
@@ -214,7 +214,7 @@ internal static partial class Program
         }
     }
 
-    static List<Match> ReadMatchesFromCsv(IReadOnlyList<Player> players)
+    internal static List<Match> ReadMatchesFromCsv(IReadOnlyList<Player> players)
     {
         var attempt = 0;
         while (true)
@@ -243,7 +243,7 @@ internal static partial class Program
                 continue;
             }
 
-            if (TryParseMatches(lines, players, out var matches, out var err)) return matches;
+            if (Program.TryParseMatches(lines, players, out var matches, out var err)) return matches;
 
             Console.WriteLine($"対局入力の読み取りに失敗しました: {err.Value}");
             if (attempt >= ConsolePromptReaders.InputRetryLimit)
@@ -254,7 +254,7 @@ internal static partial class Program
         }
     }
 
-    static string ReadRequiredFilePath(string prompt)
+    internal static string ReadRequiredFilePath(string prompt)
     {
         var attempt = 0;
         while (true)
@@ -277,7 +277,7 @@ internal static partial class Program
         }
     }
 
-    static string? ReadOptionalFilePath(string prompt)
+    internal static string? ReadOptionalFilePath(string prompt)
     {
         Console.Write(prompt);
         var input = Console.ReadLine()?.Trim();
@@ -285,7 +285,7 @@ internal static partial class Program
         return string.IsNullOrWhiteSpace(input) ? null : input;
     }
 
-    static int? ReadOptionalInt(string prompt)
+    internal static int? ReadOptionalInt(string prompt)
     {
         var attempt = 0;
         while (true)
