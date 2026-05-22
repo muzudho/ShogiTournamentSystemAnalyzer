@@ -79,7 +79,7 @@ internal static partial class Program
         // ［順位設定データ］
         var rankingSettingsData = BoundaryDataBuilders.BuildRankingSettingsBoundaryData(tournamentRuleData);
 
-        // ［大会結果データ］
+        // ［大会最終状態データ］
         var tournamentFinalStateData = BoundaryDataBuilders.BuildTournamentFinalStateBoundaryData(executionResult);
 
         // ［最終順位データ］
