@@ -1,11 +1,11 @@
 /*
- * ［プログラム］
+ * ［シミュレーション域］
  */
-namespace ShogiTournamentSystemAnalyzer;
+namespace ShogiTournamentSystemAnalyzer.Domain.Simulation;
 
 using System.Globalization;
 
-internal static partial class Program
+internal static class SimulationRatingMath
 {
     /// <summary>
     /// 
@@ -24,7 +24,7 @@ internal static partial class Program
     /// </summary>
     /// <param name="blackAdvantagePercent"></param>
     /// <returns></returns>
-    static double ConvertBlackAdvantagePercentToRating(double blackAdvantagePercent)
+    internal static double ConvertBlackAdvantagePercentToRating(double blackAdvantagePercent)
     {
         return ConvertFirstPlayerWinRatePercentToRating(blackAdvantagePercent);
     }
@@ -34,7 +34,7 @@ internal static partial class Program
     /// </summary>
     /// <param name="value"></param>
     /// <returns></returns>
-    static string FormatPercent(double value)
+    internal static string FormatPercent(double value)
     {
         return (value * 100).ToString("F2", CultureInfo.InvariantCulture) + "%";
     }
@@ -44,7 +44,7 @@ internal static partial class Program
     /// </summary>
     /// <param name="value"></param>
     /// <returns></returns>
-    static string FormatOptionalPercent(double? value)
+    internal static string FormatOptionalPercent(double? value)
     {
         return value.HasValue ? FormatPercent(value.Value) : "-";
     }
@@ -54,7 +54,7 @@ internal static partial class Program
     /// </summary>
     /// <param name="value"></param>
     /// <returns></returns>
-    static string FormatOptionalPercentValue(double? value)
+    internal static string FormatOptionalPercentValue(double? value)
     {
         return value.HasValue
             ? (value.Value * 100).ToString("F2", CultureInfo.InvariantCulture)
@@ -100,9 +100,14 @@ internal static partial class Program
     /// <param name="playerRating"></param>
     /// <param name="opponentRating"></param>
     /// <returns></returns>
-    static double GetNeutralWinProbability(double playerRating, double opponentRating)
+    internal static double GetNeutralWinProbability(double playerRating, double opponentRating)
     {
         return 1.0 / (1.0 + Math.Pow(10.0, (opponentRating - playerRating) / 400.0));
+    }
+
+    internal static double GetWinProbability(Player firstPlayer, Player secondPlayer, double firstPlayerWinRateRating)
+    {
+        return 1.0 / (1.0 + Math.Pow(10.0, (secondPlayer.Rating - (firstPlayer.Rating + firstPlayerWinRateRating)) / 400.0));
     }
 
     /// <summary>
@@ -110,7 +115,7 @@ internal static partial class Program
     /// </summary>
     /// <param name="value"></param>
     /// <returns></returns>
-    static string FormatRating(double value)
+    internal static string FormatRating(double value)
     {
         return Math.Round(value).ToString("F0", CultureInfo.InvariantCulture);
     }
@@ -120,7 +125,7 @@ internal static partial class Program
     /// </summary>
     /// <param name="value"></param>
     /// <returns></returns>
-    static string FormatSignedRating(double value)
+    internal static string FormatSignedRating(double value)
     {
         return Math.Round(value).ToString("+0;-0;0", CultureInfo.InvariantCulture);
     }

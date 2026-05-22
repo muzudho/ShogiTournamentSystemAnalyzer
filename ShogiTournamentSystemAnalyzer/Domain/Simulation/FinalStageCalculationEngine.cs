@@ -25,7 +25,7 @@ internal static partial class Program
             }
 
             var match = matches[matchIndex];
-            var firstPlayerWinProbability = GetWinProbability(players[match.FirstPlayer], players[match.SecondPlayer], firstPlayerWinRateRating);
+            var firstPlayerWinProbability = SimulationRatingMath.GetWinProbability(players[match.FirstPlayer], players[match.SecondPlayer], firstPlayerWinRateRating);
 
             wins[match.FirstPlayer]++;
             Explore(matchIndex + 1, scenarioProbability * firstPlayerWinProbability);
@@ -56,7 +56,7 @@ internal static partial class Program
 
             foreach (var match in matches)
             {
-                var firstPlayerWinProbability = GetWinProbability(players[match.FirstPlayer], players[match.SecondPlayer], firstPlayerWinRateRating);
+                var firstPlayerWinProbability = SimulationRatingMath.GetWinProbability(players[match.FirstPlayer], players[match.SecondPlayer], firstPlayerWinRateRating);
                 if (Random.Shared.NextDouble() < firstPlayerWinProbability)
                 {
                     wins[match.FirstPlayer]++;
@@ -114,7 +114,7 @@ internal static partial class Program
         {
             foreach (var innovBoundaryIndex in innovBoundaryIndexes)
             {
-                var blackWinsProbability = GetWinProbability(players[innovBoundaryIndex], players[apexBoundaryIndex], blackAdvantageRating);
+                var blackWinsProbability = SimulationRatingMath.GetWinProbability(players[innovBoundaryIndex], players[apexBoundaryIndex], blackAdvantageRating);
                 AccumulateFinalStagePlaceProbabilitiesWithBoundaryRescue(
                     wins,
                     apexRanking,

@@ -335,7 +335,7 @@ internal static partial class Program
             var secondPlayerEntry = playerById[match.SecondPlayerId];
             var firstPlayer = new Player(firstPlayerEntry.Name, firstPlayerEntry.Rating);
             var secondPlayer = new Player(secondPlayerEntry.Name, secondPlayerEntry.Rating);
-            var firstPlayerWinProbability = GetWinProbability(firstPlayer, secondPlayer, firstPlayerWinRateRating);
+            var firstPlayerWinProbability = SimulationRatingMath.GetWinProbability(firstPlayer, secondPlayer, firstPlayerWinRateRating);
 
             matches[matchIndex] = match with
             {
@@ -566,7 +566,7 @@ internal static partial class Program
             var secondPlayerEntry = playerMap[match.SecondPlayerId];
             var firstPlayer = new Player(firstPlayerEntry.Name, firstPlayerEntry.Rating);
             var secondPlayer = new Player(secondPlayerEntry.Name, secondPlayerEntry.Rating);
-            var firstPlayerWinProbability = GetWinProbability(firstPlayer, secondPlayer, _firstPlayerWinRateRating);
+            var firstPlayerWinProbability = SimulationRatingMath.GetWinProbability(firstPlayer, secondPlayer, _firstPlayerWinRateRating);
             var resultType = random.NextDouble() < firstPlayerWinProbability
                 ? MatchResultType.FirstPlayerWin
                 : MatchResultType.SecondPlayerWin;

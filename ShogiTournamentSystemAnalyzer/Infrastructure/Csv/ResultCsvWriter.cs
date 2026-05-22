@@ -600,7 +600,7 @@ internal static partial class Program
         lines.AddRange(playerRows.Select(row => string.Join(",",
             EscapeCsv(row.Name),
             EscapeCsv(row.Group),
-            FormatRating(row.OriginalRating),
+            SimulationRatingMath.FormatRating(row.OriginalRating),
             row.EloRank.ToString(CultureInfo.InvariantCulture),
             row.ExpectedOverallPlace.ToString("F3", CultureInfo.InvariantCulture),
             row.OverallPlaceDeltaFromEloRank.ToString("F3", CultureInfo.InvariantCulture),
@@ -663,13 +663,13 @@ internal static partial class Program
                 mode,
                 firstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture),
                 row.Name,
-                FormatRating(row.OriginalRating),
-                FormatRating(row.EffectiveRating),
-                FormatSignedRating(row.RatingDelta),
+                SimulationRatingMath.FormatRating(row.OriginalRating),
+                SimulationRatingMath.FormatRating(row.EffectiveRating),
+                SimulationRatingMath.FormatSignedRating(row.RatingDelta),
                 row.FirstPlayerCount.ToString(CultureInfo.InvariantCulture),
                 row.SecondPlayerCount.ToString(CultureInfo.InvariantCulture),
-                FormatOptionalPercentValue(row.FirstPlayerWinRate),
-                FormatOptionalPercentValue(row.SecondPlayerWinRate),
+                SimulationRatingMath.FormatOptionalPercentValue(row.FirstPlayerWinRate),
+                SimulationRatingMath.FormatOptionalPercentValue(row.SecondPlayerWinRate),
                 (row.ChampionshipProbability * 100).ToString("F2", CultureInfo.InvariantCulture),
                 row.AveragePlace.ToString("F3", CultureInfo.InvariantCulture)
             };
@@ -741,8 +741,8 @@ internal static partial class Program
                     "## 注目ポイント",
                     $"- 優勝確率が最も高い選手: **{bestChampionshipRow.Name}**（{(bestChampionshipRow.ChampionshipProbability * 100).ToString("F2", CultureInfo.InvariantCulture)}%）",
                     $"- 平均順位が最も良い選手: **{bestAveragePlaceRow.Name}**（{bestAveragePlaceRow.AveragePlace.ToString("F3", CultureInfo.InvariantCulture)}）",
-                    $"- 実効Elo差分が最も大きくプラスの選手: **{biggestBoostRow.Name}**（{FormatSignedRating(biggestBoostRow.RatingDelta)}）",
-                    $"- 実効Elo差分が最も大きくマイナスの選手: **{biggestDropRow.Name}**（{FormatSignedRating(biggestDropRow.RatingDelta)}）",
+                    $"- 実効Elo差分が最も大きくプラスの選手: **{biggestBoostRow.Name}**（{SimulationRatingMath.FormatSignedRating(biggestBoostRow.RatingDelta)}）",
+                    $"- 実効Elo差分が最も大きくマイナスの選手: **{biggestDropRow.Name}**（{SimulationRatingMath.FormatSignedRating(biggestDropRow.RatingDelta)}）",
                     string.Empty,
                     "## 自動コメント",
                     $"- 優勝候補の強さ: {BuildTop1Comment(bestChampionshipRow.ChampionshipProbability)}",
@@ -765,7 +765,7 @@ internal static partial class Program
         }
 
         lines.AddRange(topChampionshipRows.Select(row =>
-            $"| {row.Name} | {FormatRating(row.OriginalRating)} | {FormatRating(row.EffectiveRating)} | {FormatSignedRating(row.RatingDelta)} | {(row.ChampionshipProbability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {row.AveragePlace.ToString("F3", CultureInfo.InvariantCulture)} |"));
+            $"| {row.Name} | {SimulationRatingMath.FormatRating(row.OriginalRating)} | {SimulationRatingMath.FormatRating(row.EffectiveRating)} | {SimulationRatingMath.FormatSignedRating(row.RatingDelta)} | {(row.ChampionshipProbability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {row.AveragePlace.ToString("F3", CultureInfo.InvariantCulture)} |"));
 
         if (topChampionshipRows.Length > 0)
         {
@@ -846,13 +846,13 @@ internal static partial class Program
                 firstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture),
                 row.Name,
                 row.Group,
-                FormatRating(row.OriginalRating),
-                FormatRating(row.EffectiveRating),
-                FormatSignedRating(row.RatingDelta),
+                SimulationRatingMath.FormatRating(row.OriginalRating),
+                SimulationRatingMath.FormatRating(row.EffectiveRating),
+                SimulationRatingMath.FormatSignedRating(row.RatingDelta),
                 row.FirstPlayerCount.ToString(CultureInfo.InvariantCulture),
                 row.SecondPlayerCount.ToString(CultureInfo.InvariantCulture),
-                FormatOptionalPercentValue(row.FirstPlayerWinRate),
-                FormatOptionalPercentValue(row.SecondPlayerWinRate),
+                SimulationRatingMath.FormatOptionalPercentValue(row.FirstPlayerWinRate),
+                SimulationRatingMath.FormatOptionalPercentValue(row.SecondPlayerWinRate),
                 (row.GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture),
                 row.GroupPlaceAverage.ToString("F3", CultureInfo.InvariantCulture),
                 (row.OverallPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture),
@@ -936,7 +936,7 @@ internal static partial class Program
         }
 
         lines.AddRange(topRows.Select(row =>
-            $"| {row.Name} | {row.Group} | {FormatRating(row.OriginalRating)} | {FormatRating(row.EffectiveRating)} | {FormatSignedRating(row.RatingDelta)} | {(row.GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {(row.OverallPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {row.OverallPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} |"));
+            $"| {row.Name} | {row.Group} | {SimulationRatingMath.FormatRating(row.OriginalRating)} | {SimulationRatingMath.FormatRating(row.EffectiveRating)} | {SimulationRatingMath.FormatSignedRating(row.RatingDelta)} | {(row.GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {(row.OverallPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {row.OverallPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} |"));
 
         if (apexRows.Length > 0)
         {
@@ -949,7 +949,7 @@ internal static partial class Program
                     });
 
             lines.AddRange(apexRows.Select(row =>
-                $"| {row.Name} | {FormatRating(row.OriginalRating)} | {FormatRating(row.EffectiveRating)} | {(row.GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {row.GroupPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} | {row.OverallPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} |"));
+                $"| {row.Name} | {SimulationRatingMath.FormatRating(row.OriginalRating)} | {SimulationRatingMath.FormatRating(row.EffectiveRating)} | {(row.GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {row.GroupPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} | {row.OverallPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} |"));
         }
 
         if (innovRows.Length > 0)
@@ -963,7 +963,7 @@ internal static partial class Program
                     });
 
             lines.AddRange(innovRows.Select(row =>
-                $"| {row.Name} | {FormatRating(row.OriginalRating)} | {FormatRating(row.EffectiveRating)} | {(row.GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {row.GroupPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} | {row.OverallPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} |"));
+                $"| {row.Name} | {SimulationRatingMath.FormatRating(row.OriginalRating)} | {SimulationRatingMath.FormatRating(row.EffectiveRating)} | {(row.GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {row.GroupPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} | {row.OverallPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} |"));
         }
 
         if (topRows.Length > 0)

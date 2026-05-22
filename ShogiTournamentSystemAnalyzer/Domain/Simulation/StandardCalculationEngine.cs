@@ -37,7 +37,7 @@ internal static partial class Program
             }
 
             var match = matches[matchIndex];
-            var firstPlayerWinProbability = GetWinProbability(players[match.FirstPlayer], players[match.SecondPlayer], firstPlayerWinRateRating);
+            var firstPlayerWinProbability = SimulationRatingMath.GetWinProbability(players[match.FirstPlayer], players[match.SecondPlayer], firstPlayerWinRateRating);
 
             if (usesTwillRule)
             {
@@ -100,7 +100,7 @@ internal static partial class Program
             for (var matchIndex = 0; matchIndex < matches.Count; matchIndex++)
             {
                 var match = matches[matchIndex];
-                var firstPlayerWinProbability = GetWinProbability(players[match.FirstPlayer], players[match.SecondPlayer], firstPlayerWinRateRating);
+                var firstPlayerWinProbability = SimulationRatingMath.GetWinProbability(players[match.FirstPlayer], players[match.SecondPlayer], firstPlayerWinRateRating);
                 if (Random.Shared.NextDouble() < firstPlayerWinProbability)
                 {
                     if (usesTwillRule)
@@ -186,11 +186,6 @@ internal static partial class Program
 
             currentPlace = groupEnd;
         }
-    }
-
-    internal static double GetWinProbability(Player firstPlayer, Player secondPlayer, double firstPlayerWinRateRating)
-    {
-        return 1.0 / (1.0 + Math.Pow(10.0, (secondPlayer.Rating - (firstPlayer.Rating + firstPlayerWinRateRating)) / 400.0));
     }
 }
 

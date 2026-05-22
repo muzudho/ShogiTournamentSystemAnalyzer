@@ -10,7 +10,7 @@ internal static class RankingResultRowBuilder
 {
     internal static List<ResultRow> BuildResultRows(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, CalculationResult result, double firstPlayerWinRatePercent)
     {
-        var firstPlayerWinRateRating = Program.ConvertFirstPlayerWinRatePercentToRating(firstPlayerWinRatePercent);
+        var firstPlayerWinRateRating = SimulationRatingMath.ConvertFirstPlayerWinRatePercentToRating(firstPlayerWinRatePercent);
         var firstPlayerCounts = new int[players.Count];
         var secondPlayerCounts = new int[players.Count];
         var firstPlayerWinProbabilitySums = new double[players.Count];
@@ -22,7 +22,7 @@ internal static class RankingResultRowBuilder
 
         foreach (var match in matches)
         {
-            var firstPlayerWinProbability = Program.GetWinProbability(players[match.FirstPlayer], players[match.SecondPlayer], firstPlayerWinRateRating);
+            var firstPlayerWinProbability = SimulationRatingMath.GetWinProbability(players[match.FirstPlayer], players[match.SecondPlayer], firstPlayerWinRateRating);
             firstPlayerCounts[match.FirstPlayer]++;
             secondPlayerCounts[match.SecondPlayer]++;
             firstPlayerWinProbabilitySums[match.FirstPlayer] += firstPlayerWinProbability;
@@ -48,7 +48,7 @@ internal static class RankingResultRowBuilder
             var totalWinRate = matchCount == 0
                 ? 0.0
                 : totalWinProbabilitySums[playerIndex] / matchCount;
-            var effectiveRating = Program.CalculateEquivalentNeutralRating(opponentRatings[playerIndex], totalWinRate);
+            var effectiveRating = SimulationRatingMath.CalculateEquivalentNeutralRating(opponentRatings[playerIndex], totalWinRate);
             var placeProbabilities = Enumerable.Range(0, players.Count)
                 .Select(place => result.PlaceProbabilities[playerIndex, place])
                 .ToArray();

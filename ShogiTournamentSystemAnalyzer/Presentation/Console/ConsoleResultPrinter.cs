@@ -19,7 +19,7 @@ internal static partial class Program
         Console.WriteLine($"- Spearman 相関: {summary.SpearmanCorrelation.ToString("F4", CultureInfo.InvariantCulture)}");
         Console.WriteLine($"- 平均順位ずれ: {summary.MeanAbsoluteRankError.ToString("F3", CultureInfo.InvariantCulture)}");
         Console.WriteLine($"- Elo上位8名の総合上位8位残留人数（平均）: {summary.AverageTop8Retention.ToString("F3", CultureInfo.InvariantCulture)}");
-        Console.WriteLine($"- Elo1位の総合1位確率: {FormatPercent(summary.EloTop1OverallTop1Probability)}");
+        Console.WriteLine($"- Elo1位の総合1位確率: {SimulationRatingMath.FormatPercent(summary.EloTop1OverallTop1Probability)}");
         Console.WriteLine($"- 最大不利益: {summary.MostPenalizedPlayerName} ({summary.MostPenalizedDelta.ToString("+0.000;-0.000;0.000", CultureInfo.InvariantCulture)})");
         Console.WriteLine($"- 最大利益: {summary.MostAdvantagedPlayerName} ({summary.MostAdvantagedDelta.ToString("+0.000;-0.000;0.000", CultureInfo.InvariantCulture)})\n");
     }
@@ -44,8 +44,8 @@ internal static partial class Program
                 + "  " + row.Name.PadRight(20)
                 + row.ExpectedOverallPlace.ToString("F3", CultureInfo.InvariantCulture).PadLeft(12)
                 + row.OverallPlaceDeltaFromEloRank.ToString("+0.000;-0.000;0.000", CultureInfo.InvariantCulture).PadLeft(10)
-                + FormatPercent(row.OverallTop1Probability).PadLeft(14)
-                + FormatPercent(row.OverallTop8Probability).PadLeft(14));
+                + SimulationRatingMath.FormatPercent(row.OverallTop1Probability).PadLeft(14)
+                + SimulationRatingMath.FormatPercent(row.OverallTop8Probability).PadLeft(14));
         }
 
         Console.WriteLine();
@@ -90,14 +90,14 @@ internal static partial class Program
         foreach (var row in resultRows)
         {
             var line = row.Name.PadRight(nameWidth)
-                + FormatRating(row.OriginalRating).PadLeft(10)
-                + FormatRating(row.EffectiveRating).PadLeft(10)
-                + FormatSignedRating(row.RatingDelta).PadLeft(10)
+                + SimulationRatingMath.FormatRating(row.OriginalRating).PadLeft(10)
+                + SimulationRatingMath.FormatRating(row.EffectiveRating).PadLeft(10)
+                + SimulationRatingMath.FormatSignedRating(row.RatingDelta).PadLeft(10)
                 + row.FirstPlayerCount.ToString(CultureInfo.InvariantCulture).PadLeft(8)
                 + row.SecondPlayerCount.ToString(CultureInfo.InvariantCulture).PadLeft(8)
-                + FormatOptionalPercent(row.FirstPlayerWinRate).PadLeft(12)
-                + FormatOptionalPercent(row.SecondPlayerWinRate).PadLeft(12)
-                + FormatPercent(row.ChampionshipProbability).PadLeft(12)
+                + SimulationRatingMath.FormatOptionalPercent(row.FirstPlayerWinRate).PadLeft(12)
+                + SimulationRatingMath.FormatOptionalPercent(row.SecondPlayerWinRate).PadLeft(12)
+                + SimulationRatingMath.FormatPercent(row.ChampionshipProbability).PadLeft(12)
                 + row.AveragePlace.ToString("F3", CultureInfo.InvariantCulture).PadLeft(12);
 
             Console.WriteLine(line);
@@ -122,7 +122,7 @@ internal static partial class Program
                 + row.Points.ToString(CultureInfo.InvariantCulture).PadLeft(8)
                 + row.RankLabel.PadLeft(10)
                 + row.AveragePlace.ToString("F3", CultureInfo.InvariantCulture).PadLeft(12)
-                + FormatPercent(row.FirstPlaceProbability).PadLeft(12);
+                + SimulationRatingMath.FormatPercent(row.FirstPlaceProbability).PadLeft(12);
             Console.WriteLine(line);
         }
 
@@ -154,14 +154,14 @@ internal static partial class Program
         {
             var line = row.Name.PadRight(nameWidth)
                 + row.Group.PadLeft(8)
-                + FormatRating(row.OriginalRating).PadLeft(10)
-                + FormatRating(row.EffectiveRating).PadLeft(10)
-                + FormatSignedRating(row.RatingDelta).PadLeft(10)
+                + SimulationRatingMath.FormatRating(row.OriginalRating).PadLeft(10)
+                + SimulationRatingMath.FormatRating(row.EffectiveRating).PadLeft(10)
+                + SimulationRatingMath.FormatSignedRating(row.RatingDelta).PadLeft(10)
                 + row.FirstPlayerCount.ToString(CultureInfo.InvariantCulture).PadLeft(8)
                 + row.SecondPlayerCount.ToString(CultureInfo.InvariantCulture).PadLeft(8)
-                + FormatPercent(row.GroupPlace1Probability).PadLeft(10)
+                + SimulationRatingMath.FormatPercent(row.GroupPlace1Probability).PadLeft(10)
                 + row.GroupPlaceAverage.ToString("F3", CultureInfo.InvariantCulture).PadLeft(10)
-                + FormatPercent(row.OverallPlace1Probability).PadLeft(10)
+                + SimulationRatingMath.FormatPercent(row.OverallPlace1Probability).PadLeft(10)
                 + row.OverallPlaceAverage.ToString("F3", CultureInfo.InvariantCulture).PadLeft(10);
 
             Console.WriteLine(line);

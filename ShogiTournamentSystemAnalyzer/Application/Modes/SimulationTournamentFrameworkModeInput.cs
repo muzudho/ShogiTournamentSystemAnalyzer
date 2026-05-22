@@ -3,13 +3,15 @@
  */
 namespace ShogiTournamentSystemAnalyzer;
 
+using ShogiTournamentSystemAnalyzer.Domain.Simulation;
+
 internal static partial class Program
 {
     static TournamentFrameworkModeContext ReadTournamentFrameworkModeContext()
     {
         Console.WriteLine("補足: 空欄のまま Enter すると、先手勝率は既定値 51、試行回数は既定値 200000 を使います。\n");
         var firstPlayerWinRatePercent = ReadDoubleWithDefaultInRange("同Elo対局時の先手勝率(%)を入力してください [51]: ", 51.0, 0.0, 100.0);
-        var firstPlayerWinRateRating = ConvertFirstPlayerWinRatePercentToRating(firstPlayerWinRatePercent);
+        var firstPlayerWinRateRating = SimulationRatingMath.ConvertFirstPlayerWinRatePercentToRating(firstPlayerWinRatePercent);
         var tournamentRuleSetMode = ReadTournamentRuleSetMode();
         Console.WriteLine();
 

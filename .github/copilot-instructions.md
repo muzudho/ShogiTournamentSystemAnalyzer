@@ -1,4 +1,4 @@
-　# Copilot Instructions
+# Copilot Instructions
 
 ## 一般ガイドライン
 - 反復作業の抑制を必須としない。必要なら通常どおり反復作業を継続する。
@@ -19,7 +19,7 @@
 - Use PascalCase folder names like 'Docs' instead of lowercase 'docs' in this project when naming folders. Consolidate data-related folders under a single PascalCase 'Data' folder and subdivide within it; avoid creating many separate top-level data folders (ユーザーはデータ系フォルダーを増やしすぎず、`Data` 配下にまとめてその下を細分化する構成を好む)。
 - Place a PascalCase 'Inputs' folder adjacent to 'Examples' to hold execution/input files for runs.
 - In Inputs, include a short descriptive prompt line in execution/input files as a hash-comment plus PascalCase tag, e.g., #[Prompt] ... , so numeric values are not ambiguous. Mark input termination explicitly with a tag like #[Enter] to avoid dependence on blank lines.
-- Extract toggleable rule logic into separate classes under a Domain/Rules-style folder rather than keeping growing rule logic in Program.cs. In Program.cs, prioritize separating input procedures into two responsibilities: rule construction (use builders/composers for rules) and parameter setting (load/parse inputs and configure parameters), so Program.cs functions as orchestration/wiring only.
+- Extract toggleable rule logic into separate classes under a Domain/Rules-style folder rather than keeping growing rule logic in Program.cs. In Program.cs, prioritize separating input procedures into two responsibilities: rule construction (use builders/composers for rules) and parameter setting (load/parse inputs and configure parameters), so Program.cs functions as orchestration/wiring only. This project prioritizes not aggregating everything into the Program class, but rather establishing dedicated class names for each responsibility to enhance clarity.
 - In ShogiTournamentSystemAnalyzer, use the neutral rule as the evaluation baseline: tournament rules better than the neutral baseline are classified as Good, and rules worse than the neutral baseline are classified as Bad.
 - For the 格付けグラフ戦 proposal examples, use the assumption 'the stronger player wins' instead of assuming all ▽ sides lose and ▲ sides win.
 - In tournament ranking proposals, do not use original Elo in ranking calculation because participants join without computed original Elo.
