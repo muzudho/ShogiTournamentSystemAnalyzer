@@ -1,5 +1,5 @@
 /// <summary>
-/// ［大会ルールデータ］だ。
+/// ［６大境界］のうち、［大会ルール］境界データだ。
 /// </summary>
 /// <param name="RuleProfileMode"></param>
 /// <param name="TournamentRuleSetMode"></param>
@@ -16,14 +16,14 @@ sealed record class TournamentRuleData(
     string? Note);
 
 /// <summary>
-/// ［プレイヤー一覧データ］だ。
+/// ［６大境界］のうち、［プレイヤー一覧］境界データだ。
 /// </summary>
 /// <param name="Players"></param>
 sealed record class PlayerListData(
     IReadOnlyList<PlayerEntry> Players);
 
 /// <summary>
-/// ［順位付けの設定データ］だ。
+/// ［６大境界］のうち、［順位付けの設定］境界データだ。
 /// </summary>
 /// <param name="TournamentRuleSetMode"></param>
 /// <param name="IsIntermediate"></param>
@@ -34,7 +34,7 @@ sealed record class RankingSettingsData(
     string? Note);
 
 /// <summary>
-/// ［大会結果データ］だ。
+/// ［６大境界］のうち、［大会結果］境界データだ。
 /// </summary>
 /// <param name="MatchRecords"></param>
 /// <param name="CurrentTime"></param>
@@ -47,7 +47,7 @@ sealed record class TournamentResultData(
     bool CompletedNaturally);
 
 /// <summary>
-/// ［最終順位データ］だ。
+/// ［６大境界］のうち、［最終順位］境界データだ。
 /// </summary>
 /// <param name="RankRows"></param>
 /// <param name="IsIntermediate"></param>
@@ -58,7 +58,7 @@ sealed record class FinalRankingData(
     string? Note);
 
 /// <summary>
-/// ［大会品質レポート］だ。
+/// ［６大境界］のうち、［大会品質レポート］境界データだ。
 /// </summary>
 /// <param name="PlayerRows"></param>
 /// <param name="Summary"></param>
@@ -69,7 +69,7 @@ sealed record class TournamentQualityReportData(
     string CalculationMode);
 
 /// <summary>
-/// ［大会品質レポート（先手勝率スイープ実験）］だ。
+/// ［６大境界］のうち、［大会品質レポート］境界データのスイープ実験版だ。
 /// </summary>
 /// <param name="SweepRows"></param>
 /// <param name="StoppedByTimeout"></param>

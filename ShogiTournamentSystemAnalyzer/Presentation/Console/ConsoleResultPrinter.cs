@@ -2,6 +2,9 @@ using System.Globalization;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// ［読者］域へ渡す［大会品質レポート］境界データの要約表示だ。
+    /// </summary>
     static void PrintTournamentQualityReportSummaryMetrics(TournamentQualityReportSummary summary)
     {
         Console.WriteLine("品質評価サマリー:");
@@ -13,6 +16,9 @@ internal static partial class Program
         Console.WriteLine($"- 最大利益: {summary.MostAdvantagedPlayerName} ({summary.MostAdvantagedDelta.ToString("+0.000;-0.000;0.000", CultureInfo.InvariantCulture)})\n");
     }
 
+    /// <summary>
+    /// ［読者］域へ渡す［大会品質レポート］境界データの表示だ。
+    /// </summary>
     static void PrintTournamentQualityReportSummary(TournamentQualityReportData tournamentQualityReportData)
     {
         PrintTournamentQualityReportSummaryMetrics(tournamentQualityReportData.Summary);
@@ -37,11 +43,17 @@ internal static partial class Program
         Console.WriteLine();
     }
 
+    /// <summary>
+    /// ［読者］域へ渡す［大会品質レポート］境界データの選手別ハイライト表示だ。
+    /// </summary>
     static void PrintTournamentQualityReportPlayerHighlights(TournamentQualityReportData tournamentQualityReportData)
     {
         PrintTournamentQualityReportPlayerHighlightsRows(tournamentQualityReportData.PlayerRows);
     }
 
+    /// <summary>
+    /// ［読者］域へ渡す［大会品質レポート］境界データのスイープ表示だ。
+    /// </summary>
     static void PrintTournamentQualitySweepReportRows(TournamentQualitySweepReportData tournamentQualitySweepReportData)
     {
         PrintTournamentQualitySweepReportTable(tournamentQualitySweepReportData.SweepRows);

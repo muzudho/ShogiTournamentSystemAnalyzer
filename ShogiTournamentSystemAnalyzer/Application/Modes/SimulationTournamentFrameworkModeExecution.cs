@@ -34,7 +34,7 @@ internal static partial class Program
         }
 
         // ［大会ルールデータ］
-        var tournamentRuleData = BuildTournamentRuleData(context, dslDefinition);
+        var tournamentRuleData = BuildTournamentRuleBoundaryData(context, dslDefinition);
 
         // ［初回状態］
         var initialState = new TournamentState(0, players, stages, matchRecords);
@@ -64,16 +64,16 @@ internal static partial class Program
         var executionResult = aggregateResult.RepresentativeExecutionResult;
 
         // ［選手一覧データ］
-        var playerListData = BuildPlayerListData(players);
+        var playerListData = BuildPlayerListBoundaryData(players);
 
         // ［順位設定データ］
-        var rankingSettingsData = BuildRankingSettingsData(tournamentRuleData);
+        var rankingSettingsData = BuildRankingSettingsBoundaryData(tournamentRuleData);
 
         // ［大会結果データ］
-        var tournamentResultData = BuildTournamentResultData(executionResult);
+        var tournamentResultData = BuildTournamentResultBoundaryData(executionResult);
 
         // ［最終順位データ］
-        var finalRankingData = BuildFinalRankingData(executionResult);
+        var finalRankingData = BuildFinalRankingBoundaryData(executionResult);
 
         // ［大会進行フレームワークで使用する標準的な選手・対局表］
         var standardPlayers = playerListData.Players

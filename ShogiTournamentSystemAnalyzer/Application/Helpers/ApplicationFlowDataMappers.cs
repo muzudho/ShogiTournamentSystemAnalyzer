@@ -1,6 +1,6 @@
 internal static partial class Program
 {
-    static TournamentRuleData BuildTournamentRuleData(TournamentFrameworkModeContext context, TournamentDslDefinition? dslDefinition)
+    static TournamentRuleData BuildTournamentRuleBoundaryData(TournamentFrameworkModeContext context, TournamentDslDefinition? dslDefinition)
     {
         return new TournamentRuleData(
             RuleProfileMode.TournamentFramework,
@@ -13,12 +13,12 @@ internal static partial class Program
                 : "大会進行フレームワークの大会ルールデータ（DSL読込あり）");
     }
 
-    static PlayerListData BuildPlayerListData(IReadOnlyList<PlayerEntry> players)
+    static PlayerListData BuildPlayerListBoundaryData(IReadOnlyList<PlayerEntry> players)
     {
         return new PlayerListData(players);
     }
 
-    static RankingSettingsData BuildRankingSettingsData(TournamentRuleData tournamentRuleData)
+    static RankingSettingsData BuildRankingSettingsBoundaryData(TournamentRuleData tournamentRuleData)
     {
         return new RankingSettingsData(
             tournamentRuleData.TournamentRuleSetMode ?? TournamentRuleSetMode.Neutral,
@@ -26,7 +26,7 @@ internal static partial class Program
             Note: "大会進行フレームワークの最終順位設定データ");
     }
 
-    static TournamentResultData BuildTournamentResultData(TournamentFrameworkExecutionResult executionResult)
+    static TournamentResultData BuildTournamentResultBoundaryData(TournamentFrameworkExecutionResult executionResult)
     {
         return new TournamentResultData(
             executionResult.FinalState.MatchRecords,
@@ -35,7 +35,7 @@ internal static partial class Program
             executionResult.CompletedNaturally);
     }
 
-    static FinalRankingData BuildFinalRankingData(TournamentFrameworkExecutionResult executionResult)
+    static FinalRankingData BuildFinalRankingBoundaryData(TournamentFrameworkExecutionResult executionResult)
     {
         return new FinalRankingData(
             executionResult.OverallRanking,
@@ -43,7 +43,7 @@ internal static partial class Program
             Note: "大会進行フレームワークの最終順位データ");
     }
 
-    static TournamentQualityReportData BuildTournamentQualityReportData(TournamentQualityReportRun qualityEvaluationRun)
+    static TournamentQualityReportData BuildTournamentQualityReportBoundaryData(TournamentQualityReportRun qualityEvaluationRun)
     {
         return new TournamentQualityReportData(
             qualityEvaluationRun.PlayerRows,
@@ -51,7 +51,7 @@ internal static partial class Program
             qualityEvaluationRun.CalculationMode);
     }
 
-    static TournamentQualitySweepReportData BuildTournamentQualitySweepReportData(
+    static TournamentQualitySweepReportData BuildTournamentQualitySweepReportBoundaryData(
         IReadOnlyList<TournamentQualitySweepReportRow> sweepRows,
         bool stoppedByTimeout)
     {

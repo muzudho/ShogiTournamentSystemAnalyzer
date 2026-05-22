@@ -68,7 +68,7 @@ internal static partial class Program
             }
         }
 
-        return BuildTournamentQualitySweepReportData(sweepRows, stoppedByTimeout);
+        return BuildTournamentQualitySweepReportBoundaryData(sweepRows, stoppedByTimeout);
     }
 
     /// <summary>
@@ -120,7 +120,7 @@ internal static partial class Program
         TournamentQualityEvaluationExecutionOptions executionOptions)
     {
         var qualityEvaluationRun = ExecuteTournamentQualityEvaluationRun(input, ruleDefinition, executionOptions);
-        return BuildTournamentQualityReportData(qualityEvaluationRun);
+        return BuildTournamentQualityReportBoundaryData(qualityEvaluationRun);
     }
 
     static TournamentQualityEvaluationExecutionOptions ReadTournamentQualityEvaluationExecutionOptions(
