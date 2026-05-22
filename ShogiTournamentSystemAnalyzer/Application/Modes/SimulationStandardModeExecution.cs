@@ -19,12 +19,12 @@ internal static partial class Program
             Console.WriteLine($"未対局の選手 {context.ExcludedParticipantCount} 人を結果から除外します。\n");
         }
 
-        PrintMatchesCsv(context.Participants, context.Matches);
+        ConsoleResultPrinter.PrintMatchesCsv(context.Participants, context.Matches);
         Console.WriteLine($"\n総対局数: {context.Matches.Count}");
 
         var result = ExecuteStandardModeCalculation(context);
         var resultRows = RankingResultRowBuilder.BuildResultRows(context.Participants, context.Matches, result, context.FirstPlayerWinRatePercent);
-        PrintResult(context.Participants.Count, result, context.FirstPlayerWinRatePercent, resultRows);
+        ConsoleResultPrinter.PrintResult(context.Participants.Count, result, context.FirstPlayerWinRatePercent, resultRows);
         if (result.Mode.Contains("時間切れ", StringComparison.Ordinal))
         {
             Console.WriteLine($"シミュレーションは時間上限 {Program.SimulationTimeLimit.TotalMinutes:F0} 分で打ち切りました。\n");

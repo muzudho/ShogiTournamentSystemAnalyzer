@@ -129,11 +129,11 @@ internal static partial class Program
             Console.WriteLine($"DSL OverallRanking: {dslDefinition.OverallRankingRuleName}\n");
         }
 
-        PrintMatchesCsv(standardPlayers, standardMatches, "大会進行フレームワークで読み込んだ対局CSV:");
+        ConsoleResultPrinter.PrintMatchesCsv(standardPlayers, standardMatches, "大会進行フレームワークで読み込んだ対局CSV:");
         Console.WriteLine("注記: これ以降の順位表は複数回試行の aggregate 結果です。");
         Console.WriteLine("注記: あとで出力する大会結果CSV/Markdownは代表実行1件の対局記録です。\n");
-        PrintRepresentativeExecutionRanking(representativeExecutionRankRows, rankingSettingsData.TournamentRuleSetMode);
-        PrintResult(standardPlayers.Length, result, tournamentRuleData.FirstPlayerWinRatePercent ?? context.FirstPlayerWinRatePercent, resultRows);
+        ConsoleResultPrinter.PrintRepresentativeExecutionRanking(representativeExecutionRankRows, rankingSettingsData.TournamentRuleSetMode);
+        ConsoleResultPrinter.PrintResult(standardPlayers.Length, result, tournamentRuleData.FirstPlayerWinRatePercent ?? context.FirstPlayerWinRatePercent, resultRows);
         if (result.Mode.Contains("時間切れ", StringComparison.Ordinal))
         {
             Console.WriteLine($"シミュレーションは時間上限 {Program.SimulationTimeLimit.TotalMinutes:F0} 分で打ち切りました。\n");

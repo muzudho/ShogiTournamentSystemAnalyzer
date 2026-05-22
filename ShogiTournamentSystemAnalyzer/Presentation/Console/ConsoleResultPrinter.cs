@@ -8,12 +8,12 @@ using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
 using System.Globalization;
 
-internal static partial class Program
+internal static class ConsoleResultPrinter
 {
     /// <summary>
     /// ［読者］域へ渡す［大会品質レポート］境界データの要約表示だ。
     /// </summary>
-    static void PrintTournamentQualityReportSummaryMetrics(TournamentQualityReportSummary summary)
+    internal static void PrintTournamentQualityReportSummaryMetrics(TournamentQualityReportSummary summary)
     {
         Console.WriteLine("品質評価サマリー:");
         Console.WriteLine($"- Spearman 相関: {summary.SpearmanCorrelation.ToString("F4", CultureInfo.InvariantCulture)}");
@@ -27,12 +27,12 @@ internal static partial class Program
     /// <summary>
     /// ［読者］域へ渡す［大会品質レポート］境界データの表示だ。
     /// </summary>
-    static void PrintTournamentQualityReportSummary(TournamentQualityReportData tournamentQualityReportData)
+    internal static void PrintTournamentQualityReportSummary(TournamentQualityReportData tournamentQualityReportData)
     {
         PrintTournamentQualityReportSummaryMetrics(tournamentQualityReportData.Summary);
     }
 
-    static void PrintTournamentQualityReportPlayerHighlightsRows(IReadOnlyList<TournamentQualityReportPlayerRow> playerRows)
+    internal static void PrintTournamentQualityReportPlayerHighlightsRows(IReadOnlyList<TournamentQualityReportPlayerRow> playerRows)
     {
         Console.WriteLine("品質評価 選手別ハイライト:");
         Console.WriteLine("Elo順位  名前                 期待総合順位   ずれ      総合1位確率   総合上位8確率");
@@ -54,7 +54,7 @@ internal static partial class Program
     /// <summary>
     /// ［読者］域へ渡す［大会品質レポート］境界データの選手別ハイライト表示だ。
     /// </summary>
-    static void PrintTournamentQualityReportPlayerHighlights(TournamentQualityReportData tournamentQualityReportData)
+    internal static void PrintTournamentQualityReportPlayerHighlights(TournamentQualityReportData tournamentQualityReportData)
     {
         PrintTournamentQualityReportPlayerHighlightsRows(tournamentQualityReportData.PlayerRows);
     }
@@ -62,12 +62,31 @@ internal static partial class Program
     /// <summary>
     /// ［読者］域へ渡す［大会品質レポート］境界データのスイープ表示だ。
     /// </summary>
-    static void PrintTournamentQualitySweepReportRows(TournamentQualitySweepReportData tournamentQualitySweepReportData)
+    internal static void PrintTournamentQualitySweepReportRows(TournamentQualitySweepReportData tournamentQualitySweepReportData)
     {
         PrintTournamentQualitySweepReportTable(tournamentQualitySweepReportData.SweepRows);
     }
 
-    static void PrintResult(int playerCount, CalculationResult result, double firstPlayerWinRatePercent, IReadOnlyList<ResultRow> resultRows)
+    internal static void PrintTournamentQualitySweepReportTable(IReadOnlyList<TournamentQualitySweepReportRow> sweepRows)
+    {
+        Console.WriteLine("n%スイープ結果:");
+        Console.WriteLine("先手勝率    Spearman   平均順位ずれ   上位8残留   Elo1位総合1位");
+
+        foreach (var row in sweepRows)
+        {
+            Console.WriteLine(
+                row.FirstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture).PadLeft(8)
+                + "%"
+                + row.SpearmanCorrelation.ToString("F4", CultureInfo.InvariantCulture).PadLeft(12)
+                + row.MeanAbsoluteRankError.ToString("F3", CultureInfo.InvariantCulture).PadLeft(14)
+                + row.AverageTop8Retention.ToString("F3", CultureInfo.InvariantCulture).PadLeft(12)
+                + ((row.EloTop1OverallTop1Probability * 100).ToString("F2", CultureInfo.InvariantCulture) + "%").PadLeft(16));
+        }
+
+        Console.WriteLine();
+    }
+
+    internal static void PrintResult(int playerCount, CalculationResult result, double firstPlayerWinRatePercent, IReadOnlyList<ResultRow> resultRows)
     {
         Console.WriteLine($"計算方法: {result.Mode}\n");
         Console.WriteLine($"同Elo対局時の先手勝率: {firstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture)}%\n");
@@ -104,7 +123,7 @@ internal static partial class Program
         }
     }
 
-    static void PrintRepresentativeExecutionRanking(IReadOnlyList<RepresentativeExecutionRankRow> rows, TournamentRuleSetMode tournamentRuleSetMode)
+    internal static void PrintRepresentativeExecutionRanking(IReadOnlyList<Program.RepresentativeExecutionRankRow> rows, TournamentRuleSetMode tournamentRuleSetMode)
     {
         Console.WriteLine($"代表実行順位（{TournamentRuleSetRule.GetLabel(tournamentRuleSetMode)}）:");
         var nameWidth = Math.Max(6, rows.Max(x => x.Name.Length) + 2);
@@ -129,7 +148,7 @@ internal static partial class Program
         Console.WriteLine();
     }
 
-    static void PrintFinalStageResult(CalculationResult result, double firstPlayerWinRatePercent, IReadOnlyList<FinalStageResultRow> resultRows)
+    internal static void PrintFinalStageResult(CalculationResult result, double firstPlayerWinRatePercent, IReadOnlyList<FinalStageResultRow> resultRows)
     {
         Console.WriteLine($"計算方法: {result.Mode}\n");
         Console.WriteLine($"同Elo対局時の先手勝率: {firstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture)}%\n");
@@ -168,12 +187,12 @@ internal static partial class Program
         }
     }
 
-    static void PrintMatchesCsv(IReadOnlyList<Player> players, IReadOnlyList<Match> matches)
+    internal static void PrintMatchesCsv(IReadOnlyList<Player> players, IReadOnlyList<Match> matches)
     {
         PrintMatchesCsv(players, matches, "生成された対局CSV:");
     }
 
-    static void PrintMatchesCsv(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, string title)
+    internal static void PrintMatchesCsv(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, string title)
     {
         Console.WriteLine(title);
         Console.WriteLine("first,second");

@@ -48,8 +48,8 @@ internal static partial class Program
             ruleDefinition,
             executionOptions);
 
-        PrintTournamentQualityReportSummary(tournamentQualityReportData);
-        PrintTournamentQualityReportPlayerHighlights(tournamentQualityReportData);
+        ConsoleResultPrinter.PrintTournamentQualityReportSummary(tournamentQualityReportData);
+        ConsoleResultPrinter.PrintTournamentQualityReportPlayerHighlights(tournamentQualityReportData);
         if (tournamentQualityReportData.CalculationMode.Contains("時間切れ", StringComparison.Ordinal))
         {
             Console.WriteLine($"シミュレーションは時間上限 {Program.SimulationTimeLimit.TotalMinutes:F0} 分で打ち切りました。\n");

@@ -30,7 +30,7 @@ internal static partial class Program
 
         if (input.ReferenceMatches.Count > 0)
         {
-            PrintMatchesCsv(input.Participants, input.ReferenceMatches, "参考対局CSV:");
+            ConsoleResultPrinter.PrintMatchesCsv(input.Participants, input.ReferenceMatches, "参考対局CSV:");
             Console.WriteLine($"参考対局数: {input.ReferenceMatches.Count}");
             Console.WriteLine("参考対局は品質評価に含めません。\n");
         }
@@ -139,21 +139,7 @@ internal static partial class Program
     /// <param name="sweepRows"></param>
     static void PrintTournamentQualitySweepReportTable(IReadOnlyList<TournamentQualitySweepReportRow> sweepRows)
     {
-        Console.WriteLine("n%スイープ結果:");
-        Console.WriteLine("先手勝率    Spearman   平均順位ずれ   上位8残留   Elo1位総合1位");
-
-        foreach (var row in sweepRows)
-        {
-            Console.WriteLine(
-                row.FirstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture).PadLeft(8)
-                + "%"
-                + row.SpearmanCorrelation.ToString("F4", CultureInfo.InvariantCulture).PadLeft(12)
-                + row.MeanAbsoluteRankError.ToString("F3", CultureInfo.InvariantCulture).PadLeft(14)
-                + row.AverageTop8Retention.ToString("F3", CultureInfo.InvariantCulture).PadLeft(12)
-                + ((row.EloTop1OverallTop1Probability * 100).ToString("F2", CultureInfo.InvariantCulture) + "%").PadLeft(16));
-        }
-
-        Console.WriteLine();
+        ConsoleResultPrinter.PrintTournamentQualitySweepReportTable(sweepRows);
     }
 }
 
