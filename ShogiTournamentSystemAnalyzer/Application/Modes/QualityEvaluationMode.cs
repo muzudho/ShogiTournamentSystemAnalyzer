@@ -52,7 +52,7 @@ internal static partial class Program
     static bool TryReadQualityEvaluationRuleDefinition(
         IReadOnlyList<Player> players,
         RuleProfileMode ruleProfileMode,
-        out QualityEvaluationRuleDefinition ruleDefinition)
+        out TournamentQualityEvaluationRuleDefinition ruleDefinition)
     {
         var groupingMode = ruleProfileMode == RuleProfileMode.FinalStage
             ? FinalStageGroupingMode.On
@@ -103,7 +103,7 @@ internal static partial class Program
             additionalApexPlayers = new List<Player>();
         }
 
-        ruleDefinition = new QualityEvaluationRuleDefinition(
+        ruleDefinition = new TournamentQualityEvaluationRuleDefinition(
             groupingMode,
             tournamentRuleSetMode,
             groupMap,
@@ -118,8 +118,8 @@ internal static partial class Program
 
     static bool TryReadQualityEvaluationInput(
         IReadOnlyList<Player> players,
-        QualityEvaluationRuleDefinition ruleDefinition,
-        out QualityEvaluationInput input)
+        TournamentQualityEvaluationRuleDefinition ruleDefinition,
+        out TournamentQualityEvaluationInput input)
     {
         var matches = ReadMatchesFromCsv(players);
         var matchesAreValid = ruleDefinition.UsesFinalStageGrouping
@@ -145,7 +145,7 @@ internal static partial class Program
                 innovExpectedRankOffsetMode);
         }
 
-        input = new QualityEvaluationInput(
+        input = new TournamentQualityEvaluationInput(
             players,
             matches,
             referenceMatches,

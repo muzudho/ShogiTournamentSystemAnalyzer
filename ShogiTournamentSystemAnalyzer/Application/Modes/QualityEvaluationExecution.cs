@@ -12,8 +12,8 @@ internal static partial class Program
     /// <param name="ruleDefinition"></param>
     /// <param name="executionOptions"></param>
     static void RunTournamentQualitySweepExperiment(
-        QualityEvaluationInput input,
-        QualityEvaluationRuleDefinition ruleDefinition,
+        TournamentQualityEvaluationInput input,
+        TournamentQualityEvaluationRuleDefinition ruleDefinition,
         TournamentQualityEvaluationExecutionOptions executionOptions)
     {
         var tournamentQualitySweepReportData = ExecuteTournamentQualitySweepReport(input, ruleDefinition, executionOptions);
@@ -36,8 +36,8 @@ internal static partial class Program
     /// <param name="executionOptions"></param>
     /// <returns></returns>
     static TournamentQualitySweepReportData ExecuteTournamentQualitySweepReport(
-        QualityEvaluationInput input,
-        QualityEvaluationRuleDefinition ruleDefinition,
+        TournamentQualityEvaluationInput input,
+        TournamentQualityEvaluationRuleDefinition ruleDefinition,
         TournamentQualityEvaluationExecutionOptions executionOptions)
     {
         var sweepRows = new List<TournamentQualitySweepReportRow>();
@@ -80,8 +80,8 @@ internal static partial class Program
     /// <param name="executionOptions">The execution options controlling simulation count and first player win rate percentage.</param>
     /// <returns>A completed quality evaluation run containing player rows, quality summary, and the calculation mode used.</returns>
     static TournamentQualityReportRun ExecuteTournamentQualityEvaluationRun(
-        QualityEvaluationInput input,
-        QualityEvaluationRuleDefinition ruleDefinition,
+        TournamentQualityEvaluationInput input,
+        TournamentQualityEvaluationRuleDefinition ruleDefinition,
         TournamentQualityEvaluationExecutionOptions executionOptions)
     {
         var firstPlayerWinRatePercent = executionOptions.FirstPlayerWinRatePercent!.Value;
@@ -115,8 +115,8 @@ internal static partial class Program
     /// <param name="executionOptions"></param>
     /// <returns></returns>
     static TournamentQualityReportData ExecuteTournamentQualityReport(
-        QualityEvaluationInput input,
-        QualityEvaluationRuleDefinition ruleDefinition,
+        TournamentQualityEvaluationInput input,
+        TournamentQualityEvaluationRuleDefinition ruleDefinition,
         TournamentQualityEvaluationExecutionOptions executionOptions)
     {
         var qualityEvaluationRun = ExecuteTournamentQualityEvaluationRun(input, ruleDefinition, executionOptions);
@@ -124,8 +124,8 @@ internal static partial class Program
     }
 
     static TournamentQualityEvaluationExecutionOptions ReadTournamentQualityEvaluationExecutionOptions(
-        QualityEvaluationInput input,
-        QualityEvaluationRuleDefinition ruleDefinition)
+        TournamentQualityEvaluationInput input,
+        TournamentQualityEvaluationRuleDefinition ruleDefinition)
     {
         var sweepOptions = ReadTournamentQualitySweepOptions();
 

@@ -9,8 +9,8 @@ internal static partial class Program
     /// <param name="input"></param>
     /// <param name="ruleDefinition"></param>
     static void PrintTournamentQualityEvaluationContext(
-        QualityEvaluationInput input,
-        QualityEvaluationRuleDefinition ruleDefinition)
+        TournamentQualityEvaluationInput input,
+        TournamentQualityEvaluationRuleDefinition ruleDefinition)
     {
         Console.WriteLine($"順位ルール: {TournamentRuleSetRule.GetLabel(ruleDefinition.TournamentRuleSetMode)}\n");
         Console.WriteLine($"Apex / Innov の分け方: {FinalStageGroupingRule.GetLabel(ruleDefinition.GroupingMode)}\n");
@@ -35,7 +35,7 @@ internal static partial class Program
     /// </summary>
     /// <param name="ruleDefinition"></param>
     /// <returns></returns>
-    static TournamentQualityEvaluationOutputOptions ReadTournamentQualityReportOutputOptions(QualityEvaluationRuleDefinition ruleDefinition)
+    static TournamentQualityEvaluationOutputOptions ReadTournamentQualityReportOutputOptions(TournamentQualityEvaluationRuleDefinition ruleDefinition)
     {
         var reportGroupingOptions = ReadExperimentalReportGroupingOptions();
         var defaultOutputCsvPath = BuildQualitySummaryDefaultOutputPath(
@@ -55,7 +55,7 @@ internal static partial class Program
     /// </summary>
     /// <param name="ruleDefinition"></param>
     /// <returns></returns>
-    static TournamentQualityEvaluationOutputOptions ReadTournamentQualitySweepReportOutputOptions(QualityEvaluationRuleDefinition ruleDefinition)
+    static TournamentQualityEvaluationOutputOptions ReadTournamentQualitySweepReportOutputOptions(TournamentQualityEvaluationRuleDefinition ruleDefinition)
     {
         var reportGroupingOptions = ReadExperimentalReportGroupingOptions();
         var defaultOutputCsvPath = BuildTournamentQualitySweepReportDefaultOutputPath(
