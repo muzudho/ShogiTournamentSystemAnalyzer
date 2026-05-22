@@ -88,8 +88,8 @@ internal static partial class Program
     /// <summary>
     /// シミュレーションは最大ｎ分までにするぜ（＾▽＾）！　あまり長くなりすぎると、結果が出る前に心が折れちゃうからな（＾～＾）！
     /// </summary>
-    private static readonly TimeSpan SimulationTimeLimit = TimeSpan.FromMinutes(3);
-    private static DateTime? _simulationDeadlineUtc;
+    internal static readonly TimeSpan SimulationTimeLimit = TimeSpan.FromMinutes(3);
+    internal static DateTime? _simulationDeadlineUtc;
 
 }
 

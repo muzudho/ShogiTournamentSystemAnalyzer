@@ -42,7 +42,7 @@ internal static partial class Program
             PrintResult(context.Participants.Count, result, context.FirstPlayerWinRatePercent, standardResultRows);
             if (result.Mode.Contains("時間切れ", StringComparison.Ordinal))
             {
-                Console.WriteLine($"シミュレーションは時間上限 {SimulationTimeLimit.TotalMinutes:F0} 分で打ち切りました。\n");
+                Console.WriteLine($"シミュレーションは時間上限 {Program.SimulationTimeLimit.TotalMinutes:F0} 分で打ち切りました。\n");
             }
 
             return result;
@@ -56,7 +56,7 @@ internal static partial class Program
             PrintFinalStageResult(result, context.FirstPlayerWinRatePercent, finalStageResultRows);
             if (result.Mode.Contains("時間切れ", StringComparison.Ordinal))
             {
-                Console.WriteLine($"シミュレーションは時間上限 {SimulationTimeLimit.TotalMinutes:F0} 分で打ち切りました。\n");
+                Console.WriteLine($"シミュレーションは時間上限 {Program.SimulationTimeLimit.TotalMinutes:F0} 分で打ち切りました。\n");
             }
 
             return result;
@@ -76,7 +76,7 @@ internal static partial class Program
         PrintFinalStageResult(finalStageSimulationResult, context.FirstPlayerWinRatePercent, finalStageResultRows);
         if (finalStageSimulationResult.Mode.Contains("時間切れ", StringComparison.Ordinal))
         {
-            Console.WriteLine($"シミュレーションは時間上限 {SimulationTimeLimit.TotalMinutes:F0} 分で打ち切りました。\n");
+            Console.WriteLine($"シミュレーションは時間上限 {Program.SimulationTimeLimit.TotalMinutes:F0} 分で打ち切りました。\n");
         }
 
         return finalStageSimulationResult;

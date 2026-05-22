@@ -7,10 +7,10 @@ internal static partial class Program
 {
     static SimulationBudgetScope BeginSimulationBudget()
     {
-        var ownsBudget = !_simulationDeadlineUtc.HasValue;
+        var ownsBudget = !Program._simulationDeadlineUtc.HasValue;
         if (ownsBudget)
         {
-            _simulationDeadlineUtc = DateTime.UtcNow + SimulationTimeLimit;
+            Program._simulationDeadlineUtc = DateTime.UtcNow + Program.SimulationTimeLimit;
         }
 
         return new SimulationBudgetScope(ownsBudget);
@@ -18,7 +18,7 @@ internal static partial class Program
 
     static bool HasSimulationTimeRemaining()
     {
-        return !_simulationDeadlineUtc.HasValue || DateTime.UtcNow < _simulationDeadlineUtc.Value;
+        return !Program._simulationDeadlineUtc.HasValue || DateTime.UtcNow < Program._simulationDeadlineUtc.Value;
     }
 
     static void NormalizePlaceProbabilities(double[,] placeProbabilities, int sampleCount)
@@ -40,7 +40,7 @@ internal static partial class Program
         {
             if (OwnsBudget)
             {
-                _simulationDeadlineUtc = null;
+                Program._simulationDeadlineUtc = null;
             }
         }
     }
