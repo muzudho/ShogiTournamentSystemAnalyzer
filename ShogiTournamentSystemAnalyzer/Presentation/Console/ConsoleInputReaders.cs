@@ -113,7 +113,7 @@ internal static partial class Program
         }
     }
 
-    static Dictionary<string, FinalStageGroup> ReadFinalStageGroupMap()
+    internal static Dictionary<string, FinalStageGroup> ReadFinalStageGroupMap()
     {
         var attempt = 0;
         while (true)

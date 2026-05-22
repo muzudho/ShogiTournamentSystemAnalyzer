@@ -43,6 +43,8 @@ internal static partial class Program
             var flowMode = ReadAnalysisFlowMode();
             var ruleProfileMode = ReadRuleProfileMode(flowMode);
 
+            // TODO: ここで本来選ぶべきなのは、［シミュレーション域］、［順位付け域］、［大会品質評価フロー域］の３つの内の１つでは（＾～＾）？
+
             switch ((flowMode, ruleProfileMode))
             {
                 // TODO: ［標準ルール］は［大会ルールという境界］に吸収されるはず（＾～＾）！
@@ -55,18 +57,22 @@ internal static partial class Program
                     RunFinalStageMode();
                     break;
 
+                // TODO: これは［シミュレーション域］に吸収されるはず（＾～＾）！
                 case (AnalysisFlowMode.Simulation, RuleProfileMode.TournamentFramework):
                     RunTournamentFrameworkMode();
                     break;
 
+                // TODO: ［空ルール］は［大会ルールという境界］に吸収されるはず（＾～＾）！
                 case (AnalysisFlowMode.Simulation, RuleProfileMode.Empty):
                     RunEmptyMode();
                     break;
 
+                // TODO: ［大会品質評価フロー域］（＾～＾）！　［標準ルール］は取り外せるはず（＾～＾）！
                 case (AnalysisFlowMode.QualityEvaluation, RuleProfileMode.Standard):
                     RunTournamentQualityEvaluationMode(RuleProfileMode.Standard);
                     break;
 
+                // TODO: ［大会品質評価フロー域］（＾～＾）！　［本戦ステージ］は取り外せるはず（＾～＾）！
                 case (AnalysisFlowMode.QualityEvaluation, RuleProfileMode.FinalStage):
                     RunTournamentQualityEvaluationMode(RuleProfileMode.FinalStage);
                     break;

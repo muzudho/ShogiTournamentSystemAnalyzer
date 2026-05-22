@@ -3,6 +3,7 @@
  */
 namespace ShogiTournamentSystemAnalyzer;
 
+using ShogiTournamentSystemAnalyzer.Application.Helpers;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
@@ -70,7 +71,7 @@ internal static partial class Program
             ? ReadTournamentRuleSetMode()
             : TournamentRuleSetMode.Neutral;
         var groupMap = ruleProfileMode == RuleProfileMode.FinalStage
-            ? ReadOptionalFinalStageGroupMap(groupingMode, players)
+            ? ModeSupportHelpers.ReadOptionalFinalStageGroupMap(groupingMode, players)
             : null;
 
         var playersAreValid = groupingMode == FinalStageGroupingMode.On
