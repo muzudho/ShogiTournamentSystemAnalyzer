@@ -11,7 +11,6 @@
 
   <ItemGroup>
     <Folder Include="Domain\Reader\" />
-    <Folder Include="Domain\Proposer\" />
     <Folder Include="Output\" />
   </ItemGroup>
 

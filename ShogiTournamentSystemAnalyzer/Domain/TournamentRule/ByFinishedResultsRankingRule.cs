@@ -1,3 +1,4 @@
+using ShogiTournamentSystemAnalyzer.Domain.Ranking;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 
 internal sealed class ByFinishedResultsRankingRule : IRankingRule

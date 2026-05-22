@@ -1,3 +1,8 @@
+/*
+ * ［順位付け域］
+ */
+namespace ShogiTournamentSystemAnalyzer.Domain.Ranking;
+
 /// <summary>
 /// ［選手のランキングの行］だ。
 /// </summary>

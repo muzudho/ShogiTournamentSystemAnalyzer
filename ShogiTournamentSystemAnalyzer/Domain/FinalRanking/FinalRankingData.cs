@@ -3,6 +3,8 @@
  */
 namespace ShogiTournamentSystemAnalyzer.Domain.FinalRanking;
 
+using ShogiTournamentSystemAnalyzer.Domain.Ranking;
+
 /// <summary>
 /// ［６大境界］のうち、［最終順位］境界データだ。
 /// </summary>

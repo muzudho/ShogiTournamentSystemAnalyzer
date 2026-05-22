@@ -1,3 +1,8 @@
+/*
+ * ［プレイヤー一覧という境界］
+ */
+namespace ShogiTournamentSystemAnalyzer.Domain.PlayerList;
+
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 
 /// <summary>
