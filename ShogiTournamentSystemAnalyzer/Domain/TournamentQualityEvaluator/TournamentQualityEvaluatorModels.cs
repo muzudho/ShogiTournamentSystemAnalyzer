@@ -1,11 +1,11 @@
 /*
- * ［大会品質評価フロー］で使われるモデルの定義
+ * ［大会品質評価フロー域］で使われるモデルの定義
  */
 
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 
 /// <summary>
-/// ［大会品質評価フロー　＞　選手の行］だ。
+/// ［大会品質評価フロー域　＞　選手の行］だ。
 /// </summary>
 /// <param name="Name">選手名</param>
 /// <param name="Group">グループ名</param>
@@ -26,7 +26,7 @@ readonly record struct TournamentQualityReportPlayerRow(
     double OverallTop8Probability);
 
 /// <summary>
-/// ［大会品質評価フロー　＞　合計］だ。
+/// ［大会品質評価フロー域　＞　合計］だ。
 /// </summary>
 /// <param name="SpearmanCorrelation">スピアマン相関係数</param>
 /// <param name="MeanAbsoluteRankError">平均絶対順位誤差</param>
@@ -47,7 +47,7 @@ readonly record struct TournamentQualityReportSummary(
     double MostAdvantagedDelta);
 
 /// <summary>
-/// ［大会品質評価フロー　＞　実行］だ。
+/// ［大会品質評価フロー域　＞　実行］だ。
 /// </summary>
 /// <param name="PlayerRows">品質評価での選手の各行</param>
 /// <param name="Summary">品質評価の合計</param>
@@ -58,7 +58,7 @@ readonly record struct TournamentQualityReportRun(
     string CalculationMode);
 
 /// <summary>
-/// ［大会品質評価フロー　＞　スイープオプション］だ。
+/// ［大会品質評価フロー域　＞　スイープオプション］だ。
 /// </summary>
 /// <param name="IsEnabled"></param>
 /// <param name="StartPercent"></param>
@@ -71,7 +71,7 @@ readonly record struct TournamentQualitySweepOptions(
     double StepPercent);
 
 /// <summary>
-/// ［大会品質評価フロー　＞　スイープ行］だ。
+/// ［大会品質評価フロー域　＞　スイープ行］だ。
 /// </summary>
 /// <param name="FirstPlayerWinRatePercent">先手勝率(%)</param>
 /// <param name="SpearmanCorrelation">スピアマン相関係数</param>
@@ -94,7 +94,7 @@ readonly record struct TournamentQualitySweepReportRow(
     double MostAdvantagedDelta);
 
 /// <summary>
-/// ［大会品質評価フロー　＞　実験的レポートグルーピングオプション］だ。
+/// ［大会品質評価フロー域　＞　実験的レポートグルーピングオプション］だ。
 /// </summary>
 /// <param name="IsEnabled"></param>
 /// <param name="Outcome"></param>
