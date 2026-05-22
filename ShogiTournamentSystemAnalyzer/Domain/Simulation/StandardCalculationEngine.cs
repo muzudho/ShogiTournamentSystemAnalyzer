@@ -188,7 +188,7 @@ internal static partial class Program
         }
     }
 
-    static double GetWinProbability(Player firstPlayer, Player secondPlayer, double firstPlayerWinRateRating)
+    internal static double GetWinProbability(Player firstPlayer, Player secondPlayer, double firstPlayerWinRateRating)
     {
         return 1.0 / (1.0 + Math.Pow(10.0, (secondPlayer.Rating - (firstPlayer.Rating + firstPlayerWinRateRating)) / 400.0));
     }

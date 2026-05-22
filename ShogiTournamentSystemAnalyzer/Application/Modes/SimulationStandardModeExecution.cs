@@ -4,6 +4,7 @@
 namespace ShogiTournamentSystemAnalyzer;
 
 using ShogiTournamentSystemAnalyzer.Application.Execution;
+using ShogiTournamentSystemAnalyzer.Domain.Ranking;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Infrastructure.Csv;
 
@@ -22,7 +23,7 @@ internal static partial class Program
         Console.WriteLine($"\n総対局数: {context.Matches.Count}");
 
         var result = ExecuteStandardModeCalculation(context);
-        var resultRows = BuildResultRows(context.Participants, context.Matches, result, context.FirstPlayerWinRatePercent);
+        var resultRows = RankingResultRowBuilder.BuildResultRows(context.Participants, context.Matches, result, context.FirstPlayerWinRatePercent);
         PrintResult(context.Participants.Count, result, context.FirstPlayerWinRatePercent, resultRows);
         if (result.Mode.Contains("時間切れ", StringComparison.Ordinal))
         {

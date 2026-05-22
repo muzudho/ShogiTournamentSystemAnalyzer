@@ -4,6 +4,7 @@
 namespace ShogiTournamentSystemAnalyzer;
 
 using ShogiTournamentSystemAnalyzer.Application.Execution;
+using ShogiTournamentSystemAnalyzer.Domain.Ranking;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Infrastructure.Csv;
@@ -39,7 +40,7 @@ internal static partial class Program
                 result = CalculateBySimulation(context.Participants, context.Matches, context.FirstPlayerWinRateRating, simulationCount, context.TournamentRuleSetMode);
             }
 
-            standardResultRows = BuildResultRows(context.Participants, context.Matches, result, context.FirstPlayerWinRatePercent);
+            standardResultRows = RankingResultRowBuilder.BuildResultRows(context.Participants, context.Matches, result, context.FirstPlayerWinRatePercent);
             PrintResult(context.Participants.Count, result, context.FirstPlayerWinRatePercent, standardResultRows);
             if (result.Mode.Contains("時間切れ", StringComparison.Ordinal))
             {
@@ -53,7 +54,7 @@ internal static partial class Program
         {
             Console.WriteLine("本戦専用の厳密計算を行います。\n");
             var result = CalculateFinalStageExactly(context.Participants, context.Matches, context.GroupMap!, context.EffectiveAdditionalApexCount, context.BoundaryRescueMode, context.FirstPlayerWinRateRating);
-            finalStageResultRows = BuildFinalStageResultRows(context.Participants, context.Matches, result, context.FirstPlayerWinRatePercent, context.GroupMap!, context.EffectiveAdditionalApexCount);
+            finalStageResultRows = RankingResultRowBuilder.BuildFinalStageResultRows(context.Participants, context.Matches, result, context.FirstPlayerWinRatePercent, context.GroupMap!, context.EffectiveAdditionalApexCount);
             PrintFinalStageResult(result, context.FirstPlayerWinRatePercent, finalStageResultRows);
             if (result.Mode.Contains("時間切れ", StringComparison.Ordinal))
             {
@@ -73,7 +74,7 @@ internal static partial class Program
         using var finalStageSimulationBudget = SimulationTimeBudget.BeginSimulationBudget();
         var finalStageSimulationResult = CalculateFinalStageBySimulation(context.Participants, context.Matches, context.GroupMap!, context.EffectiveAdditionalApexCount, context.BoundaryRescueMode, context.FirstPlayerWinRateRating, finalStageSimulationCount);
 
-        finalStageResultRows = BuildFinalStageResultRows(context.Participants, context.Matches, finalStageSimulationResult, context.FirstPlayerWinRatePercent, context.GroupMap!, context.EffectiveAdditionalApexCount);
+        finalStageResultRows = RankingResultRowBuilder.BuildFinalStageResultRows(context.Participants, context.Matches, finalStageSimulationResult, context.FirstPlayerWinRatePercent, context.GroupMap!, context.EffectiveAdditionalApexCount);
         PrintFinalStageResult(finalStageSimulationResult, context.FirstPlayerWinRatePercent, finalStageResultRows);
         if (finalStageSimulationResult.Mode.Contains("時間切れ", StringComparison.Ordinal))
         {

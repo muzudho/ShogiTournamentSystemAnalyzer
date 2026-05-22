@@ -1,16 +1,16 @@
 /*
  * ［順位付け域］
  */
-namespace ShogiTournamentSystemAnalyzer;
+namespace ShogiTournamentSystemAnalyzer.Domain.Ranking;
 
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
 
-internal static partial class Program
+internal static class RankingResultRowBuilder
 {
-    static List<ResultRow> BuildResultRows(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, CalculationResult result, double firstPlayerWinRatePercent)
+    internal static List<ResultRow> BuildResultRows(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, CalculationResult result, double firstPlayerWinRatePercent)
     {
-        var firstPlayerWinRateRating = ConvertFirstPlayerWinRatePercentToRating(firstPlayerWinRatePercent);
+        var firstPlayerWinRateRating = Program.ConvertFirstPlayerWinRatePercentToRating(firstPlayerWinRatePercent);
         var firstPlayerCounts = new int[players.Count];
         var secondPlayerCounts = new int[players.Count];
         var firstPlayerWinProbabilitySums = new double[players.Count];
@@ -22,7 +22,7 @@ internal static partial class Program
 
         foreach (var match in matches)
         {
-            var firstPlayerWinProbability = GetWinProbability(players[match.FirstPlayer], players[match.SecondPlayer], firstPlayerWinRateRating);
+            var firstPlayerWinProbability = Program.GetWinProbability(players[match.FirstPlayer], players[match.SecondPlayer], firstPlayerWinRateRating);
             firstPlayerCounts[match.FirstPlayer]++;
             secondPlayerCounts[match.SecondPlayer]++;
             firstPlayerWinProbabilitySums[match.FirstPlayer] += firstPlayerWinProbability;
@@ -48,7 +48,7 @@ internal static partial class Program
             var totalWinRate = matchCount == 0
                 ? 0.0
                 : totalWinProbabilitySums[playerIndex] / matchCount;
-            var effectiveRating = CalculateEquivalentNeutralRating(opponentRatings[playerIndex], totalWinRate);
+            var effectiveRating = Program.CalculateEquivalentNeutralRating(opponentRatings[playerIndex], totalWinRate);
             var placeProbabilities = Enumerable.Range(0, players.Count)
                 .Select(place => result.PlaceProbabilities[playerIndex, place])
                 .ToArray();
@@ -74,7 +74,7 @@ internal static partial class Program
         return rows;
     }
 
-    static List<FinalStageResultRow> BuildFinalStageResultRows(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, CalculationResult result, double firstPlayerWinRatePercent, IReadOnlyDictionary<string, FinalStageGroup> groupMap, int additionalApexCount)
+    internal static List<FinalStageResultRow> BuildFinalStageResultRows(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, CalculationResult result, double firstPlayerWinRatePercent, IReadOnlyDictionary<string, FinalStageGroup> groupMap, int additionalApexCount)
     {
         var standardRows = BuildResultRows(players, matches, result, firstPlayerWinRatePercent);
         var apexCount = groupMap.Count(x => x.Value == FinalStageGroup.Apex);

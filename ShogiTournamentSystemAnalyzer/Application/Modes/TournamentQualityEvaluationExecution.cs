@@ -4,6 +4,7 @@
 namespace ShogiTournamentSystemAnalyzer;
 
 using ShogiTournamentSystemAnalyzer.Application.Execution;
+using ShogiTournamentSystemAnalyzer.Domain.Ranking;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Infrastructure.Csv;
 
@@ -99,7 +100,7 @@ internal static partial class Program
                 ? CalculateBySimulation(input.Participants, input.Matches, firstPlayerWinRateRating, executionOptions.SimulationCount.Value, ruleDefinition.TournamentRuleSetMode)
                 : CalculateExactly(input.Participants, input.Matches, firstPlayerWinRateRating, ruleDefinition.TournamentRuleSetMode);
 
-        var resultRows = BuildResultRows(input.Participants, input.Matches, result, firstPlayerWinRatePercent);
+        var resultRows = RankingResultRowBuilder.BuildResultRows(input.Participants, input.Matches, result, firstPlayerWinRatePercent);
         var qualityPlayerRows = BuildTournamentQualityReportPlayerRows(
             resultRows,
             ruleDefinition.GroupMap,

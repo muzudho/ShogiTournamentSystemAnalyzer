@@ -12,7 +12,7 @@ internal static partial class Program
     /// </summary>
     /// <param name="firstPlayerWinRatePercent"></param>
     /// <returns></returns>
-    static double ConvertFirstPlayerWinRatePercentToRating(double firstPlayerWinRatePercent)
+    internal static double ConvertFirstPlayerWinRatePercentToRating(double firstPlayerWinRatePercent)
     {
         const double epsilon = 1e-9;
         var probability = Math.Clamp(firstPlayerWinRatePercent / 100.0, epsilon, 1.0 - epsilon);
@@ -67,7 +67,7 @@ internal static partial class Program
     /// <param name="opponentRatings"></param>
     /// <param name="targetAverageScore"></param>
     /// <returns></returns>
-    static double CalculateEquivalentNeutralRating(IReadOnlyList<double> opponentRatings, double targetAverageScore)
+    internal static double CalculateEquivalentNeutralRating(IReadOnlyList<double> opponentRatings, double targetAverageScore)
     {
         if (opponentRatings.Count == 0) return 0.0;
 
