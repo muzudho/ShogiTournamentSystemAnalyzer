@@ -29,7 +29,7 @@ enum VariableTop8Mode
     On,
 }
 
-enum QualityInnovExpectedRankOffsetMode
+enum TournamentQualityEvaluationInnovExpectedRankOffsetMode
 {
     Off,
     On,

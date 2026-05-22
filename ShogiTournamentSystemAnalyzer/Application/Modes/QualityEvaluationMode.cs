@@ -135,12 +135,12 @@ internal static partial class Program
 
         Console.WriteLine();
         var referenceMatches = ReadOptionalMatchesFromCsv(players, "参考対局CSVまたは Round/Black-White/対局記号表を貼り付けてください。大会記録に含めない場合だけ使います。");
-        var innovExpectedRankOffsetMode = QualityInnovExpectedRankOffsetMode.Off;
+        var innovExpectedRankOffsetMode = TournamentQualityEvaluationInnovExpectedRankOffsetMode.Off;
         var innovExpectedRankOffsetCount = 0;
         if (ruleDefinition.UsesFinalStageGrouping)
         {
-            innovExpectedRankOffsetMode = ReadQualityInnovExpectedRankOffsetMode();
-            innovExpectedRankOffsetCount = QualityInnovExpectedRankOffsetRule.GetComparisonRankOffset(
+            innovExpectedRankOffsetMode = ReadTournamentQualityEvaluationInnovExpectedRankOffsetMode();
+            innovExpectedRankOffsetCount = TournamentQualityEvaluationInnovExpectedRankOffsetRule.GetComparisonRankOffset(
                 ruleDefinition.EffectiveAdditionalApexCount,
                 innovExpectedRankOffsetMode);
         }

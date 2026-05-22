@@ -161,7 +161,7 @@ internal static partial class Program
         }
     }
 
-    static QualityInnovExpectedRankOffsetMode ReadQualityInnovExpectedRankOffsetMode()
+    static TournamentQualityEvaluationInnovExpectedRankOffsetMode ReadTournamentQualityEvaluationInnovExpectedRankOffsetMode()
     {
         Console.WriteLine("品質評価で Innov の期待順位ずれ補正を使いますか？");
         Console.WriteLine("本戦不出場Apexを Innov より前に置く制度に合わせて、Innov の期待順位を Apex 人数ぶん後ろへずらして比較する設定です。");
@@ -177,13 +177,13 @@ internal static partial class Program
             if (string.IsNullOrEmpty(input) || input == "1")
             {
                 Console.WriteLine();
-                return QualityInnovExpectedRankOffsetMode.Off;
+                return TournamentQualityEvaluationInnovExpectedRankOffsetMode.Off;
             }
 
             if (input == "2")
             {
                 Console.WriteLine();
-                return QualityInnovExpectedRankOffsetMode.On;
+                return TournamentQualityEvaluationInnovExpectedRankOffsetMode.On;
             }
 
             if (attempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("品質評価の Innov 比較基準順位補正", "1 または 2 以外が入力されました");
