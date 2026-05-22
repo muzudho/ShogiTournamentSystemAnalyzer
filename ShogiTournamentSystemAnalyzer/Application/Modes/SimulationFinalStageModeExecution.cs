@@ -118,12 +118,12 @@ internal static partial class Program
         IReadOnlyList<FinalStageResultRow>? finalStageResultRows)
     {
         var defaultOutputCsvPath = Path.GetFullPath($"final_stage_result_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
-        var outputCsvPath = ResolveOutputCsvPath(ConsolePromptReaders.ReadTextWithDefault(
+        var outputCsvPath = CsvOutputHelpers.ResolveOutputCsvPath(ConsolePromptReaders.ReadTextWithDefault(
             $"\n結果CSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
             defaultOutputCsvPath));
-        var outputMarkdownPath = ChangeOutputExtension(outputCsvPath, ".md");
+        var outputMarkdownPath = CsvOutputHelpers.ChangeOutputExtension(outputCsvPath, ".md");
         var referenceMatchesCsvPath = context.ReferenceMatches.Count > 0
-            ? BuildSiblingOutputCsvPath(outputCsvPath, "reference_matches")
+            ? CsvOutputHelpers.BuildSiblingOutputCsvPath(outputCsvPath, "reference_matches")
             : null;
         if (context.GroupingMode == FinalStageGroupingMode.On)
         {
@@ -151,7 +151,7 @@ internal static partial class Program
 
         if (context.ReferenceMatches.Count > 0)
         {
-            WriteReferenceMatchCsv(referenceMatchesCsvPath!, context.Participants, context.ReferenceMatches);
+            CsvOutputHelpers.WriteReferenceMatchCsv(referenceMatchesCsvPath!, context.Participants, context.ReferenceMatches);
             Console.WriteLine($"参考対局CSVを出力しました: {referenceMatchesCsvPath}");
         }
     }

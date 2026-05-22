@@ -10,7 +10,7 @@ using System.Globalization;
 
 internal static class ResultCsvWriter
 {
-    static string EscapeCsv(string value) => Program.EscapeCsv(value);
+    static string EscapeCsv(string value) => CsvOutputHelpers.EscapeCsv(value);
 
     /// <summary>
     /// ［品質評価］サマリーCSVを作成する
@@ -696,6 +696,17 @@ internal static class ResultCsvWriter
         return lines;
     }
 
+    /// <summary>
+    /// TODO: これは［大会品質評価レポート］かだぜ（＾～＾）？　メソッド名を分かりやすくしてほしい（＾～＾）！
+    /// </summary>
+    /// <param name="outputMarkdownPath"></param>
+    /// <param name="outputCsvPath"></param>
+    /// <param name="mode"></param>
+    /// <param name="firstPlayerWinRatePercent"></param>
+    /// <param name="resultRows"></param>
+    /// <param name="overviewNote"></param>
+    /// <param name="representativeRankingMarkdownPath"></param>
+    /// <returns></returns>
     internal static IEnumerable<string> CreateResultMarkdown(
         string outputMarkdownPath,
         string outputCsvPath,

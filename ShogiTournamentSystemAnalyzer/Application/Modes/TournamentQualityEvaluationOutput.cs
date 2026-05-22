@@ -50,7 +50,7 @@ internal static partial class Program
             ruleDefinition.BoundaryRescueMode,
             reportGroupingOptions,
             ruleDefinition.TournamentRuleSetMode);
-        var outputCsvPath = ResolveOutputCsvPath(ConsolePromptReaders.ReadTextWithDefault(
+        var outputCsvPath = CsvOutputHelpers.ResolveOutputCsvPath(ConsolePromptReaders.ReadTextWithDefault(
             $"\n品質評価サマリーCSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
             defaultOutputCsvPath));
         return new TournamentQualityEvaluationOutputOptions(reportGroupingOptions, outputCsvPath);
@@ -70,7 +70,7 @@ internal static partial class Program
             ruleDefinition.BoundaryRescueMode,
             reportGroupingOptions,
             ruleDefinition.TournamentRuleSetMode);
-        var outputCsvPath = ResolveOutputCsvPath(ConsolePromptReaders.ReadTextWithDefault(
+        var outputCsvPath = CsvOutputHelpers.ResolveOutputCsvPath(ConsolePromptReaders.ReadTextWithDefault(
             $"\nn%スイープ結果CSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
             defaultOutputCsvPath));
         return new TournamentQualityEvaluationOutputOptions(reportGroupingOptions, outputCsvPath);
@@ -89,12 +89,12 @@ internal static partial class Program
             outputPath: outputOptions.OutputCsvPath,
             getLines: () => ResultCsvWriter.CreateTournamentQualityReportSummaryCsv(tournamentQualityReportData.Summary, outputOptions.ReportGroupingOptions));
 
-        var playerCsvPath = BuildSiblingOutputCsvPath(outputOptions.OutputCsvPath, "quality_players");
+        var playerCsvPath = CsvOutputHelpers.BuildSiblingOutputCsvPath(outputOptions.OutputCsvPath, "quality_players");
         WriterHelper.WriteText(
             outputPath: playerCsvPath,
             getLines: () => ResultCsvWriter.CreateTournamentQualityReportPlayerCsv(tournamentQualityReportData.PlayerRows));
 
-        var summaryMarkdownPath = ChangeOutputExtension(outputOptions.OutputCsvPath, ".md");
+        var summaryMarkdownPath = CsvOutputHelpers.ChangeOutputExtension(outputOptions.OutputCsvPath, ".md");
         WriterHelper.WriteText(
             outputPath: summaryMarkdownPath,
             getLines: () => ResultCsvWriter.CreateTournamentQualityReportSummaryMarkdown(
@@ -124,7 +124,7 @@ internal static partial class Program
             outputPath: outputOptions.OutputCsvPath,
             getLines: () => ResultCsvWriter.CreateTournamentQualitySweepReportCsv(tournamentQualitySweepReportData.SweepRows, outputOptions.ReportGroupingOptions));
 
-        var sweepMarkdownPath = ChangeOutputExtension(outputOptions.OutputCsvPath, ".md");
+        var sweepMarkdownPath = CsvOutputHelpers.ChangeOutputExtension(outputOptions.OutputCsvPath, ".md");
         WriterHelper.WriteText(
             outputPath: sweepMarkdownPath,
             getLines: () => ResultCsvWriter.CreateTournamentQualitySweepReportMarkdown(sweepMarkdownPath, tournamentQualitySweepReportData.SweepRows, outputOptions.OutputCsvPath, outputOptions.ReportGroupingOptions));

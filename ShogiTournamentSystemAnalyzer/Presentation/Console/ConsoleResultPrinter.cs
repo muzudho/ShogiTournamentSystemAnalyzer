@@ -180,7 +180,7 @@ internal static partial class Program
 
         foreach (var match in matches)
         {
-            Console.WriteLine($"{EscapeCsv(players[match.FirstPlayer].Name)},{EscapeCsv(players[match.SecondPlayer].Name)}");
+            Console.WriteLine($"{CsvOutputHelpers.EscapeCsv(players[match.FirstPlayer].Name)},{CsvOutputHelpers.EscapeCsv(players[match.SecondPlayer].Name)}");
         }
 
         Console.WriteLine();

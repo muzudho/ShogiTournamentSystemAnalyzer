@@ -143,7 +143,7 @@ internal static partial class Program
         var requestedOutputPath = string.IsNullOrWhiteSpace(context.OutputPath)
             ? ConsolePromptReaders.ReadTextWithDefault($"\naggregate結果CSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ", defaultOutputCsvPath)
             : context.OutputPath!;
-        var outputCsvPath = ResolveOutputCsvPath(requestedOutputPath);
+        var outputCsvPath = CsvOutputHelpers.ResolveOutputCsvPath(requestedOutputPath);
         WriterHelper.WriteText(
             outputPath: outputCsvPath,
             getLines: () => ResultCsvWriter.CreateResultCsv(
@@ -152,11 +152,11 @@ internal static partial class Program
                 resultRows,
                 overviewNote: "この順位表は複数回試行の aggregate 結果です。大会結果CSVとは 1 対 1 には対応しません。"));
 
-        var outputMarkdownPath = ChangeOutputExtension(outputCsvPath, ".md");
-        var representativeRankingCsvPath = BuildSiblingOutputCsvPath(outputCsvPath, "tournament_framework_representative_ranking");
-        var representativeRankingMarkdownPath = ChangeOutputExtension(representativeRankingCsvPath, ".md");
-        var tournamentMatchRecordsCsvPath = BuildSiblingOutputCsvPath(outputCsvPath, "tournament_match_records_representative");
-        var tournamentMatchRecordsMarkdownPath = ChangeOutputExtension(tournamentMatchRecordsCsvPath, ".md");
+        var outputMarkdownPath = CsvOutputHelpers.ChangeOutputExtension(outputCsvPath, ".md");
+        var representativeRankingCsvPath = CsvOutputHelpers.BuildSiblingOutputCsvPath(outputCsvPath, "tournament_framework_representative_ranking");
+        var representativeRankingMarkdownPath = CsvOutputHelpers.ChangeOutputExtension(representativeRankingCsvPath, ".md");
+        var tournamentMatchRecordsCsvPath = CsvOutputHelpers.BuildSiblingOutputCsvPath(outputCsvPath, "tournament_match_records_representative");
+        var tournamentMatchRecordsMarkdownPath = CsvOutputHelpers.ChangeOutputExtension(tournamentMatchRecordsCsvPath, ".md");
 
         WriterHelper.WriteText(
             outputPath: outputMarkdownPath,

@@ -6,7 +6,7 @@ namespace ShogiTournamentSystemAnalyzer;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using System.Text;
 
-internal static partial class Program
+internal static class CsvOutputHelpers
 {
     internal static string ResolveOutputCsvPath(string inputPath)
     {
