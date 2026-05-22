@@ -1,3 +1,5 @@
+using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
+
 internal static class TournamentQualityEvaluationInnovExpectedRankOffsetRule
 {
     internal static string GetLabel(TournamentQualityEvaluationInnovExpectedRankOffsetMode mode)

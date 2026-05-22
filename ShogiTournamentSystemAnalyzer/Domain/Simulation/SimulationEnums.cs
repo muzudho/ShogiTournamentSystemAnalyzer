@@ -1,3 +1,5 @@
+﻿namespace ShogiTournamentSystemAnalyzer.Domain.Simulation;
+
 enum MatchStatus
 {
     Scheduled,

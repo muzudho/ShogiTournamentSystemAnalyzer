@@ -13,7 +13,6 @@
     <Folder Include="Domain\Modes\" />
     <Folder Include="Domain\Reader\" />
     <Folder Include="Domain\Ranking\" />
-    <Folder Include="Domain\Simulation\" />
     <Folder Include="Domain\Proposer\" />
     <Folder Include="Output\" />
   </ItemGroup>

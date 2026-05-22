@@ -1,3 +1,8 @@
+﻿namespace ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
+
+/// <summary>
+/// ［イノベーターモードで順位オフセットモード］
+/// </summary>
 enum TournamentQualityEvaluationInnovExpectedRankOffsetMode
 {
     Off,

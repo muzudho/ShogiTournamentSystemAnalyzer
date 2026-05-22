@@ -1,3 +1,6 @@
+using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
+using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
+
 internal static partial class Program
 {
     static Dictionary<string, FinalStageGroup>? ReadOptionalFinalStageGroupMap(FinalStageGroupingMode groupingMode, IReadOnlyList<Player> participants)
