@@ -1,4 +1,4 @@
-internal readonly record struct QualityEvaluationRuleDefinition(
+internal readonly record struct TournamentQualityEvaluationRuleDefinition(
     FinalStageGroupingMode GroupingMode,
     TournamentRuleSetMode TournamentRuleSetMode,
     IReadOnlyDictionary<string, FinalStageGroup>? GroupMap,
