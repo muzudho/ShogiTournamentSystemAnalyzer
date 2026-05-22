@@ -1,3 +1,5 @@
+using ShogiTournamentSystemAnalyzer.Domain.Simulation;
+
 internal sealed class FixedMatchResultResolver : IMatchResultResolver
 {
     internal static readonly FixedMatchResultResolver Instance = new();

@@ -1,6 +1,7 @@
 /*
  * ［大会品質評価フロー］の実行
  */
+using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Infrastructure.Csv;
 
 internal static partial class Program

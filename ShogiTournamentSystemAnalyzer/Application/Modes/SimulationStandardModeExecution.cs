@@ -1,3 +1,4 @@
+using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Infrastructure.Csv;
 
 internal static partial class Program

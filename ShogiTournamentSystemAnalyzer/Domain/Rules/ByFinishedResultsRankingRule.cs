@@ -1,3 +1,5 @@
+using ShogiTournamentSystemAnalyzer.Domain.Simulation;
+
 internal sealed class ByFinishedResultsRankingRule : IRankingRule
 {
     internal static readonly ByFinishedResultsRankingRule Instance = new();

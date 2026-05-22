@@ -1,3 +1,5 @@
+using ShogiTournamentSystemAnalyzer.Domain.Simulation;
+
 sealed record class TournamentDslDefinition(
     string TimeAxis,
     string DefaultMatchResultResolver,

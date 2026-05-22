@@ -1,3 +1,5 @@
+using ShogiTournamentSystemAnalyzer.Domain.Simulation;
+
 internal sealed class AllMatchesFinishedTerminationRule : ITerminationRule
 {
     internal static readonly AllMatchesFinishedTerminationRule Instance = new();

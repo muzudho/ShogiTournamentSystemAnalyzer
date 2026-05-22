@@ -1,3 +1,6 @@
+using ShogiTournamentSystemAnalyzer.Domain.Simulation;
+using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
+
 internal static partial class Program
 {
     static CalculationResult CalculateFinalStageExactly(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, IReadOnlyDictionary<string, FinalStageGroup> groupMap, int additionalApexCount, BoundaryRescueMode boundaryRescueMode, double firstPlayerWinRateRating, int promotedInnovCount = 0)

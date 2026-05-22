@@ -1,3 +1,5 @@
+using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
+
 internal static partial class Program
 {
     static void ConfigureInputSource(IReadOnlyList<string> args)

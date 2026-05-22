@@ -1,3 +1,5 @@
+using ShogiTournamentSystemAnalyzer.Domain.Simulation;
+
 internal sealed class TwillTournamentRankingRule : IRankingRule
 {
     internal static readonly TwillTournamentRankingRule Instance = new(useCommonOpponentWeight: false);

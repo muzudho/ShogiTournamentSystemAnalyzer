@@ -1,3 +1,5 @@
+using ShogiTournamentSystemAnalyzer.Domain.Simulation;
+
 internal static partial class Program
 {
     static TournamentDslDefinition ParseTournamentDsl(string text, string sourceLabel)

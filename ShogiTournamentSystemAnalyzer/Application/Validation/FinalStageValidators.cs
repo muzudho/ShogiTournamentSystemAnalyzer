@@ -1,3 +1,6 @@
+using ShogiTournamentSystemAnalyzer.Domain.Simulation;
+using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
+
 internal static partial class Program
 {
     static bool ValidateFinalStageParticipants(IReadOnlyList<Player> participants, IReadOnlyDictionary<string, FinalStageGroup> groupMap, out string errorMessage)

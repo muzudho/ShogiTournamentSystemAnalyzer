@@ -1,3 +1,4 @@
+using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using System.Text;
 
 internal static partial class Program
