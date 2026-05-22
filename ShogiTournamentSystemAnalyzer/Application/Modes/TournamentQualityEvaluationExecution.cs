@@ -4,6 +4,7 @@
 namespace ShogiTournamentSystemAnalyzer;
 
 using ShogiTournamentSystemAnalyzer.Application.Execution;
+using ShogiTournamentSystemAnalyzer.Application.Helpers;
 using ShogiTournamentSystemAnalyzer.Domain.Ranking;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
@@ -74,7 +75,7 @@ internal static partial class Program
             }
         }
 
-        return BuildTournamentQualitySweepReportBoundaryData(sweepRows, stoppedByTimeout);
+        return BoundaryDataBuilders.BuildTournamentQualitySweepReportBoundaryData(sweepRows, stoppedByTimeout);
     }
 
     /// <summary>
@@ -126,7 +127,7 @@ internal static partial class Program
         TournamentQualityEvaluationExecutionOptions executionOptions)
     {
         var qualityEvaluationRun = ExecuteTournamentQualityEvaluationRun(input, ruleDefinition, executionOptions);
-        return BuildTournamentQualityReportBoundaryData(qualityEvaluationRun);
+        return BoundaryDataBuilders.BuildTournamentQualityReportBoundaryData(qualityEvaluationRun);
     }
 
     static TournamentQualityEvaluationExecutionOptions ReadTournamentQualityEvaluationExecutionOptions(

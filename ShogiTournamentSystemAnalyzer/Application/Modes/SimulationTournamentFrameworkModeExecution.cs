@@ -8,6 +8,7 @@ using ShogiTournamentSystemAnalyzer.Domain.Ranking;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
 using ShogiTournamentSystemAnalyzer.Infrastructure.Csv;
+using ShogiTournamentSystemAnalyzer.Application.Helpers;
 
 internal static partial class Program
 {
@@ -43,7 +44,7 @@ internal static partial class Program
         }
 
         // ［大会ルールデータ］
-        var tournamentRuleData = BuildTournamentRuleBoundaryData(context, dslDefinition);
+        var tournamentRuleData = BoundaryDataBuilders.BuildTournamentRuleBoundaryData(context, dslDefinition);
 
         // ［初回状態］
         var initialState = new TournamentState(0, players, stages, matchRecords);
@@ -73,16 +74,16 @@ internal static partial class Program
         var executionResult = aggregateResult.RepresentativeExecutionResult;
 
         // ［選手一覧データ］
-        var playerListData = BuildPlayerListBoundaryData(players);
+        var playerListData = BoundaryDataBuilders.BuildPlayerListBoundaryData(players);
 
         // ［順位設定データ］
-        var rankingSettingsData = BuildRankingSettingsBoundaryData(tournamentRuleData);
+        var rankingSettingsData = BoundaryDataBuilders.BuildRankingSettingsBoundaryData(tournamentRuleData);
 
         // ［大会結果データ］
-        var tournamentResultData = BuildTournamentResultBoundaryData(executionResult);
+        var tournamentResultData = BoundaryDataBuilders.BuildTournamentResultBoundaryData(executionResult);
 
         // ［最終順位データ］
-        var finalRankingData = BuildFinalRankingBoundaryData(executionResult);
+        var finalRankingData = BoundaryDataBuilders.BuildFinalRankingBoundaryData(executionResult);
 
         // ［大会進行フレームワークで使用する標準的な選手・対局表］
         var standardPlayers = playerListData.Players

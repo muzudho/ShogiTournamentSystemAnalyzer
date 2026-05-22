@@ -1,7 +1,7 @@
 /*
- * ［プログラム］
+ * ［アプリケーション］のうち、6大境界データの組み立て役
  */
-namespace ShogiTournamentSystemAnalyzer;
+namespace ShogiTournamentSystemAnalyzer.Application.Helpers;
 
 using ShogiTournamentSystemAnalyzer.Domain.FinalRanking;
 using ShogiTournamentSystemAnalyzer.Domain.PlayerList;
@@ -10,9 +10,9 @@ using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
 
-internal static partial class Program
+internal static class BoundaryDataBuilders
 {
-    static TournamentRuleData BuildTournamentRuleBoundaryData(TournamentFrameworkModeContext context, TournamentDslDefinition? dslDefinition)
+    internal static TournamentRuleData BuildTournamentRuleBoundaryData(TournamentFrameworkModeContext context, TournamentDslDefinition? dslDefinition)
     {
         return new TournamentRuleData(
             RuleProfileMode.TournamentFramework,
@@ -25,12 +25,12 @@ internal static partial class Program
                 : "大会進行フレームワークの大会ルールデータ（DSL読込あり）");
     }
 
-    static PlayerListData BuildPlayerListBoundaryData(IReadOnlyList<PlayerEntry> players)
+    internal static PlayerListData BuildPlayerListBoundaryData(IReadOnlyList<PlayerEntry> players)
     {
         return new PlayerListData(players);
     }
 
-    static RankingSettingsData BuildRankingSettingsBoundaryData(TournamentRuleData tournamentRuleData)
+    internal static RankingSettingsData BuildRankingSettingsBoundaryData(TournamentRuleData tournamentRuleData)
     {
         return new RankingSettingsData(
             tournamentRuleData.TournamentRuleSetMode ?? TournamentRuleSetMode.Neutral,
@@ -38,7 +38,7 @@ internal static partial class Program
             Note: "大会進行フレームワークの最終順位設定データ");
     }
 
-    static TournamentResultData BuildTournamentResultBoundaryData(TournamentFrameworkExecutionResult executionResult)
+    internal static TournamentResultData BuildTournamentResultBoundaryData(TournamentFrameworkExecutionResult executionResult)
     {
         return new TournamentResultData(
             executionResult.FinalState.MatchRecords,
@@ -47,7 +47,7 @@ internal static partial class Program
             executionResult.CompletedNaturally);
     }
 
-    static FinalRankingData BuildFinalRankingBoundaryData(TournamentFrameworkExecutionResult executionResult)
+    internal static FinalRankingData BuildFinalRankingBoundaryData(TournamentFrameworkExecutionResult executionResult)
     {
         return new FinalRankingData(
             executionResult.OverallRanking,
@@ -55,7 +55,7 @@ internal static partial class Program
             Note: "大会進行フレームワークの最終順位データ");
     }
 
-    static TournamentQualityReportData BuildTournamentQualityReportBoundaryData(TournamentQualityReportRun qualityEvaluationRun)
+    internal static TournamentQualityReportData BuildTournamentQualityReportBoundaryData(TournamentQualityReportRun qualityEvaluationRun)
     {
         return new TournamentQualityReportData(
             qualityEvaluationRun.PlayerRows,
@@ -63,7 +63,7 @@ internal static partial class Program
             qualityEvaluationRun.CalculationMode);
     }
 
-    static TournamentQualitySweepReportData BuildTournamentQualitySweepReportBoundaryData(
+    internal static TournamentQualitySweepReportData BuildTournamentQualitySweepReportBoundaryData(
         IReadOnlyList<TournamentQualitySweepReportRow> sweepRows,
         bool stoppedByTimeout)
     {
