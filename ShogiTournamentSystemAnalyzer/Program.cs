@@ -34,7 +34,7 @@ internal static partial class Program
             Console.WriteLine("このプログラムは、２人用ゲーム大会（例えば将棋）の大会ルールをいくつか選び、コンピューター上で模擬戦し、その結果を比較して、より良いルール作りを目指すツールだぜ（＾▽＾）！\n");
 
             // 入力方法を選ばせる（＾▽＾）！
-            ConfigureInputSource(args);
+            InputSourceConfiguration.ConfigureInputSource(args);
 
             // 大きくモードが分かれるぜ（＾▽＾）！
             //

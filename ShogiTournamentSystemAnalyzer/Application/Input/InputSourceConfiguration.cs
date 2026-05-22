@@ -5,9 +5,9 @@ namespace ShogiTournamentSystemAnalyzer;
 
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 
-internal static partial class Program
+internal static class InputSourceConfiguration
 {
-    static void ConfigureInputSource(IReadOnlyList<string> args)
+    internal static void ConfigureInputSource(IReadOnlyList<string> args)
     {
         var inputFilePath = TryGetInputFilePathFromArgs(args);
         if (!string.IsNullOrWhiteSpace(inputFilePath))
