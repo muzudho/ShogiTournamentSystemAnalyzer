@@ -4,6 +4,7 @@
 namespace ShogiTournamentSystemAnalyzer;
 
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
+using ShogiTournamentSystemAnalyzer.Application.Helpers;
 
 internal static partial class Program
 {
@@ -17,7 +18,7 @@ internal static partial class Program
         Console.WriteLine();
         var allParticipants = ReadPlayersFromCsv();
         var allMatches = ReadMatchesFromCsv(allParticipants);
-        var (participants, matches) = FilterToScheduledParticipants(allParticipants, allMatches);
+        var (participants, matches) = ModeSupportHelpers.FilterToScheduledParticipants(allParticipants, allMatches);
 
         return new StandardModeContext(
             tournamentRuleSetMode,

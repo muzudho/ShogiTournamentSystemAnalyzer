@@ -45,10 +45,12 @@ internal static partial class Program
 
             switch ((flowMode, ruleProfileMode))
             {
+                // TODO: ［標準ルール］は［大会ルールという境界］に吸収されるはず（＾～＾）！
                 case (AnalysisFlowMode.Simulation, RuleProfileMode.Standard):
                     RunStandardMode();
                     break;
 
+                // TODO: ［本戦ステージ］は［大会ルールという境界］に吸収されるはず（＾～＾）！
                 case (AnalysisFlowMode.Simulation, RuleProfileMode.FinalStage):
                     RunFinalStageMode();
                     break;

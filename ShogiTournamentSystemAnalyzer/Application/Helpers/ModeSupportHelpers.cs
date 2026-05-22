@@ -1,22 +1,22 @@
 /*
- * ［プログラム］
+ * ［アプリケーション］のうち、モード共通補助
  */
-namespace ShogiTournamentSystemAnalyzer;
+namespace ShogiTournamentSystemAnalyzer.Application.Helpers;
 
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
 
-internal static partial class Program
+internal static class ModeSupportHelpers
 {
-    static Dictionary<string, FinalStageGroup>? ReadOptionalFinalStageGroupMap(FinalStageGroupingMode groupingMode, IReadOnlyList<Player> participants)
+    internal static Dictionary<string, FinalStageGroup>? ReadOptionalFinalStageGroupMap(FinalStageGroupingMode groupingMode, IReadOnlyList<Player> participants)
     {
         if (groupingMode == FinalStageGroupingMode.Off) return null;
 
-        return ReadFinalStageGroupMap();
+        return Program.ReadFinalStageGroupMap();
     }
 
-    static (List<Player> Participants, List<Match> Matches) FilterToScheduledParticipants(IReadOnlyList<Player> participants, IReadOnlyList<Match> matches)
+    internal static (List<Player> Participants, List<Match> Matches) FilterToScheduledParticipants(IReadOnlyList<Player> participants, IReadOnlyList<Match> matches)
     {
         var activeIndexes = matches
             .SelectMany(match => new[] { match.FirstPlayer, match.SecondPlayer })
