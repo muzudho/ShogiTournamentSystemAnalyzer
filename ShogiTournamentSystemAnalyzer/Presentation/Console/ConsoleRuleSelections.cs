@@ -6,9 +6,9 @@ namespace ShogiTournamentSystemAnalyzer;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
 
-internal static partial class Program
+internal static class ConsoleRuleReaders
 {
-    static TournamentRuleSetMode ReadTournamentRuleSetMode()
+    internal static TournamentRuleSetMode ReadTournamentRuleSetMode()
     {
         Console.WriteLine("順位ルールを選んでください。");
         Console.WriteLine("通常ルールでは Neutral / Twill をここで切り替えます。");
@@ -46,7 +46,7 @@ internal static partial class Program
         }
     }
 
-    static FinalStageGroupingMode ReadFinalStageGroupingMode()
+    internal static FinalStageGroupingMode ReadFinalStageGroupingMode()
     {
         Console.WriteLine("Apex / Innov の分け方を使いますか？");
         Console.WriteLine("1. On: Apex / Innov を使う");
@@ -76,7 +76,7 @@ internal static partial class Program
         }
     }
 
-    static AdditionalApexPlacementMode ReadAdditionalApexPlacementMode()
+    internal static AdditionalApexPlacementMode ReadAdditionalApexPlacementMode()
     {
         Console.WriteLine("本戦不出場Apexの扱いを選んでください。");
         Console.WriteLine("本戦選手とは別にいる Apex を総合順位へどう反映するかを選びます。");
@@ -107,7 +107,7 @@ internal static partial class Program
         }
     }
 
-    static BoundaryRescueMode ReadBoundaryRescueMode()
+    internal static BoundaryRescueMode ReadBoundaryRescueMode()
     {
         Console.WriteLine("境界救済戦を使いますか？");
         Console.WriteLine("Apex 最下位相当と Innov 最上位相当の入れ替わり余地を補う設定です。");
@@ -138,7 +138,7 @@ internal static partial class Program
         }
     }
 
-    static VariableTop8Mode ReadVariableTop8Mode()
+    internal static VariableTop8Mode ReadVariableTop8Mode()
     {
         Console.WriteLine("可変定員8ルールを使いますか？");
         Console.WriteLine("本戦不出場Apexの人数に応じて Innov 側の総合上位8人数を補正する設定です。");
@@ -169,7 +169,7 @@ internal static partial class Program
         }
     }
 
-    static TournamentQualityEvaluationInnovExpectedRankOffsetMode ReadTournamentQualityEvaluationInnovExpectedRankOffsetMode()
+    internal static TournamentQualityEvaluationInnovExpectedRankOffsetMode ReadTournamentQualityEvaluationInnovExpectedRankOffsetMode()
     {
         Console.WriteLine("品質評価で Innov の期待順位ずれ補正を使いますか？");
         Console.WriteLine("本戦不出場Apexを Innov より前に置く制度に合わせて、Innov の期待順位を Apex 人数ぶん後ろへずらして比較する設定です。");

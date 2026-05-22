@@ -68,7 +68,7 @@ internal static partial class Program
             ? FinalStageGroupingMode.On
             : FinalStageGroupingMode.Off;
         var tournamentRuleSetMode = ruleProfileMode == RuleProfileMode.Standard
-            ? ReadTournamentRuleSetMode()
+            ? ConsoleRuleReaders.ReadTournamentRuleSetMode()
             : TournamentRuleSetMode.Neutral;
         var groupMap = ruleProfileMode == RuleProfileMode.FinalStage
             ? ModeSupportHelpers.ReadOptionalFinalStageGroupMap(groupingMode, players)
@@ -102,10 +102,10 @@ internal static partial class Program
                 return false;
             }
 
-            additionalApexPlacementMode = ReadAdditionalApexPlacementMode();
+            additionalApexPlacementMode = ConsoleRuleReaders.ReadAdditionalApexPlacementMode();
             effectiveAdditionalApexCount = AdditionalApexPlacementRule.GetEffectiveAdditionalApexCount(additionalApexPlayers.Count, additionalApexPlacementMode);
-            boundaryRescueMode = ReadBoundaryRescueMode();
-            variableTop8Mode = ReadVariableTop8Mode();
+            boundaryRescueMode = ConsoleRuleReaders.ReadBoundaryRescueMode();
+            variableTop8Mode = ConsoleRuleReaders.ReadVariableTop8Mode();
             promotedInnovCount = VariableTop8Rule.GetPromotedInnovCount(variableTop8Mode, additionalApexPlayers.Count);
         }
         else
@@ -149,7 +149,7 @@ internal static partial class Program
         var innovExpectedRankOffsetCount = 0;
         if (ruleDefinition.UsesFinalStageGrouping)
         {
-            innovExpectedRankOffsetMode = ReadTournamentQualityEvaluationInnovExpectedRankOffsetMode();
+            innovExpectedRankOffsetMode = ConsoleRuleReaders.ReadTournamentQualityEvaluationInnovExpectedRankOffsetMode();
             innovExpectedRankOffsetCount = TournamentQualityEvaluationInnovExpectedRankOffsetRule.GetComparisonRankOffset(
                 ruleDefinition.EffectiveAdditionalApexCount,
                 innovExpectedRankOffsetMode);

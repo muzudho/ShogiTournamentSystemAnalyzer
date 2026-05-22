@@ -47,9 +47,9 @@ internal static partial class Program
                 return false;
             }
 
-            additionalApexPlacementMode = ReadAdditionalApexPlacementMode();
+            additionalApexPlacementMode = ConsoleRuleReaders.ReadAdditionalApexPlacementMode();
             effectiveAdditionalApexCount = AdditionalApexPlacementRule.GetEffectiveAdditionalApexCount(additionalApexParticipants.Count, additionalApexPlacementMode);
-            boundaryRescueMode = ReadBoundaryRescueMode();
+            boundaryRescueMode = ConsoleRuleReaders.ReadBoundaryRescueMode();
         }
         else
         {
