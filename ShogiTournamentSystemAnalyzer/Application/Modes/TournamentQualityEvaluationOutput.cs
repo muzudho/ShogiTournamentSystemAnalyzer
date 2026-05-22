@@ -1,3 +1,9 @@
+/*
+ * ［プログラム］
+ */
+namespace ShogiTournamentSystemAnalyzer;
+
+using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Infrastructure.Csv;
 using System.Globalization;
 

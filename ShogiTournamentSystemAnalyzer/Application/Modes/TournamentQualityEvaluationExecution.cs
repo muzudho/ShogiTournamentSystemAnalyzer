@@ -1,6 +1,8 @@
 /*
- * ［大会品質評価フロー］の実行
+ * ［プログラム］
  */
+namespace ShogiTournamentSystemAnalyzer;
+
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Infrastructure.Csv;
 

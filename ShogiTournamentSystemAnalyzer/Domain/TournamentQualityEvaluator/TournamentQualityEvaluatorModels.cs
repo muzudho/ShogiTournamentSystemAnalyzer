@@ -1,6 +1,7 @@
 /*
- * ［大会品質評価フロー域］で使われるモデルの定義
+ * ［大会品質評価フロー域］で使われるモデルまとめ
  */
+namespace ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 

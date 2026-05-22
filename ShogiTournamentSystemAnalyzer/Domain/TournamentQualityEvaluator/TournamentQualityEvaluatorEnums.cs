@@ -1,4 +1,7 @@
-﻿namespace ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
+﻿/*
+ * ［大会品質評価フロー域］
+ */
+namespace ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 
 /// <summary>
 /// ［イノベーターモードで順位オフセットモード］

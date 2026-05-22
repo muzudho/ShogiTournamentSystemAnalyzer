@@ -1,4 +1,7 @@
-﻿namespace ShogiTournamentSystemAnalyzer.Domain.Simulation;
+﻿/*
+ * ［シミュレーション域］
+ */
+namespace ShogiTournamentSystemAnalyzer.Domain.Simulation;
 
 enum MatchStatus
 {

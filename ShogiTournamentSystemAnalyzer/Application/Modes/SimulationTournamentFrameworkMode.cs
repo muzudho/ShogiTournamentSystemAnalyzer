@@ -1,3 +1,8 @@
+/*
+ * ［プログラム］
+ */
+namespace ShogiTournamentSystemAnalyzer;
+
 internal static partial class Program
 {
     static void RunTournamentFrameworkMode()

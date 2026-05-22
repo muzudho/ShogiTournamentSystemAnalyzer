@@ -10,7 +10,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Domain\Reader\" />
     <Folder Include="Output\" />
   </ItemGroup>
 

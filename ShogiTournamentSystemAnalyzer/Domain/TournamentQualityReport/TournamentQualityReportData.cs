@@ -1,3 +1,5 @@
+using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
+
 /// <summary>
 /// ［６大境界］のうち、［大会品質レポート］境界データだ。
 /// </summary>

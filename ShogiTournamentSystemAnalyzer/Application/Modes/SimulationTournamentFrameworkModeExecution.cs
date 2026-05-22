@@ -1,3 +1,8 @@
+/*
+ * ［プログラム］
+ */
+namespace ShogiTournamentSystemAnalyzer;
+
 using ShogiTournamentSystemAnalyzer.Domain.Ranking;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;

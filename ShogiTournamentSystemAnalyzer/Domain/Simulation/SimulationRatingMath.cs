@@ -1,3 +1,8 @@
+/*
+ * ［プログラム］
+ */
+namespace ShogiTournamentSystemAnalyzer;
+
 using System.Globalization;
 
 internal static partial class Program

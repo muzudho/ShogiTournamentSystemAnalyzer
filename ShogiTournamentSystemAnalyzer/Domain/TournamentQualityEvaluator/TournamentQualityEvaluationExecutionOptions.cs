@@ -1,3 +1,8 @@
+/*
+ * ［大会品質評価フロー域］
+ */
+namespace ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
+
 /// <summary>
 /// ［品質評価］の実行オプションを表す構造体。
 /// </summary>

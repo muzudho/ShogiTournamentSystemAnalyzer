@@ -1,3 +1,8 @@
+/*
+ * ［大会品質評価フロー域］
+ */
+namespace ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
+
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
