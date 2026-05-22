@@ -3,9 +3,9 @@
  */
 namespace ShogiTournamentSystemAnalyzer;
 
-internal static partial class Program
+internal static class ConsoleSamplePrinter
 {
-    static void PrintPlayersCsvExample()
+    internal static void PrintPlayersCsvExample()
     {
         Console.WriteLine("例:");
         Console.WriteLine("name,elo");
@@ -13,7 +13,7 @@ internal static partial class Program
         Console.WriteLine("Bob,1480\n");
     }
 
-    static void PrintOptionalPlayersCsvExample()
+    internal static void PrintOptionalPlayersCsvExample()
     {
         Console.WriteLine("例（省略可）:");
         Console.WriteLine("name,elo");
@@ -22,7 +22,7 @@ internal static partial class Program
         Console.WriteLine("空のまま Enter でも省略できます。\n");
     }
 
-    static void PrintFinalStageGroupCsvExample()
+    internal static void PrintFinalStageGroupCsvExample()
     {
         Console.WriteLine("例:");
         Console.WriteLine("group,name");
@@ -32,7 +32,7 @@ internal static partial class Program
         Console.WriteLine("Innov,Dave\n");
     }
 
-    static void PrintMatchesCsvExample()
+    internal static void PrintMatchesCsvExample()
     {
         Console.WriteLine("例:");
         Console.WriteLine("first,second");
@@ -41,7 +41,7 @@ internal static partial class Program
         Console.WriteLine("END\n");
     }
 
-    static void PrintRoundMatrixExample()
+    internal static void PrintRoundMatrixExample()
     {
         Console.WriteLine("Round/First-Second/対局記号表 の例:");
         Console.WriteLine("Round");
@@ -60,7 +60,7 @@ internal static partial class Program
         Console.WriteLine("END\n");
     }
 
-    static void PrintSimulationStandardOverview()
+    internal static void PrintSimulationStandardOverview()
     {
         Console.WriteLine("このモードでは次を順に入力します。");
         Console.WriteLine("1. 順位ルールセット");
@@ -71,7 +71,7 @@ internal static partial class Program
         Console.WriteLine("6. 結果CSVの出力先\n");
     }
 
-    static void PrintSimulationFinalStageOverview()
+    internal static void PrintSimulationFinalStageOverview()
     {
         Console.WriteLine("このモードでは次を順に入力します。");
         Console.WriteLine("1. 同Elo対局時の先手勝率 (%)");
@@ -86,7 +86,7 @@ internal static partial class Program
         Console.WriteLine("10. 結果CSVの出力先\n");
     }
 
-    static void PrintSimulationTournamentFrameworkOverview()
+    internal static void PrintSimulationTournamentFrameworkOverview()
     {
         Console.WriteLine("このモードでは次を順に入力します。");
         Console.WriteLine("1. 同Elo対局時の先手勝率 (%)");
@@ -100,13 +100,13 @@ internal static partial class Program
         Console.WriteLine("9. 結果CSVの出力先（省略可）\n");
     }
 
-    static void PrintSimulationEmptyOverview()
+    internal static void PrintSimulationEmptyOverview()
     {
         Console.WriteLine("このモードでは対局入力を行いません。");
         Console.WriteLine("1. 結果CSVの出力先だけを入力します。\n");
     }
 
-    static void PrintQualityEvaluationStandardOverview()
+    internal static void PrintQualityEvaluationStandardOverview()
     {
         Console.WriteLine("このモードでは次を順に入力します。");
         Console.WriteLine("1. 順位ルールセット");
@@ -118,7 +118,7 @@ internal static partial class Program
         Console.WriteLine("7. レポート出力先\n");
     }
 
-    static void PrintQualityEvaluationFinalStageOverview()
+    internal static void PrintQualityEvaluationFinalStageOverview()
     {
         Console.WriteLine("このモードでは次を順に入力します。");
         Console.WriteLine("1. 同Elo対局時の先手勝率 (%)");

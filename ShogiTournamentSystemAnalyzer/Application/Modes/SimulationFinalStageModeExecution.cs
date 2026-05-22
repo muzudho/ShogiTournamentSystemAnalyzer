@@ -30,7 +30,7 @@ internal static partial class Program
             else
             {
                 const int defaultSimulationCount = 200_000;
-                var simulationCount = ReadIntWithDefault(
+                var simulationCount = ConsolePromptReaders.ReadIntWithDefault(
                     $"局数が多いため {TournamentRuleSetRule.GetLabel(context.TournamentRuleSetMode)} のシミュレーションで近似します。試行回数を入力してください [{defaultSimulationCount}]: ",
                     defaultSimulationCount,
                     min: 1);
@@ -65,7 +65,7 @@ internal static partial class Program
         }
 
         const int finalStageDefaultSimulationCount = 200_000;
-        var finalStageSimulationCount = ReadIntWithDefault(
+        var finalStageSimulationCount = ConsolePromptReaders.ReadIntWithDefault(
             $"局数が多いため本戦専用シミュレーションで近似します。試行回数を入力してください [{finalStageDefaultSimulationCount}]: ",
             finalStageDefaultSimulationCount,
             min: 1);
@@ -118,7 +118,7 @@ internal static partial class Program
         IReadOnlyList<FinalStageResultRow>? finalStageResultRows)
     {
         var defaultOutputCsvPath = Path.GetFullPath($"final_stage_result_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
-        var outputCsvPath = ResolveOutputCsvPath(ReadTextWithDefault(
+        var outputCsvPath = ResolveOutputCsvPath(ConsolePromptReaders.ReadTextWithDefault(
             $"\n結果CSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
             defaultOutputCsvPath));
         var outputMarkdownPath = ChangeOutputExtension(outputCsvPath, ".md");

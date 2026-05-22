@@ -31,7 +31,7 @@ internal static partial class Program
         }
 
         var defaultOutputCsvPath = Path.GetFullPath($"result_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
-        var outputCsvPath = ResolveOutputCsvPath(ReadTextWithDefault(
+        var outputCsvPath = ResolveOutputCsvPath(ConsolePromptReaders.ReadTextWithDefault(
             $"\n結果CSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
             defaultOutputCsvPath));
         WriterHelper.WriteText(
@@ -56,7 +56,7 @@ internal static partial class Program
         }
 
         const int defaultSimulationCount = 200_000;
-        var simulationCount = ReadIntWithDefault(
+        var simulationCount = ConsolePromptReaders.ReadIntWithDefault(
             $"局数が多いためシミュレーションで近似します。試行回数を入力してください [{defaultSimulationCount}]: ",
             defaultSimulationCount,
             min: 1);

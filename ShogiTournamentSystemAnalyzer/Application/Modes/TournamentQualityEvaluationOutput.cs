@@ -50,7 +50,7 @@ internal static partial class Program
             ruleDefinition.BoundaryRescueMode,
             reportGroupingOptions,
             ruleDefinition.TournamentRuleSetMode);
-        var outputCsvPath = ResolveOutputCsvPath(ReadTextWithDefault(
+        var outputCsvPath = ResolveOutputCsvPath(ConsolePromptReaders.ReadTextWithDefault(
             $"\n品質評価サマリーCSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
             defaultOutputCsvPath));
         return new TournamentQualityEvaluationOutputOptions(reportGroupingOptions, outputCsvPath);
@@ -70,7 +70,7 @@ internal static partial class Program
             ruleDefinition.BoundaryRescueMode,
             reportGroupingOptions,
             ruleDefinition.TournamentRuleSetMode);
-        var outputCsvPath = ResolveOutputCsvPath(ReadTextWithDefault(
+        var outputCsvPath = ResolveOutputCsvPath(ConsolePromptReaders.ReadTextWithDefault(
             $"\nn%スイープ結果CSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
             defaultOutputCsvPath));
         return new TournamentQualityEvaluationOutputOptions(reportGroupingOptions, outputCsvPath);

@@ -40,8 +40,8 @@ internal static partial class Program
             //
             // 📍 TODO: ［ルール選択］→［パラメーター設定］→［試行］→［品質評価・レポート作成］の４ステップのシーケンスにした方がいいのでは（＾～＾）？
             //
-            var flowMode = ReadAnalysisFlowMode();
-            var ruleProfileMode = ReadRuleProfileMode(flowMode);
+            var flowMode = ConsolePromptReaders.ReadAnalysisFlowMode();
+            var ruleProfileMode = ConsolePromptReaders.ReadRuleProfileMode(flowMode);
 
             // TODO: ここで本来選ぶべきなのは、［シミュレーション域］、［順位付け域］、［大会品質評価フロー域］の３つの内の１つでは（＾～＾）？
 

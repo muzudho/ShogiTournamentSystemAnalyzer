@@ -33,9 +33,9 @@ internal static partial class Program
             if (TryParseMatches(lines, players, out var matches, out var err)) return matches;
 
             Console.WriteLine($"参考対局入力の読み取りに失敗しました: {err.Value}");
-            if (attempt >= InputRetryLimit)
+            if (attempt >= ConsolePromptReaders.InputRetryLimit)
             {
-                ThrowInputRetryLimitExceeded("参考対局入力", err.Value);
+                ConsolePromptReaders.ThrowInputRetryLimitExceeded("参考対局入力", err.Value);
             }
             Console.WriteLine("もう一度入力してください。\n");
         }
@@ -67,7 +67,7 @@ internal static partial class Program
                 return new TournamentQualityEvaluationReportGroupingOptions(true, outcome, evaluationMemo);
             }
 
-            if (attempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("実験レポートの Good / Bad 分離", "1 または 2 以外が入力されました");
+            if (attempt >= ConsolePromptReaders.InputRetryLimit) ConsolePromptReaders.ThrowInputRetryLimitExceeded("実験レポートの Good / Bad 分離", "1 または 2 以外が入力されました");
 
             Console.WriteLine("1 か 2 を入力してください。\n");
         }
@@ -107,7 +107,7 @@ internal static partial class Program
                 return TournamentQualityEvaluationReportOutcome.Bad;
             }
 
-            if (attempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("実験レポート評価", "1 または 2 以外が入力されました");
+            if (attempt >= ConsolePromptReaders.InputRetryLimit) ConsolePromptReaders.ThrowInputRetryLimitExceeded("実験レポート評価", "1 または 2 以外が入力されました");
 
             Console.WriteLine("1 か 2 を入力してください。\n");
         }
@@ -120,7 +120,7 @@ internal static partial class Program
         {
             attempt++;
             Console.WriteLine("グループ対応CSVを貼り付けてください。入力終了は空行です。\n");
-            PrintFinalStageGroupCsvExample();
+            ConsoleSamplePrinter.PrintFinalStageGroupCsvExample();
 
             var lines = new List<string>();
             while (true)
@@ -133,7 +133,7 @@ internal static partial class Program
 
             if (lines.Count == 0)
             {
-                if (attempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("グループ対応CSV", "CSVが入力されていません");
+                if (attempt >= ConsolePromptReaders.InputRetryLimit) ConsolePromptReaders.ThrowInputRetryLimitExceeded("グループ対応CSV", "CSVが入力されていません");
 
                 Console.WriteLine("CSVが入力されていません。再入力してください。\n");
                 continue;
@@ -142,7 +142,7 @@ internal static partial class Program
             if (TryParseFinalStageGroups(lines, out var groupMap, out var err)) return groupMap;
 
             Console.WriteLine($"CSVの読み取りに失敗しました: {err.Value}");
-            if (attempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("グループ対応CSV", err.Value);
+            if (attempt >= ConsolePromptReaders.InputRetryLimit) ConsolePromptReaders.ThrowInputRetryLimitExceeded("グループ対応CSV", err.Value);
             Console.WriteLine("もう一度入力してください。\n");
         }
     }
@@ -154,7 +154,7 @@ internal static partial class Program
         {
             attempt++;
             Console.WriteLine($"{prompt} 入力終了は空行です。空のまま Enter で省略できます。\n");
-            PrintOptionalPlayersCsvExample();
+            ConsoleSamplePrinter.PrintOptionalPlayersCsvExample();
 
             var lines = new List<string>();
             while (true)
@@ -170,7 +170,7 @@ internal static partial class Program
             if (TryParsePlayers(lines, out var players, out var err)) return players;
 
             Console.WriteLine($"CSVの読み取りに失敗しました: {err.Value}");
-            if (attempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("選手一覧CSV", err.Value);
+            if (attempt >= ConsolePromptReaders.InputRetryLimit) ConsolePromptReaders.ThrowInputRetryLimitExceeded("選手一覧CSV", err.Value);
             Console.WriteLine("もう一度入力してください。\n");
         }
     }
@@ -182,7 +182,7 @@ internal static partial class Program
         {
             attempt++;
             Console.WriteLine("選手一覧CSVを貼り付けてください。入力終了は空行です。\n");
-            PrintPlayersCsvExample();
+            ConsoleSamplePrinter.PrintPlayersCsvExample();
 
             var lines = new List<string>();
             while (true)
@@ -197,9 +197,9 @@ internal static partial class Program
 
             if (lines.Count == 0)
             {
-                if (attempt >= InputRetryLimit)
+                if (attempt >= ConsolePromptReaders.InputRetryLimit)
                 {
-                    ThrowInputRetryLimitExceeded("選手一覧CSV", "CSVが入力されていません");
+                    ConsolePromptReaders.ThrowInputRetryLimitExceeded("選手一覧CSV", "CSVが入力されていません");
                 }
 
                 Console.WriteLine("CSVが入力されていません。再入力してください。\n");
@@ -209,7 +209,7 @@ internal static partial class Program
             if (TryParsePlayers(lines, out var players, out var err)) return players;
 
             Console.WriteLine($"CSVの読み取りに失敗しました: {err.Value}");
-            if (attempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("選手一覧CSV", err.Value);
+            if (attempt >= ConsolePromptReaders.InputRetryLimit) ConsolePromptReaders.ThrowInputRetryLimitExceeded("選手一覧CSV", err.Value);
             Console.WriteLine("もう一度入力してください。\n");
         }
     }
@@ -221,8 +221,8 @@ internal static partial class Program
         {
             attempt++;
             Console.WriteLine("\n対局CSVまたは Round/Black-White/対局記号表を貼り付けてください。入力終了は END 行です。\n");
-            PrintMatchesCsvExample();
-            PrintRoundMatrixExample();
+            ConsoleSamplePrinter.PrintMatchesCsvExample();
+            ConsoleSamplePrinter.PrintRoundMatrixExample();
 
             var lines = new List<string>();
             while (true)
@@ -237,7 +237,7 @@ internal static partial class Program
 
             if (lines.Count == 0)
             {
-                if (attempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("対局入力", "対局入力が入力されていません");
+                if (attempt >= ConsolePromptReaders.InputRetryLimit) ConsolePromptReaders.ThrowInputRetryLimitExceeded("対局入力", "対局入力が入力されていません");
 
                 Console.WriteLine("対局入力が入力されていません。再入力してください。\n");
                 continue;
@@ -246,9 +246,9 @@ internal static partial class Program
             if (TryParseMatches(lines, players, out var matches, out var err)) return matches;
 
             Console.WriteLine($"対局入力の読み取りに失敗しました: {err.Value}");
-            if (attempt >= InputRetryLimit)
+            if (attempt >= ConsolePromptReaders.InputRetryLimit)
             {
-                ThrowInputRetryLimitExceeded("対局入力", err.Value);
+                ConsolePromptReaders.ThrowInputRetryLimitExceeded("対局入力", err.Value);
             }
             Console.WriteLine("もう一度入力してください。\n");
         }
@@ -268,9 +268,9 @@ internal static partial class Program
                 return input;
             }
 
-            if (attempt >= InputRetryLimit)
+            if (attempt >= ConsolePromptReaders.InputRetryLimit)
             {
-                ThrowInputRetryLimitExceeded("ファイルパス入力", "空欄のためファイルパスとして扱えません");
+                ConsolePromptReaders.ThrowInputRetryLimitExceeded("ファイルパス入力", "空欄のためファイルパスとして扱えません");
             }
 
             Console.WriteLine("ファイルパスを入力してください。\n");
@@ -305,9 +305,9 @@ internal static partial class Program
                 return value;
             }
 
-            if (attempt >= InputRetryLimit)
+            if (attempt >= ConsolePromptReaders.InputRetryLimit)
             {
-                ThrowInputRetryLimitExceeded("整数入力", $"'{input}' は整数ではありません");
+                ConsolePromptReaders.ThrowInputRetryLimitExceeded("整数入力", $"'{input}' は整数ではありません");
             }
 
             Console.WriteLine("整数を入力してください。\n");

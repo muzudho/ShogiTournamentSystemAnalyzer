@@ -4,17 +4,18 @@
 namespace ShogiTournamentSystemAnalyzer;
 
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
+using System.Globalization;
 
-internal static partial class Program
+internal static class ConsolePromptReaders
 {
-    static readonly int InputRetryLimit = 10;
+    internal static readonly int InputRetryLimit = 10;
 
-    static void ThrowInputRetryLimitExceeded(string targetLabel, string lastErrorMessage)
+    internal static void ThrowInputRetryLimitExceeded(string targetLabel, string lastErrorMessage)
     {
         throw new OperationCanceledException($"{targetLabel}の入力失敗が {InputRetryLimit} 回に達したため中断しました。最後のエラー: {lastErrorMessage}");
     }
 
-    static AnalysisFlowMode ReadAnalysisFlowMode()
+    internal static AnalysisFlowMode ReadAnalysisFlowMode()
     {
         Console.WriteLine("目的を選んでください。");
         Console.WriteLine("1. 対局シミュレーション");
@@ -44,7 +45,7 @@ internal static partial class Program
         }
     }
 
-    static RuleProfileMode ReadRuleProfileMode(AnalysisFlowMode flowMode)
+    internal static RuleProfileMode ReadRuleProfileMode(AnalysisFlowMode flowMode)
     {
         var flowLabel = flowMode == AnalysisFlowMode.Simulation ? "対局シミュレーション" : "品質評価";
         Console.WriteLine($"{flowLabel} の対象ルールを選んでください。");
@@ -96,7 +97,7 @@ internal static partial class Program
         }
     }
 
-    static string ReadTextWithDefault(string prompt, string defaultValue)
+    internal static string ReadTextWithDefault(string prompt, string defaultValue)
     {
         Console.Write(prompt);
         var input = Console.ReadLine()?.Trim();
@@ -105,7 +106,7 @@ internal static partial class Program
         return string.IsNullOrEmpty(input) ? defaultValue : input;
     }
 
-    static int ReadIntWithDefault(string prompt, int defaultValue, int min)
+    internal static int ReadIntWithDefault(string prompt, int defaultValue, int min)
     {
         var attempt = 0;
         while (true)
@@ -125,7 +126,7 @@ internal static partial class Program
         }
     }
 
-    static double ReadDoubleWithDefaultInRange(string prompt, double defaultValue, double minInclusive, double maxInclusive)
+    internal static double ReadDoubleWithDefaultInRange(string prompt, double defaultValue, double minInclusive, double maxInclusive)
     {
         var attempt = 0;
         while (true)
@@ -137,7 +138,10 @@ internal static partial class Program
             if (string.IsNullOrEmpty(input)) return defaultValue;
 
             attempt++;
-            if (TryParseDouble(input, out var value) && value >= minInclusive && value <= maxInclusive) return value;
+            if ((double.TryParse(input, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.CurrentCulture, out var value)
+                || double.TryParse(input, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out value))
+                && value >= minInclusive
+                && value <= maxInclusive) return value;
 
             if (attempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("数値入力", $"{minInclusive} 以上 {maxInclusive} 以下の数値ではありません");
 

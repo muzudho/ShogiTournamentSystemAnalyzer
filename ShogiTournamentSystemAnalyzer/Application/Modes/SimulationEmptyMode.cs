@@ -11,7 +11,7 @@ internal static partial class Program
     static void RunEmptyMode()
     {
         Console.WriteLine("対局シミュレーション / 空ルール: ペアリングを一切行わず、大会結果 0 件の最小結果を出力します。\n");
-        PrintSimulationEmptyOverview();
+        ConsoleSamplePrinter.PrintSimulationEmptyOverview();
         ExecuteEmptyMode();
     }
 
@@ -27,7 +27,7 @@ internal static partial class Program
         Console.WriteLine($"大会結果件数: {tournamentMatchRecordCount}\n");
 
         var defaultOutputCsvPath = Path.GetFullPath($"empty_rule_result_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
-        var outputCsvPath = ResolveOutputCsvPath(ReadTextWithDefault(
+        var outputCsvPath = ResolveOutputCsvPath(ConsolePromptReaders.ReadTextWithDefault(
             $"空ルール結果CSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
             defaultOutputCsvPath));
         var outputMarkdownPath = ChangeOutputExtension(outputCsvPath, ".md");

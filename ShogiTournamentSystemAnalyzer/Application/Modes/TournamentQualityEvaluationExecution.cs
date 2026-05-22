@@ -138,7 +138,7 @@ internal static partial class Program
 
         if (!sweepOptions.IsEnabled)
         {
-            var firstPlayerWinRatePercent = ReadDoubleWithDefaultInRange(
+            var firstPlayerWinRatePercent = ConsolePromptReaders.ReadDoubleWithDefaultInRange(
                 "同Elo対局時の先手勝率(%)を入力してください [51]: ",
                 51.0,
                 0.0,
@@ -155,7 +155,7 @@ internal static partial class Program
                 else
                 {
                     const int defaultSimulationCount = 200_000;
-                    simulationCount = ReadIntWithDefault(
+                    simulationCount = ConsolePromptReaders.ReadIntWithDefault(
                         $"局数が多いため {TournamentRuleSetRule.GetLabel(ruleDefinition.TournamentRuleSetMode)} の品質評価用シミュレーションで近似します。試行回数を入力してください [{defaultSimulationCount}]: ",
                         defaultSimulationCount,
                         min: 1);
@@ -170,7 +170,7 @@ internal static partial class Program
             else
             {
                 const int defaultSimulationCount = 200_000;
-                simulationCount = ReadIntWithDefault(
+                simulationCount = ConsolePromptReaders.ReadIntWithDefault(
                     $"局数が多いため品質評価用シミュレーションで近似します。試行回数を入力してください [{defaultSimulationCount}]: ",
                     defaultSimulationCount,
                     min: 1);
@@ -211,14 +211,14 @@ internal static partial class Program
                 {
                     sweepAttempt++;
                     Console.WriteLine("補足: 例として 50 → 55 を 1 刻みで指定すると、50, 51, 52, 53, 54, 55 を順に評価します。\n");
-                    var startPercent = ReadDoubleWithDefaultInRange("開始する先手勝率(%)を入力してください [50]: ", 50.0, 0.0, 100.0);
-                    var endPercent = ReadDoubleWithDefaultInRange("終了する先手勝率(%)を入力してください [55]: ", 55.0, 0.0, 100.0);
-                    var stepPercent = ReadDoubleWithDefaultInRange("刻み幅(%)を入力してください [1]: ", 1.0, 0.000001, 100.0);
+                    var startPercent = ConsolePromptReaders.ReadDoubleWithDefaultInRange("開始する先手勝率(%)を入力してください [50]: ", 50.0, 0.0, 100.0);
+                    var endPercent = ConsolePromptReaders.ReadDoubleWithDefaultInRange("終了する先手勝率(%)を入力してください [55]: ", 55.0, 0.0, 100.0);
+                    var stepPercent = ConsolePromptReaders.ReadDoubleWithDefaultInRange("刻み幅(%)を入力してください [1]: ", 1.0, 0.000001, 100.0);
                     Console.WriteLine();
 
                     if (endPercent < startPercent)
                     {
-                        if (sweepAttempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("n% スイープ範囲", "終了する先手勝率が開始する先手勝率未満です");
+                        if (sweepAttempt >= ConsolePromptReaders.InputRetryLimit) ConsolePromptReaders.ThrowInputRetryLimitExceeded("n% スイープ範囲", "終了する先手勝率が開始する先手勝率未満です");
 
                         Console.WriteLine("終了する先手勝率は開始する先手勝率以上で入力してください。\n");
                         continue;
@@ -228,7 +228,7 @@ internal static partial class Program
                 }
             }
 
-            if (attempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("品質評価の実行方法", "1 または 2 以外が入力されました");
+            if (attempt >= ConsolePromptReaders.InputRetryLimit) ConsolePromptReaders.ThrowInputRetryLimitExceeded("品質評価の実行方法", "1 または 2 以外が入力されました");
 
             Console.WriteLine("1 か 2 を入力してください。\n");
         }

@@ -41,7 +41,7 @@ internal static partial class Program
                 return;
             }
 
-            if (attempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("入力方法選択", "1 または 2 以外が入力されました");
+            if (attempt >= ConsolePromptReaders.InputRetryLimit) ConsolePromptReaders.ThrowInputRetryLimitExceeded("入力方法選択", "1 または 2 以外が入力されました");
 
             Console.WriteLine("1 か 2 を入力してください。\n");
         }
@@ -59,7 +59,7 @@ internal static partial class Program
 
             if (string.IsNullOrWhiteSpace(input))
             {
-                if (attempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("入力ファイルパス", "空欄のためファイルパスとして扱えません");
+                if (attempt >= ConsolePromptReaders.InputRetryLimit) ConsolePromptReaders.ThrowInputRetryLimitExceeded("入力ファイルパス", "空欄のためファイルパスとして扱えません");
 
                 Console.WriteLine("ファイルパスを入力してください。\n");
                 continue;

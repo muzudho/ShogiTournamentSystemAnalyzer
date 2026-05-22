@@ -141,7 +141,7 @@ internal static partial class Program
 
         var defaultOutputCsvPath = Path.GetFullPath($"tournament_framework_aggregate_result_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
         var requestedOutputPath = string.IsNullOrWhiteSpace(context.OutputPath)
-            ? ReadTextWithDefault($"\naggregate結果CSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ", defaultOutputCsvPath)
+            ? ConsolePromptReaders.ReadTextWithDefault($"\naggregate結果CSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ", defaultOutputCsvPath)
             : context.OutputPath!;
         var outputCsvPath = ResolveOutputCsvPath(requestedOutputPath);
         WriterHelper.WriteText(
