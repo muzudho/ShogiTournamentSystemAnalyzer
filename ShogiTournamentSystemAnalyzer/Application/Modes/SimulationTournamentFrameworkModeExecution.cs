@@ -3,6 +3,7 @@
  */
 namespace ShogiTournamentSystemAnalyzer;
 
+using ShogiTournamentSystemAnalyzer.Application.Execution;
 using ShogiTournamentSystemAnalyzer.Domain.Ranking;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
@@ -260,10 +261,10 @@ internal static partial class Program
         long totalTickCount = 0;
         TournamentFrameworkExecutionResult? representativeExecutionResult = null;
 
-        using var simulationBudget = BeginSimulationBudget();
+        using var simulationBudget = SimulationTimeBudget.BeginSimulationBudget();
         for (var simulation = 0; simulation < simulationCount; simulation++)
         {
-            if (!HasSimulationTimeRemaining()) break;
+            if (!SimulationTimeBudget.HasSimulationTimeRemaining()) break;
 
             var executionResult = engine.Run(initialState);
             AccumulateTournamentFrameworkPlaceProbabilities(players, playerIndexById, executionResult.FinalState.MatchRecords, placeProbabilities, tournamentRuleSetMode);
@@ -279,7 +280,7 @@ internal static partial class Program
 
         if (representativeExecutionResult is null) throw new OperationCanceledException("大会進行フレームワークのシミュレーションを 1 回も実行できませんでした。");
 
-        NormalizePlaceProbabilities(placeProbabilities, completedSimulationCount);
+        SimulationTimeBudget.NormalizePlaceProbabilities(placeProbabilities, completedSimulationCount);
 
         return new TournamentFrameworkSimulationAggregate(
             placeProbabilities,

@@ -3,6 +3,7 @@
  */
 namespace ShogiTournamentSystemAnalyzer;
 
+using ShogiTournamentSystemAnalyzer.Application.Execution;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
 
@@ -89,7 +90,7 @@ internal static partial class Program
 
         for (var simulation = 0; simulation < simulationCount; simulation++)
         {
-            if (!HasSimulationTimeRemaining()) break;
+            if (!SimulationTimeBudget.HasSimulationTimeRemaining()) break;
 
             if (tournamentRuleSetMode == TournamentRuleSetMode.Neutral)
             {
@@ -140,7 +141,7 @@ internal static partial class Program
             completedSimulationCount++;
         }
 
-        NormalizePlaceProbabilities(placeProbabilities, completedSimulationCount);
+        SimulationTimeBudget.NormalizePlaceProbabilities(placeProbabilities, completedSimulationCount);
 
         var modeCoreLabel = tournamentRuleSetMode switch
         {

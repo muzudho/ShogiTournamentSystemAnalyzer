@@ -3,6 +3,7 @@
  */
 namespace ShogiTournamentSystemAnalyzer;
 
+using ShogiTournamentSystemAnalyzer.Application.Execution;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Infrastructure.Csv;
 
@@ -44,7 +45,7 @@ internal static partial class Program
         TournamentQualityEvaluationExecutionOptions executionOptions)
     {
         var sweepRows = new List<TournamentQualitySweepReportRow>();
-        using var simulationBudget = executionOptions.SimulationCount.HasValue ? BeginSimulationBudget() : default;
+        using var simulationBudget = executionOptions.SimulationCount.HasValue ? SimulationTimeBudget.BeginSimulationBudget() : default;
         var stoppedByTimeout = false;
         for (var firstPlayerWinRatePercent = executionOptions.SweepOptions.StartPercent; firstPlayerWinRatePercent <= executionOptions.SweepOptions.EndPercent + 1e-9; firstPlayerWinRatePercent += executionOptions.SweepOptions.StepPercent)
         {
@@ -89,7 +90,7 @@ internal static partial class Program
     {
         var firstPlayerWinRatePercent = executionOptions.FirstPlayerWinRatePercent!.Value;
         var firstPlayerWinRateRating = ConvertFirstPlayerWinRatePercentToRating(firstPlayerWinRatePercent);
-        using var simulationBudget = executionOptions.SimulationCount.HasValue ? BeginSimulationBudget() : default;
+        using var simulationBudget = executionOptions.SimulationCount.HasValue ? SimulationTimeBudget.BeginSimulationBudget() : default;
         var result = ruleDefinition.GroupingMode == FinalStageGroupingMode.On
             ? executionOptions.SimulationCount.HasValue
                 ? CalculateFinalStageBySimulation(input.Participants, input.Matches, ruleDefinition.GroupMap!, ruleDefinition.EffectiveAdditionalApexCount, ruleDefinition.BoundaryRescueMode, firstPlayerWinRateRating, executionOptions.SimulationCount.Value, ruleDefinition.PromotedInnovCount)

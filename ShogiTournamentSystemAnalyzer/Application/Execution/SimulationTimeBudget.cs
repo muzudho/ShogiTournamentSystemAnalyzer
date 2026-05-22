@@ -1,11 +1,14 @@
 /*
- * ［プログラム］
+ * ［シミュレーション時間管理］
  */
-namespace ShogiTournamentSystemAnalyzer;
+namespace ShogiTournamentSystemAnalyzer.Application.Execution;
 
-internal static partial class Program
+/// <summary>
+/// シミュレーションの実行時間を管理するためのクラスです。
+/// </summary>
+internal static class SimulationTimeBudget
 {
-    static SimulationBudgetScope BeginSimulationBudget()
+    internal static SimulationBudgetScope BeginSimulationBudget()
     {
         var ownsBudget = !Program._simulationDeadlineUtc.HasValue;
         if (ownsBudget)
@@ -16,12 +19,12 @@ internal static partial class Program
         return new SimulationBudgetScope(ownsBudget);
     }
 
-    static bool HasSimulationTimeRemaining()
+    internal static bool HasSimulationTimeRemaining()
     {
         return !Program._simulationDeadlineUtc.HasValue || DateTime.UtcNow < Program._simulationDeadlineUtc.Value;
     }
 
-    static void NormalizePlaceProbabilities(double[,] placeProbabilities, int sampleCount)
+    internal static void NormalizePlaceProbabilities(double[,] placeProbabilities, int sampleCount)
     {
         if (sampleCount <= 0) return;
 
@@ -34,7 +37,7 @@ internal static partial class Program
         }
     }
 
-    readonly record struct SimulationBudgetScope(bool OwnsBudget) : IDisposable
+    internal readonly record struct SimulationBudgetScope(bool OwnsBudget) : IDisposable
     {
         public void Dispose()
         {

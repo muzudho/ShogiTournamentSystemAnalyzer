@@ -3,6 +3,7 @@
  */
 namespace ShogiTournamentSystemAnalyzer;
 
+using ShogiTournamentSystemAnalyzer.Application.Execution;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Infrastructure.Csv;
 
@@ -60,7 +61,7 @@ internal static partial class Program
             min: 1);
 
         Console.WriteLine();
-        using var simulationBudget = BeginSimulationBudget();
+        using var simulationBudget = SimulationTimeBudget.BeginSimulationBudget();
         return CalculateBySimulation(context.Participants, context.Matches, context.FirstPlayerWinRateRating, simulationCount, context.TournamentRuleSetMode);
     }
 }

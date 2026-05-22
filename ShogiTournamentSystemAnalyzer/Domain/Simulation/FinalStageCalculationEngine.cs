@@ -3,6 +3,7 @@
  */
 namespace ShogiTournamentSystemAnalyzer;
 
+using ShogiTournamentSystemAnalyzer.Application.Execution;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
 
@@ -49,7 +50,7 @@ internal static partial class Program
 
         for (var simulation = 0; simulation < simulationCount; simulation++)
         {
-            if (!HasSimulationTimeRemaining()) break;
+            if (!SimulationTimeBudget.HasSimulationTimeRemaining()) break;
 
             Array.Clear(wins);
 
@@ -70,7 +71,7 @@ internal static partial class Program
             completedSimulationCount++;
         }
 
-        NormalizePlaceProbabilities(placeProbabilities, completedSimulationCount);
+        SimulationTimeBudget.NormalizePlaceProbabilities(placeProbabilities, completedSimulationCount);
 
         var modeLabel = completedSimulationCount < simulationCount
             ? $"本戦専用 シミュレーション ({completedSimulationCount:N0}/{simulationCount:N0}回, 時間切れ)"

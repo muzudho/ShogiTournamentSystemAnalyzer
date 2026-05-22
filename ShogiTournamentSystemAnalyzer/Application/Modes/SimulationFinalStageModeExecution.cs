@@ -3,6 +3,7 @@
  */
 namespace ShogiTournamentSystemAnalyzer;
 
+using ShogiTournamentSystemAnalyzer.Application.Execution;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Infrastructure.Csv;
@@ -34,7 +35,7 @@ internal static partial class Program
                     min: 1);
 
                 Console.WriteLine();
-                using var simulationBudget = BeginSimulationBudget();
+                using var simulationBudget = SimulationTimeBudget.BeginSimulationBudget();
                 result = CalculateBySimulation(context.Participants, context.Matches, context.FirstPlayerWinRateRating, simulationCount, context.TournamentRuleSetMode);
             }
 
@@ -69,7 +70,7 @@ internal static partial class Program
             min: 1);
 
         Console.WriteLine();
-        using var finalStageSimulationBudget = BeginSimulationBudget();
+        using var finalStageSimulationBudget = SimulationTimeBudget.BeginSimulationBudget();
         var finalStageSimulationResult = CalculateFinalStageBySimulation(context.Participants, context.Matches, context.GroupMap!, context.EffectiveAdditionalApexCount, context.BoundaryRescueMode, context.FirstPlayerWinRateRating, finalStageSimulationCount);
 
         finalStageResultRows = BuildFinalStageResultRows(context.Participants, context.Matches, finalStageSimulationResult, context.FirstPlayerWinRatePercent, context.GroupMap!, context.EffectiveAdditionalApexCount);
