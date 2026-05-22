@@ -121,6 +121,6 @@ P, "ねこ"
 #[EndSection]
 
 #[Section] Output
-ExperimentalReportGrouping=Off
+TournamentQualityEvaluationReportGrouping=Off
 SummaryOutputPath=E:\github.com\muzudho\ShogiTournamentSystemAnalyzer\docs\Reports\quality_summary_[トップ集団大きめ].csv
 #[EndSection]

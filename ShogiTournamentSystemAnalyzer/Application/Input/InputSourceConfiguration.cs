@@ -284,14 +284,18 @@ internal static partial class Program
         var output = sections.TryGetValue("Output", out var outputLines)
             ? ParseSectionKeyValues(outputLines, "Output", fullPath)
             : new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        var groupingMode = GetOptionalMetaValue(output, "ExperimentalReportGrouping")
+        var groupingMode = GetOptionalMetaValue(output, "TournamentQualityEvaluationReportGrouping")
+            ?? GetOptionalMetaValue(meta, "TournamentQualityEvaluationReportGrouping")
+            ?? GetOptionalMetaValue(output, "ExperimentalReportGrouping")
             ?? GetOptionalMetaValue(meta, "ExperimentalReportGrouping")
             ?? "Off";
         var groupingEnabled = groupingMode.Equals("On", StringComparison.OrdinalIgnoreCase) || groupingMode == "2";
         legacyLines.Add(groupingEnabled ? "2" : "1");
         if (groupingEnabled)
         {
-            var outcomeValue = GetOptionalMetaValue(output, "ExperimentalReportOutcome")
+            var outcomeValue = GetOptionalMetaValue(output, "TournamentQualityEvaluationReportOutcome")
+                ?? GetOptionalMetaValue(meta, "TournamentQualityEvaluationReportOutcome")
+                ?? GetOptionalMetaValue(output, "ExperimentalReportOutcome")
                 ?? GetOptionalMetaValue(meta, "ExperimentalReportOutcome")
                 ?? "Good";
             legacyLines.Add(ParseGoodBadSelection(outcomeValue, "ExperimentalReportOutcome"));
@@ -414,14 +418,18 @@ internal static partial class Program
         var output = sections.TryGetValue("Output", out var outputLines)
             ? ParseSectionKeyValues(outputLines, "Output", fullPath)
             : new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        var groupingMode = GetOptionalMetaValue(output, "ExperimentalReportGrouping")
+        var groupingMode = GetOptionalMetaValue(output, "TournamentQualityEvaluationReportGrouping")
+            ?? GetOptionalMetaValue(meta, "TournamentQualityEvaluationReportGrouping")
+            ?? GetOptionalMetaValue(output, "ExperimentalReportGrouping")
             ?? GetOptionalMetaValue(meta, "ExperimentalReportGrouping")
             ?? "Off";
         var groupingEnabled = groupingMode.Equals("On", StringComparison.OrdinalIgnoreCase) || groupingMode == "2";
         legacyLines.Add(groupingEnabled ? "2" : "1");
         if (groupingEnabled)
         {
-            var outcomeValue = GetOptionalMetaValue(output, "ExperimentalReportOutcome")
+            var outcomeValue = GetOptionalMetaValue(output, "TournamentQualityEvaluationReportOutcome")
+                ?? GetOptionalMetaValue(meta, "TournamentQualityEvaluationReportOutcome")
+                ?? GetOptionalMetaValue(output, "ExperimentalReportOutcome")
                 ?? GetOptionalMetaValue(meta, "ExperimentalReportOutcome")
                 ?? "Good";
             legacyLines.Add(ParseGoodBadSelection(outcomeValue, "ExperimentalReportOutcome"));

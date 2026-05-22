@@ -93,6 +93,6 @@ P, "ひよこ"
 #[EndSection]
 
 #[Section] Output
-ExperimentalReportGrouping=Off
+TournamentQualityEvaluationReportGrouping=Off
 SummaryOutputPath=E:\github.com\muzudho\ShogiTournamentSystemAnalyzer\docs\Reports\quality_summary_[先手8x後手8]_[Neutral_Single10_STSAInput2_draft].csv
 #[EndSection]
