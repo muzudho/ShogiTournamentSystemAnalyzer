@@ -11,7 +11,6 @@
 
   <ItemGroup>
     <Folder Include="Domain\Modes\" />
-    <Folder Include="Domain\TournamentQualityEvaluator\" />
     <Folder Include="Domain\Reader\" />
     <Folder Include="Domain\Ranking\" />
     <Folder Include="Domain\Simulation\" />

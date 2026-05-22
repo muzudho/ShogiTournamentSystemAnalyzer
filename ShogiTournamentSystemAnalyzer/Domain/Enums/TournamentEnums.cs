@@ -1,9 +1,15 @@
+/// <summary>
+/// ［大会ルール境界］寄り。
+/// </summary>
 enum FinalStageGroup
 {
     Apex,
     Innov,
 }
 
+/// <summary>
+/// ［大会ルール境界］寄り。
+/// </summary>
 enum TournamentRuleSetMode
 {
     Neutral,
@@ -11,18 +17,27 @@ enum TournamentRuleSetMode
     TwillCommonOpponentWeighted,
 }
 
+/// <summary>
+/// ［大会ルール境界］寄り。
+/// </summary>
 enum AdditionalApexPlacementMode
 {
     Off,
     On,
 }
 
+/// <summary>
+/// ［大会ルール境界］寄り。
+/// </summary>
 enum BoundaryRescueMode
 {
     Off,
     On,
 }
 
+/// <summary>
+/// ［大会ルール境界］寄り。
+/// </summary>
 enum VariableTop8Mode
 {
     Off,
