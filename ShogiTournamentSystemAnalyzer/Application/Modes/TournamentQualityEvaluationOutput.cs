@@ -44,7 +44,7 @@ internal static partial class Program
     static TournamentQualityEvaluationOutputOptions ReadTournamentQualityReportOutputOptions(TournamentQualityEvaluationRuleDefinition ruleDefinition)
     {
         var reportGroupingOptions = ConsoleInputReaders.ReadTournamentQualityEvaluationReportGroupingOptions();
-        var defaultOutputCsvPath = BuildQualitySummaryDefaultOutputPath(
+        var defaultOutputCsvPath = ReportOutputPathBuilder.BuildQualitySummaryDefaultOutputPath(
             ruleDefinition.GroupingMode,
             ruleDefinition.AdditionalApexPlacementMode,
             ruleDefinition.BoundaryRescueMode,
@@ -64,7 +64,7 @@ internal static partial class Program
     static TournamentQualityEvaluationOutputOptions ReadTournamentQualitySweepReportOutputOptions(TournamentQualityEvaluationRuleDefinition ruleDefinition)
     {
         var reportGroupingOptions = ConsoleInputReaders.ReadTournamentQualityEvaluationReportGroupingOptions();
-        var defaultOutputCsvPath = BuildTournamentQualitySweepReportDefaultOutputPath(
+        var defaultOutputCsvPath = ReportOutputPathBuilder.BuildTournamentQualitySweepReportDefaultOutputPath(
             ruleDefinition.GroupingMode,
             ruleDefinition.AdditionalApexPlacementMode,
             ruleDefinition.BoundaryRescueMode,
