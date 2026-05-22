@@ -1,3 +1,5 @@
+using ShogiTournamentSystemAnalyzer.Domain.Simulation;
+
 internal static class TwillTournamentRule
 {
     internal static IReadOnlyList<List<int>> BuildRankingGroups(

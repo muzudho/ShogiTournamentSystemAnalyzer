@@ -1,3 +1,6 @@
+using ShogiTournamentSystemAnalyzer.Domain.Simulation;
+using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
+
 internal static partial class Program
 {
     static CalculationResult CalculateExactly(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, double firstPlayerWinRateRating, TournamentRuleSetMode tournamentRuleSetMode = TournamentRuleSetMode.Neutral)
