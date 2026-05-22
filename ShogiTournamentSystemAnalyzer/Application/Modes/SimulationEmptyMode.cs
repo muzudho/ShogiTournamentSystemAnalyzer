@@ -10,21 +10,21 @@ internal static partial class Program
 {
     static void RunEmptyMode()
     {
-        Console.WriteLine("対局シミュレーション / 空ルール: ペアリングを一切行わず、大会結果 0 件の最小結果を出力します。\n");
+        Console.WriteLine("対局シミュレーション / 空ルール: ペアリングを一切行わず、大会最終状態 0 件の最小結果を出力します。\n");
         ConsoleSamplePrinter.PrintSimulationEmptyOverview();
         ExecuteEmptyMode();
     }
 
     static void ExecuteEmptyMode()
     {
-        const string mode = "空ルール / ペアリング0回 / 大会結果0件";
+        const string mode = "空ルール / ペアリング0回 / 大会最終状態0件";
         const int pairingCount = 0;
         const int tournamentMatchRecordCount = 0;
-        const string note = "このモードではペアリングを行わず、大会結果も 0 件です。";
+        const string note = "このモードではペアリングを行わず、大会最終状態も 0 件です。";
 
         Console.WriteLine($"計算方法: {mode}\n");
         Console.WriteLine($"総ペアリング数: {pairingCount}");
-        Console.WriteLine($"大会結果件数: {tournamentMatchRecordCount}\n");
+        Console.WriteLine($"大会最終状態件数: {tournamentMatchRecordCount}\n");
 
         var defaultOutputCsvPath = Path.GetFullPath($"empty_rule_result_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
         var outputCsvPath = CsvOutputHelpers.ResolveOutputCsvPath(ConsolePromptReaders.ReadTextWithDefault(
@@ -69,8 +69,8 @@ internal static partial class Program
 
         Console.WriteLine($"空ルール結果CSVを出力しました: {outputCsvPath}");
         Console.WriteLine($"空ルール結果Markdownを出力しました: {outputMarkdownPath}");
-        Console.WriteLine($"空ルール大会結果CSVを出力しました: {tournamentMatchRecordsCsvPath}");
-        Console.WriteLine($"空ルール大会結果Markdownを出力しました: {tournamentMatchRecordsMarkdownPath}");
+        Console.WriteLine($"空ルール大会最終状態CSVを出力しました: {tournamentMatchRecordsCsvPath}");
+        Console.WriteLine($"空ルール大会最終状態Markdownを出力しました: {tournamentMatchRecordsMarkdownPath}");
     }
 
     static IEnumerable<string> CreateEmptyRuleResultCsv(string mode, int pairingCount, int tournamentMatchRecordCount, string note)
@@ -103,13 +103,13 @@ internal static partial class Program
             $"- 結果CSV: {ResultCsvWriter.BuildMarkdownFileLink(outputMarkdownPath, outputCsvPath)}",
             $"- 計算モード: {mode}",
             $"- 総ペアリング数: {pairingCount}",
-            $"- 大会結果件数: {tournamentMatchRecordCount}",
-            $"- 大会結果Markdown: {ResultCsvWriter.BuildMarkdownFileLink(outputMarkdownPath, tournamentMatchRecordsMarkdownPath)}",
+            $"- 大会最終状態件数: {tournamentMatchRecordCount}",
+            $"- 大会最終状態Markdown: {ResultCsvWriter.BuildMarkdownFileLink(outputMarkdownPath, tournamentMatchRecordsMarkdownPath)}",
             $"- 注記: {note}",
             string.Empty,
             "## 説明",
             "- このモードでは対局を1件も組まないため、順位表は作りません。",
-            "- 大会結果テーブルも 0 件のまま出力します。"
+            "- 大会最終状態テーブルも 0 件のまま出力します。"
         };
     }
 }

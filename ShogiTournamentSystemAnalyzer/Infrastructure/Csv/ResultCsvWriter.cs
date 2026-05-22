@@ -533,7 +533,7 @@ internal static class ResultCsvWriter
 
         if (!string.IsNullOrWhiteSpace(representativeMatchRecordsMarkdownPath))
         {
-            lines.Add($"- representative大会結果: {BuildMarkdownFileLink(outputMarkdownPath, representativeMatchRecordsMarkdownPath)}");
+            lines.Add($"- representative大会最終状態: {BuildMarkdownFileLink(outputMarkdownPath, representativeMatchRecordsMarkdownPath)}");
         }
 
         if (!string.IsNullOrWhiteSpace(overviewNote))
@@ -1116,7 +1116,7 @@ internal static class ResultCsvWriter
 
         var lines = new List<string>
                 {
-                    "# 大会結果テーブル",
+                    "# 大会最終状態テーブル",
                     string.Empty,
                     "## 概要",
                     $"- 結果CSV: {BuildMarkdownFileLink(outputMarkdownPath, outputCsvPath)}",

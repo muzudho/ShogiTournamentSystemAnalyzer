@@ -1,4 +1,4 @@
-# 大会結果テーブル
+# 大会最終状態テーブル
 
 ## 概要
 - 結果CSV: [tournament_match_records_representative_20260520_234929.csv](tournament_match_records_representative_20260520_234929.csv)
@@ -6,7 +6,7 @@
 - ステージ数: 1
 - 完了対局数: 4
 - 中止対局数: 0
-- 注記: この大会結果テーブルは代表実行 1 件の対局記録です。順位表の aggregate 結果そのものではありません。
+- 注記: この大会最終状態テーブルは代表実行 1 件の対局記録です。順位表の aggregate 結果そのものではありません。
 - representative順位表: [tournament_framework_representative_ranking_20260520_234929.md](tournament_framework_representative_ranking_20260520_234929.md)
 - aggregate順位表: [tournament_framework_aggregate_result_[大会進行フレームワーク_Twill_最小].md](tournament_framework_aggregate_result_[大会進行フレームワーク_Twill_最小].md)
 

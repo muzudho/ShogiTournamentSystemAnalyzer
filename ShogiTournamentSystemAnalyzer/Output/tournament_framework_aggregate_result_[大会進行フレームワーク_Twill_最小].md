@@ -5,7 +5,7 @@
 - 計算モード: 厳密計算 / 大会進行フレームワーク / FixedMatch / Twill
 - 同Elo対局時の先手勝率: 51.00%
 - 対象選手数: 4
-- 注記: この順位表は複数回試行の aggregate 結果です。下記の大会結果テーブルとは 1 対 1 には対応しません。
+- 注記: この順位表は複数回試行の aggregate 結果です。下記の大会最終状態テーブルとは 1 対 1 には対応しません。
 - representative順位表: [tournament_framework_representative_ranking_20260520_234929.md](tournament_framework_representative_ranking_20260520_234929.md)
 
 ## 注目ポイント

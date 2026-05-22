@@ -80,7 +80,7 @@ internal static partial class Program
         var rankingSettingsData = BoundaryDataBuilders.BuildRankingSettingsBoundaryData(tournamentRuleData);
 
         // ［大会結果データ］
-        var tournamentResultData = BoundaryDataBuilders.BuildTournamentResultBoundaryData(executionResult);
+        var tournamentFinalStateData = BoundaryDataBuilders.BuildTournamentFinalStateBoundaryData(executionResult);
 
         // ［最終順位データ］
         var finalRankingData = BoundaryDataBuilders.BuildFinalRankingBoundaryData(executionResult);
@@ -96,7 +96,7 @@ internal static partial class Program
             .OrderBy(player => player.PlayerId)
             .Select((player, index) => new { player.PlayerId, index })
             .ToDictionary(x => x.PlayerId, x => x.index);
-        var standardMatches = tournamentResultData.MatchRecords
+        var standardMatches = tournamentFinalStateData.MatchRecords
             .Select(match => new Match(playerIndexById[match.FirstPlayerId], playerIndexById[match.SecondPlayerId]))
             .ToArray();
         var representativeExecutionRankRows = BuildRepresentativeExecutionRankRows(playerListData.Players, finalRankingData.RankRows);
@@ -119,8 +119,8 @@ internal static partial class Program
             Console.WriteLine($"自然終了率: {aggregateResult.CompletedNaturallyCount:N0}/{aggregateResult.CompletedSimulationCount:N0}");
         }
 
-        Console.WriteLine($"代表実行Tick数: {tournamentResultData.TickCount}");
-        Console.WriteLine($"代表実行の自然終了: {(tournamentResultData.CompletedNaturally ? "Yes" : "No")}");
+        Console.WriteLine($"代表実行Tick数: {tournamentFinalStateData.TickCount}");
+        Console.WriteLine($"代表実行の自然終了: {(tournamentFinalStateData.CompletedNaturally ? "Yes" : "No")}");
         Console.WriteLine($"ステージ数: {stages.Count}");
         Console.WriteLine($"総対局数: {matchRecords.Count}\n");
         if (dslDefinition is not null)
@@ -131,7 +131,7 @@ internal static partial class Program
 
         ConsoleResultPrinter.PrintMatchesCsv(standardPlayers, standardMatches, "大会進行フレームワークで読み込んだ対局CSV:");
         Console.WriteLine("注記: これ以降の順位表は複数回試行の aggregate 結果です。");
-        Console.WriteLine("注記: あとで出力する大会結果CSV/Markdownは代表実行1件の対局記録です。\n");
+        Console.WriteLine("注記: あとで出力する大会最終状態CSV/Markdownは代表実行1件の対局記録です。\n");
         ConsoleResultPrinter.PrintRepresentativeExecutionRanking(representativeExecutionRankRows, rankingSettingsData.TournamentRuleSetMode);
         ConsoleResultPrinter.PrintResult(standardPlayers.Length, result, tournamentRuleData.FirstPlayerWinRatePercent ?? context.FirstPlayerWinRatePercent, resultRows);
         if (result.Mode.Contains("時間切れ", StringComparison.Ordinal))
@@ -150,7 +150,7 @@ internal static partial class Program
                 result.Mode,
                 tournamentRuleData.FirstPlayerWinRatePercent ?? context.FirstPlayerWinRatePercent,
                 resultRows,
-                overviewNote: "この順位表は複数回試行の aggregate 結果です。大会結果CSVとは 1 対 1 には対応しません。"));
+                overviewNote: "この順位表は複数回試行の aggregate 結果です。大会最終状態CSVとは 1 対 1 には対応しません。"));
 
         var outputMarkdownPath = CsvOutputHelpers.ChangeOutputExtension(outputCsvPath, ".md");
         var representativeRankingCsvPath = CsvOutputHelpers.BuildSiblingOutputCsvPath(outputCsvPath, "tournament_framework_representative_ranking");
@@ -166,7 +166,7 @@ internal static partial class Program
                 result.Mode,
                 tournamentRuleData.FirstPlayerWinRatePercent ?? context.FirstPlayerWinRatePercent,
                 resultRows,
-                overviewNote: "この順位表は複数回試行の aggregate 結果です。下記の大会結果テーブルとは 1 対 1 には対応しません。",
+                overviewNote: "この順位表は複数回試行の aggregate 結果です。下記の大会最終状態テーブルとは 1 対 1 には対応しません。",
                 representativeRankingMarkdownPath: representativeRankingMarkdownPath));
 
         WriterHelper.WriteText(
@@ -191,8 +191,8 @@ internal static partial class Program
             getLines: () => ResultCsvWriter.CreateTournamentMatchRecordCsv(
                 stages,
                 players,
-                tournamentResultData.MatchRecords,
-                overviewNote: "この大会結果テーブルは代表実行 1 件の対局記録です。順位表の aggregate 結果そのものではありません。"));
+                tournamentFinalStateData.MatchRecords,
+                overviewNote: "この大会最終状態テーブルは代表実行 1 件の対局記録です。順位表の aggregate 結果そのものではありません。"));
 
         WriterHelper.WriteText(
             outputPath: tournamentMatchRecordsMarkdownPath,
@@ -201,8 +201,8 @@ internal static partial class Program
                 tournamentMatchRecordsCsvPath,
                 stages,
                 players,
-                tournamentResultData.MatchRecords,
-                overviewNote: "この大会結果テーブルは代表実行 1 件の対局記録です。順位表の aggregate 結果そのものではありません。",
+                tournamentFinalStateData.MatchRecords,
+                overviewNote: "この大会最終状態テーブルは代表実行 1 件の対局記録です。順位表の aggregate 結果そのものではありません。",
                 aggregateResultMarkdownPath: outputMarkdownPath,
                 representativeRankingMarkdownPath: representativeRankingMarkdownPath));
 
@@ -210,8 +210,8 @@ internal static partial class Program
         Console.WriteLine($"aggregate結果Markdownを出力しました: {outputMarkdownPath}");
         Console.WriteLine($"representative順位表CSVを出力しました: {representativeRankingCsvPath}");
         Console.WriteLine($"representative順位表Markdownを出力しました: {representativeRankingMarkdownPath}");
-        Console.WriteLine($"representative大会結果CSVを出力しました: {tournamentMatchRecordsCsvPath}");
-        Console.WriteLine($"representative大会結果Markdownを出力しました: {tournamentMatchRecordsMarkdownPath}");
+        Console.WriteLine($"representative大会最終状態CSVを出力しました: {tournamentMatchRecordsCsvPath}");
+        Console.WriteLine($"representative大会最終状態Markdownを出力しました: {tournamentMatchRecordsMarkdownPath}");
     }
 
     static List<PlayerEntry> ReadPlayerEntriesFromCsvPath(string path)

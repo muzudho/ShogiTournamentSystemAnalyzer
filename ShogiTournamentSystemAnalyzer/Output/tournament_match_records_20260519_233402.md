@@ -1,4 +1,4 @@
-# 大会結果テーブル
+# 大会最終状態テーブル
 
 ## 概要
 - 結果CSV: [tournament_match_records_20260519_233402.csv](tournament_match_records_20260519_233402.csv)

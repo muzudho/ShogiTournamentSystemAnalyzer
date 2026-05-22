@@ -38,9 +38,9 @@ internal static class BoundaryDataBuilders
             Note: "大会進行フレームワークの最終順位設定データ");
     }
 
-    internal static TournamentResultData BuildTournamentResultBoundaryData(TournamentFrameworkExecutionResult executionResult)
+    internal static TournamentFinalStateData BuildTournamentFinalStateBoundaryData(TournamentFrameworkExecutionResult executionResult)
     {
-        return new TournamentResultData(
+        return new TournamentFinalStateData(
             executionResult.FinalState.MatchRecords,
             executionResult.FinalState.CurrentTime,
             executionResult.TickCount,
