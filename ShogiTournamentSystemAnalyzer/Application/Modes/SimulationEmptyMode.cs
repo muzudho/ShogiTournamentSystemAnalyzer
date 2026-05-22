@@ -51,7 +51,7 @@ internal static partial class Program
 
         WriterHelper.WriteText(
             outputPath: tournamentMatchRecordsCsvPath,
-            getLines: () => CreateTournamentMatchRecordCsv(
+            getLines: () => ResultCsvWriter.CreateTournamentMatchRecordCsv(
                 Array.Empty<StageEntry>(),
                 Array.Empty<PlayerEntry>(),
                 Array.Empty<TournamentMatchRecord>(),
@@ -59,7 +59,7 @@ internal static partial class Program
 
         WriterHelper.WriteText(
             outputPath: tournamentMatchRecordsMarkdownPath,
-            getLines: () => CreateTournamentMatchRecordMarkdown(
+            getLines: () => ResultCsvWriter.CreateTournamentMatchRecordMarkdown(
                 tournamentMatchRecordsMarkdownPath,
                 tournamentMatchRecordsCsvPath,
                 Array.Empty<StageEntry>(),
@@ -100,11 +100,11 @@ internal static partial class Program
             "# 空ルール結果レポート",
             string.Empty,
             "## 概要",
-            $"- 結果CSV: {BuildMarkdownFileLink(outputMarkdownPath, outputCsvPath)}",
+            $"- 結果CSV: {ResultCsvWriter.BuildMarkdownFileLink(outputMarkdownPath, outputCsvPath)}",
             $"- 計算モード: {mode}",
             $"- 総ペアリング数: {pairingCount}",
             $"- 大会結果件数: {tournamentMatchRecordCount}",
-            $"- 大会結果Markdown: {BuildMarkdownFileLink(outputMarkdownPath, tournamentMatchRecordsMarkdownPath)}",
+            $"- 大会結果Markdown: {ResultCsvWriter.BuildMarkdownFileLink(outputMarkdownPath, tournamentMatchRecordsMarkdownPath)}",
             $"- 注記: {note}",
             string.Empty,
             "## 説明",

@@ -44,6 +44,7 @@ internal static partial class Program
             var ruleProfileMode = ConsolePromptReaders.ReadRuleProfileMode(flowMode);
 
             // TODO: ここで本来選ぶべきなのは、［シミュレーション域］、［順位付け域］、［大会品質評価フロー域］の３つの内の１つでは（＾～＾）？
+            // TODO: まあ、その他に、［大会ルールという境界］に当たる［大会ルール・ファイル］を作成するウィザードがあってもいいかも（＾～＾）！　それはそれで面白そう（＾～＾）！
 
             switch ((flowMode, ruleProfileMode))
             {

@@ -146,7 +146,7 @@ internal static partial class Program
         var outputCsvPath = ResolveOutputCsvPath(requestedOutputPath);
         WriterHelper.WriteText(
             outputPath: outputCsvPath,
-            getLines: () => CreateResultCsv(
+            getLines: () => ResultCsvWriter.CreateResultCsv(
                 result.Mode,
                 tournamentRuleData.FirstPlayerWinRatePercent ?? context.FirstPlayerWinRatePercent,
                 resultRows,
@@ -160,7 +160,7 @@ internal static partial class Program
 
         WriterHelper.WriteText(
             outputPath: outputMarkdownPath,
-            getLines: () => CreateResultMarkdown(
+            getLines: () => ResultCsvWriter.CreateResultMarkdown(
                 outputMarkdownPath,
                 outputCsvPath,
                 result.Mode,
@@ -171,14 +171,14 @@ internal static partial class Program
 
         WriterHelper.WriteText(
             outputPath: representativeRankingCsvPath,
-            getLines: () => CreateRepresentativeExecutionRankCsv(
+            getLines: () => ResultCsvWriter.CreateRepresentativeExecutionRankCsv(
                 rankingSettingsData.TournamentRuleSetMode,
                 representativeExecutionRankRows,
                 overviewNote: "この順位表は代表実行 1 件の順位です。aggregate 結果の順位表そのものではありません。"));
 
         WriterHelper.WriteText(
             outputPath: representativeRankingMarkdownPath,
-            getLines: () => CreateRepresentativeExecutionRankMarkdown(
+            getLines: () => ResultCsvWriter.CreateRepresentativeExecutionRankMarkdown(
                 representativeRankingMarkdownPath,
                 representativeRankingCsvPath,
                 rankingSettingsData.TournamentRuleSetMode,
@@ -188,7 +188,7 @@ internal static partial class Program
 
         WriterHelper.WriteText(
             outputPath: tournamentMatchRecordsCsvPath,
-            getLines: () => CreateTournamentMatchRecordCsv(
+            getLines: () => ResultCsvWriter.CreateTournamentMatchRecordCsv(
                 stages,
                 players,
                 tournamentResultData.MatchRecords,
@@ -196,7 +196,7 @@ internal static partial class Program
 
         WriterHelper.WriteText(
             outputPath: tournamentMatchRecordsMarkdownPath,
-            getLines: () => CreateTournamentMatchRecordMarkdown(
+            getLines: () => ResultCsvWriter.CreateTournamentMatchRecordMarkdown(
                 tournamentMatchRecordsMarkdownPath,
                 tournamentMatchRecordsCsvPath,
                 stages,
@@ -547,7 +547,7 @@ internal static partial class Program
         TournamentRuleSetMode TournamentRuleSetMode,
         TournamentFrameworkExecutionResult RepresentativeExecutionResult);
 
-    readonly record struct RepresentativeExecutionRankRow(
+    internal readonly record struct RepresentativeExecutionRankRow(
         string Name,
         int Points,
         string RankLabel,

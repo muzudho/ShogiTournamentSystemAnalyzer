@@ -8,15 +8,17 @@ using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
 using System.Globalization;
 
-internal static partial class Program
+internal static class ResultCsvWriter
 {
+    static string EscapeCsv(string value) => Program.EscapeCsv(value);
+
     /// <summary>
     /// ［品質評価］サマリーCSVを作成する
     /// </summary>
     /// <param name="summary"></param>
     /// <param name="options"></param>
     /// <returns></returns>
-    static IEnumerable<string> CreateTournamentQualityReportSummaryCsv(TournamentQualityReportSummary summary, TournamentQualityEvaluationReportGroupingOptions options)
+    internal static IEnumerable<string> CreateTournamentQualityReportSummaryCsv(TournamentQualityReportSummary summary, TournamentQualityEvaluationReportGroupingOptions options)
     {
         // CSVの内容を作成する
         var lines = new List<string>
@@ -56,7 +58,7 @@ internal static partial class Program
     /// <param name="sweepCsvPath"></param>
     /// <param name="options"></param>
     /// <returns></returns>
-    static IEnumerable<string> CreateTournamentQualitySweepReportMarkdown(string outputMarkdownPath, IReadOnlyList<TournamentQualitySweepReportRow> sweepRows, string sweepCsvPath, TournamentQualityEvaluationReportGroupingOptions options)
+    internal static IEnumerable<string> CreateTournamentQualitySweepReportMarkdown(string outputMarkdownPath, IReadOnlyList<TournamentQualitySweepReportRow> sweepRows, string sweepCsvPath, TournamentQualityEvaluationReportGroupingOptions options)
     {
         var bestSpearmanRow = sweepRows
             .OrderByDescending(row => row.SpearmanCorrelation)
@@ -140,7 +142,7 @@ internal static partial class Program
     /// <param name="playerCsvPath"></param>
     /// <param name="options"></param>
     /// <returns></returns>
-    static IEnumerable<string> CreateTournamentQualityReportSummaryMarkdown(
+    internal static IEnumerable<string> CreateTournamentQualityReportSummaryMarkdown(
         string outputMarkdownPath,
         IReadOnlyList<TournamentQualityReportPlayerRow> playerRows,
         TournamentQualityReportSummary summary,
@@ -252,7 +254,7 @@ internal static partial class Program
         return lines;
     }
 
-    static IEnumerable<string> CreateTournamentQualitySweepReportCsv(IReadOnlyList<TournamentQualitySweepReportRow> sweepRows, TournamentQualityEvaluationReportGroupingOptions options)
+    internal static IEnumerable<string> CreateTournamentQualitySweepReportCsv(IReadOnlyList<TournamentQualitySweepReportRow> sweepRows, TournamentQualityEvaluationReportGroupingOptions options)
     {
         var lines = new List<string>
         {
@@ -447,9 +449,9 @@ internal static partial class Program
         };
     }
 
-    static IEnumerable<string> CreateRepresentativeExecutionRankCsv(
+    internal static IEnumerable<string> CreateRepresentativeExecutionRankCsv(
         TournamentRuleSetMode tournamentRuleSetMode,
-        IReadOnlyList<RepresentativeExecutionRankRow> rows,
+        IReadOnlyList<Program.RepresentativeExecutionRankRow> rows,
         string? overviewNote = null)
     {
         // ----------------------------------------
@@ -505,11 +507,11 @@ internal static partial class Program
         return lines;
     }
 
-    static IEnumerable<string> CreateRepresentativeExecutionRankMarkdown(
+    internal static IEnumerable<string> CreateRepresentativeExecutionRankMarkdown(
         string outputMarkdownPath,
         string outputCsvPath,
         TournamentRuleSetMode tournamentRuleSetMode,
-        IReadOnlyList<RepresentativeExecutionRankRow> rows,
+        IReadOnlyList<Program.RepresentativeExecutionRankRow> rows,
         string? overviewNote = null,
         string? representativeMatchRecordsMarkdownPath = null)
     {
@@ -582,7 +584,7 @@ internal static partial class Program
             : start.ToString("F2", CultureInfo.InvariantCulture) + "%〜" + end.ToString("F2", CultureInfo.InvariantCulture) + "%";
     }
 
-    static IEnumerable<string> CreateTournamentQualityReportPlayerCsv(IReadOnlyList<TournamentQualityReportPlayerRow> playerRows)
+    internal static IEnumerable<string> CreateTournamentQualityReportPlayerCsv(IReadOnlyList<TournamentQualityReportPlayerRow> playerRows)
     {
         var lines = new List<string>
         {
@@ -610,7 +612,7 @@ internal static partial class Program
         return lines;
     }
 
-    static IEnumerable<string> CreateResultCsv(string mode, double firstPlayerWinRatePercent, IReadOnlyList<ResultRow> resultRows, string? overviewNote = null)
+    internal static IEnumerable<string> CreateResultCsv(string mode, double firstPlayerWinRatePercent, IReadOnlyList<ResultRow> resultRows, string? overviewNote = null)
     {
         // ----------------------------------------
         // ヘッダー行
@@ -694,7 +696,7 @@ internal static partial class Program
         return lines;
     }
 
-    static IEnumerable<string> CreateResultMarkdown(
+    internal static IEnumerable<string> CreateResultMarkdown(
         string outputMarkdownPath,
         string outputCsvPath,
         string mode,
@@ -794,7 +796,7 @@ internal static partial class Program
         return lines;
     }
 
-    static IEnumerable<string> CreateFinalStageResultCsv(string outputCsvPath, string mode, double firstPlayerWinRatePercent, IReadOnlyList<FinalStageResultRow> resultRows)
+    internal static IEnumerable<string> CreateFinalStageResultCsv(string outputCsvPath, string mode, double firstPlayerWinRatePercent, IReadOnlyList<FinalStageResultRow> resultRows)
     {
         // ----------------------------------------
         // ヘッダー行
@@ -874,7 +876,7 @@ internal static partial class Program
         return lines;
     }
 
-    static IEnumerable<string> CreateFinalStageResultMarkdown(string outputMarkdownPath, string outputCsvPath, string mode, double firstPlayerWinRatePercent, IReadOnlyList<FinalStageResultRow> resultRows, string? referenceMatchesCsvPath = null)
+    internal static IEnumerable<string> CreateFinalStageResultMarkdown(string outputMarkdownPath, string outputCsvPath, string mode, double firstPlayerWinRatePercent, IReadOnlyList<FinalStageResultRow> resultRows, string? referenceMatchesCsvPath = null)
     {
         var topRows = resultRows
             .OrderByDescending(row => row.OverallPlace1Probability)
@@ -1019,7 +1021,7 @@ internal static partial class Program
     /// <param name="markdownPath">The path to the Markdown file.</param>
     /// <param name="targetPath">The path to the target file.</param>
     /// <returns>A relative file link for use in a Markdown file.</returns>
-    static string BuildMarkdownFileLink(string markdownPath, string targetPath)
+    internal static string BuildMarkdownFileLink(string markdownPath, string targetPath)
     {
         var markdownDirectory = Path.GetDirectoryName(Path.GetFullPath(markdownPath)) ?? Path.GetFullPath(".");
         var fullTargetPath = Path.GetFullPath(targetPath);
@@ -1030,7 +1032,7 @@ internal static partial class Program
         return $"[{fileName}]({relativePath})";
     }
 
-    static IEnumerable<string> CreateTournamentMatchRecordCsv(IReadOnlyList<StageEntry> stages, IReadOnlyList<PlayerEntry> players, IReadOnlyList<TournamentMatchRecord> matchRecords, string? overviewNote = null)
+    internal static IEnumerable<string> CreateTournamentMatchRecordCsv(IReadOnlyList<StageEntry> stages, IReadOnlyList<PlayerEntry> players, IReadOnlyList<TournamentMatchRecord> matchRecords, string? overviewNote = null)
     {
         var stageNameById = stages.ToDictionary(stage => stage.StageId, stage => stage.StageName);
         var playerNameById = players.ToDictionary(player => player.PlayerId, player => player.Name);
@@ -1082,7 +1084,7 @@ internal static partial class Program
         return lines;
     }
 
-    static IEnumerable<string> CreateTournamentMatchRecordMarkdown(
+    internal static IEnumerable<string> CreateTournamentMatchRecordMarkdown(
         string outputMarkdownPath,
         string outputCsvPath,
         IReadOnlyList<StageEntry> stages,

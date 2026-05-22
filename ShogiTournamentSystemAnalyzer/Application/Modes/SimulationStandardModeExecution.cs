@@ -36,12 +36,12 @@ internal static partial class Program
             defaultOutputCsvPath));
         WriterHelper.WriteText(
             outputPath: outputCsvPath,
-            getLines: () => CreateResultCsv(result.Mode, context.FirstPlayerWinRatePercent, resultRows));
+            getLines: () => ResultCsvWriter.CreateResultCsv(result.Mode, context.FirstPlayerWinRatePercent, resultRows));
 
         var outputMarkdownPath = ChangeOutputExtension(outputCsvPath, ".md");
         WriterHelper.WriteText(
             outputPath: outputMarkdownPath,
-            getLines: () => CreateResultMarkdown(outputMarkdownPath, outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, resultRows));
+            getLines: () => ResultCsvWriter.CreateResultMarkdown(outputMarkdownPath, outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, resultRows));
 
         Console.WriteLine($"結果CSVを出力しました: {outputCsvPath}");
         Console.WriteLine($"結果Markdownを出力しました: {outputMarkdownPath}");

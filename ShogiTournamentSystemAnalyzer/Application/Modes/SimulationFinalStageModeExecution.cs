@@ -129,21 +129,21 @@ internal static partial class Program
         {
             WriterHelper.WriteText(
                 outputPath: outputCsvPath,
-                getLines: () => CreateFinalStageResultCsv(outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, finalStageResultRows!));
+                getLines: () => ResultCsvWriter.CreateFinalStageResultCsv(outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, finalStageResultRows!));
 
             WriterHelper.WriteText(
                 outputPath: outputMarkdownPath,
-                getLines: () => CreateFinalStageResultMarkdown(outputMarkdownPath, outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, finalStageResultRows!, referenceMatchesCsvPath));
+                getLines: () => ResultCsvWriter.CreateFinalStageResultMarkdown(outputMarkdownPath, outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, finalStageResultRows!, referenceMatchesCsvPath));
         }
         else
         {
             WriterHelper.WriteText(
                 outputPath: outputCsvPath,
-                getLines: () => CreateResultCsv(result.Mode, context.FirstPlayerWinRatePercent, standardResultRows!));
+                getLines: () => ResultCsvWriter.CreateResultCsv(result.Mode, context.FirstPlayerWinRatePercent, standardResultRows!));
 
             WriterHelper.WriteText(
                 outputPath: outputMarkdownPath,
-                getLines: () => CreateResultMarkdown(outputMarkdownPath, outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, standardResultRows!));
+                getLines: () => ResultCsvWriter.CreateResultMarkdown(outputMarkdownPath, outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, standardResultRows!));
 
         }
         Console.WriteLine($"結果CSVを出力しました: {outputCsvPath}");
