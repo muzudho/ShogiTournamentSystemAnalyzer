@@ -1,3 +1,5 @@
+using ShogiTournamentSystemAnalyzer.Domain.Simulation;
+
 /// <summary>
 /// ［選手エントリー］だ。
 /// </summary>

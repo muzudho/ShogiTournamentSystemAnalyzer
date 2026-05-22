@@ -2,6 +2,8 @@
  * ［大会品質評価フロー］で使われるモデルの定義
  */
 
+using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
+
 /// <summary>
 /// ［大会品質評価フロー　＞　選手の行］だ。
 /// </summary>

@@ -1,6 +1,7 @@
-/*
- * ［大会］に関する構造体定義
+﻿/*
+ * ［シミュレーション域］
  */
+namespace ShogiTournamentSystemAnalyzer.Domain.Simulation;
 
 /// <summary>
 /// ［選手］だ。

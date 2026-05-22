@@ -1,3 +1,4 @@
+using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
 
 internal readonly record struct StandardModeContext(
