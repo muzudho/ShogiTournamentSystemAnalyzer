@@ -1,3 +1,5 @@
+using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
+
 internal readonly record struct FinalStageModeContext(
     double FirstPlayerWinRatePercent,
     double FirstPlayerWinRateRating,

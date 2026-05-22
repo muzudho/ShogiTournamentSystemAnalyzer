@@ -1,3 +1,5 @@
+using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
+
 internal readonly record struct StandardModeContext(
     TournamentRuleSetMode TournamentRuleSetMode,
     double FirstPlayerWinRatePercent,

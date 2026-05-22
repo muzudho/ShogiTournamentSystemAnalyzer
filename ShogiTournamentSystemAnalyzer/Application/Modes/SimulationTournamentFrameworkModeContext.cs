@@ -1,3 +1,5 @@
+using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
+
 internal readonly record struct TournamentFrameworkModeContext(
     string PlayersCsvPath,
     string StagesCsvPath,

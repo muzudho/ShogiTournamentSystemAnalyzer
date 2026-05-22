@@ -1,3 +1,5 @@
+using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
+
 internal static class BoundaryRescueRule
 {
     internal static string GetLabel(BoundaryRescueMode boundaryRescueMode)

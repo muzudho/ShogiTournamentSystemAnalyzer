@@ -1,3 +1,5 @@
+using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
+
 internal static class TournamentRuleSetRule
 {
     internal static string GetLabel(TournamentRuleSetMode mode)

@@ -1,3 +1,5 @@
+using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
+
 internal static class VariableTop8Rule
 {
     internal static int GetPromotedInnovCount(VariableTop8Mode mode, int additionalApexCount)

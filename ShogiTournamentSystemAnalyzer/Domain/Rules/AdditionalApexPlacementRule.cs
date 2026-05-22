@@ -1,3 +1,5 @@
+using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
+
 internal static class AdditionalApexPlacementRule
 {
     internal static int GetEffectiveAdditionalApexCount(int additionalApexCount, AdditionalApexPlacementMode placementMode)
