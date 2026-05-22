@@ -8,7 +8,7 @@ internal static partial class Program
     /// <param name="summary"></param>
     /// <param name="options"></param>
     /// <returns></returns>
-    static IEnumerable<string> CreateTournamentQualityReportSummaryCsv(TournamentQualityReportSummary summary, ExperimentalReportGroupingOptions options)
+    static IEnumerable<string> CreateTournamentQualityReportSummaryCsv(TournamentQualityReportSummary summary, TournamentQualityEvaluationReportGroupingOptions options)
     {
         // CSVの内容を作成する
         var lines = new List<string>
@@ -48,7 +48,7 @@ internal static partial class Program
     /// <param name="sweepCsvPath"></param>
     /// <param name="options"></param>
     /// <returns></returns>
-    static IEnumerable<string> CreateTournamentQualitySweepReportMarkdown(string outputMarkdownPath, IReadOnlyList<TournamentQualitySweepReportRow> sweepRows, string sweepCsvPath, ExperimentalReportGroupingOptions options)
+    static IEnumerable<string> CreateTournamentQualitySweepReportMarkdown(string outputMarkdownPath, IReadOnlyList<TournamentQualitySweepReportRow> sweepRows, string sweepCsvPath, TournamentQualityEvaluationReportGroupingOptions options)
     {
         var bestSpearmanRow = sweepRows
             .OrderByDescending(row => row.SpearmanCorrelation)
@@ -139,7 +139,7 @@ internal static partial class Program
         string calculationMode,
         string summaryCsvPath,
         string playerCsvPath,
-        ExperimentalReportGroupingOptions options)
+        TournamentQualityEvaluationReportGroupingOptions options)
     {
         var topPenalizedPlayers = playerRows
             .OrderByDescending(row => row.OverallPlaceDeltaFromEloRank)
@@ -244,7 +244,7 @@ internal static partial class Program
         return lines;
     }
 
-    static IEnumerable<string> CreateTournamentQualitySweepReportCsv(IReadOnlyList<TournamentQualitySweepReportRow> sweepRows, ExperimentalReportGroupingOptions options)
+    static IEnumerable<string> CreateTournamentQualitySweepReportCsv(IReadOnlyList<TournamentQualitySweepReportRow> sweepRows, TournamentQualityEvaluationReportGroupingOptions options)
     {
         var lines = new List<string>
         {

@@ -1,4 +1,4 @@
 internal readonly record struct TournamentQualityEvaluationOutputOptions(
-    ExperimentalReportGroupingOptions ReportGroupingOptions,
+    TournamentQualityEvaluationReportGroupingOptions ReportGroupingOptions,
     string OutputCsvPath);
 

@@ -97,8 +97,8 @@ readonly record struct TournamentQualitySweepReportRow(
 /// <param name="IsEnabled"></param>
 /// <param name="Outcome"></param>
 /// <param name="EvaluationMemo"></param>
-readonly record struct ExperimentalReportGroupingOptions(
+readonly record struct TournamentQualityEvaluationReportGroupingOptions(
     bool IsEnabled,
-    ExperimentalReportOutcome? Outcome,
+    TournamentQualityEvaluationReportOutcome? Outcome,
     string EvaluationMemo);
 

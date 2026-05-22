@@ -41,7 +41,7 @@ enum FinalStageGroupingMode
     On,
 }
 
-enum ExperimentalReportOutcome
+enum TournamentQualityEvaluationReportOutcome
 {
     Good,
     Bad,

@@ -32,7 +32,7 @@ internal static partial class Program
         }
     }
 
-    static ExperimentalReportGroupingOptions ReadExperimentalReportGroupingOptions()
+    static TournamentQualityEvaluationReportGroupingOptions ReadTournamentQualityEvaluationReportGroupingOptions()
     {
         Console.WriteLine("実験レポートの Good / Bad 分離を使いますか？");
         Console.WriteLine("1. Off: 分離しない");
@@ -47,15 +47,15 @@ internal static partial class Program
             if (string.IsNullOrEmpty(input) || input == "1")
             {
                 Console.WriteLine();
-                return new ExperimentalReportGroupingOptions(false, null, string.Empty);
+                return new TournamentQualityEvaluationReportGroupingOptions(false, null, string.Empty);
             }
 
             if (input == "2")
             {
                 Console.WriteLine();
-                var outcome = ReadExperimentalReportOutcome();
+                var outcome = ReadTournamentQualityEvaluationReportOutcome();
                 var evaluationMemo = ReadOptionalEvaluationMemo();
-                return new ExperimentalReportGroupingOptions(true, outcome, evaluationMemo);
+                return new TournamentQualityEvaluationReportGroupingOptions(true, outcome, evaluationMemo);
             }
 
             if (attempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("実験レポートの Good / Bad 分離", "1 または 2 以外が入力されました");
@@ -74,7 +74,7 @@ internal static partial class Program
         return input.Trim();
     }
 
-    static ExperimentalReportOutcome ReadExperimentalReportOutcome()
+    static TournamentQualityEvaluationReportOutcome ReadTournamentQualityEvaluationReportOutcome()
     {
         Console.WriteLine("今回の案の評価を選んでください。");
         Console.WriteLine("1. Good");
@@ -89,13 +89,13 @@ internal static partial class Program
             if (string.IsNullOrEmpty(input) || input == "1")
             {
                 Console.WriteLine();
-                return ExperimentalReportOutcome.Good;
+                return TournamentQualityEvaluationReportOutcome.Good;
             }
 
             if (input == "2")
             {
                 Console.WriteLine();
-                return ExperimentalReportOutcome.Bad;
+                return TournamentQualityEvaluationReportOutcome.Bad;
             }
 
             if (attempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("実験レポート評価", "1 または 2 以外が入力されました");

@@ -37,7 +37,7 @@ internal static partial class Program
     /// <returns></returns>
     static TournamentQualityEvaluationOutputOptions ReadTournamentQualityReportOutputOptions(TournamentQualityEvaluationRuleDefinition ruleDefinition)
     {
-        var reportGroupingOptions = ReadExperimentalReportGroupingOptions();
+        var reportGroupingOptions = ReadTournamentQualityEvaluationReportGroupingOptions();
         var defaultOutputCsvPath = BuildQualitySummaryDefaultOutputPath(
             ruleDefinition.GroupingMode,
             ruleDefinition.AdditionalApexPlacementMode,
@@ -57,7 +57,7 @@ internal static partial class Program
     /// <returns></returns>
     static TournamentQualityEvaluationOutputOptions ReadTournamentQualitySweepReportOutputOptions(TournamentQualityEvaluationRuleDefinition ruleDefinition)
     {
-        var reportGroupingOptions = ReadExperimentalReportGroupingOptions();
+        var reportGroupingOptions = ReadTournamentQualityEvaluationReportGroupingOptions();
         var defaultOutputCsvPath = BuildTournamentQualitySweepReportDefaultOutputPath(
             ruleDefinition.GroupingMode,
             ruleDefinition.AdditionalApexPlacementMode,
