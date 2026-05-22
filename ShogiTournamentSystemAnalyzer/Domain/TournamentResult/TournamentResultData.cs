@@ -1,3 +1,5 @@
+using ShogiTournamentSystemAnalyzer.Domain.Simulation;
+
 /// <summary>
 /// ［６大境界］のうち、［大会結果］境界データだ。
 /// </summary>

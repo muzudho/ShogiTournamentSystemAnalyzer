@@ -1,3 +1,5 @@
+using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
+
 /// <summary>
 /// ［６大境界］のうち、［順位付けの設定］境界データだ。
 /// </summary>

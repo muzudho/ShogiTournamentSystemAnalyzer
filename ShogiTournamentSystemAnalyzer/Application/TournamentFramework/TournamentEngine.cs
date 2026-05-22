@@ -1,3 +1,5 @@
+using ShogiTournamentSystemAnalyzer.Domain.Simulation;
+
 sealed class TournamentEngine
 {
     readonly TournamentFrameworkRuleSet _ruleSet;

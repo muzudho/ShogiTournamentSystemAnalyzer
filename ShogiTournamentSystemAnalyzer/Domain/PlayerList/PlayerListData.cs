@@ -1,3 +1,5 @@
+using ShogiTournamentSystemAnalyzer.Domain.Simulation;
+
 /// <summary>
 /// ［６大境界］のうち、［プレイヤー一覧］境界データだ。
 /// </summary>

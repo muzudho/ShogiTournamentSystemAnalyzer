@@ -1,3 +1,5 @@
+using ShogiTournamentSystemAnalyzer.Domain.Simulation;
+
 sealed class TournamentTickRunner
 {
     readonly TournamentFrameworkRuleSet _ruleSet;

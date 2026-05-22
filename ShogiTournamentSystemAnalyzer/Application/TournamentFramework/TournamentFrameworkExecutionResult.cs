@@ -1,3 +1,5 @@
+using ShogiTournamentSystemAnalyzer.Domain.Simulation;
+
 /// <summary>
 /// ［大会進行フレームワーク］の実行結果を表すクラス。
 /// </summary>
