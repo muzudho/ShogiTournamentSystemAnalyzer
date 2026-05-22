@@ -102,14 +102,14 @@ internal static partial class Program
                 : CalculateExactly(input.Participants, input.Matches, firstPlayerWinRateRating, ruleDefinition.TournamentRuleSetMode);
 
         var resultRows = RankingResultRowBuilder.BuildResultRows(input.Participants, input.Matches, result, firstPlayerWinRatePercent);
-        var qualityPlayerRows = BuildTournamentQualityReportPlayerRows(
+        var qualityPlayerRows = TournamentQualityEvaluationReportBuilder.BuildTournamentQualityReportPlayerRows(
             resultRows,
             ruleDefinition.GroupMap,
             ruleDefinition.AdditionalApexParticipants,
             ruleDefinition.AdditionalApexPlacementMode,
             input.InnovExpectedRankOffsetMode,
             input.InnovExpectedRankOffsetCount);
-        var qualitySummary = BuildTournamentQualityReportSummary(qualityPlayerRows);
+        var qualitySummary = TournamentQualityEvaluationReportBuilder.BuildTournamentQualityReportSummary(qualityPlayerRows);
         return new TournamentQualityReportRun(qualityPlayerRows, qualitySummary, result.Mode);
     }
 

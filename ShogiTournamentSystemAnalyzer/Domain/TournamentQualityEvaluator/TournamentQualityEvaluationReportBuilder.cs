@@ -1,15 +1,14 @@
 /*
- * ［プログラム］
+ * ［大会品質評価域］
  */
-namespace ShogiTournamentSystemAnalyzer;
+namespace ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
-using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
 
-internal static partial class Program
+internal static class TournamentQualityEvaluationReportBuilder
 {
-    static List<TournamentQualityReportPlayerRow> BuildTournamentQualityReportPlayerRows(
+    internal static List<TournamentQualityReportPlayerRow> BuildTournamentQualityReportPlayerRows(
         IReadOnlyList<ResultRow> resultRows,
         IReadOnlyDictionary<string, FinalStageGroup>? groupMap,
         IReadOnlyList<Player> additionalApexPlayers,
@@ -52,7 +51,7 @@ internal static partial class Program
             .ToList();
     }
 
-    static TournamentQualityReportSummary BuildTournamentQualityReportSummary(IReadOnlyList<TournamentQualityReportPlayerRow> playerRows)
+    internal static TournamentQualityReportSummary BuildTournamentQualityReportSummary(IReadOnlyList<TournamentQualityReportPlayerRow> playerRows)
     {
         var spearmanCorrelation = CalculateTournamentQualityReportSpearmanCorrelation(playerRows);
         var meanAbsoluteRankError = playerRows.Average(x => Math.Abs(x.OverallPlaceDeltaFromEloRank));
