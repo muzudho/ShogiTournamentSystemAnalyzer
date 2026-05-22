@@ -106,7 +106,7 @@ internal static partial class Program
         IReadOnlyDictionary<string, FinalStageGroup>? groupMap,
         IReadOnlyList<Player> additionalApexPlayers,
         AdditionalApexPlacementMode placementMode,
-        QualityInnovExpectedRankOffsetMode innovExpectedRankOffsetMode,
+        TournamentQualityEvaluationInnovExpectedRankOffsetMode innovExpectedRankOffsetMode,
         int innovExpectedRankOffsetCount)
     {
         var allPlayers = resultRows
@@ -126,7 +126,7 @@ internal static partial class Program
                 var eloRank = eloRanks[row.Name];
                 var comparisonEloRank = groupMap is not null
                     && groupMap[row.Name] == FinalStageGroup.Innov
-                    && innovExpectedRankOffsetMode == QualityInnovExpectedRankOffsetMode.On
+                    && innovExpectedRankOffsetMode == TournamentQualityEvaluationInnovExpectedRankOffsetMode.On
                     ? eloRank + innovExpectedRankOffsetCount
                     : eloRank;
                 var overallTop8Probability = row.PlaceProbabilities.Take(Math.Min(8, row.PlaceProbabilities.Length)).Sum();
