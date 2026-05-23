@@ -7,8 +7,8 @@
 - 完了対局数: 4
 - 中止対局数: 0
 - 注記: この大会最終状態テーブルは代表実行 1 件の対局記録です。順位表の aggregate 結果そのものではありません。
-- representative順位表: [tournament_framework_representative_ranking_20260520_234929.md](tournament_framework_representative_ranking_20260520_234929.md)
-- aggregate順位表: [tournament_framework_aggregate_result_[大会進行フレームワーク_Twill_最小].md](tournament_framework_aggregate_result_[大会進行フレームワーク_Twill_最小].md)
+- representative順位表: [tournament_framework_representative_final_ranking_20260520_234929.md](tournament_framework_representative_final_ranking_20260520_234929.md)
+- aggregate順位表: [tournament_framework_aggregate_final_ranking_[大会進行フレームワーク_Twill_最小].md](tournament_framework_aggregate_final_ranking_[大会進行フレームワーク_Twill_最小].md)
 
 ## 一覧表
 | 対局番号 | ステージ | 先手 | 後手 | 開始 | 終了 | 状態 | 結果 | ラウンド |

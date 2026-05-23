@@ -1,10 +1,10 @@
 # representative順位表
 
 ## 概要
-- 結果CSV: [tournament_framework_representative_ranking_20260520_234929.csv](tournament_framework_representative_ranking_20260520_234929.csv)
+- 結果CSV: [tournament_framework_representative_final_ranking_20260520_232727.csv](tournament_framework_representative_final_ranking_20260520_232727.csv)
 - 順位ルール: Twill（ツイル式トーナメント）
 - 対象選手数: 4
-- representative大会最終状態: [tournament_match_records_representative_20260520_234929.md](tournament_match_records_representative_20260520_234929.md)
+- representative大会最終状態: [tournament_match_records_representative_20260520_232727.md](tournament_match_records_representative_20260520_232727.md)
 - 注記: この順位表は代表実行 1 件の順位です。aggregate 結果の順位表そのものではありません。
 
 ## 注目ポイント

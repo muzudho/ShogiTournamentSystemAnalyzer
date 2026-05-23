@@ -1,7 +1,7 @@
 # 通常モード結果レポート
 
 ## 概要
-- 結果CSV: [standard_compare_result_[旧Standard_最小].csv](standard_compare_result_[旧Standard_最小].csv)
+- 結果CSV: [standard_compare_final_ranking_[旧Standard_最小].csv](standard_compare_final_ranking_[旧Standard_最小].csv)
 - 計算モード: 厳密計算
 - 同Elo対局時の先手勝率: 51.00%
 - 対象選手数: 4

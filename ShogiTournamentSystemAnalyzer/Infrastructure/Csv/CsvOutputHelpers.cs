@@ -11,9 +11,9 @@ internal static class CsvOutputHelpers
     internal static string ResolveOutputCsvPath(string inputPath)
     {
         var fullPath = Path.GetFullPath(inputPath);
-        if (Directory.Exists(fullPath)) return Path.Combine(fullPath, $"result_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
+        if (Directory.Exists(fullPath)) return Path.Combine(fullPath, $"standard_final_ranking_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
 
-        if (LooksLikeDirectoryPath(inputPath)) return Path.Combine(fullPath, $"result_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
+        if (LooksLikeDirectoryPath(inputPath)) return Path.Combine(fullPath, $"standard_final_ranking_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
 
         return fullPath;
     }

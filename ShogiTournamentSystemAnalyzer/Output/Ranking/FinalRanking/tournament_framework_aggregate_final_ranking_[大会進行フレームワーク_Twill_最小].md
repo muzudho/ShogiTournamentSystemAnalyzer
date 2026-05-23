@@ -1,12 +1,12 @@
 # 通常モード結果レポート
 
 ## 概要
-- 結果CSV: [tournament_framework_aggregate_result_[大会進行フレームワーク_Twill_最小].csv](tournament_framework_aggregate_result_[大会進行フレームワーク_Twill_最小].csv)
+- 結果CSV: [tournament_framework_aggregate_final_ranking_[大会進行フレームワーク_Twill_最小].csv](tournament_framework_aggregate_final_ranking_[大会進行フレームワーク_Twill_最小].csv)
 - 計算モード: 厳密計算 / 大会進行フレームワーク / FixedMatch / Twill
 - 同Elo対局時の先手勝率: 51.00%
 - 対象選手数: 4
 - 注記: この順位表は複数回試行の aggregate 結果です。下記の大会最終状態テーブルとは 1 対 1 には対応しません。
-- representative順位表: [tournament_framework_representative_ranking_20260520_234929.md](tournament_framework_representative_ranking_20260520_234929.md)
+- representative順位表: [tournament_framework_representative_final_ranking_20260520_234929.md](tournament_framework_representative_final_ranking_20260520_234929.md)
 
 ## 注目ポイント
 - 優勝確率が最も高い選手: **Dave**（29.61%）
