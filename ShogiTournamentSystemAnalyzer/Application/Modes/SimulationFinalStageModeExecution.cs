@@ -117,7 +117,7 @@ internal static partial class Program
         IReadOnlyList<ResultRow>? standardResultRows,
         IReadOnlyList<FinalStageResultRow>? finalStageResultRows)
     {
-        var defaultOutputCsvPath = ReportOutputPathBuilder.BuildFinalRankingDefaultOutputPath($"final_stage_result_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
+        var defaultOutputCsvPath = ReportOutputPathBuilder.BuildFinalRankingDefaultOutputPath($"final_stage_final_ranking_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
         var outputCsvPath = CsvOutputHelpers.ResolveOutputCsvPath(ConsolePromptReaders.ReadTextWithDefault(
             $"\n結果CSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
             defaultOutputCsvPath));

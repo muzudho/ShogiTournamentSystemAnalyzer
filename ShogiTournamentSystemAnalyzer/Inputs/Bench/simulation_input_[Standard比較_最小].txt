@@ -14,4 +14,4 @@ Carol,Dave
 Alice,Carol
 Bob,Dave
 END
-ShogiTournamentSystemAnalyzer\Output\standard_compare_result_[旧Standard_最小].csv
+ShogiTournamentSystemAnalyzer\Output\standard_compare_final_ranking_[旧Standard_最小].csv

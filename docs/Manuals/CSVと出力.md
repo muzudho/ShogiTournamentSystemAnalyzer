@@ -108,15 +108,15 @@ END
 - representative 大会最終状態の既定出力先は `Output/Simulation/TournamentFinalState`
 
 ### aggregate 結果
-- `tournament_framework_aggregate_result_*.csv`
-- `tournament_framework_aggregate_result_*.md`
+- `tournament_framework_aggregate_final_ranking_*.csv`
+- `tournament_framework_aggregate_final_ranking_*.md`
 - これは **複数回試行を集計した順位表** です
 - `優勝確率` や `平均順位` は、この aggregate 結果を見ます
 - CSV には `note` 列が付き、aggregate 結果であることを明示します
 
 ### representative 大会最終状態
-- `tournament_framework_representative_ranking_*.csv`
-- `tournament_framework_representative_ranking_*.md`
+- `tournament_framework_representative_final_ranking_*.csv`
+- `tournament_framework_representative_final_ranking_*.md`
 - これは **代表実行 1 件の順位表** です
 - コンソールに出る `代表実行順位` と同じ系統の情報です
 - aggregate の順位表とは別物です
@@ -143,8 +143,8 @@ END
 ## 空ルールの出力
 空ルールでは、対局を 1 件も組まないため、結果は最小形だけを出力します。
 
-- `empty_rule_result_*.csv`
-- `empty_rule_result_*.md`
+- `empty_rule_final_ranking_*.csv`
+- `empty_rule_final_ranking_*.md`
 - `tournament_match_records_empty_*.csv`
 - `tournament_match_records_empty_*.md`
 - 総ペアリング数は `0` です
