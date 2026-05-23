@@ -107,7 +107,7 @@ T5. 本戦専用モードの参加者バリデーションを追加する
 - ルール違反の入力を早い段階で弾く
 
 作業:
-- ValidateFinalStageParticipants() を追加する
+- ValidateFinalStagePlayers() を追加する
 - 次を検証する
   - group CSV の全名前が選手一覧CSVに存在する
   - group CSV の人数合計が本戦参加者数と一致する

@@ -14,7 +14,7 @@
 - 大会運営について考えられるように、とっつきやすいツールとして表現・設計する。
 - 大会制度全体（予選・本戦）を含めた分析を重視し、名称や設計は System 寄りの表現・構成を使用する。
 - 基本用語は『選手 / Player』を使用して、人間・コンピューター両方の対局主体を指す。コンピューター将棋大会の事情は補足注釈として記載し、必要に応じて（特に説明書では）'参加者' を人間を指す用語として扱う旨を明示する。対局ソフトの表現としては引き続き 'エントリ'、'ソフト'、'対局プログラム' などを併記して区別する。
-- このプロジェクトでは participants という用語は使わず、players に統一する。
+- このプロジェクトでは旧語を使わず、players に統一する。
 - The user prefers using the term '対局記号表' to refer to the player-symbol mapping list in the ShogiTournamentSystemAnalyzer project.
 - The user prefers using the term '重箱表' for the aggregated node-ranking table that combines ▲player and ▽player into ・player.
 - フォルダー名はパスカルケースに揃える。
@@ -24,7 +24,7 @@
 - Extract toggleable rule logic into separate classes under a Domain/Rules-style folder rather than keeping growing rule logic in Program.cs. In Program.cs, prioritize separating input procedures into two responsibilities: rule construction (use builders/composers for rules) and parameter setting (load/parse inputs and configure parameters), so Program.cs functions as orchestration/wiring only. This project prioritizes not aggregating everything into the Program class, but rather establishing dedicated class names for each responsibility to enhance clarity.
 - In ShogiTournamentSystemAnalyzer, use the neutral rule as the evaluation baseline: tournament rules better than the neutral baseline are classified as Good, and rules worse than the neutral baseline are classified as Bad.
 - For the 格付けグラフ戦 proposal examples, use the assumption 'the stronger player wins' instead of assuming all ▽ sides lose and ▲ sides win.
-- In tournament ranking proposals, do not use original Elo in ranking calculation because participants join without computed original Elo.
+- In tournament ranking proposals, do not use original Elo in ranking calculation because players join without computed original Elo.
 - For tournament naming in this project, prefer names that can be phrased as '○○式トーナメント' in the style of Swiss-system or ladder-style naming, including 'ツイル式トーナメント' as a preferred naming option and considering the Japanese term '斜文' as part of the concept.
 - Use longer, explicit type names prefixed with the main data boundary names (大会ルールデータ・プレイヤー一覧データ・順位付けの設定データ・大会結果データ・最終順位データ・大会品質レポート) rather than short generic names in this project.
 - このプロジェクトでは Domain フォルダー配下を『5大域 / 6大境界』のフォルダーだけで構成する方針を採る。
