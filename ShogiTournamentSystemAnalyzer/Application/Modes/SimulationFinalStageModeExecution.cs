@@ -117,13 +117,13 @@ internal static partial class Program
         IReadOnlyList<ResultRow>? standardResultRows,
         IReadOnlyList<FinalStageResultRow>? finalStageResultRows)
     {
-        var defaultOutputCsvPath = Path.GetFullPath($"final_stage_result_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
+        var defaultOutputCsvPath = ReportOutputPathBuilder.BuildFinalRankingDefaultOutputPath($"final_stage_result_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
         var outputCsvPath = CsvOutputHelpers.ResolveOutputCsvPath(ConsolePromptReaders.ReadTextWithDefault(
             $"\n結果CSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
             defaultOutputCsvPath));
         var outputMarkdownPath = CsvOutputHelpers.ChangeOutputExtension(outputCsvPath, ".md");
         var referenceMatchesCsvPath = context.ReferenceMatches.Count > 0
-            ? CsvOutputHelpers.BuildSiblingOutputCsvPath(outputCsvPath, "reference_matches")
+            ? ReportOutputPathBuilder.BuildTournamentFinalStateDefaultOutputPath($"reference_matches_{DateTime.Now:yyyyMMdd_HHmmss}.csv")
             : null;
         if (context.GroupingMode == FinalStageGroupingMode.On)
         {

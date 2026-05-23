@@ -141,7 +141,7 @@ internal static partial class Program
             Console.WriteLine($"シミュレーションは時間上限 {SimulationTimeBudget.SimulationTimeLimit.TotalMinutes:F0} 分で打ち切りました。\n");
         }
 
-        var defaultOutputCsvPath = Path.GetFullPath($"tournament_framework_aggregate_result_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
+        var defaultOutputCsvPath = ReportOutputPathBuilder.BuildFinalRankingDefaultOutputPath($"tournament_framework_aggregate_result_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
         var requestedOutputPath = string.IsNullOrWhiteSpace(context.OutputPath)
             ? ConsolePromptReaders.ReadTextWithDefault($"\naggregate結果CSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ", defaultOutputCsvPath)
             : context.OutputPath!;
@@ -155,9 +155,9 @@ internal static partial class Program
                 overviewNote: "この順位表は複数回試行の aggregate 結果です。大会最終状態CSVとは 1 対 1 には対応しません。"));
 
         var outputMarkdownPath = CsvOutputHelpers.ChangeOutputExtension(outputCsvPath, ".md");
-        var representativeRankingCsvPath = CsvOutputHelpers.BuildSiblingOutputCsvPath(outputCsvPath, "tournament_framework_representative_ranking");
+        var representativeRankingCsvPath = ReportOutputPathBuilder.BuildFinalRankingDefaultOutputPath($"tournament_framework_representative_ranking_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
         var representativeRankingMarkdownPath = CsvOutputHelpers.ChangeOutputExtension(representativeRankingCsvPath, ".md");
-        var tournamentMatchRecordsCsvPath = CsvOutputHelpers.BuildSiblingOutputCsvPath(outputCsvPath, "tournament_match_records_representative");
+        var tournamentMatchRecordsCsvPath = ReportOutputPathBuilder.BuildTournamentFinalStateDefaultOutputPath($"tournament_match_records_representative_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
         var tournamentMatchRecordsMarkdownPath = CsvOutputHelpers.ChangeOutputExtension(tournamentMatchRecordsCsvPath, ".md");
 
         WriterHelper.WriteText(

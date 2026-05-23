@@ -42,7 +42,11 @@ internal static class TournamentQualityEvaluationOutputCoordinator
         var outputCsvPath = CsvOutputHelpers.ResolveOutputCsvPath(ConsolePromptReaders.ReadTextWithDefault(
             $"\n品質評価サマリーCSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
             defaultOutputCsvPath));
-        return new TournamentQualityEvaluationOutputOptions(reportGroupingOptions, outputCsvPath);
+        var defaultPlayerCsvPath = ReportOutputPathBuilder.BuildTournamentQualityPlayersDefaultOutputPath(
+            $"quality_players_{DateTime.Now:yyyyMMdd_HHmmss}.csv",
+            reportGroupingOptions);
+        var playerCsvPath = CsvOutputHelpers.ResolveOutputCsvPath(defaultPlayerCsvPath);
+        return new TournamentQualityEvaluationOutputOptions(reportGroupingOptions, outputCsvPath, playerCsvPath);
     }
 
     internal static TournamentQualityEvaluationOutputOptions ReadTournamentQualitySweepReportOutputOptions(TournamentQualityEvaluationRuleDefinition ruleDefinition)
@@ -68,7 +72,8 @@ internal static class TournamentQualityEvaluationOutputCoordinator
             outputPath: outputOptions.OutputCsvPath,
             getLines: () => ResultCsvWriter.CreateTournamentQualityReportSummaryCsv(tournamentQualityReportData.Summary, outputOptions.ReportGroupingOptions, tournamentQualityReportData.Suggestion));
 
-        var playerCsvPath = CsvOutputHelpers.BuildSiblingOutputCsvPath(outputOptions.OutputCsvPath, "quality_players");
+        var playerCsvPath = outputOptions.PlayerCsvPath
+            ?? CsvOutputHelpers.BuildSiblingOutputCsvPath(outputOptions.OutputCsvPath, "quality_players");
         WriterHelper.WriteText(
             outputPath: playerCsvPath,
             getLines: () => ResultCsvWriter.CreateTournamentQualityReportPlayerCsv(tournamentQualityReportData.PlayerRows));
