@@ -89,7 +89,7 @@ internal static partial class Program
     /// <summary>
     /// ［大会品質評価フロー］を実行して［大会品質レポート］を返す。
     /// </summary>
-    /// <param name="input">The quality evaluation input containing participants and matches to evaluate.</param>
+    /// <param name="input">The quality evaluation input containing players and matches to evaluate.</param>
     /// <param name="ruleDefinition">The tournament rule definition specifying grouping mode, boundary rescue settings, and other tournament
     /// parameters.</param>
     /// <param name="executionOptions">The execution options controlling simulation count and first player win rate percentage.</param>
@@ -104,17 +104,17 @@ internal static partial class Program
         using var simulationBudget = executionOptions.SimulationCount.HasValue ? SimulationTimeBudget.BeginSimulationBudget() : default;
         var result = ruleDefinition.GroupingMode == FinalStageGroupingMode.On
             ? executionOptions.SimulationCount.HasValue
-                ? CalculateFinalStageBySimulation(input.Participants, input.Matches, ruleDefinition.GroupMap!, ruleDefinition.EffectiveAdditionalApexCount, ruleDefinition.BoundaryRescueMode, firstPlayerWinRateRating, executionOptions.SimulationCount.Value, ruleDefinition.PromotedInnovCount)
-                : CalculateFinalStageExactly(input.Participants, input.Matches, ruleDefinition.GroupMap!, ruleDefinition.EffectiveAdditionalApexCount, ruleDefinition.BoundaryRescueMode, firstPlayerWinRateRating, ruleDefinition.PromotedInnovCount)
+                ? CalculateFinalStageBySimulation(input.Players, input.Matches, ruleDefinition.GroupMap!, ruleDefinition.EffectiveAdditionalApexCount, ruleDefinition.BoundaryRescueMode, firstPlayerWinRateRating, executionOptions.SimulationCount.Value, ruleDefinition.PromotedInnovCount)
+                : CalculateFinalStageExactly(input.Players, input.Matches, ruleDefinition.GroupMap!, ruleDefinition.EffectiveAdditionalApexCount, ruleDefinition.BoundaryRescueMode, firstPlayerWinRateRating, ruleDefinition.PromotedInnovCount)
             : executionOptions.SimulationCount.HasValue
-                ? CalculateBySimulation(input.Participants, input.Matches, firstPlayerWinRateRating, executionOptions.SimulationCount.Value, ruleDefinition.TournamentRuleSetMode)
-                : CalculateExactly(input.Participants, input.Matches, firstPlayerWinRateRating, ruleDefinition.TournamentRuleSetMode);
+                ? CalculateBySimulation(input.Players, input.Matches, firstPlayerWinRateRating, executionOptions.SimulationCount.Value, ruleDefinition.TournamentRuleSetMode)
+                : CalculateExactly(input.Players, input.Matches, firstPlayerWinRateRating, ruleDefinition.TournamentRuleSetMode);
 
-        var resultRows = RankingResultRowBuilder.BuildResultRows(input.Participants, input.Matches, result, firstPlayerWinRatePercent);
+        var resultRows = RankingResultRowBuilder.BuildResultRows(input.Players, input.Matches, result, firstPlayerWinRatePercent);
         var qualityPlayerRows = TournamentQualityEvaluationReportBuilder.BuildTournamentQualityReportPlayerRows(
             resultRows,
             ruleDefinition.GroupMap,
-            ruleDefinition.AdditionalApexParticipants,
+            ruleDefinition.AdditionalApexPlayers,
             ruleDefinition.AdditionalApexPlacementMode,
             input.InnovExpectedRankOffsetMode,
             input.InnovExpectedRankOffsetCount);
@@ -132,7 +132,7 @@ internal static partial class Program
         IReadOnlyList<TournamentQualitySweepReportRow> sweepRows,
         bool stoppedByTimeout)
     {
-        var participantCount = input.Participants.Count;
+        var playerCount = input.Players.Count;
         var matchCount = input.Matches.Count;
         var start = executionOptions.SweepOptions.StartPercent;
         var end = executionOptions.SweepOptions.EndPercent;
@@ -141,7 +141,7 @@ internal static partial class Program
         var completedPointCount = sweepRows.Count;
         var completionRate = Math.Clamp((double)completedPointCount / currentPointCount, 0.0, 1.0);
         var width = Math.Max(step, end - start);
-        var workloadScore = CalculateWorkloadScore(participantCount, matchCount, executionOptions.SimulationCount, currentPointCount);
+        var workloadScore = CalculateWorkloadScore(playerCount, matchCount, executionOptions.SimulationCount, currentPointCount);
         var workloadScale = workloadScore switch
         {
             >= 200_000_000 => 0.60,
@@ -205,12 +205,12 @@ internal static partial class Program
 
         if (workloadScore >= 10_000_000)
         {
-            suggestedSettings.Add($"軽量確認の目安 = 選手 {participantCount} 人 / 対局 {matchCount} 件なので、まず 1 点または 3 点だけ確認");
+            suggestedSettings.Add($"軽量確認の目安 = 選手 {playerCount} 人 / 対局 {matchCount} 件なので、まず 1 点または 3 点だけ確認");
         }
 
         var reason = stoppedByTimeout
-            ? $"今回の計算点数は {completedPointCount}/{currentPointCount} 件（完了率 {(completionRate * 100.0).ToString("F0", CultureInfo.InvariantCulture)}%）で、選手数 {participantCount} 人・対局数 {matchCount} 件の負荷と、計算済み範囲で最も良かった {pinpointPercent.ToString("F2", CultureInfo.InvariantCulture)}% 付近を組み合わせた案です。"
-            : $"今回の範囲は完走できました。実測で最も良かった {pinpointPercent.ToString("F2", CultureInfo.InvariantCulture)}% とその近傍を次の比較候補にできます。選手数 {participantCount} 人・対局数 {matchCount} 件なので、狭い範囲で再確認しやすいです。";
+            ? $"今回の計算点数は {completedPointCount}/{currentPointCount} 件（完了率 {(completionRate * 100.0).ToString("F0", CultureInfo.InvariantCulture)}%）で、選手数 {playerCount} 人・対局数 {matchCount} 件の負荷と、計算済み範囲で最も良かった {pinpointPercent.ToString("F2", CultureInfo.InvariantCulture)}% 付近を組み合わせた案です。"
+            : $"今回の範囲は完走できました。実測で最も良かった {pinpointPercent.ToString("F2", CultureInfo.InvariantCulture)}% とその近傍を次の比較候補にできます。選手数 {playerCount} 人・対局数 {matchCount} 件なので、狭い範囲で再確認しやすいです。";
 
         return new TournamentQualityNextCycleSuggestion("次回の n%スイープ提案", suggestedSettings, reason);
     }
@@ -221,9 +221,9 @@ internal static partial class Program
         bool stoppedByTimeout,
         int completedPlayerRowCount)
     {
-        var participantCount = input.Participants.Count;
+        var playerCount = input.Players.Count;
         var matchCount = input.Matches.Count;
-        var workloadScore = CalculateWorkloadScore(participantCount, matchCount, executionOptions.SimulationCount, 1);
+        var workloadScore = CalculateWorkloadScore(playerCount, matchCount, executionOptions.SimulationCount, 1);
         var suggestedSettings = new List<string>();
         if (executionOptions.FirstPlayerWinRatePercent.HasValue)
         {
@@ -257,9 +257,9 @@ internal static partial class Program
             }
         }
 
-        if (participantCount >= 16 || matchCount >= 40)
+        if (playerCount >= 16 || matchCount >= 40)
         {
-            suggestedSettings.Add($"軽量確認の見方 = 選手 {participantCount} 人 / 対局 {matchCount} 件では、先に 1 条件だけ再確認してから横比較");
+            suggestedSettings.Add($"軽量確認の見方 = 選手 {playerCount} 人 / 対局 {matchCount} 件では、先に 1 条件だけ再確認してから横比較");
         }
 
         if (suggestedSettings.Count == 0)
@@ -268,8 +268,8 @@ internal static partial class Program
         }
 
         var reason = stoppedByTimeout
-            ? $"今回の品質評価は時間切れになりました。選手数 {participantCount} 人・対局数 {matchCount} 件の負荷を見て、まず一点確認しやすい試行回数まで落とす案です。取得できた選手行数は {completedPlayerRowCount} 件です。"
-            : $"今回の条件で回せました。選手数 {participantCount} 人・対局数 {matchCount} 件なので、現条件とピンポイント候補を並べて比較できます。";
+            ? $"今回の品質評価は時間切れになりました。選手数 {playerCount} 人・対局数 {matchCount} 件の負荷を見て、まず一点確認しやすい試行回数まで落とす案です。取得できた選手行数は {completedPlayerRowCount} 件です。"
+            : $"今回の条件で回せました。選手数 {playerCount} 人・対局数 {matchCount} 件なので、現条件とピンポイント候補を並べて比較できます。";
 
         return new TournamentQualityNextCycleSuggestion("次回の品質評価提案", suggestedSettings, reason);
     }

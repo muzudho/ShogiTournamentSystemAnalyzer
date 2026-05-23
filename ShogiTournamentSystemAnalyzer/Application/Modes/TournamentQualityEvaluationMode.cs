@@ -77,8 +77,8 @@ internal static partial class Program
             : null;
 
         var playersAreValid = groupingMode == FinalStageGroupingMode.On
-            ? FinalStageValidators.ValidateFinalStageParticipants(players, groupMap!, out var errorMessage)
-            : FinalStageValidators.ValidateFinalStageParticipants(players, out errorMessage);
+            ? FinalStageValidators.ValidateFinalStagePlayers(players, groupMap!, out var errorMessage)
+            : FinalStageValidators.ValidateFinalStagePlayers(players, out errorMessage);
         if (!playersAreValid)
         {
             var targetLabel = groupingMode == FinalStageGroupingMode.On ? "本戦選手" : "選手一覧";
@@ -97,7 +97,7 @@ internal static partial class Program
         {
             Console.WriteLine();
             additionalApexPlayers = ConsoleInputReaders.ReadOptionalPlayersFromCsv("本戦不出場Apex一覧CSVを貼り付けてください。");
-            if (!FinalStageValidators.ValidateAdditionalApexParticipants(players, groupMap!, additionalApexPlayers, out errorMessage))
+            if (!FinalStageValidators.ValidateAdditionalApexPlayers(players, groupMap!, additionalApexPlayers, out errorMessage))
             {
                 Console.WriteLine($"本戦不出場Apex一覧の検証に失敗しました: {errorMessage}\n");
                 ruleDefinition = default;

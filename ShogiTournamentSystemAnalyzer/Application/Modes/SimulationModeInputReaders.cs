@@ -16,16 +16,16 @@ internal static class SimulationModeInputReaders
         var firstPlayerWinRateRating = SimulationRatingMath.ConvertFirstPlayerWinRatePercentToRating(firstPlayerWinRatePercent);
 
         Console.WriteLine();
-        var allParticipants = ConsoleInputReaders.ReadPlayersFromCsv();
-        var allMatches = ConsoleInputReaders.ReadMatchesFromCsv(allParticipants);
-        var (participants, matches) = ModeSupportHelpers.FilterToScheduledParticipants(allParticipants, allMatches);
+        var allPlayers = ConsoleInputReaders.ReadPlayersFromCsv();
+        var allMatches = ConsoleInputReaders.ReadMatchesFromCsv(allPlayers);
+        var (players, matches) = ModeSupportHelpers.FilterToScheduledPlayers(allPlayers, allMatches);
 
         return new StandardModeContext(
             tournamentRuleSetMode,
             firstPlayerWinRatePercent,
             firstPlayerWinRateRating,
-            allParticipants,
-            participants,
+            allPlayers,
+            players,
             matches);
     }
 

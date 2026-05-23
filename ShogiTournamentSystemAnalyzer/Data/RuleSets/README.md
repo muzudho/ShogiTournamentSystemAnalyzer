@@ -14,5 +14,5 @@
 
 ## 位置づけ
 - `Data/Inputs`: 実行用入力ファイル
-- `Data/Participants`: 再利用する参加者データ
+- `Data/Players`: 再利用する選手データ
 - `Data/RuleSets`: 保存して再利用する大会ルール

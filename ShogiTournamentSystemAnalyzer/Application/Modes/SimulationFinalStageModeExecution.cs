@@ -25,7 +25,7 @@ internal static partial class Program
             if (context.Matches.Count <= 20)
             {
                 Console.WriteLine($"{TournamentRuleSetRule.GetLabel(context.TournamentRuleSetMode)} の厳密計算を行います。\n");
-                result = CalculateExactly(context.Participants, context.Matches, context.FirstPlayerWinRateRating, context.TournamentRuleSetMode);
+                result = CalculateExactly(context.Players, context.Matches, context.FirstPlayerWinRateRating, context.TournamentRuleSetMode);
             }
             else
             {
@@ -37,11 +37,11 @@ internal static partial class Program
 
                 Console.WriteLine();
                 using var simulationBudget = SimulationTimeBudget.BeginSimulationBudget();
-                result = CalculateBySimulation(context.Participants, context.Matches, context.FirstPlayerWinRateRating, simulationCount, context.TournamentRuleSetMode);
+                result = CalculateBySimulation(context.Players, context.Matches, context.FirstPlayerWinRateRating, simulationCount, context.TournamentRuleSetMode);
             }
 
-            standardResultRows = RankingResultRowBuilder.BuildResultRows(context.Participants, context.Matches, result, context.FirstPlayerWinRatePercent);
-            ConsoleResultPrinter.PrintResult(context.Participants.Count, result, context.FirstPlayerWinRatePercent, standardResultRows);
+            standardResultRows = RankingResultRowBuilder.BuildResultRows(context.Players, context.Matches, result, context.FirstPlayerWinRatePercent);
+            ConsoleResultPrinter.PrintResult(context.Players.Count, result, context.FirstPlayerWinRatePercent, standardResultRows);
             if (result.Mode.Contains("時間切れ", StringComparison.Ordinal))
             {
                 Console.WriteLine($"シミュレーションは時間上限 {SimulationTimeBudget.SimulationTimeLimit.TotalMinutes:F0} 分で打ち切りました。\n");
@@ -53,8 +53,8 @@ internal static partial class Program
         if (context.Matches.Count <= 20)
         {
             Console.WriteLine("本戦専用の厳密計算を行います。\n");
-            var result = CalculateFinalStageExactly(context.Participants, context.Matches, context.GroupMap!, context.EffectiveAdditionalApexCount, context.BoundaryRescueMode, context.FirstPlayerWinRateRating);
-            finalStageResultRows = RankingResultRowBuilder.BuildFinalStageResultRows(context.Participants, context.Matches, result, context.FirstPlayerWinRatePercent, context.GroupMap!, context.EffectiveAdditionalApexCount);
+            var result = CalculateFinalStageExactly(context.Players, context.Matches, context.GroupMap!, context.EffectiveAdditionalApexCount, context.BoundaryRescueMode, context.FirstPlayerWinRateRating);
+            finalStageResultRows = RankingResultRowBuilder.BuildFinalStageResultRows(context.Players, context.Matches, result, context.FirstPlayerWinRatePercent, context.GroupMap!, context.EffectiveAdditionalApexCount);
             ConsoleResultPrinter.PrintFinalStageResult(result, context.FirstPlayerWinRatePercent, finalStageResultRows);
             if (result.Mode.Contains("時間切れ", StringComparison.Ordinal))
             {
@@ -72,9 +72,9 @@ internal static partial class Program
 
         Console.WriteLine();
         using var finalStageSimulationBudget = SimulationTimeBudget.BeginSimulationBudget();
-        var finalStageSimulationResult = CalculateFinalStageBySimulation(context.Participants, context.Matches, context.GroupMap!, context.EffectiveAdditionalApexCount, context.BoundaryRescueMode, context.FirstPlayerWinRateRating, finalStageSimulationCount);
+        var finalStageSimulationResult = CalculateFinalStageBySimulation(context.Players, context.Matches, context.GroupMap!, context.EffectiveAdditionalApexCount, context.BoundaryRescueMode, context.FirstPlayerWinRateRating, finalStageSimulationCount);
 
-        finalStageResultRows = RankingResultRowBuilder.BuildFinalStageResultRows(context.Participants, context.Matches, finalStageSimulationResult, context.FirstPlayerWinRatePercent, context.GroupMap!, context.EffectiveAdditionalApexCount);
+        finalStageResultRows = RankingResultRowBuilder.BuildFinalStageResultRows(context.Players, context.Matches, finalStageSimulationResult, context.FirstPlayerWinRatePercent, context.GroupMap!, context.EffectiveAdditionalApexCount);
         ConsoleResultPrinter.PrintFinalStageResult(finalStageSimulationResult, context.FirstPlayerWinRatePercent, finalStageResultRows);
         if (finalStageSimulationResult.Mode.Contains("時間切れ", StringComparison.Ordinal))
         {
@@ -92,20 +92,20 @@ internal static partial class Program
         {
             Console.WriteLine($"Apex: {context.ApexCount} 名");
             Console.WriteLine($"Innov: {context.InnovCount} 名\n");
-            Console.WriteLine($"本戦不出場Apex: {context.AdditionalApexParticipants.Count} 名\n");
+            Console.WriteLine($"本戦不出場Apex: {context.AdditionalApexPlayers.Count} 名\n");
             Console.WriteLine($"本戦不出場Apexの扱い: {AdditionalApexPlacementRule.GetLabel(context.AdditionalApexPlacementMode)}\n");
             Console.WriteLine($"境界救済戦: {BoundaryRescueRule.GetLabel(context.BoundaryRescueMode)}\n");
         }
         else
         {
-            Console.WriteLine($"対局者数: {context.Participants.Count} 名\n");
+            Console.WriteLine($"対局者数: {context.Players.Count} 名\n");
         }
 
-        ConsoleResultPrinter.PrintMatchesCsv(context.Participants, context.Matches);
+        ConsoleResultPrinter.PrintMatchesCsv(context.Players, context.Matches);
         Console.WriteLine($"本戦対局数: {context.Matches.Count}\n");
         if (context.ReferenceMatches.Count > 0)
         {
-            ConsoleResultPrinter.PrintMatchesCsv(context.Participants, context.ReferenceMatches, "参考対局CSV:");
+            ConsoleResultPrinter.PrintMatchesCsv(context.Players, context.ReferenceMatches, "参考対局CSV:");
             Console.WriteLine($"参考対局数: {context.ReferenceMatches.Count}");
             Console.WriteLine("参考対局は順位計算に含めません。\n");
         }
@@ -151,7 +151,7 @@ internal static partial class Program
 
         if (context.ReferenceMatches.Count > 0)
         {
-            CsvOutputHelpers.WriteReferenceMatchCsv(referenceMatchesCsvPath!, context.Participants, context.ReferenceMatches);
+            CsvOutputHelpers.WriteReferenceMatchCsv(referenceMatchesCsvPath!, context.Players, context.ReferenceMatches);
             Console.WriteLine($"参考対局CSVを出力しました: {referenceMatchesCsvPath}");
         }
     }

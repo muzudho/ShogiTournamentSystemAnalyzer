@@ -5,11 +5,11 @@ using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
 internal readonly record struct FinalStageModeContext(
     double FirstPlayerWinRatePercent,
     double FirstPlayerWinRateRating,
-    IReadOnlyList<Player> Participants,
+    IReadOnlyList<Player> Players,
     FinalStageGroupingMode GroupingMode,
     TournamentRuleSetMode TournamentRuleSetMode,
     IReadOnlyDictionary<string, FinalStageGroup>? GroupMap,
-    IReadOnlyList<Player> AdditionalApexParticipants,
+    IReadOnlyList<Player> AdditionalApexPlayers,
     AdditionalApexPlacementMode AdditionalApexPlacementMode,
     int EffectiveAdditionalApexCount,
     BoundaryRescueMode BoundaryRescueMode,

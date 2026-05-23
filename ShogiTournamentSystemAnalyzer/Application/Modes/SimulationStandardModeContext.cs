@@ -5,10 +5,10 @@ internal readonly record struct StandardModeContext(
     TournamentRuleSetMode TournamentRuleSetMode,
     double FirstPlayerWinRatePercent,
     double FirstPlayerWinRateRating,
-    IReadOnlyList<Player> AllParticipants,
-    IReadOnlyList<Player> Participants,
+    IReadOnlyList<Player> AllPlayers,
+    IReadOnlyList<Player> Players,
     IReadOnlyList<Match> Matches)
 {
-    internal int ExcludedParticipantCount => AllParticipants.Count - Participants.Count;
+    internal int ExcludedPlayerCount => AllPlayers.Count - Players.Count;
 }
 

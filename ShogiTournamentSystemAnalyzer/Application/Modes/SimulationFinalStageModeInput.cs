@@ -18,30 +18,30 @@ internal static partial class Program
         var firstPlayerWinRateRating = SimulationRatingMath.ConvertFirstPlayerWinRatePercentToRating(firstPlayerWinRatePercent);
         Console.WriteLine();
 
-        var participants = ConsoleInputReaders.ReadPlayersFromCsv();
+        var players = ConsoleInputReaders.ReadPlayersFromCsv();
         Console.WriteLine();
 
         var groupingMode = FinalStageGroupingMode.On;
         var tournamentRuleSetMode = TournamentRuleSetMode.Neutral;
-        var groupMap = ModeSupportHelpers.ReadOptionalFinalStageGroupMap(groupingMode, participants);
+        var groupMap = ModeSupportHelpers.ReadOptionalFinalStageGroupMap(groupingMode, players);
         string errorMessage;
-        var participantsAreValid = FinalStageValidators.ValidateFinalStageParticipants(participants, groupMap!, out errorMessage);
-        if (!participantsAreValid)
+        var playersAreValid = FinalStageValidators.ValidateFinalStagePlayers(players, groupMap!, out errorMessage);
+        if (!playersAreValid)
         {
             Console.WriteLine($"本戦参加者の検証に失敗しました: {errorMessage}\n");
             context = default;
             return false;
         }
 
-        List<Player> additionalApexParticipants;
+        List<Player> additionalApexPlayers;
         var additionalApexPlacementMode = AdditionalApexPlacementMode.Off;
         var effectiveAdditionalApexCount = 0;
         var boundaryRescueMode = BoundaryRescueMode.Off;
         if (groupingMode == FinalStageGroupingMode.On)
         {
             Console.WriteLine();
-            additionalApexParticipants = ConsoleInputReaders.ReadOptionalPlayersFromCsv("本戦不出場Apex一覧CSVを貼り付けてください。");
-            if (!FinalStageValidators.ValidateAdditionalApexParticipants(participants, groupMap!, additionalApexParticipants, out errorMessage))
+            additionalApexPlayers = ConsoleInputReaders.ReadOptionalPlayersFromCsv("本戦不出場Apex一覧CSVを貼り付けてください。");
+            if (!FinalStageValidators.ValidateAdditionalApexPlayers(players, groupMap!, additionalApexPlayers, out errorMessage))
             {
                 Console.WriteLine($"本戦不出場Apex一覧の検証に失敗しました: {errorMessage}\n");
                 context = default;
@@ -49,21 +49,21 @@ internal static partial class Program
             }
 
             additionalApexPlacementMode = ConsoleRuleReaders.ReadAdditionalApexPlacementMode();
-            effectiveAdditionalApexCount = AdditionalApexPlacementRule.GetEffectiveAdditionalApexCount(additionalApexParticipants.Count, additionalApexPlacementMode);
+            effectiveAdditionalApexCount = AdditionalApexPlacementRule.GetEffectiveAdditionalApexCount(additionalApexPlayers.Count, additionalApexPlacementMode);
             boundaryRescueMode = ConsoleRuleReaders.ReadBoundaryRescueMode();
         }
         else
         {
-            additionalApexParticipants = new List<Player>();
+            additionalApexPlayers = new List<Player>();
         }
 
         var apexCount = groupMap?.Count(x => x.Value == FinalStageGroup.Apex) ?? 0;
-        var innovCount = groupMap?.Count - apexCount ?? participants.Count;
+        var innovCount = groupMap?.Count - apexCount ?? players.Count;
 
         Console.WriteLine("本戦参加者の入力を受け付けました。\n");
 
-        var matches = ConsoleInputReaders.ReadMatchesFromCsv(participants);
-        var matchesAreValid = FinalStageValidators.ValidateFinalStageMatches(participants, groupMap!, matches, out errorMessage);
+        var matches = ConsoleInputReaders.ReadMatchesFromCsv(players);
+        var matchesAreValid = FinalStageValidators.ValidateFinalStageMatches(players, groupMap!, matches, out errorMessage);
         if (!matchesAreValid)
         {
             Console.WriteLine($"本戦対局の検証に失敗しました: {errorMessage}\n");
@@ -72,16 +72,16 @@ internal static partial class Program
         }
 
         Console.WriteLine();
-        var referenceMatches = ConsoleInputReaders.ReadOptionalMatchesFromCsv(participants, "参考対局CSVまたは Round/Black-White/対局記号表を貼り付けてください。大会記録に含めない場合だけ使います。");
+        var referenceMatches = ConsoleInputReaders.ReadOptionalMatchesFromCsv(players, "参考対局CSVまたは Round/Black-White/対局記号表を貼り付けてください。大会記録に含めない場合だけ使います。");
 
         context = new FinalStageModeContext(
             firstPlayerWinRatePercent,
             firstPlayerWinRateRating,
-            participants,
+            players,
             groupingMode,
             tournamentRuleSetMode,
             groupMap,
-            additionalApexParticipants,
+            additionalApexPlayers,
             additionalApexPlacementMode,
             effectiveAdditionalApexCount,
             boundaryRescueMode,

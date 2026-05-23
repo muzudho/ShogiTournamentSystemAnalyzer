@@ -11,7 +11,7 @@ internal readonly record struct TournamentQualityEvaluationRuleDefinition(
     FinalStageGroupingMode GroupingMode,
     TournamentRuleSetMode TournamentRuleSetMode,
     IReadOnlyDictionary<string, FinalStageGroup>? GroupMap,
-    IReadOnlyList<Player> AdditionalApexParticipants,
+    IReadOnlyList<Player> AdditionalApexPlayers,
     AdditionalApexPlacementMode AdditionalApexPlacementMode,
     int EffectiveAdditionalApexCount,
     BoundaryRescueMode BoundaryRescueMode,

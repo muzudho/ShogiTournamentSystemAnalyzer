@@ -24,7 +24,7 @@ internal static class TournamentQualityEvaluationOutputCoordinator
 
         if (input.ReferenceMatches.Count > 0)
         {
-            ConsoleResultPrinter.PrintMatchesCsv(input.Participants, input.ReferenceMatches, "参考対局CSV:");
+            ConsoleResultPrinter.PrintMatchesCsv(input.Players, input.ReferenceMatches, "参考対局CSV:");
             Console.WriteLine($"参考対局数: {input.ReferenceMatches.Count}");
             Console.WriteLine("参考対局は品質評価に含めません。\n");
         }

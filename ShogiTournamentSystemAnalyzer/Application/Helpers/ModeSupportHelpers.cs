@@ -9,14 +9,14 @@ using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
 
 internal static class ModeSupportHelpers
 {
-    internal static Dictionary<string, FinalStageGroup>? ReadOptionalFinalStageGroupMap(FinalStageGroupingMode groupingMode, IReadOnlyList<Player> participants)
+    internal static Dictionary<string, FinalStageGroup>? ReadOptionalFinalStageGroupMap(FinalStageGroupingMode groupingMode, IReadOnlyList<Player> players)
     {
         if (groupingMode == FinalStageGroupingMode.Off) return null;
 
         return ConsoleInputReaders.ReadFinalStageGroupMap();
     }
 
-    internal static (List<Player> Participants, List<Match> Matches) FilterToScheduledParticipants(IReadOnlyList<Player> participants, IReadOnlyList<Match> matches)
+    internal static (List<Player> Players, List<Match> Matches) FilterToScheduledPlayers(IReadOnlyList<Player> players, IReadOnlyList<Match> matches)
     {
         var activeIndexes = matches
             .SelectMany(match => new[] { match.FirstPlayer, match.SecondPlayer })
@@ -28,15 +28,15 @@ internal static class ModeSupportHelpers
             .Select((oldIndex, newIndex) => new { oldIndex, newIndex })
             .ToDictionary(x => x.oldIndex, x => x.newIndex);
 
-        var filteredParticipants = activeIndexes
-            .Select(index => participants[index])
+        var filteredPlayers = activeIndexes
+            .Select(index => players[index])
             .ToList();
 
         var filteredMatches = matches
             .Select(match => new Match(indexMap[match.FirstPlayer], indexMap[match.SecondPlayer]))
             .ToList();
 
-        return (filteredParticipants, filteredMatches);
+        return (filteredPlayers, filteredMatches);
     }
 }
 

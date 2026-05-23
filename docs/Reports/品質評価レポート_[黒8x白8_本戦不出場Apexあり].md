@@ -19,7 +19,7 @@ ShogiTournamentPairingAnalyzer の品質評価モードを使い、
 - 品質評価サマリーCSV
   - `docs\Reports\quality_summary_[黒8x白8_本戦不出場Apexあり].csv`
 - 品質評価参加者別CSV
-  - `docs\Reports\quality_participants_20260513_230924.csv`
+- `docs\Reports\quality_players_20260513_230924.csv`
 
 ## シミュレーション条件
 - モード: 品質評価モード

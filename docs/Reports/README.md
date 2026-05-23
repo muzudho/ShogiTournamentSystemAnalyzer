@@ -1,14 +1,21 @@
 # Reports
 
-このフォルダーは、ShogiTournamentSystemAnalyzer の**実験結果とレポート**をまとめた場所です。  
-品質評価モードやスイープ実験の出力 CSV、人が読むための Markdown レポート、実行ログを保管します。
+このフォルダーは、ShogiTournamentSystemAnalyzer の**手書きの実験レポートと発表用文書**をまとめた場所です。  
+アプリの実行で自動生成される CSV / Markdown は `ShogiTournamentSystemAnalyzer/Output/...` に出力し、このフォルダーには比較メモ、総括、発表案など人が編集する文書を置きます。
 
 ## 何が入るか
-- 品質評価のサマリー CSV
-- 品質評価の選手別 CSV
-- n% スイープ実験の CSV
 - 品質評価レポートや改善案メモの Markdown
-- 実行ログ（`.stdout.txt` / `.stderr.txt`）
+- 品質評価総括レポートの Markdown
+- 発表案や比較メモの Markdown
+
+## 自動生成物の置き場
+アプリの実行で自動生成される出力は、次に整理されています。
+
+- `ShogiTournamentSystemAnalyzer/Output/Ranking/FinalRanking`
+- `ShogiTournamentSystemAnalyzer/Output/Simulation/TournamentFinalState`
+- `ShogiTournamentSystemAnalyzer/Output/TournamentQualityEvaluator/TournamentQualityReport/Summary`
+- `ShogiTournamentSystemAnalyzer/Output/TournamentQualityEvaluator/TournamentQualityReport/Players`
+- `ShogiTournamentSystemAnalyzer/Output/TournamentQualityEvaluator/TournamentQualityReport/Sweeps`
 
 ## 使い分け
 ### Markdown レポートを見る
@@ -29,6 +36,7 @@ GitHub 上で結論や考察を読みたいときは、次を開きます。
 - [改善案レポート 境界救済戦 仮案](./改善案レポート_境界救済戦_仮案.md)
 
 #### 自動生成レポートの見方
+- 自動生成レポート本体は `docs/Reports` ではなく `ShogiTournamentSystemAnalyzer/Output/...` にあります。
 - `quality_summary_*.md`
   - 品質評価の主要指標、着目選手、自動コメントを読むとき
 - `quality_sweep_*.md`
@@ -43,24 +51,23 @@ GitHub 上で結論や考察を読みたいときは、次を開きます。
 - `quality_players_*.csv`
 - `quality_sweep_*.csv`
 
-## サブフォルダー
-### `Good`
-ニュートラル基準で「良い」と判定した結果をまとめる場所です。
+これらの CSV は `ShogiTournamentSystemAnalyzer/Output/TournamentQualityEvaluator/TournamentQualityReport/...` に出力されます。
 
-### `Bad`
-ニュートラル基準で「悪い」と判定した結果をまとめる場所です。
+## 補足
+- `Good` / `Bad` の振り分けは、自動生成物側では `Output/TournamentQualityEvaluator/TournamentQualityReport/.../Good` と `.../Bad` に保存されます。
+- この `docs/Reports` では、良し悪しの自動振り分けよりも、人がまとめ直した比較文書を優先して置きます。
 
-## ファイル名の目安
+## このフォルダーで扱うファイル名の目安
 - `quality_summary_*.csv`
-  - 品質評価のサマリー数値
+	- 参照用に文中で言及することがある自動生成ファイル名
 - `quality_players_*.csv`
-  - 選手別の品質評価結果
+	- 選手別の品質評価結果の自動生成ファイル名
 - `quality_sweep_*.csv`
-  - n% スイープ実験結果
+	- n% スイープ実験結果の自動生成ファイル名
 - `quality_summary_*.md`
-  - 品質評価サマリーの Markdown レポート
+	- 品質評価サマリーの自動生成 Markdown 名
 - `quality_sweep_*.md`
-  - n% スイープ結果の Markdown レポート
+	- n% スイープ結果の自動生成 Markdown 名
 - `品質評価レポート_*.md`
   - 手書きの実験内容、比較、所感
 - `改善案*.md`
