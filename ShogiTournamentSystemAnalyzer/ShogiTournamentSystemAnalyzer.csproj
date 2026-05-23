@@ -10,7 +10,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Output\" />
+    <Folder Include="Output\FinalRanking\" />
+    <Folder Include="Output\PlayerList\" />
+    <Folder Include="Output\Proposer\" />
+    <Folder Include="Output\Ranking\" />
+    <Folder Include="Output\RankingSettings\" />
+    <Folder Include="Output\Reader\" />
+    <Folder Include="Output\Simulation\" />
+    <Folder Include="Output\TournamentFinalState\" />
+    <Folder Include="Output\TournamentQualityEvaluator\" />
+    <Folder Include="Output\TournamentQualityReport\" />
+    <Folder Include="Output\TournamentRule\" />
   </ItemGroup>
 
 </Project>

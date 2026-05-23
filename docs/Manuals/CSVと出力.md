@@ -100,7 +100,7 @@ END
 - 出力先は結果CSVと同名で、拡張子だけ `.md` になります
 
 ## 大会進行フレームワークの出力
-大会進行フレームワークでは、通常の結果表に加えて、代表実行 1 件ぶんの大会結果テーブルも出力します。
+大会進行フレームワークでは、通常の結果表に加えて、代表実行 1 件ぶんの大会最終状態テーブルも出力します。
 
 ### aggregate 結果
 - `tournament_framework_aggregate_result_*.csv`
@@ -109,7 +109,7 @@ END
 - `優勝確率` や `平均順位` は、この aggregate 結果を見ます
 - CSV には `note` 列が付き、aggregate 結果であることを明示します
 
-### representative 大会結果
+### representative 大会最終状態
 - `tournament_framework_representative_ranking_*.csv`
 - `tournament_framework_representative_ranking_*.md`
 - これは **代表実行 1 件の順位表** です
@@ -125,14 +125,14 @@ END
 
 ### どう見分けるか
 - ファイル名に `aggregate` が入っていれば、集計済みの順位表です
-- ファイル名に `representative` が入っていれば、代表実行 1 件の大会結果です
+- ファイル名に `representative` が入っていれば、代表実行 1 件の大会最終状態です
 - Markdown には概要欄の注記が入ります
 - コンソールにも同じ趣旨の注記が出ます
 
 ### Markdown の行き来
 - aggregate 順位表 Markdown から、representative 順位表 Markdown へ移れます
-- representative 順位表 Markdown から、representative 大会結果 Markdown へ移れます
-- representative 大会結果 Markdown から、representative 順位表 Markdown と aggregate 順位表 Markdown へ戻れます
+- representative 順位表 Markdown から、representative 大会最終状態 Markdown へ移れます
+- representative 大会最終状態 Markdown から、representative 順位表 Markdown と aggregate 順位表 Markdown へ戻れます
 - つまり、集計結果 → 代表順位 → 代表対局記録 → 集計結果、という往復ができます
 
 ## 空ルールの出力
@@ -143,8 +143,8 @@ END
 - `tournament_match_records_empty_*.csv`
 - `tournament_match_records_empty_*.md`
 - 総ペアリング数は `0` です
-- 大会結果件数は `0` です
-- 大会結果テーブルも 0 件のまま出力されます
+- 大会最終状態件数は `0` です
+- 大会最終状態テーブルも 0 件のまま出力されます
 
 ## 品質評価CSV
 品質評価モードでは、次の 2 種類の CSV を出力します。
