@@ -17,6 +17,7 @@
 - このプロジェクトでは participants という用語は使わず、players に統一する。
 - The user prefers using the term '対局記号表' to refer to the player-symbol mapping list in the ShogiTournamentSystemAnalyzer project.
 - The user prefers using the term '重箱表' for the aggregated node-ranking table that combines ▲player and ▽player into ・player.
+- フォルダー名はパスカルケースに揃える。
 - Use PascalCase folder names like 'Docs' instead of lowercase 'docs' in this project when naming folders. Consolidate data-related folders under a single PascalCase 'Data' folder and subdivide within it; avoid creating many separate top-level data folders (ユーザーはデータ系フォルダーを増やしすぎず、`Data` 配下にまとめてその下を細分化する構成を好む)。
 - Place a PascalCase 'Inputs' folder adjacent to 'Examples' to hold execution/input files for runs.
 - In Inputs, include a short descriptive prompt line in execution/input files as a hash-comment plus PascalCase tag, e.g., #[Prompt] ... , so numeric values are not ambiguous. Mark input termination explicitly with a tag like #[Enter] to avoid dependence on blank lines.

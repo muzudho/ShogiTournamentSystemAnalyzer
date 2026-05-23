@@ -121,8 +121,8 @@ END
 - コンソールに出る `代表実行順位` と同じ系統の情報です
 - aggregate の順位表とは別物です
 
-- `tournament_match_records_representative_*.csv`
-- `tournament_match_records_representative_*.md`
+- `representative_tournament_final_state_*.csv`
+- `representative_tournament_final_state_*.md`
 - これは **代表実行 1 件の対局記録** です
 - aggregate の順位表と 1 対 1 には対応しません
 - どんな対局順・勝敗例になったかを確認したいときに見ます
@@ -145,8 +145,8 @@ END
 
 - `empty_rule_final_ranking_*.csv`
 - `empty_rule_final_ranking_*.md`
-- `tournament_match_records_empty_*.csv`
-- `tournament_match_records_empty_*.md`
+- `empty_tournament_final_state_*.csv`
+- `empty_tournament_final_state_*.md`
 - 総ペアリング数は `0` です
 - 大会最終状態件数は `0` です
 - 大会最終状態テーブルも 0 件のまま出力されます

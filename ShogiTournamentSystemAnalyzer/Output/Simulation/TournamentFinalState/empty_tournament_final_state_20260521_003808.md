@@ -1,7 +1,7 @@
 # 大会最終状態テーブル
 
 ## 概要
-- 結果CSV: [tournament_match_records_empty_20260521_003808.csv](tournament_match_records_empty_20260521_003808.csv)
+- 結果CSV: [empty_tournament_final_state_20260521_003808.csv](empty_tournament_final_state_20260521_003808.csv)
 - 総対局数: 0
 - ステージ数: 0
 - 完了対局数: 0

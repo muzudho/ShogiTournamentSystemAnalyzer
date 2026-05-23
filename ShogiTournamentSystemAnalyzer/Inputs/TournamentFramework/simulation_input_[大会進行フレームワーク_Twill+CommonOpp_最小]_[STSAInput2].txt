@@ -15,7 +15,7 @@ OutputPath=ShogiTournamentSystemAnalyzer\Output\tournament_framework_aggregate_f
 #[Section] Inputs
 PlayersCsvPath=ShogiTournamentSystemAnalyzer\Data\Players\players_[大会進行フレームワーク_最小].csv
 StagesCsvPath=ShogiTournamentSystemAnalyzer\Data\Stages\stages_[大会進行フレームワーク_最小].csv
-TournamentMatchRecordsCsvPath=ShogiTournamentSystemAnalyzer\Data\Matches\tournament_match_records_[大会進行フレームワーク_最小].csv
+TournamentMatchRecordsCsvPath=ShogiTournamentSystemAnalyzer\Data\Matches\standard_tournament_final_state_[大会進行フレームワーク_最小].csv
 RuleFilePath=ShogiTournamentSystemAnalyzer\Data\RuleSets\tournament_rule_[大会進行フレームワーク_最小].trule
 #[EndSection]
 

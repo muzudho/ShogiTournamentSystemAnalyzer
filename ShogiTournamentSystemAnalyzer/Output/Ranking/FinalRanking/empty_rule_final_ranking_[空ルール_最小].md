@@ -5,7 +5,7 @@
 - 計算モード: 空ルール / ペアリング0回 / 大会最終状態0件
 - 総ペアリング数: 0
 - 大会最終状態件数: 0
-- 大会最終状態Markdown: [tournament_match_records_empty_20260521_003808.md](tournament_match_records_empty_20260521_003808.md)
+- 大会最終状態Markdown: [empty_tournament_final_state_20260521_003808.md](empty_tournament_final_state_20260521_003808.md)
 - 注記: このモードではペアリングを行わず、大会最終状態も 0 件です。
 
 ## 説明

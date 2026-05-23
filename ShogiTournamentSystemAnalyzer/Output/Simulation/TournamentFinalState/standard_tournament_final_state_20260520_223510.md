@@ -1,7 +1,7 @@
 # 大会最終状態テーブル
 
 ## 概要
-- 結果CSV: [tournament_match_records_20260520_223510.csv](tournament_match_records_20260520_223510.csv)
+- 結果CSV: [standard_tournament_final_state_20260520_223510.csv](standard_tournament_final_state_20260520_223510.csv)
 - 総対局数: 64
 - ステージ数: 1
 - 完了対局数: 64

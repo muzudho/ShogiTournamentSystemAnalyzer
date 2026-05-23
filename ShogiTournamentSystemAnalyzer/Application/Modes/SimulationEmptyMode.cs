@@ -31,7 +31,7 @@ internal static partial class Program
             $"空ルール結果CSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
             defaultOutputCsvPath));
         var outputMarkdownPath = CsvOutputHelpers.ChangeOutputExtension(outputCsvPath, ".md");
-        var tournamentMatchRecordsCsvPath = ReportOutputPathBuilder.BuildTournamentFinalStateDefaultOutputPath($"tournament_match_records_empty_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
+        var tournamentMatchRecordsCsvPath = ReportOutputPathBuilder.BuildTournamentFinalStateDefaultOutputPath($"empty_tournament_final_state_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
         var tournamentMatchRecordsMarkdownPath = CsvOutputHelpers.ChangeOutputExtension(tournamentMatchRecordsCsvPath, ".md");
 
         WriterHelper.WriteText(
