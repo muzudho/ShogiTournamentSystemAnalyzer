@@ -11,7 +11,7 @@ internal static partial class Program
         Console.WriteLine("前提: 各対局は黒番・白番を持ち、勝率は Elo レーティング差と黒番有利率から計算します。\n");
 
         ConsoleSamplePrinter.PrintSimulationStandardOverview();
-        var context = ReadStandardModeContext();
+        var context = SimulationModeInputReaders.ReadStandardModeContext();
         ExecuteStandardMode(context);
     }
 }
