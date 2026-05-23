@@ -17,9 +17,9 @@ ShogiTournamentPairingAnalyzer の品質評価モードを使い、
 - 対局表
   - `ShogiTournamentPairingAnalyzer\Examples\【対局表】[黒8x白8].csv`
 - 品質評価サマリーCSV
-  - `docs\Reports\quality_summary_[黒8x白8_本戦不出場Apexあり].csv`
-- 品質評価参加者別CSV
-- `docs\Reports\quality_players_20260513_230924.csv`
+  - `ShogiTournamentSystemAnalyzer\Output\TournamentQualityEvaluator\TournamentQualityReport\Summary\quality_summary_[黒8x白8_本戦不出場Apexあり].csv`
+- 品質評価選手別CSV
+  - `ShogiTournamentSystemAnalyzer\Output\TournamentQualityEvaluator\TournamentQualityReport\Players\quality_players_20260513_230924.csv`
 
 ## シミュレーション条件
 - モード: 品質評価モード

@@ -11,9 +11,10 @@
 - README は利用者の導線を優先し、最初の 1 回を通すための入口として構成する。特に冒頭では『何のツールか』『起動方法』『大会ルールの入力方法』を先に案内し、思想・背景・用語の重い説明はサブドキュメントへ分離する。
 - モード体系を完全移行する: 上位は『対局シミュレーション / 品質評価』とし、下位をルール種別として増やせる構成にする。
 - プロジェクトの目的を明確にする: 大会ルールの部品を考案し、それを大会ルールへ取り入れてシミュレーション品質を現在の最高品質と比較しながら、より良い大会ルールを反復的に作っていくこと。
-- 大会参加者が大会運営について考えられるように、とっつきやすいツールとして表現・設計する。
+- 大会運営について考えられるように、とっつきやすいツールとして表現・設計する。
 - 大会制度全体（予選・本戦）を含めた分析を重視し、名称や設計は System 寄りの表現・構成を使用する。
 - 基本用語は『選手 / Player』を使用して、人間・コンピューター両方の対局主体を指す。コンピューター将棋大会の事情は補足注釈として記載し、必要に応じて（特に説明書では）'参加者' を人間を指す用語として扱う旨を明示する。対局ソフトの表現としては引き続き 'エントリ'、'ソフト'、'対局プログラム' などを併記して区別する。
+- このプロジェクトでは participants という用語は使わず、players に統一する。
 - The user prefers using the term '対局記号表' to refer to the player-symbol mapping list in the ShogiTournamentSystemAnalyzer project.
 - The user prefers using the term '重箱表' for the aggregated node-ranking table that combines ▲player and ▽player into ・player.
 - Use PascalCase folder names like 'Docs' instead of lowercase 'docs' in this project when naming folders. Consolidate data-related folders under a single PascalCase 'Data' folder and subdivide within it; avoid creating many separate top-level data folders (ユーザーはデータ系フォルダーを増やしすぎず、`Data` 配下にまとめてその下を細分化する構成を好む)。

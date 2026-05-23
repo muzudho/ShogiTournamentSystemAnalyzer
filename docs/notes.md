@@ -172,7 +172,7 @@ Innov,Dave
 ## 品質評価の基準
 - 品質評価では、ニュートラルを基準にする。
 - ニュートラルより良い大会ルールを `Good`、悪い大会ルールを `Bad` とする。
-- `docs/Reports/Good` と `docs/Reports/Bad` の振り分けも、この基準で行う。
+- 自動生成物では `Output/TournamentQualityEvaluator/TournamentQualityReport/.../Good` と `.../Bad` の振り分けも、この基準で行う。
 
 ## 実効Elo の意味
 - 対戦相手構成と黒白割り当てを踏まえた期待勝率から、色補正なしの通常 Elo 戦で同等の期待勝率になるレーティングを逆算したもの。
@@ -184,8 +184,8 @@ Innov,Dave
 - 同点順位は乱数で決めず、等分配で扱う。
 - シミュレーション 1 回でも、同点時には 33.33% などの分数確率が出ることがある。
 - コメントは CSV に埋め込まず、別ファイルで管理する。
-- 実行用入力ファイル `.txt` は `ShogiTournamentPairingAnalyzer/Inputs` に置き、`Smoke` / `Bench` / `Sweeps` に用途別整理する。結果レポートは `docs/Reports` に置く。
-- 改善案比較では `docs/Reports/Good` と `docs/Reports/Bad` を使い分ける。
+- 実行用入力ファイル `.txt` は `ShogiTournamentSystemAnalyzer/Data/Inputs` に置き、`Smoke` / `Bench` / `Sweeps` に用途別整理する。自動生成される結果レポートは `ShogiTournamentSystemAnalyzer/Output/...` に置く。
+- 改善案比較では、自動生成物側の `Output/TournamentQualityEvaluator/TournamentQualityReport/.../Good` と `.../Bad` を使い分ける。
 - Good / Bad は厳密な二元論ではなく、必要に応じて評価メモを 1 行残して運用する。
 - `Program.cs` の肥大化対策として、モード実装は `Domain/Modes` に分離した。
 

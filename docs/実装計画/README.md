@@ -4,8 +4,6 @@
 利用者向けの使い方や仕様説明は [docs/Manuals](../Manuals/README.md)、このフォルダーは実装予定・改修方針・設計メモを扱います。
 
 ## ファイル一覧
-- [rename-to-ShogiTournamentPairingAnalyzer.txt](./rename-to-ShogiTournamentPairingAnalyzer.txt)
-  - リネーム関連のメモ
 - [rename-to-ShogiTournamentSystemAnalyzer.txt](./rename-to-ShogiTournamentSystemAnalyzer.txt)
   - ShogiTournamentSystemAnalyzer への改名計画
 - [品質評価モード実装計画.txt](./品質評価モード実装計画.txt)

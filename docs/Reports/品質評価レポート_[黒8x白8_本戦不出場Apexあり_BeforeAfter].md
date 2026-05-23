@@ -11,16 +11,16 @@
 ## 比較対象
 1. 現行案（Bad / Off）
 - 本戦不出場Apexを Innov より前の順位帯へ挿入する
-- 出力先: [docs/Reports/Bad/quality_summary_[黒8x白8_本戦不出場Apexあり]_[Off]_modern.csv](./Bad/quality_summary_[黒8x白8_本戦不出場Apexあり]_[Off]_modern.csv)
+- 出力先: [Output/TournamentQualityEvaluator/TournamentQualityReport/Summary/Bad/quality_summary_[黒8x白8_本戦不出場Apexあり]_[Off]_modern.csv](../../ShogiTournamentSystemAnalyzer/Output/TournamentQualityEvaluator/TournamentQualityReport/Summary/Bad/quality_summary_[黒8x白8_本戦不出場Apexあり]_[Off]_modern.csv)
 
 2. 現行案 + 品質評価補正（Bad / Off+Offset）
 - 大会ルール自体は現行案のまま
 - 品質評価だけ、Innov の比較基準順位を本戦不出場Apex人数+1ぶん後ろへずらす
-- 出力先: [docs/Reports/Bad/quality_summary_[黒8x白8_本戦不出場Apexあり]_[Off_QualityInnovOffsetOn].csv](./Bad/quality_summary_[黒8x白8_本戦不出場Apexあり]_[Off_QualityInnovOffsetOn].csv)
+- 出力先: [Output/TournamentQualityEvaluator/TournamentQualityReport/Summary/Bad/quality_summary_[黒8x白8_本戦不出場Apexあり]_[Off_QualityInnovOffsetOn].csv](../../ShogiTournamentSystemAnalyzer/Output/TournamentQualityEvaluator/TournamentQualityReport/Summary/Bad/quality_summary_[黒8x白8_本戦不出場Apexあり]_[Off_QualityInnovOffsetOn].csv)
 
 3. 改善案A（Good / On）
 - 本戦不出場Apexを総合順位へ挿入しない
-- 出力先: [docs/Reports/Good/quality_summary_[黒8x白8_本戦不出場Apexあり]_[On]_modern.csv](./Good/quality_summary_[黒8x白8_本戦不出場Apexあり]_[On]_modern.csv)
+- 出力先: [Output/TournamentQualityEvaluator/TournamentQualityReport/Summary/Good/quality_summary_[黒8x白8_本戦不出場Apexあり]_[On]_modern.csv](../../ShogiTournamentSystemAnalyzer/Output/TournamentQualityEvaluator/TournamentQualityReport/Summary/Good/quality_summary_[黒8x白8_本戦不出場Apexあり]_[On]_modern.csv)
 
 ## 比較表
 ### 現行案（Off）

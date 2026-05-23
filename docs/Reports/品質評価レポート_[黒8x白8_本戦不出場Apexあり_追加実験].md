@@ -15,12 +15,12 @@
 A. 改善案A 単独
 - AdditionalApexPlacement: On
 - BoundaryRescue: Off
-- `docs\Reports\Good\quality_summary_[黒8x白8_本戦不出場Apexあり]_[On].csv`
+- `ShogiTournamentSystemAnalyzer\Output\TournamentQualityEvaluator\TournamentQualityReport\Summary\Good\quality_summary_[黒8x白8_本戦不出場Apexあり]_[On].csv`
 
 B. 追加実験（併用）
 - AdditionalApexPlacement: On
 - BoundaryRescue: On
-- `docs\Reports\Good\quality_summary_[黒8x白8_本戦不出場Apexあり]_[AdditionalOn_BoundaryOn].csv`
+- `ShogiTournamentSystemAnalyzer\Output\TournamentQualityEvaluator\TournamentQualityReport\Summary\Good\quality_summary_[黒8x白8_本戦不出場Apexあり]_[AdditionalOn_BoundaryOn].csv`
 
 ## 比較表
 A. 改善案A 単独
