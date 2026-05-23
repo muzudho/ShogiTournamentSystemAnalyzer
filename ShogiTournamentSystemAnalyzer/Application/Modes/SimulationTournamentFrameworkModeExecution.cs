@@ -40,7 +40,7 @@ internal static partial class Program
         TournamentDslDefinition? dslDefinition = null;
         if (!string.IsNullOrWhiteSpace(context.RuleFilePath))
         {
-            dslDefinition = ParseTournamentDsl(File.ReadAllText(Path.GetFullPath(context.RuleFilePath)), context.RuleFilePath!);
+            dslDefinition = TournamentDslDefinitionParser.ParseTournamentDsl(File.ReadAllText(Path.GetFullPath(context.RuleFilePath)), context.RuleFilePath!);
             Console.WriteLine($"大会ルールDSLを読み込みました: {context.RuleFilePath}");
         }
 

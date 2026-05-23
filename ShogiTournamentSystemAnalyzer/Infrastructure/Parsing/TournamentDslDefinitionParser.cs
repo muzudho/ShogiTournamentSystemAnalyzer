@@ -1,14 +1,13 @@
 /*
- * ［プログラム］
+ * ［Infrastructure / Parsing］
  */
-namespace ShogiTournamentSystemAnalyzer;
+namespace ShogiTournamentSystemAnalyzer.Infrastructure.Parsing;
 
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
-using ShogiTournamentSystemAnalyzer.Infrastructure.Parsing;
 
-internal static partial class Program
+internal static class TournamentDslDefinitionParser
 {
-    static TournamentDslDefinition ParseTournamentDsl(string text, string sourceLabel)
+    internal static TournamentDslDefinition ParseTournamentDsl(string text, string sourceLabel)
     {
         var lines = text.Replace("\r\n", "\n").Split('\n');
         var stages = new List<StageEntry>();
