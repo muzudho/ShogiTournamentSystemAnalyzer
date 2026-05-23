@@ -87,7 +87,7 @@ internal static partial class Program
     {
         WriterHelper.WriteText(
             outputPath: outputOptions.OutputCsvPath,
-            getLines: () => ResultCsvWriter.CreateTournamentQualityReportSummaryCsv(tournamentQualityReportData.Summary, outputOptions.ReportGroupingOptions));
+            getLines: () => ResultCsvWriter.CreateTournamentQualityReportSummaryCsv(tournamentQualityReportData.Summary, outputOptions.ReportGroupingOptions, tournamentQualityReportData.Suggestion));
 
         var playerCsvPath = CsvOutputHelpers.BuildSiblingOutputCsvPath(outputOptions.OutputCsvPath, "quality_players");
         WriterHelper.WriteText(
@@ -104,7 +104,8 @@ internal static partial class Program
                 tournamentQualityReportData.CalculationMode,
                 outputOptions.OutputCsvPath,
                 playerCsvPath,
-                outputOptions.ReportGroupingOptions));
+                outputOptions.ReportGroupingOptions,
+                tournamentQualityReportData.Suggestion));
 
         Console.WriteLine($"品質評価サマリーCSVを出力しました: {outputOptions.OutputCsvPath}");
         Console.WriteLine($"品質評価選手別CSVを出力しました: {playerCsvPath}");
@@ -122,12 +123,12 @@ internal static partial class Program
     {
         WriterHelper.WriteText(
             outputPath: outputOptions.OutputCsvPath,
-            getLines: () => ResultCsvWriter.CreateTournamentQualitySweepReportCsv(tournamentQualitySweepReportData.SweepRows, outputOptions.ReportGroupingOptions));
+            getLines: () => ResultCsvWriter.CreateTournamentQualitySweepReportCsv(tournamentQualitySweepReportData.SweepRows, outputOptions.ReportGroupingOptions, tournamentQualitySweepReportData.Suggestion));
 
         var sweepMarkdownPath = CsvOutputHelpers.ChangeOutputExtension(outputOptions.OutputCsvPath, ".md");
         WriterHelper.WriteText(
             outputPath: sweepMarkdownPath,
-            getLines: () => ResultCsvWriter.CreateTournamentQualitySweepReportMarkdown(sweepMarkdownPath, tournamentQualitySweepReportData.SweepRows, outputOptions.OutputCsvPath, outputOptions.ReportGroupingOptions, tournamentQualitySweepReportData.StoppedByTimeout));
+            getLines: () => ResultCsvWriter.CreateTournamentQualitySweepReportMarkdown(sweepMarkdownPath, tournamentQualitySweepReportData.SweepRows, outputOptions.OutputCsvPath, outputOptions.ReportGroupingOptions, tournamentQualitySweepReportData.StoppedByTimeout, tournamentQualitySweepReportData.Suggestion));
 
         Console.WriteLine($"n%スイープ結果CSVを出力しました: {outputOptions.OutputCsvPath}");
         Console.WriteLine($"n%スイープ結果Markdownを出力しました: {sweepMarkdownPath}");

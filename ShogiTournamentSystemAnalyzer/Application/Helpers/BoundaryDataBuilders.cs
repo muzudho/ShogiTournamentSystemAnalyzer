@@ -60,13 +60,15 @@ internal static class BoundaryDataBuilders
         return new TournamentQualityReportData(
             qualityEvaluationRun.PlayerRows,
             qualityEvaluationRun.Summary,
-            qualityEvaluationRun.CalculationMode);
+            qualityEvaluationRun.CalculationMode,
+            qualityEvaluationRun.Suggestion);
     }
 
     internal static TournamentQualitySweepReportData BuildTournamentQualitySweepReportBoundaryData(
         IReadOnlyList<TournamentQualitySweepReportRow> sweepRows,
-        bool stoppedByTimeout)
+        bool stoppedByTimeout,
+        TournamentQualityNextCycleSuggestion suggestion)
     {
-        return new TournamentQualitySweepReportData(sweepRows, stoppedByTimeout);
+        return new TournamentQualitySweepReportData(sweepRows, stoppedByTimeout, suggestion);
     }
 }

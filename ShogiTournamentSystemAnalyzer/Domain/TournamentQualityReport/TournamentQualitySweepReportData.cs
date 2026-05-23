@@ -5,6 +5,8 @@ using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 /// </summary>
 /// <param name="SweepRows"></param>
 /// <param name="StoppedByTimeout"></param>
+/// <param name="Suggestion"></param>
 sealed record class TournamentQualitySweepReportData(
     IReadOnlyList<TournamentQualitySweepReportRow> SweepRows,
-    bool StoppedByTimeout);
+    bool StoppedByTimeout,
+    TournamentQualityNextCycleSuggestion Suggestion);

@@ -1,0 +1,7 @@
+firstPlayerWinRatePercent,spearmanCorrelation,meanAbsoluteRankError,averageTop8Retention,eloTop1OverallTop1ProbabilityPercent,mostPenalizedPlayer,mostPenalizedDelta,mostAdvantagedPlayer,mostAdvantagedDelta
+50.00,0.758824,2.047477,8.000000,6.275822,飛,3.815680,歩,-4.379414
+nextCycleSuggestionTitle,,次回の n%スイープ提案
+nextCycleSuggestedSetting,,開始する先手勝率(%) = 50.00
+nextCycleSuggestedSetting,,終了する先手勝率(%) = 75.00
+nextCycleSuggestedSetting,,刻み幅(%) = 20.00
+nextCycleSuggestionReason,,今回の計算点数は 1/6 件だったので、範囲を半分程度に縮め、刻み幅を広げる案です。

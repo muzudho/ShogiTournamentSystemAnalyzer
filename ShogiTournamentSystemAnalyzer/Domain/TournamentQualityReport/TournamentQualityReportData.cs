@@ -6,7 +6,9 @@ using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 /// <param name="PlayerRows"></param>
 /// <param name="Summary"></param>
 /// <param name="CalculationMode"></param>
+/// <param name="Suggestion"></param>
 sealed record class TournamentQualityReportData(
     IReadOnlyList<TournamentQualityReportPlayerRow> PlayerRows,
     TournamentQualityReportSummary Summary,
-    string CalculationMode);
+    string CalculationMode,
+    TournamentQualityNextCycleSuggestion Suggestion);

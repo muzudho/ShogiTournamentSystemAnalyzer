@@ -30,13 +30,51 @@ internal static class ResultCsvWriter
         };
     }
 
+    static IEnumerable<string> BuildNextCycleSuggestionMarkdownLines(TournamentQualityNextCycleSuggestion suggestion)
+    {
+        if (string.IsNullOrWhiteSpace(suggestion.Title)) return Array.Empty<string>();
+
+        var lines = new List<string>
+        {
+            string.Empty,
+            "## 次回の具体設定案",
+            $"- {suggestion.Title}"
+        };
+
+        lines.AddRange(suggestion.SuggestedSettings.Select(setting => $"  - {setting}"));
+        if (!string.IsNullOrWhiteSpace(suggestion.Reason))
+        {
+            lines.Add($"- 理由: {suggestion.Reason}");
+        }
+
+        return lines;
+    }
+
+    static IEnumerable<string> BuildNextCycleSuggestionCsvLines(TournamentQualityNextCycleSuggestion suggestion)
+    {
+        if (string.IsNullOrWhiteSpace(suggestion.Title)) return Array.Empty<string>();
+
+        var lines = new List<string>
+        {
+            $"nextCycleSuggestionTitle,,{EscapeCsv(suggestion.Title)}"
+        };
+
+        lines.AddRange(suggestion.SuggestedSettings.Select(setting => $"nextCycleSuggestedSetting,,{EscapeCsv(setting)}"));
+        if (!string.IsNullOrWhiteSpace(suggestion.Reason))
+        {
+            lines.Add($"nextCycleSuggestionReason,,{EscapeCsv(suggestion.Reason)}");
+        }
+
+        return lines;
+    }
+
     /// <summary>
     /// ［品質評価］サマリーCSVを作成する
     /// </summary>
     /// <param name="summary"></param>
     /// <param name="options"></param>
     /// <returns></returns>
-    internal static IEnumerable<string> CreateTournamentQualityReportSummaryCsv(TournamentQualityReportSummary summary, TournamentQualityEvaluationReportGroupingOptions options)
+    internal static IEnumerable<string> CreateTournamentQualityReportSummaryCsv(TournamentQualityReportSummary summary, TournamentQualityEvaluationReportGroupingOptions options, TournamentQualityNextCycleSuggestion suggestion)
     {
         // CSVの内容を作成する
         var lines = new List<string>
@@ -70,6 +108,8 @@ internal static class ResultCsvWriter
             lines.Add("adjustmentHint,,結果が0件なら先手勝率範囲・刻み幅・試行回数・対局条件を短くして再試行してください");
         }
 
+        lines.AddRange(BuildNextCycleSuggestionCsvLines(suggestion));
+
         return lines;
     }
 
@@ -81,7 +121,7 @@ internal static class ResultCsvWriter
     /// <param name="sweepCsvPath"></param>
     /// <param name="options"></param>
     /// <returns></returns>
-    internal static IEnumerable<string> CreateTournamentQualitySweepReportMarkdown(string outputMarkdownPath, IReadOnlyList<TournamentQualitySweepReportRow> sweepRows, string sweepCsvPath, TournamentQualityEvaluationReportGroupingOptions options, bool stoppedByTimeout)
+    internal static IEnumerable<string> CreateTournamentQualitySweepReportMarkdown(string outputMarkdownPath, IReadOnlyList<TournamentQualitySweepReportRow> sweepRows, string sweepCsvPath, TournamentQualityEvaluationReportGroupingOptions options, bool stoppedByTimeout, TournamentQualityNextCycleSuggestion suggestion)
     {
         var bestSpearmanRow = sweepRows
             .OrderByDescending(row => row.SpearmanCorrelation)
@@ -156,6 +196,7 @@ internal static class ResultCsvWriter
             zeroResults: sweepRows.Count == 0,
             completedCount: sweepRows.Count,
             subjectLabel: "n%スイープ"));
+        lines.AddRange(BuildNextCycleSuggestionMarkdownLines(suggestion));
 
         return lines;
     }
@@ -178,7 +219,8 @@ internal static class ResultCsvWriter
         string calculationMode,
         string summaryCsvPath,
         string playerCsvPath,
-        TournamentQualityEvaluationReportGroupingOptions options)
+        TournamentQualityEvaluationReportGroupingOptions options,
+        TournamentQualityNextCycleSuggestion suggestion)
     {
         var topPenalizedPlayers = playerRows
             .OrderByDescending(row => row.OverallPlaceDeltaFromEloRank)
@@ -291,11 +333,12 @@ internal static class ResultCsvWriter
             zeroResults: playerRows.Count == 0,
             completedCount: playerRows.Count,
             subjectLabel: "品質評価"));
+        lines.AddRange(BuildNextCycleSuggestionMarkdownLines(suggestion));
 
         return lines;
     }
 
-    internal static IEnumerable<string> CreateTournamentQualitySweepReportCsv(IReadOnlyList<TournamentQualitySweepReportRow> sweepRows, TournamentQualityEvaluationReportGroupingOptions options)
+    internal static IEnumerable<string> CreateTournamentQualitySweepReportCsv(IReadOnlyList<TournamentQualitySweepReportRow> sweepRows, TournamentQualityEvaluationReportGroupingOptions options, TournamentQualityNextCycleSuggestion suggestion)
     {
         var lines = new List<string>
         {
@@ -325,6 +368,8 @@ internal static class ResultCsvWriter
         {
             lines.Add($"evaluationMemo,,,,,,,{EscapeCsv(options.EvaluationMemo)},");
         }
+
+        lines.AddRange(BuildNextCycleSuggestionCsvLines(suggestion));
 
         return lines;
     }

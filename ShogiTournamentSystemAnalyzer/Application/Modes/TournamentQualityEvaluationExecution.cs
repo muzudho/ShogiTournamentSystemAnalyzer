@@ -9,6 +9,7 @@ using ShogiTournamentSystemAnalyzer.Domain.Ranking;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Infrastructure.Csv;
+using System.Globalization;
 
 internal static partial class Program
 {
@@ -81,7 +82,8 @@ internal static partial class Program
             }
         }
 
-        return BoundaryDataBuilders.BuildTournamentQualitySweepReportBoundaryData(sweepRows, stoppedByTimeout);
+        var suggestion = BuildNextCycleSuggestionForSweep(executionOptions, sweepRows.Count, stoppedByTimeout);
+        return BoundaryDataBuilders.BuildTournamentQualitySweepReportBoundaryData(sweepRows, stoppedByTimeout, suggestion);
     }
 
     /// <summary>
@@ -120,7 +122,66 @@ internal static partial class Program
         var calculationMode = qualityPlayerRows.Count == 0 && !result.Mode.Contains("時間切れ", StringComparison.Ordinal)
             ? result.Mode + " (0回)"
             : result.Mode;
-        return new TournamentQualityReportRun(qualityPlayerRows, qualitySummary, calculationMode);
+        var suggestion = BuildNextCycleSuggestionForSingleRun(executionOptions, result.Mode.Contains("時間切れ", StringComparison.Ordinal), qualityPlayerRows.Count);
+        return new TournamentQualityReportRun(qualityPlayerRows, qualitySummary, calculationMode, suggestion);
+    }
+
+    static TournamentQualityNextCycleSuggestion BuildNextCycleSuggestionForSweep(
+        TournamentQualityEvaluationExecutionOptions executionOptions,
+        int completedPointCount,
+        bool stoppedByTimeout)
+    {
+        var start = executionOptions.SweepOptions.StartPercent;
+        var end = executionOptions.SweepOptions.EndPercent;
+        var step = executionOptions.SweepOptions.StepPercent;
+        var currentPointCount = Math.Max(1, (int)Math.Floor((end - start) / step) + 1);
+        var remainingWidth = Math.Max(1.0, end - start);
+        var suggestedEnd = stoppedByTimeout ? Math.Min(end, start + Math.Max(step, remainingWidth / 2.0)) : end;
+        var suggestedStep = stoppedByTimeout ? Math.Max(step * 2.0, Math.Ceiling(step * 2.0)) : step;
+        var suggestedSettings = new List<string>
+        {
+            $"開始する先手勝率(%) = {start.ToString("F2", CultureInfo.InvariantCulture)}",
+            $"終了する先手勝率(%) = {suggestedEnd.ToString("F2", CultureInfo.InvariantCulture)}",
+            $"刻み幅(%) = {suggestedStep.ToString("F2", CultureInfo.InvariantCulture)}"
+        };
+
+        var reason = stoppedByTimeout
+            ? $"今回の計算点数は {completedPointCount}/{currentPointCount} 件だったので、範囲を半分程度に縮め、刻み幅を広げる案です。"
+            : "今回の範囲で最後まで回せたので、同条件を基準に少しずつ広げられます。";
+
+        return new TournamentQualityNextCycleSuggestion("次回の n%スイープ提案", suggestedSettings, reason);
+    }
+
+    static TournamentQualityNextCycleSuggestion BuildNextCycleSuggestionForSingleRun(
+        TournamentQualityEvaluationExecutionOptions executionOptions,
+        bool stoppedByTimeout,
+        int completedPlayerRowCount)
+    {
+        var suggestedSettings = new List<string>();
+        if (executionOptions.FirstPlayerWinRatePercent.HasValue)
+        {
+            suggestedSettings.Add($"同Elo対局時の先手勝率(%) = {executionOptions.FirstPlayerWinRatePercent.Value.ToString("F2", CultureInfo.InvariantCulture)}");
+        }
+
+        if (executionOptions.SimulationCount.HasValue)
+        {
+            var currentSimulationCount = executionOptions.SimulationCount.Value;
+            var suggestedSimulationCount = stoppedByTimeout
+                ? Math.Max(1000, currentSimulationCount / 10)
+                : Math.Max(1000, currentSimulationCount / 2);
+            suggestedSettings.Add($"シミュレーション試行回数 = {suggestedSimulationCount:N0}");
+        }
+
+        if (suggestedSettings.Count == 0)
+        {
+            suggestedSettings.Add("対局数または対象条件を少し絞って再試行する");
+        }
+
+        var reason = stoppedByTimeout
+            ? $"今回の品質評価は時間切れになったので、計算量を一段下げる案です。取得できた選手行数は {completedPlayerRowCount} 件です。"
+            : "今回の条件で回せたので、同条件を基準に比較を続けられます。";
+
+        return new TournamentQualityNextCycleSuggestion("次回の品質評価提案", suggestedSettings, reason);
     }
 
     /// <summary>

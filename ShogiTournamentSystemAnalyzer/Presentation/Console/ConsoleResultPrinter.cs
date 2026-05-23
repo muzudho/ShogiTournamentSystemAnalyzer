@@ -28,6 +28,24 @@ internal static class ConsoleResultPrinter
         Console.WriteLine("  4. 対局数や対象条件を絞る\n");
     }
 
+    static void PrintNextCycleSuggestion(TournamentQualityNextCycleSuggestion suggestion)
+    {
+        if (string.IsNullOrWhiteSpace(suggestion.Title)) return;
+
+        Console.WriteLine($"{suggestion.Title}:");
+        foreach (var setting in suggestion.SuggestedSettings)
+        {
+            Console.WriteLine($"- {setting}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(suggestion.Reason))
+        {
+            Console.WriteLine($"- 理由: {suggestion.Reason}");
+        }
+
+        Console.WriteLine();
+    }
+
     /// <summary>
     /// ［読者］域へ渡す［大会品質レポート］境界データの要約表示だ。
     /// </summary>
@@ -52,6 +70,7 @@ internal static class ConsoleResultPrinter
             scenarioLabel: "品質評価",
             timedOut: tournamentQualityReportData.CalculationMode.Contains("時間切れ", StringComparison.Ordinal),
             zeroResults: tournamentQualityReportData.PlayerRows.Count == 0);
+        PrintNextCycleSuggestion(tournamentQualityReportData.Suggestion);
     }
 
     internal static void PrintTournamentQualityReportPlayerHighlightsRows(IReadOnlyList<TournamentQualityReportPlayerRow> playerRows)
@@ -99,6 +118,7 @@ internal static class ConsoleResultPrinter
             timedOut: tournamentQualitySweepReportData.StoppedByTimeout,
             zeroResults: tournamentQualitySweepReportData.SweepRows.Count == 0,
             evaluatedPointCount: tournamentQualitySweepReportData.SweepRows.Count);
+        PrintNextCycleSuggestion(tournamentQualitySweepReportData.Suggestion);
     }
 
     internal static void PrintTournamentQualitySweepReportTable(IReadOnlyList<TournamentQualitySweepReportRow> sweepRows)

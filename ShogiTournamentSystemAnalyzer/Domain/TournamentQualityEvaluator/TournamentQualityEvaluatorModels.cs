@@ -56,7 +56,8 @@ readonly record struct TournamentQualityReportSummary(
 readonly record struct TournamentQualityReportRun(
     IReadOnlyList<TournamentQualityReportPlayerRow> PlayerRows,
     TournamentQualityReportSummary Summary,
-    string CalculationMode);
+    string CalculationMode,
+    TournamentQualityNextCycleSuggestion Suggestion);
 
 /// <summary>
 /// ［大会品質評価フロー域　＞　スイープオプション］だ。
@@ -104,4 +105,15 @@ readonly record struct TournamentQualityEvaluationReportGroupingOptions(
     bool IsEnabled,
     TournamentQualityEvaluationReportOutcome? Outcome,
     string EvaluationMemo);
+
+/// <summary>
+/// ［大会品質評価フロー域　＞　次回設定提案］だ。
+/// </summary>
+/// <param name="Title">提案タイトル</param>
+/// <param name="SuggestedSettings">次回の具体設定</param>
+/// <param name="Reason">提案理由</param>
+readonly record struct TournamentQualityNextCycleSuggestion(
+    string Title,
+    IReadOnlyList<string> SuggestedSettings,
+    string Reason);
 
