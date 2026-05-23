@@ -82,7 +82,7 @@ internal static partial class Program
             }
         }
 
-        var suggestion = BuildNextCycleSuggestionForSweep(input, executionOptions, sweepRows.Count, stoppedByTimeout);
+        var suggestion = BuildNextCycleSuggestionForSweep(input, executionOptions, sweepRows, stoppedByTimeout);
         return BoundaryDataBuilders.BuildTournamentQualitySweepReportBoundaryData(sweepRows, stoppedByTimeout, suggestion);
     }
 
@@ -129,7 +129,7 @@ internal static partial class Program
     static TournamentQualityNextCycleSuggestion BuildNextCycleSuggestionForSweep(
         TournamentQualityEvaluationInput input,
         TournamentQualityEvaluationExecutionOptions executionOptions,
-        int completedPointCount,
+        IReadOnlyList<TournamentQualitySweepReportRow> sweepRows,
         bool stoppedByTimeout)
     {
         var participantCount = input.Participants.Count;
@@ -138,6 +138,7 @@ internal static partial class Program
         var end = executionOptions.SweepOptions.EndPercent;
         var step = executionOptions.SweepOptions.StepPercent;
         var currentPointCount = Math.Max(1, (int)Math.Floor((end - start) / step) + 1);
+        var completedPointCount = sweepRows.Count;
         var completionRate = Math.Clamp((double)completedPointCount / currentPointCount, 0.0, 1.0);
         var width = Math.Max(step, end - start);
         var workloadScore = CalculateWorkloadScore(participantCount, matchCount, executionOptions.SimulationCount, currentPointCount);
@@ -171,17 +172,30 @@ internal static partial class Program
         var suggestedStart = completionRate <= 0.40
             ? start
             : Math.Max(start, suggestedEnd - Math.Max(suggestedStep * 2.0, Math.Ceiling(width * 0.30)));
-        var pinpointPercent = Math.Round(Math.Min(suggestedEnd, suggestedStart + (suggestedEnd - suggestedStart) / 2.0), 2);
+        var bestRow = sweepRows.Count > 0
+            ? sweepRows.OrderByDescending(CalculateSweepRowScore).First()
+            : default;
+        var hasMeasuredBest = sweepRows.Count > 0;
+        var pinpointPercent = hasMeasuredBest
+            ? bestRow.FirstPlayerWinRatePercent
+            : Math.Round(Math.Min(suggestedEnd, suggestedStart + (suggestedEnd - suggestedStart) / 2.0), 2);
         var focusStart = Math.Round(Math.Max(start, pinpointPercent - suggestedStep), 2);
         var focusEnd = Math.Round(Math.Min(end, pinpointPercent + suggestedStep), 2);
+        var neighborPercents = BuildNeighborPercents(pinpointPercent, suggestedStep, start, end);
         var suggestedSettings = new List<string>
         {
             $"開始する先手勝率(%) = {suggestedStart.ToString("F2", CultureInfo.InvariantCulture)}",
             $"終了する先手勝率(%) = {suggestedEnd.ToString("F2", CultureInfo.InvariantCulture)}",
             $"刻み幅(%) = {suggestedStep.ToString("F2", CultureInfo.InvariantCulture)}",
-            $"ピンポイント確認候補(%) = {pinpointPercent.ToString("F2", CultureInfo.InvariantCulture)}",
+            $"ベスト候補(%) = {pinpointPercent.ToString("F2", CultureInfo.InvariantCulture)}",
+            $"近傍候補(%) = {string.Join(" / ", neighborPercents.Select(percent => percent.ToString("F2", CultureInfo.InvariantCulture)))}",
             $"再探索するなら範囲(%) = {focusStart.ToString("F2", CultureInfo.InvariantCulture)} ～ {focusEnd.ToString("F2", CultureInfo.InvariantCulture)}"
         };
+
+        if (hasMeasuredBest)
+        {
+            suggestedSettings.Add($"実測ベースの最良値 = Spearman {bestRow.SpearmanCorrelation:F4}, 平均順位ずれ {bestRow.MeanAbsoluteRankError:F3}, Top8残留 {bestRow.AverageTop8Retention:F3}");
+        }
 
         if (stoppedByTimeout)
         {
@@ -195,8 +209,8 @@ internal static partial class Program
         }
 
         var reason = stoppedByTimeout
-            ? $"今回の計算点数は {completedPointCount}/{currentPointCount} 件（完了率 {(completionRate * 100.0).ToString("F0", CultureInfo.InvariantCulture)}%）で、選手数 {participantCount} 人・対局数 {matchCount} 件の負荷を見て、範囲縮小とピンポイント確認を組み合わせた案です。"
-            : $"今回の範囲は完走できました。選手数 {participantCount} 人・対局数 {matchCount} 件なので、まず中央一点 {pinpointPercent.ToString("F2", CultureInfo.InvariantCulture)}% を基準に比較し、必要なら狭い範囲へ広げられます。";
+            ? $"今回の計算点数は {completedPointCount}/{currentPointCount} 件（完了率 {(completionRate * 100.0).ToString("F0", CultureInfo.InvariantCulture)}%）で、選手数 {participantCount} 人・対局数 {matchCount} 件の負荷と、計算済み範囲で最も良かった {pinpointPercent.ToString("F2", CultureInfo.InvariantCulture)}% 付近を組み合わせた案です。"
+            : $"今回の範囲は完走できました。実測で最も良かった {pinpointPercent.ToString("F2", CultureInfo.InvariantCulture)}% とその近傍を次の比較候補にできます。選手数 {participantCount} 人・対局数 {matchCount} 件なので、狭い範囲で再確認しやすいです。";
 
         return new TournamentQualityNextCycleSuggestion("次回の n%スイープ提案", suggestedSettings, reason);
     }
@@ -271,6 +285,29 @@ internal static partial class Program
             * Math.Max(1, matchCount)
             * Math.Max(1, simulationFactor)
             * Math.Max(1, evaluationPointCount);
+    }
+
+    static double CalculateSweepRowScore(TournamentQualitySweepReportRow row)
+    {
+        return row.SpearmanCorrelation * 1000.0
+            + row.AverageTop8Retention * 100.0
+            + row.EloTop1OverallTop1Probability * 100.0
+            - row.MeanAbsoluteRankError * 120.0
+            - Math.Max(0.0, row.MostPenalizedDelta) * 10.0;
+    }
+
+    static IReadOnlyList<double> BuildNeighborPercents(double centerPercent, double stepPercent, double minPercent, double maxPercent)
+    {
+        var offset = Math.Max(0.5, stepPercent / 2.0);
+        return new[]
+        {
+            Math.Max(minPercent, centerPercent - offset),
+            centerPercent,
+            Math.Min(maxPercent, centerPercent + offset)
+        }
+        .Distinct()
+        .OrderBy(percent => percent)
+        .ToArray();
     }
 
     /// <summary>
