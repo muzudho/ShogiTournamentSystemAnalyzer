@@ -117,7 +117,10 @@ internal static partial class Program
             input.InnovExpectedRankOffsetMode,
             input.InnovExpectedRankOffsetCount);
         var qualitySummary = TournamentQualityEvaluationReportBuilder.BuildTournamentQualityReportSummary(qualityPlayerRows);
-        return new TournamentQualityReportRun(qualityPlayerRows, qualitySummary, result.Mode);
+        var calculationMode = qualityPlayerRows.Count == 0 && !result.Mode.Contains("時間切れ", StringComparison.Ordinal)
+            ? result.Mode + " (0回)"
+            : result.Mode;
+        return new TournamentQualityReportRun(qualityPlayerRows, qualitySummary, calculationMode);
     }
 
     /// <summary>

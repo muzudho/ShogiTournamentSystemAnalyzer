@@ -53,6 +53,11 @@ internal static class TournamentQualityEvaluationReportBuilder
 
     internal static TournamentQualityReportSummary BuildTournamentQualityReportSummary(IReadOnlyList<TournamentQualityReportPlayerRow> playerRows)
     {
+        if (playerRows.Count == 0)
+        {
+            return new TournamentQualityReportSummary(1.0, 0.0, 0.0, 0.0, "", 0.0, "", 0.0);
+        }
+
         var spearmanCorrelation = CalculateTournamentQualityReportSpearmanCorrelation(playerRows);
         var meanAbsoluteRankError = playerRows.Average(x => Math.Abs(x.OverallPlaceDeltaFromEloRank));
         var averageTop8Retention = playerRows

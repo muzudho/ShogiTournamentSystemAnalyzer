@@ -15,13 +15,15 @@ internal static partial class Program
         var usesTwillRule = tournamentRuleSetMode is TournamentRuleSetMode.Twill or TournamentRuleSetMode.TwillCommonOpponentWeighted;
         var wins = tournamentRuleSetMode == TournamentRuleSetMode.Neutral ? new int[players.Count] : null;
         var outcomes = usesTwillRule ? new bool[matches.Count] : null;
+        var completedScenarioWeight = 0.0;
 
         void Explore(int matchIndex, double scenarioProbability)
         {
-            if (!SimulationTimeBudget.HasApplicationTimeRemaining()) throw new OperationCanceledException($"プログラム開始から {SimulationTimeBudget.ApplicationTimeLimit.TotalMinutes:F0} 分を超えたため、厳密計算を打ち切りました。");
+            if (!SimulationTimeBudget.HasApplicationTimeRemaining()) return;
 
             if (matchIndex == matches.Count)
             {
+                completedScenarioWeight += scenarioProbability;
                 if (tournamentRuleSetMode == TournamentRuleSetMode.Twill)
                 {
                     TwillTournamentRule.AccumulatePlaceProbabilities(matches, outcomes!, scenarioProbability, placeProbabilities);
@@ -73,11 +75,12 @@ internal static partial class Program
         }
 
         Explore(0, 1.0);
+        SimulationTimeBudget.NormalizePlaceProbabilities(placeProbabilities, completedScenarioWeight);
         var modeLabel = tournamentRuleSetMode switch
         {
-            TournamentRuleSetMode.Twill => "厳密計算 / Twill",
-            TournamentRuleSetMode.TwillCommonOpponentWeighted => "厳密計算 / Twill+CommonOpp",
-            _ => "厳密計算",
+            TournamentRuleSetMode.Twill => completedScenarioWeight < 1.0 ? $"厳密計算 / Twill ({(completedScenarioWeight * 100.0).ToString("F2")}%, 時間切れ)" : "厳密計算 / Twill",
+            TournamentRuleSetMode.TwillCommonOpponentWeighted => completedScenarioWeight < 1.0 ? $"厳密計算 / Twill+CommonOpp ({(completedScenarioWeight * 100.0).ToString("F2")}%, 時間切れ)" : "厳密計算 / Twill+CommonOpp",
+            _ => completedScenarioWeight < 1.0 ? $"厳密計算 ({(completedScenarioWeight * 100.0).ToString("F2")}%, 時間切れ)" : "厳密計算",
         };
         return new CalculationResult(placeProbabilities, modeLabel, null);
     }

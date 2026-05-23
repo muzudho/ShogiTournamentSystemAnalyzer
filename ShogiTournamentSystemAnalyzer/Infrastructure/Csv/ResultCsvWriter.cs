@@ -161,11 +161,12 @@ internal static class ResultCsvWriter
             .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
             .Take(3)
             .ToArray();
-        var bestTop1Row = playerRows
+        var bestTop1Rows = playerRows
             .OrderByDescending(row => row.OverallTop1Probability)
             .ThenBy(row => row.ExpectedOverallPlace)
             .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
-            .FirstOrDefault();
+            .Take(1)
+            .ToArray();
 
         var lines = new List<string>
                 {
@@ -177,6 +178,11 @@ internal static class ResultCsvWriter
                     $"- サマリーCSV: {BuildMarkdownFileLink(outputMarkdownPath, summaryCsvPath)}",
                     $"- 選手別CSV: {BuildMarkdownFileLink(outputMarkdownPath, playerCsvPath)}"
                 };
+
+        var bestTop1PlayerName = bestTop1Rows.Length == 0 ? "該当なし" : bestTop1Rows[0].Name;
+        var bestTop1ProbabilityText = bestTop1Rows.Length == 0
+            ? "0.00"
+            : (bestTop1Rows[0].OverallTop1Probability * 100).ToString("F2", CultureInfo.InvariantCulture);
 
         if (!string.IsNullOrWhiteSpace(options.EvaluationMemo))
         {
@@ -197,7 +203,7 @@ internal static class ResultCsvWriter
                     "## 着目選手",
                     $"- 最大不利益: **{summary.MostPenalizedPlayerName}** ({FormatSignedDelta(summary.MostPenalizedDelta)})",
                     $"- 最大利益: **{summary.MostAdvantagedPlayerName}** ({FormatSignedDelta(summary.MostAdvantagedDelta)})",
-                    $"- 総合1位確率が最も高い選手: **{bestTop1Row.Name}**（{(bestTop1Row.OverallTop1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}%）",
+                    $"- 総合1位確率が最も高い選手: **{bestTop1PlayerName}**（{bestTop1ProbabilityText}%）",
                     string.Empty,
                     "## 自動コメント",
                     $"- 実力順の並び: {BuildSpearmanComment(summary.SpearmanCorrelation)}",

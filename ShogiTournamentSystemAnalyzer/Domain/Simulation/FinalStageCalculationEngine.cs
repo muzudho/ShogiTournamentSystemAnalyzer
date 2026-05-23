@@ -15,13 +15,15 @@ internal static partial class Program
         var wins = new int[players.Count];
         var apexPlayerIndexes = GetPlayerIndexesByGroup(players, groupMap, FinalStageGroup.Apex);
         var innovPlayerIndexes = GetPlayerIndexesByGroup(players, groupMap, FinalStageGroup.Innov);
+        var completedScenarioWeight = 0.0;
 
         void Explore(int matchIndex, double scenarioProbability)
         {
-            if (!SimulationTimeBudget.HasApplicationTimeRemaining()) throw new OperationCanceledException($"プログラム開始から {SimulationTimeBudget.ApplicationTimeLimit.TotalMinutes:F0} 分を超えたため、本戦専用厳密計算を打ち切りました。");
+            if (!SimulationTimeBudget.HasApplicationTimeRemaining()) return;
 
             if (matchIndex == matches.Count)
             {
+                completedScenarioWeight += scenarioProbability;
                 AccumulateFinalStagePlaceProbabilities(wins, players, apexPlayerIndexes, innovPlayerIndexes, additionalApexCount, boundaryRescueMode, firstPlayerWinRateRating, scenarioProbability, placeProbabilities, promotedInnovCount);
                 return;
             }
@@ -39,7 +41,11 @@ internal static partial class Program
         }
 
         Explore(0, 1.0);
-        return new CalculationResult(placeProbabilities, "本戦専用 厳密計算", null);
+        SimulationTimeBudget.NormalizePlaceProbabilities(placeProbabilities, completedScenarioWeight);
+        var modeLabel = completedScenarioWeight < 1.0
+            ? $"本戦専用 厳密計算 ({(completedScenarioWeight * 100.0).ToString("F2")}%, 時間切れ)"
+            : "本戦専用 厳密計算";
+        return new CalculationResult(placeProbabilities, modeLabel, null);
     }
 
     static CalculationResult CalculateFinalStageBySimulation(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, IReadOnlyDictionary<string, FinalStageGroup> groupMap, int additionalApexCount, BoundaryRescueMode boundaryRescueMode, double firstPlayerWinRateRating, int simulationCount, int promotedInnovCount = 0)

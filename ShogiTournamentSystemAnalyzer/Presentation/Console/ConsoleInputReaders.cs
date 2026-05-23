@@ -45,6 +45,13 @@ internal static class ConsoleInputReaders
 
     internal static TournamentQualityEvaluationReportGroupingOptions ReadTournamentQualityEvaluationReportGroupingOptions()
     {
+        if (!SimulationTimeBudget.HasApplicationTimeRemaining())
+        {
+            Console.WriteLine("実験レポートの Good / Bad 分離を使いますか？");
+            Console.WriteLine("時間切れのため既定値 Off を採用します。\n");
+            return new TournamentQualityEvaluationReportGroupingOptions(false, null, string.Empty);
+        }
+
         Console.WriteLine("実験レポートの Good / Bad 分離を使いますか？");
         Console.WriteLine("1. Off: 分離しない");
         Console.WriteLine("2. On: Good / Bad フォルダーに分離する\n");

@@ -279,7 +279,7 @@ internal static partial class Program
             completedSimulationCount++;
         }
 
-        if (representativeExecutionResult is null) throw new OperationCanceledException("大会進行フレームワークのシミュレーションを 1 回も実行できませんでした。");
+        representativeExecutionResult ??= engine.Run(initialState);
 
         SimulationTimeBudget.NormalizePlaceProbabilities(placeProbabilities, completedSimulationCount);
 
@@ -308,13 +308,15 @@ internal static partial class Program
             .ToDictionary(x => x.PlayerId, x => x.index);
         var playerById = players.ToDictionary(player => player.PlayerId);
         var matches = initialState.MatchRecords.ToArray();
+        var completedScenarioWeight = 0.0;
 
         void Explore(int matchIndex, double scenarioProbability)
         {
-            if (!SimulationTimeBudget.HasApplicationTimeRemaining()) throw new OperationCanceledException($"プログラム開始から {SimulationTimeBudget.ApplicationTimeLimit.TotalMinutes:F0} 分を超えたため、大会進行フレームワーク厳密計算を打ち切りました。");
+            if (!SimulationTimeBudget.HasApplicationTimeRemaining()) return;
 
             if (matchIndex == matches.Length)
             {
+                completedScenarioWeight += scenarioProbability;
                 var finalState = initialState with
                 {
                     MatchRecords = matches
@@ -357,12 +359,13 @@ internal static partial class Program
         }
 
         Explore(0, 1.0);
+        SimulationTimeBudget.NormalizePlaceProbabilities(placeProbabilities, completedScenarioWeight);
         var representativeExecutionResult = engine.Run(initialState);
         return new TournamentFrameworkSimulationAggregate(
             placeProbabilities,
             1,
-            1,
-            representativeExecutionResult.CompletedNaturally ? 1 : 0,
+            completedScenarioWeight < 1.0 ? 0 : 1,
+            completedScenarioWeight < 1.0 ? 0 : representativeExecutionResult.CompletedNaturally ? 1 : 0,
             representativeExecutionResult.TickCount,
             true,
             tournamentRuleSetMode,
@@ -529,7 +532,10 @@ internal static partial class Program
             : $"大会進行フレームワーク / FixedMatch / {ruleSetModeLabel}";
         if (aggregateResult.IsExactCalculation)
         {
-            return new CalculationResult(aggregateResult.PlaceProbabilities, modeCoreLabel, null);
+            var exactModeLabel = aggregateResult.CompletedSimulationCount < aggregateResult.RequestedSimulationCount
+                ? $"{modeCoreLabel} (途中打ち切り, 時間切れ)"
+                : modeCoreLabel;
+            return new CalculationResult(aggregateResult.PlaceProbabilities, exactModeLabel, null);
         }
 
         var modeLabel = aggregateResult.CompletedSimulationCount < aggregateResult.RequestedSimulationCount

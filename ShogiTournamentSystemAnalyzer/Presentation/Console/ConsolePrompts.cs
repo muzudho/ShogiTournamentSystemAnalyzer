@@ -102,6 +102,12 @@ internal static class ConsolePromptReaders
 
     internal static string ReadTextWithDefault(string prompt, string defaultValue)
     {
+        if (!SimulationTimeBudget.HasApplicationTimeRemaining())
+        {
+            Console.WriteLine(prompt + defaultValue);
+            return defaultValue;
+        }
+
         Console.Write(prompt);
         var input = Console.ReadLine()?.Trim();
         if (input is null) throw new OperationCanceledException("文字列入力中に入力ストリームが終了しました。");

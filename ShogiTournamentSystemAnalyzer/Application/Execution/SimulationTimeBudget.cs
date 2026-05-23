@@ -39,10 +39,8 @@ internal static class SimulationTimeBudget
 
     internal static SimulationBudgetScope BeginSimulationBudget()
     {
-        ThrowIfApplicationTimeExpired("シミュレーション");
-
         var ownsBudget = !_simulationDeadlineUtc.HasValue;
-        if (ownsBudget)
+        if (ownsBudget && HasApplicationTimeRemaining())
         {
             _simulationDeadlineUtc = DateTime.UtcNow + SimulationTimeLimit;
         }
@@ -60,11 +58,18 @@ internal static class SimulationTimeBudget
     {
         if (sampleCount <= 0) return;
 
+        NormalizePlaceProbabilities(placeProbabilities, (double)sampleCount);
+    }
+
+    internal static void NormalizePlaceProbabilities(double[,] placeProbabilities, double totalWeight)
+    {
+        if (totalWeight <= 0.0) return;
+
         for (var row = 0; row < placeProbabilities.GetLength(0); row++)
         {
             for (var column = 0; column < placeProbabilities.GetLength(1); column++)
             {
-                placeProbabilities[row, column] /= sampleCount;
+                placeProbabilities[row, column] /= totalWeight;
             }
         }
     }
