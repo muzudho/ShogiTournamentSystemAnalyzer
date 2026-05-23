@@ -1,7 +1,7 @@
 /*
  * ［プログラム］
  */
-namespace ShogiTournamentSystemAnalyzer;
+namespace ShogiTournamentSystemAnalyzer.Infrastructure.Parsing;
 
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
@@ -9,7 +9,7 @@ using ShogiTournamentSystemAnalyzer.Infrastructure.CodingModels;
 using System.Globalization;
 using System.Text;
 
-internal static partial class Program
+internal static class InputParsers
 {
     /// <summary>
     /// ［選手一覧］の CSV 形式の入力を解析して、選手のリストを作成します。
@@ -308,7 +308,7 @@ internal static partial class Program
     /// <param name="input"></param>
     /// <param name="value"></param>
     /// <returns></returns>
-    static bool TryParseDouble(string? input, out double value)
+    internal static bool TryParseDouble(string? input, out double value)
     {
         return double.TryParse(input, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.CurrentCulture, out value)
             || double.TryParse(input, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out value);
@@ -387,7 +387,7 @@ internal static partial class Program
     /// </summary>
     /// <param name="line"></param>
     /// <returns></returns>
-    static List<string> SplitCsvLine(string line)
+    internal static List<string> SplitCsvLine(string line)
     {
         var columns = new List<string>();
         var field = new StringBuilder();

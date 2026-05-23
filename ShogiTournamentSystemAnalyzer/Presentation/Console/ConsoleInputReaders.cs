@@ -7,6 +7,7 @@ using ShogiTournamentSystemAnalyzer.Application.Execution;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
+using ShogiTournamentSystemAnalyzer.Infrastructure.Parsing;
 
 internal static class ConsoleInputReaders
 {
@@ -32,7 +33,7 @@ internal static class ConsoleInputReaders
 
             if (lines.All(string.IsNullOrWhiteSpace)) return new List<Match>();
 
-            if (Program.TryParseMatches(lines, players, out var matches, out var err)) return matches;
+            if (InputParsers.TryParseMatches(lines, players, out var matches, out var err)) return matches;
 
             Console.WriteLine($"参考対局入力の読み取りに失敗しました: {err.Value}");
             if (attempt >= ConsolePromptReaders.InputRetryLimit)
@@ -152,7 +153,7 @@ internal static class ConsoleInputReaders
                 continue;
             }
 
-            if (Program.TryParseFinalStageGroups(lines, out var groupMap, out var err)) return groupMap;
+            if (InputParsers.TryParseFinalStageGroups(lines, out var groupMap, out var err)) return groupMap;
 
             Console.WriteLine($"CSVの読み取りに失敗しました: {err.Value}");
             if (attempt >= ConsolePromptReaders.InputRetryLimit) ConsolePromptReaders.ThrowInputRetryLimitExceeded("グループ対応CSV", err.Value);
@@ -181,7 +182,7 @@ internal static class ConsoleInputReaders
 
             if (lines.Count == 0) return new List<Player>();
 
-            if (Program.TryParsePlayers(lines, out var players, out var err)) return players;
+            if (InputParsers.TryParsePlayers(lines, out var players, out var err)) return players;
 
             Console.WriteLine($"CSVの読み取りに失敗しました: {err.Value}");
             if (attempt >= ConsolePromptReaders.InputRetryLimit) ConsolePromptReaders.ThrowInputRetryLimitExceeded("選手一覧CSV", err.Value);
@@ -221,7 +222,7 @@ internal static class ConsoleInputReaders
                 continue;
             }
 
-            if (Program.TryParsePlayers(lines, out var players, out var err)) return players;
+            if (InputParsers.TryParsePlayers(lines, out var players, out var err)) return players;
 
             Console.WriteLine($"CSVの読み取りに失敗しました: {err.Value}");
             if (attempt >= ConsolePromptReaders.InputRetryLimit) ConsolePromptReaders.ThrowInputRetryLimitExceeded("選手一覧CSV", err.Value);
@@ -259,7 +260,7 @@ internal static class ConsoleInputReaders
                 continue;
             }
 
-            if (Program.TryParseMatches(lines, players, out var matches, out var err)) return matches;
+            if (InputParsers.TryParseMatches(lines, players, out var matches, out var err)) return matches;
 
             Console.WriteLine($"対局入力の読み取りに失敗しました: {err.Value}");
             if (attempt >= ConsolePromptReaders.InputRetryLimit)

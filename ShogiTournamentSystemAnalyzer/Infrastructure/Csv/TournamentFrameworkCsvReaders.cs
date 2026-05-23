@@ -4,6 +4,7 @@
 namespace ShogiTournamentSystemAnalyzer;
 
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
+using ShogiTournamentSystemAnalyzer.Infrastructure.Parsing;
 
 internal static partial class Program
 {
@@ -22,7 +23,7 @@ internal static partial class Program
         if (lines.Count == 0) { errorMessage = "選手入力がありません。"; return false; }
 
         var startIndex = 0;
-        var firstColumns = SplitCsvLine(lines[0]);
+        var firstColumns = InputParsers.SplitCsvLine(lines[0]);
         if (LooksLikePlayerEntryHeaderRow(firstColumns))
         {
             startIndex = 1;
@@ -30,7 +31,7 @@ internal static partial class Program
 
         for (var i = startIndex; i < lines.Count; i++)
         {
-            var columns = SplitCsvLine(lines[i]);
+            var columns = InputParsers.SplitCsvLine(lines[i]);
             // 👓　列数の確認
             if (columns.Count < 3) { errorMessage = $"{i + 1} 行目は 3 列以上必要です。"; return false; }
             // 👓　［プレイヤーＩｄ］の型確認
@@ -40,7 +41,7 @@ internal static partial class Program
             // 👓　［名前］が入力されていることを確認
             if (string.IsNullOrWhiteSpace(name)) { errorMessage = $"{i + 1} 行目の名前が空です。"; return false; }
             // 👓　［レーティング］の型確認
-            if (!TryParseDouble(columns[2], out var rating)) { errorMessage = $"{i + 1} 行目の rating を数値で入力してください。"; return false; }
+            if (!InputParsers.TryParseDouble(columns[2], out var rating)) { errorMessage = $"{i + 1} 行目の rating を数値で入力してください。"; return false; }
 
             players.Add(new PlayerEntry(playerId, name, rating));
         }
