@@ -97,5 +97,5 @@ END
 #[Prompt] 実験レポートの Good / Bad 分離を使いますか？ [1]
 1
 #[Prompt] n%スイープ結果CSVの出力先パスまたはフォルダーパスを入力してください
-E:\\github.com\\muzudho\\ShogiTournamentSystemAnalyzer\\docs\\Reports\quality_sweep_twill_[先手8x後手8]_50to100.csv
+E:\\github.com\\muzudho\\ShogiTournamentSystemAnalyzer\\docs\\Reports\twill_[先手8x後手8]_50to100_quality_sweep.csv
 

@@ -37,9 +37,9 @@ GitHub 上で結論や考察を読みたいときは、次を開きます。
 
 #### 自動生成レポートの見方
 - 自動生成レポート本体は `docs/Reports` ではなく `ShogiTournamentSystemAnalyzer/Output/...` にあります。
-- `quality_summary_*.md`
+- `*_quality_summary.md`
   - 品質評価の主要指標、着目選手、自動コメントを読むとき
-- `quality_sweep_*.md`
+- `*_quality_sweep.md`
   - n% スイープの一覧表、Mermaid 図、自動おすすめ帯を見るとき
 - 通常モードや本戦モードの結果 `.md`
   - 上位候補、グループ別の見え方、Mermaid 図をざっと確認するとき
@@ -47,9 +47,9 @@ GitHub 上で結論や考察を読みたいときは、次を開きます。
 ### CSV を見る
 表計算ソフトや再集計に使いたいときは、次を開きます。
 
-- `quality_summary_*.csv`
-- `quality_players_*.csv`
-- `quality_sweep_*.csv`
+- `*_quality_summary.csv`
+- `*_quality_players.csv`
+- `*_quality_sweep.csv`
 
 これらの CSV は `ShogiTournamentSystemAnalyzer/Output/TournamentQualityEvaluator/TournamentQualityReport/...` に出力されます。
 
@@ -58,15 +58,15 @@ GitHub 上で結論や考察を読みたいときは、次を開きます。
 - この `docs/Reports` では、良し悪しの自動振り分けよりも、人がまとめ直した比較文書を優先して置きます。
 
 ## このフォルダーで扱うファイル名の目安
-- `quality_summary_*.csv`
+- `*_quality_summary.csv`
 	- 参照用に文中で言及することがある自動生成ファイル名
-- `quality_players_*.csv`
+- `*_quality_players.csv`
 	- 選手別の品質評価結果の自動生成ファイル名
-- `quality_sweep_*.csv`
+- `*_quality_sweep.csv`
 	- n% スイープ実験結果の自動生成ファイル名
-- `quality_summary_*.md`
+- `*_quality_summary.md`
 	- 品質評価サマリーの自動生成 Markdown 名
-- `quality_sweep_*.md`
+- `*_quality_sweep.md`
 	- n% スイープ結果の自動生成 Markdown 名
 - `品質評価レポート_*.md`
   - 手書きの実験内容、比較、所感

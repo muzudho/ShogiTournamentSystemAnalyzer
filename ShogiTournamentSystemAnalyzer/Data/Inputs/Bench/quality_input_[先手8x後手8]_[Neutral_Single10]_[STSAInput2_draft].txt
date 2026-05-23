@@ -94,5 +94,5 @@ P, "ひよこ"
 
 #[Section] Output
 TournamentQualityEvaluationReportGrouping=Off
-SummaryOutputPath=E:\github.com\muzudho\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyzer\Output\TournamentQualityEvaluator\TournamentQualityReport\Summary\quality_summary_[先手8x後手8]_[Neutral_Single10_STSAInput2_draft].csv
+SummaryOutputPath=E:\github.com\muzudho\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyzer\Output\TournamentQualityEvaluator\TournamentQualityReport\Summary\[先手8x後手8]_[Neutral_Single10_STSAInput2_draft]_quality_summary.csv
 #[EndSection]

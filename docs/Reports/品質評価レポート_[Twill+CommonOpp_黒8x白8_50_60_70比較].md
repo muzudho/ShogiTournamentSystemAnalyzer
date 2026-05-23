@@ -18,11 +18,11 @@
   - `Twill`
   - `Twill+CommonOpp`
 - Twill+CommonOpp の出力元:
-	- [quality_sweep_twill_commonopp_[黒8x白8]_50to100.csv](./quality_sweep_twill_commonopp_[黒8x白8]_50to100.csv)
-  - [quality_sweep_twill_commonopp_[黒8x白8]_70to100_fast.csv](./quality_sweep_twill_commonopp_[黒8x白8]_70to100_fast.csv)
+	- [twill_commonopp_[黒8x白8]_50to100_quality_sweep.csv](./twill_commonopp_[黒8x白8]_50to100_quality_sweep.csv)
+  - [twill_commonopp_[黒8x白8]_70to100_fast_quality_sweep.csv](./twill_commonopp_[黒8x白8]_70to100_fast_quality_sweep.csv)
 - 既存比較用の出力元:
-	- [quality_sweep_neutral_[黒8x白8]_50to100.csv](./quality_sweep_neutral_[黒8x白8]_50to100.csv)
-  - [quality_sweep_twill_[黒8x白8]_50to100.csv](./quality_sweep_twill_[黒8x白8]_50to100.csv)
+	- [neutral_[黒8x白8]_50to100_quality_sweep.csv](./neutral_[黒8x白8]_50to100_quality_sweep.csv)
+  - [twill_[黒8x白8]_50to100_quality_sweep.csv](./twill_[黒8x白8]_50to100_quality_sweep.csv)
 
 ## 比較表
 

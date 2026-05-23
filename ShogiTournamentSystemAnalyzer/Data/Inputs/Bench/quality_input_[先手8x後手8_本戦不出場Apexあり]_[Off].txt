@@ -101,4 +101,4 @@ END
 20000
 2
 2
-E:\\github.com\\muzudho\\ShogiTournamentSystemAnalyzer\\ShogiTournamentSystemAnalyzer\\Output\\TournamentQualityEvaluator\\TournamentQualityReport\\Summary\\Bad\\quality_summary_[先手8x後手8_本戦不出場Apexあり]_[Off].csv
+E:\\github.com\\muzudho\\ShogiTournamentSystemAnalyzer\\ShogiTournamentSystemAnalyzer\\Output\\TournamentQualityEvaluator\\TournamentQualityReport\\Summary\\Bad\\[先手8x後手8_本戦不出場Apexあり]_[Off]_quality_summary.csv

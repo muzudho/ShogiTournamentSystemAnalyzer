@@ -12,12 +12,12 @@
 Before（Bad / Off）
 - 本戦不出場Apexの扱い: Off（現行案）
 - 境界救済戦: Off
-- 出力先: `docs\Reports\Bad\quality_summary_[トップ集団小さめ]_[AdditionalOff_BoundaryOff].csv`
+- 出力先: `docs\Reports\Bad\[トップ集団小さめ]_[AdditionalOff_BoundaryOff]_quality_summary.csv`
 
 After（Good / On）
 - 本戦不出場Apexの扱い: Off（現行案）
 - 境界救済戦: On
-- 出力先: `docs\Reports\Good\quality_summary_[トップ集団小さめ]_[AdditionalOff_BoundaryOn].csv`
+- 出力先: `docs\Reports\Good\[トップ集団小さめ]_[AdditionalOff_BoundaryOn]_quality_summary.csv`
 
 ## 比較表
 Before（Boundary Off）

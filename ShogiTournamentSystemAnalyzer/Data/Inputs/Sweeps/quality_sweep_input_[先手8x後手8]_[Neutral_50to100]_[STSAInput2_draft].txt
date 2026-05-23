@@ -95,5 +95,5 @@ P, "ひよこ"
 
 #[Section] Output
 ExperimentalReportGrouping=Off
-SweepOutputPath=E:\github.com\muzudho\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyzer\Output\TournamentQualityEvaluator\TournamentQualityReport\Sweeps\quality_sweep_neutral_[先手8x後手8]_50to100.csv
+SweepOutputPath=E:\github.com\muzudho\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyzer\Output\TournamentQualityEvaluator\TournamentQualityReport\Sweeps\neutral_[先手8x後手8]_50to100_quality_sweep.csv
 #[EndSection]

@@ -122,4 +122,4 @@ END
 #[Prompt] 実験レポートの Good / Bad 分離を使いますか？ [1]
 1
 #[Prompt] 品質評価サマリーCSVの出力先パスまたはフォルダーパスを入力してください
-E:\\github.com\\muzudho\\ShogiTournamentSystemAnalyzer\\docs\\Reports\quality_summary_[先手8x後手8_本戦不出場Apexあり].csv
+E:\\github.com\\muzudho\\ShogiTournamentSystemAnalyzer\\docs\\Reports\[先手8x後手8_本戦不出場Apexあり]_quality_summary.csv

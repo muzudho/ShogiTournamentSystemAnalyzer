@@ -1,10 +1,10 @@
-﻿# 品質評価サマリーレポート
+# 品質評価サマリーレポート
 
 ## 概要
 - 計算モード: 本戦専用 シミュレーション (20,000回)
 - 対象選手数: 16
-- サマリーCSV: [quality_summary_[トップ集団大きめ].csv](quality_summary_[トップ集団大きめ].csv)
-- 選手別CSV: [quality_players_20260517_152429.csv](../Players/quality_players_20260517_152429.csv)
+- サマリーCSV: [[トップ集団大きめ]_quality_summary.csv]([トップ集団大きめ]_quality_summary.csv)
+- 選手別CSV: [20260517_152429_quality_players.csv](../Players/20260517_152429_quality_players.csv)
 
 ## 指標サマリー
 | 指標 | 値 | 意味 |

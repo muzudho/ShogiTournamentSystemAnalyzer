@@ -128,4 +128,4 @@ END
 #[Prompt] 評価メモを1行で入力してください
 かなり良いが、上位8完全残留は少し落ちる
 #[Prompt] 品質評価サマリーCSVの出力先パスまたはフォルダーパスを入力してください
-E:\github.com\muzudho\ShogiTournamentSystemAnalyzer\docs\Reports\Good\quality_summary_[先手8x後手8_本戦不出場Apexあり]_[AdditionalOn_BoundaryOn]_modern.csv
+E:\github.com\muzudho\ShogiTournamentSystemAnalyzer\docs\Reports\Good\[先手8x後手8_本戦不出場Apexあり]_[AdditionalOn_BoundaryOn]_modern_quality_summary.csv

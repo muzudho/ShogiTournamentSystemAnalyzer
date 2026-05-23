@@ -129,4 +129,4 @@ END
 #[Prompt] 評価メモを1行で入力してください
 かなり良い組み合わせを50から90まで5刻みで確認
 #[Prompt] n%スイープ結果CSVの出力先パスまたはフォルダーパスを入力してください
-E:\\github.com\\muzudho\\ShogiTournamentSystemAnalyzer\\docs\\Reports\Good\quality_sweep_[先手8x後手8_本戦不出場Apexあり]_[AdditionalOn_BoundaryOn_50to90_by5].csv
+E:\\github.com\\muzudho\\ShogiTournamentSystemAnalyzer\\docs\\Reports\Good\[先手8x後手8_本戦不出場Apexあり]_[AdditionalOn_BoundaryOn_50to90_by5]_quality_sweep.csv

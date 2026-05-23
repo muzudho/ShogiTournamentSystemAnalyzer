@@ -129,4 +129,4 @@ END
 #[Prompt] 評価メモを1行で入力してください
 かなり良い組み合わせの極端先手有利スイープ
 #[Prompt] n%スイープ結果CSVの出力先パスまたはフォルダーパスを入力してください
-E:\\github.com\\muzudho\\ShogiTournamentSystemAnalyzer\\docs\\Reports\Good\quality_sweep_[先手8x後手8_本戦不出場Apexあり]_[AdditionalOn_BoundaryOn_50to100].csv
+E:\\github.com\\muzudho\\ShogiTournamentSystemAnalyzer\\docs\\Reports\Good\[先手8x後手8_本戦不出場Apexあり]_[AdditionalOn_BoundaryOn_50to100]_quality_sweep.csv

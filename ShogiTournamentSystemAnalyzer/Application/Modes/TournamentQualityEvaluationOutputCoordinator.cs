@@ -42,10 +42,7 @@ internal static class TournamentQualityEvaluationOutputCoordinator
         var outputCsvPath = CsvOutputHelpers.ResolveOutputCsvPath(ConsolePromptReaders.ReadTextWithDefault(
             $"\n品質評価サマリーCSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
             defaultOutputCsvPath));
-        var defaultPlayerCsvPath = ReportOutputPathBuilder.BuildTournamentQualityPlayersDefaultOutputPath(
-            $"quality_players_{DateTime.Now:yyyyMMdd_HHmmss}.csv",
-            reportGroupingOptions);
-        var playerCsvPath = CsvOutputHelpers.ResolveOutputCsvPath(defaultPlayerCsvPath);
+        var playerCsvPath = ReportOutputPathBuilder.BuildTournamentQualityPlayersOutputPathFromSummary(outputCsvPath);
         return new TournamentQualityEvaluationOutputOptions(reportGroupingOptions, outputCsvPath, playerCsvPath);
     }
 

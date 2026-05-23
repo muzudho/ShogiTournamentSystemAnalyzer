@@ -8,6 +8,11 @@ using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
 
 internal static class ReportOutputPathBuilder
 {
+    static string BuildTimestampedQualityFileName(string leadingContext, string artifactType)
+    {
+        return $"{leadingContext}_{artifactType}_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
+    }
+
     static string BuildOutputFilePath(params string[] segments)
     {
         var fullSegments = new[] { Path.GetFullPath("."), "Output" }
@@ -44,6 +49,39 @@ internal static class ReportOutputPathBuilder
         return BuildOutputFilePath("TournamentQualityEvaluator", "TournamentQualityReport", "Players", outcomeFolderName, fileName);
     }
 
+    internal static string BuildTournamentQualityPlayersOutputPathFromSummary(string summaryOutputCsvPath)
+    {
+        var fullSummaryPath = Path.GetFullPath(summaryOutputCsvPath);
+        var fullRootPath = Path.GetFullPath(".");
+        var summaryDirectorySegment = Path.Combine(fullRootPath, "Output", "TournamentQualityEvaluator", "TournamentQualityReport", "Summary");
+        var playersDirectorySegment = Path.Combine(fullRootPath, "Output", "TournamentQualityEvaluator", "TournamentQualityReport", "Players");
+
+        var playerDirectoryPath = Path.GetDirectoryName(fullSummaryPath) ?? fullRootPath;
+        if (playerDirectoryPath.StartsWith(summaryDirectorySegment, StringComparison.OrdinalIgnoreCase))
+        {
+            playerDirectoryPath = playersDirectorySegment + playerDirectoryPath[summaryDirectorySegment.Length..];
+        }
+
+        Directory.CreateDirectory(playerDirectoryPath);
+        var playerFileName = BuildTournamentQualityPlayersFileNameFromSummary(Path.GetFileName(fullSummaryPath));
+        return Path.Combine(playerDirectoryPath, playerFileName);
+    }
+
+    static string BuildTournamentQualityPlayersFileNameFromSummary(string summaryFileName)
+    {
+        if (summaryFileName.Contains("_quality_summary_", StringComparison.Ordinal))
+        {
+            return summaryFileName.Replace("_quality_summary_", "_quality_players_", StringComparison.Ordinal);
+        }
+
+        if (summaryFileName.Contains("_quality_summary.", StringComparison.Ordinal))
+        {
+            return summaryFileName.Replace("_quality_summary.", "_quality_players.", StringComparison.Ordinal);
+        }
+
+        return BuildTimestampedQualityFileName("generated", "quality_players");
+    }
+
     internal static string BuildTournamentQualitySweepDefaultOutputPath(string fileName, TournamentQualityEvaluationReportGroupingOptions options)
     {
         if (!options.IsEnabled) return BuildOutputFilePath("TournamentQualityEvaluator", "TournamentQualityReport", "Sweeps", fileName);
@@ -54,7 +92,7 @@ internal static class ReportOutputPathBuilder
 
     static string BuildQualitySummaryDefaultOutputPath(AdditionalApexPlacementMode placementMode, BoundaryRescueMode boundaryRescueMode, TournamentQualityEvaluationReportGroupingOptions options)
     {
-        var fileName = $"quality_summary_{placementMode}_{boundaryRescueMode}_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
+        var fileName = BuildTimestampedQualityFileName($"{placementMode}_{boundaryRescueMode}", "quality_summary");
         return BuildTournamentQualitySummaryDefaultOutputPath(fileName, options);
     }
 
@@ -62,7 +100,7 @@ internal static class ReportOutputPathBuilder
     {
         if (groupingMode == FinalStageGroupingMode.Off)
         {
-            var fileName = $"quality_summary_neutral_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
+            var fileName = BuildTimestampedQualityFileName("neutral", "quality_summary");
             return BuildTournamentQualitySummaryDefaultOutputPath(fileName, options);
         }
 
@@ -74,7 +112,7 @@ internal static class ReportOutputPathBuilder
         if (groupingMode == FinalStageGroupingMode.Off)
         {
             var ruleName = tournamentRuleSetMode == TournamentRuleSetMode.Twill ? "twill" : "neutral";
-            var fileName = $"quality_summary_{ruleName}_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
+            var fileName = BuildTimestampedQualityFileName(ruleName, "quality_summary");
             return BuildTournamentQualitySummaryDefaultOutputPath(fileName, options);
         }
 
@@ -83,7 +121,7 @@ internal static class ReportOutputPathBuilder
 
     static string BuildQualitySweepDefaultOutputPath(AdditionalApexPlacementMode placementMode, BoundaryRescueMode boundaryRescueMode, TournamentQualityEvaluationReportGroupingOptions options)
     {
-        var fileName = $"quality_sweep_{placementMode}_{boundaryRescueMode}_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
+        var fileName = BuildTimestampedQualityFileName($"{placementMode}_{boundaryRescueMode}", "quality_sweep");
         return BuildTournamentQualitySweepDefaultOutputPath(fileName, options);
     }
 
@@ -91,7 +129,7 @@ internal static class ReportOutputPathBuilder
     {
         if (groupingMode == FinalStageGroupingMode.Off)
         {
-            var fileName = $"quality_sweep_neutral_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
+            var fileName = BuildTimestampedQualityFileName("neutral", "quality_sweep");
             return BuildTournamentQualitySweepDefaultOutputPath(fileName, options);
         }
 
@@ -103,7 +141,7 @@ internal static class ReportOutputPathBuilder
         if (groupingMode == FinalStageGroupingMode.Off)
         {
             var ruleName = tournamentRuleSetMode == TournamentRuleSetMode.Twill ? "twill" : "neutral";
-            var fileName = $"quality_sweep_{ruleName}_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
+            var fileName = BuildTimestampedQualityFileName(ruleName, "quality_sweep");
             return BuildTournamentQualitySweepDefaultOutputPath(fileName, options);
         }
 

@@ -1,10 +1,10 @@
-﻿# 品質評価サマリーレポート
+# 品質評価サマリーレポート
 
 ## 概要
 - 計算モード: シミュレーション (10回)
 - 対象選手数: 16
-- サマリーCSV: [quality_summary_[先手8x後手8]_[Neutral_Single10_STSAInput2_draft].csv](quality_summary_[先手8x後手8]_[Neutral_Single10_STSAInput2_draft].csv)
-- 選手別CSV: [quality_players_20260523_145052.csv](../Players/quality_players_20260523_145052.csv)
+- サマリーCSV: [[先手8x後手8]_[Neutral_Single10_STSAInput2_draft]_quality_summary.csv]([先手8x後手8]_[Neutral_Single10_STSAInput2_draft]_quality_summary.csv)
+- 選手別CSV: [20260523_145052_quality_players.csv](../Players/20260523_145052_quality_players.csv)
 
 ## 指標サマリー
 | 指標 | 値 | 意味 |

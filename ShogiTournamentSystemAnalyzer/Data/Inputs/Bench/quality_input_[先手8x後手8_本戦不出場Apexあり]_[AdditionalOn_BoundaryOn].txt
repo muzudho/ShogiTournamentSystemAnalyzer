@@ -103,4 +103,4 @@ END
 2
 1
 かなり良いが、上位8完全残留は少し落ちる
-E:\\github.com\\muzudho\\ShogiTournamentSystemAnalyzer\\docs\\Reports\Good\quality_summary_[先手8x後手8_本戦不出場Apexあり]_[AdditionalOn_BoundaryOn].csv
+E:\\github.com\\muzudho\\ShogiTournamentSystemAnalyzer\\docs\\Reports\Good\[先手8x後手8_本戦不出場Apexあり]_[AdditionalOn_BoundaryOn]_quality_summary.csv
