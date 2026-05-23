@@ -1,10 +1,10 @@
-# 品質評価サマリーレポート
+﻿# 品質評価サマリーレポート
 
 ## 概要
 - 計算モード: 本戦専用 シミュレーション (20,000回)
 - 対象選手数: 16
 - サマリーCSV: [quality_summary_[黒8x白8_本戦不出場Apexあり]_[On]_modern.csv](quality_summary_[黒8x白8_本戦不出場Apexあり]_[On]_modern.csv)
-- 選手別CSV: [quality_players_20260517_134253.csv](quality_players_20260517_134253.csv)
+- 選手別CSV: [quality_players_20260517_134253.csv](../../Players/Good/quality_players_20260517_134253.csv)
 - 評価メモ: 改善案A: 本戦不出場Apexを総合順位へ挿入しない
 
 ## 指標サマリー
@@ -56,3 +56,4 @@ xychart-beta
     y-axis "総合1位確率(%)" 0 --> 100
     bar [23.18, 19.29, 15.37, 12.65, 10.24, 8.12, 6.27, 4.89]
 ```
+

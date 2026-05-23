@@ -1,10 +1,10 @@
-# 品質評価サマリーレポート
+﻿# 品質評価サマリーレポート
 
 ## 概要
 - 計算モード: シミュレーション (10回)
 - 対象選手数: 16
 - サマリーCSV: [quality_summary_[先手8x後手8]_[Neutral_Single10_STSAInput2_draft].csv](quality_summary_[先手8x後手8]_[Neutral_Single10_STSAInput2_draft].csv)
-- 選手別CSV: [quality_players_20260523_145052.csv](quality_players_20260523_145052.csv)
+- 選手別CSV: [quality_players_20260523_145052.csv](../Players/quality_players_20260523_145052.csv)
 
 ## 指標サマリー
 | 指標 | 値 | 意味 |
@@ -63,3 +63,4 @@ xychart-beta
   - シミュレーション試行回数 = 1,000
   - 軽量確認の見方 = 選手 16 人 / 対局 64 件では、先に 1 条件だけ再確認してから横比較
 - 理由: 今回の条件で回せました。選手数 16 人・対局数 64 件なので、現条件とピンポイント候補を並べて比較できます。
+

@@ -1,10 +1,10 @@
-# 品質評価サマリーレポート
+﻿# 品質評価サマリーレポート
 
 ## 概要
 - 計算モード: 本戦専用 シミュレーション (20,000回)
 - 対象選手数: 16
 - サマリーCSV: [quality_summary_[トップ集団大きめ].csv](quality_summary_[トップ集団大きめ].csv)
-- 選手別CSV: [quality_players_20260517_152429.csv](quality_players_20260517_152429.csv)
+- 選手別CSV: [quality_players_20260517_152429.csv](../Players/quality_players_20260517_152429.csv)
 
 ## 指標サマリー
 | 指標 | 値 | 意味 |
@@ -55,3 +55,4 @@ xychart-beta
     y-axis "総合1位確率(%)" 0 --> 100
     bar [22.18, 19.21, 15.49, 12.90, 10.76, 8.17, 6.30, 4.99]
 ```
+
