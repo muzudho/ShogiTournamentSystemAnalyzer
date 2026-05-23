@@ -12,6 +12,24 @@ internal static class ResultCsvWriter
 {
     static string EscapeCsv(string value) => CsvOutputHelpers.EscapeCsv(value);
 
+    static IEnumerable<string> BuildAdjustmentCycleAdviceLines(bool timedOut, bool zeroResults, int completedCount, string subjectLabel)
+    {
+        if (!timedOut && !zeroResults) return Array.Empty<string>();
+
+        return new[]
+        {
+            string.Empty,
+            "## 次回調整のヒント",
+            $"- 今回の {subjectLabel} は {(zeroResults ? "0件" : "途中まで")} で止まりました。",
+            $"- 今回最後まで計算できた件数: {completedCount}",
+            "- 次回は次のどれかを短くすると回しやすいです。",
+            "  - 先手勝率の終了値を手前にする",
+            "  - 刻み幅を大きくする",
+            "  - シミュレーション試行回数を減らす",
+            "  - 対局数や対象条件を絞る"
+        };
+    }
+
     /// <summary>
     /// ［品質評価］サマリーCSVを作成する
     /// </summary>
@@ -47,6 +65,11 @@ internal static class ResultCsvWriter
             lines.Add($"evaluationMemo,,{EscapeCsv(options.EvaluationMemo)}");
         }
 
+        if (string.IsNullOrWhiteSpace(summary.MostPenalizedPlayerName) && string.IsNullOrWhiteSpace(summary.MostAdvantagedPlayerName))
+        {
+            lines.Add("adjustmentHint,,結果が0件なら先手勝率範囲・刻み幅・試行回数・対局条件を短くして再試行してください");
+        }
+
         return lines;
     }
 
@@ -58,7 +81,7 @@ internal static class ResultCsvWriter
     /// <param name="sweepCsvPath"></param>
     /// <param name="options"></param>
     /// <returns></returns>
-    internal static IEnumerable<string> CreateTournamentQualitySweepReportMarkdown(string outputMarkdownPath, IReadOnlyList<TournamentQualitySweepReportRow> sweepRows, string sweepCsvPath, TournamentQualityEvaluationReportGroupingOptions options)
+    internal static IEnumerable<string> CreateTournamentQualitySweepReportMarkdown(string outputMarkdownPath, IReadOnlyList<TournamentQualitySweepReportRow> sweepRows, string sweepCsvPath, TournamentQualityEvaluationReportGroupingOptions options, bool stoppedByTimeout)
     {
         var bestSpearmanRow = sweepRows
             .OrderByDescending(row => row.SpearmanCorrelation)
@@ -127,6 +150,12 @@ internal static class ResultCsvWriter
                         "```"
                     });
         }
+
+        lines.AddRange(BuildAdjustmentCycleAdviceLines(
+            timedOut: stoppedByTimeout,
+            zeroResults: sweepRows.Count == 0,
+            completedCount: sweepRows.Count,
+            subjectLabel: "n%スイープ"));
 
         return lines;
     }
@@ -256,6 +285,12 @@ internal static class ResultCsvWriter
                         "```"
                     });
         }
+
+        lines.AddRange(BuildAdjustmentCycleAdviceLines(
+            timedOut: calculationMode.Contains("時間切れ", StringComparison.Ordinal),
+            zeroResults: playerRows.Count == 0,
+            completedCount: playerRows.Count,
+            subjectLabel: "品質評価"));
 
         return lines;
     }

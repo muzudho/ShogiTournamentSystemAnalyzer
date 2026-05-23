@@ -127,7 +127,7 @@ internal static partial class Program
         var sweepMarkdownPath = CsvOutputHelpers.ChangeOutputExtension(outputOptions.OutputCsvPath, ".md");
         WriterHelper.WriteText(
             outputPath: sweepMarkdownPath,
-            getLines: () => ResultCsvWriter.CreateTournamentQualitySweepReportMarkdown(sweepMarkdownPath, tournamentQualitySweepReportData.SweepRows, outputOptions.OutputCsvPath, outputOptions.ReportGroupingOptions));
+            getLines: () => ResultCsvWriter.CreateTournamentQualitySweepReportMarkdown(sweepMarkdownPath, tournamentQualitySweepReportData.SweepRows, outputOptions.OutputCsvPath, outputOptions.ReportGroupingOptions, tournamentQualitySweepReportData.StoppedByTimeout));
 
         Console.WriteLine($"n%スイープ結果CSVを出力しました: {outputOptions.OutputCsvPath}");
         Console.WriteLine($"n%スイープ結果Markdownを出力しました: {sweepMarkdownPath}");

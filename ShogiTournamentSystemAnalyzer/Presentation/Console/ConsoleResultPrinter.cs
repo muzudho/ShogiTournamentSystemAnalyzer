@@ -10,6 +10,24 @@ using System.Globalization;
 
 internal static class ConsoleResultPrinter
 {
+    static void PrintAdjustmentCycleGuide(string scenarioLabel, bool timedOut, bool zeroResults, int? evaluatedPointCount = null)
+    {
+        if (!timedOut && !zeroResults) return;
+
+        Console.WriteLine("調整サイクル用メモ:");
+        Console.WriteLine($"- 今回の {scenarioLabel} は {(zeroResults ? "0件" : "途中まで")} で止まりました。");
+        if (evaluatedPointCount.HasValue)
+        {
+            Console.WriteLine($"- 今回計算できた点数: {evaluatedPointCount.Value}");
+        }
+
+        Console.WriteLine("- 次回は次のどれかを短くすると回しやすいです。");
+        Console.WriteLine("  1. 先手勝率の終了値を手前にする");
+        Console.WriteLine("  2. 刻み幅を大きくする");
+        Console.WriteLine("  3. シミュレーション試行回数を減らす");
+        Console.WriteLine("  4. 対局数や対象条件を絞る\n");
+    }
+
     /// <summary>
     /// ［読者］域へ渡す［大会品質レポート］境界データの要約表示だ。
     /// </summary>
@@ -30,6 +48,10 @@ internal static class ConsoleResultPrinter
     internal static void PrintTournamentQualityReportSummary(TournamentQualityReportData tournamentQualityReportData)
     {
         PrintTournamentQualityReportSummaryMetrics(tournamentQualityReportData.Summary);
+        PrintAdjustmentCycleGuide(
+            scenarioLabel: "品質評価",
+            timedOut: tournamentQualityReportData.CalculationMode.Contains("時間切れ", StringComparison.Ordinal),
+            zeroResults: tournamentQualityReportData.PlayerRows.Count == 0);
     }
 
     internal static void PrintTournamentQualityReportPlayerHighlightsRows(IReadOnlyList<TournamentQualityReportPlayerRow> playerRows)
@@ -72,6 +94,11 @@ internal static class ConsoleResultPrinter
     internal static void PrintTournamentQualitySweepReportRows(TournamentQualitySweepReportData tournamentQualitySweepReportData)
     {
         PrintTournamentQualitySweepReportTable(tournamentQualitySweepReportData.SweepRows);
+        PrintAdjustmentCycleGuide(
+            scenarioLabel: "n%スイープ",
+            timedOut: tournamentQualitySweepReportData.StoppedByTimeout,
+            zeroResults: tournamentQualitySweepReportData.SweepRows.Count == 0,
+            evaluatedPointCount: tournamentQualitySweepReportData.SweepRows.Count);
     }
 
     internal static void PrintTournamentQualitySweepReportTable(IReadOnlyList<TournamentQualitySweepReportRow> sweepRows)
@@ -107,6 +134,7 @@ internal static class ConsoleResultPrinter
         if (resultRows.Count == 0)
         {
             Console.WriteLine("結果行は 0 件です。条件を短くして再試行してください。\n");
+            PrintAdjustmentCycleGuide("シミュレーション", timedOut: result.Mode.Contains("時間切れ", StringComparison.Ordinal), zeroResults: true);
             return;
         }
 
@@ -140,6 +168,9 @@ internal static class ConsoleResultPrinter
 
             Console.WriteLine(line);
         }
+
+        Console.WriteLine();
+        PrintAdjustmentCycleGuide("シミュレーション", timedOut: result.Mode.Contains("時間切れ", StringComparison.Ordinal), zeroResults: false);
     }
 
     internal static void PrintRepresentativeExecutionRanking(IReadOnlyList<Program.RepresentativeExecutionRankRow> rows, TournamentRuleSetMode tournamentRuleSetMode)
@@ -175,6 +206,7 @@ internal static class ConsoleResultPrinter
         if (resultRows.Count == 0)
         {
             Console.WriteLine("結果行は 0 件です。条件を短くして再試行してください。\n");
+            PrintAdjustmentCycleGuide("本戦シミュレーション", timedOut: result.Mode.Contains("時間切れ", StringComparison.Ordinal), zeroResults: true);
             return;
         }
 
@@ -210,6 +242,9 @@ internal static class ConsoleResultPrinter
 
             Console.WriteLine(line);
         }
+
+        Console.WriteLine();
+        PrintAdjustmentCycleGuide("本戦シミュレーション", timedOut: result.Mode.Contains("時間切れ", StringComparison.Ordinal), zeroResults: false);
     }
 
     internal static void PrintMatchesCsv(IReadOnlyList<Player> players, IReadOnlyList<Match> matches)
