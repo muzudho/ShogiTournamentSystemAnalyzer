@@ -3,6 +3,7 @@
  */
 namespace ShogiTournamentSystemAnalyzer;
 
+using ShogiTournamentSystemAnalyzer.Domain.FinalRanking;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
@@ -537,7 +538,7 @@ internal static class ResultCsvWriter
 
     internal static IEnumerable<string> CreateRepresentativeExecutionRankCsv(
         TournamentRuleSetMode tournamentRuleSetMode,
-        IReadOnlyList<Program.RepresentativeExecutionRankRow> rows,
+        IReadOnlyList<RepresentativeExecutionRankRow> rows,
         string? overviewNote = null)
     {
         // ----------------------------------------
@@ -597,7 +598,7 @@ internal static class ResultCsvWriter
         string outputMarkdownPath,
         string outputCsvPath,
         TournamentRuleSetMode tournamentRuleSetMode,
-        IReadOnlyList<Program.RepresentativeExecutionRankRow> rows,
+        IReadOnlyList<RepresentativeExecutionRankRow> rows,
         string? overviewNote = null,
         string? representativeMatchRecordsMarkdownPath = null)
     {

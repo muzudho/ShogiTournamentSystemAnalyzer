@@ -3,6 +3,7 @@
  */
 namespace ShogiTournamentSystemAnalyzer;
 
+using ShogiTournamentSystemAnalyzer.Domain.FinalRanking;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
@@ -193,7 +194,7 @@ internal static class ConsoleResultPrinter
         PrintAdjustmentCycleGuide("シミュレーション", timedOut: result.Mode.Contains("時間切れ", StringComparison.Ordinal), zeroResults: false);
     }
 
-    internal static void PrintRepresentativeExecutionRanking(IReadOnlyList<Program.RepresentativeExecutionRankRow> rows, TournamentRuleSetMode tournamentRuleSetMode)
+    internal static void PrintRepresentativeExecutionRanking(IReadOnlyList<RepresentativeExecutionRankRow> rows, TournamentRuleSetMode tournamentRuleSetMode)
     {
         Console.WriteLine($"代表実行順位（{TournamentRuleSetRule.GetLabel(tournamentRuleSetMode)}）:");
         var nameWidth = Math.Max(6, rows.Max(x => x.Name.Length) + 2);

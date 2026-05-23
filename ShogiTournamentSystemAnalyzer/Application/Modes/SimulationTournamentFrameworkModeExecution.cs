@@ -4,6 +4,7 @@
 namespace ShogiTournamentSystemAnalyzer;
 
 using ShogiTournamentSystemAnalyzer.Application.Execution;
+using ShogiTournamentSystemAnalyzer.Domain.FinalRanking;
 using ShogiTournamentSystemAnalyzer.Domain.Ranking;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
@@ -29,11 +30,11 @@ internal static partial class Program
     static void ExecuteTournamentFrameworkMode(TournamentFrameworkModeContext context)
     {
         // ［選手一覧データ］読込
-        var players = ReadPlayerEntriesFromCsvPath(context.PlayersCsvPath);
+        var players = TournamentFrameworkCsvParsers.ReadPlayerEntriesFromCsvPath(context.PlayersCsvPath);
 
         // ［段階マスターデータ］読込
-        var stages = ReadStageEntriesFromCsvPath(context.StagesCsvPath);
-        var matchRecords = ReadTournamentMatchRecordsFromCsvPath(context.TournamentMatchRecordsCsvPath);
+        var stages = TournamentFrameworkCsvParsers.ReadStageEntriesFromCsvPath(context.StagesCsvPath);
+        var matchRecords = TournamentFrameworkCsvParsers.ReadTournamentMatchRecordsFromCsvPath(context.TournamentMatchRecordsCsvPath);
 
         // ［大会ルールＤＳＬ定義］
         TournamentDslDefinition? dslDefinition = null;
@@ -212,33 +213,6 @@ internal static partial class Program
         Console.WriteLine($"representative順位表Markdownを出力しました: {representativeRankingMarkdownPath}");
         Console.WriteLine($"representative大会最終状態CSVを出力しました: {tournamentMatchRecordsCsvPath}");
         Console.WriteLine($"representative大会最終状態Markdownを出力しました: {tournamentMatchRecordsMarkdownPath}");
-    }
-
-    static List<PlayerEntry> ReadPlayerEntriesFromCsvPath(string path)
-    {
-        var fullPath = Path.GetFullPath(path);
-        var lines = File.ReadAllLines(fullPath);
-        if (!TryParsePlayerEntries(lines, out var players, out var errorMessage)) throw new OperationCanceledException($"選手一覧CSVの読み取りに失敗しました: {errorMessage} ({fullPath})");
-
-        return players;
-    }
-
-    static List<StageEntry> ReadStageEntriesFromCsvPath(string path)
-    {
-        var fullPath = Path.GetFullPath(path);
-        var lines = File.ReadAllLines(fullPath);
-        if (!TryParseStageEntries(lines, out var stages, out var errorMessage)) throw new OperationCanceledException($"ステージ一覧CSVの読み取りに失敗しました: {errorMessage} ({fullPath})");
-
-        return stages;
-    }
-
-    static List<TournamentMatchRecord> ReadTournamentMatchRecordsFromCsvPath(string path)
-    {
-        var fullPath = Path.GetFullPath(path);
-        var lines = File.ReadAllLines(fullPath);
-        if (!TryParseTournamentMatchRecords(lines, out var matches, out var errorMessage)) throw new OperationCanceledException($"大会対局記録CSVの読み取りに失敗しました: {errorMessage} ({fullPath})");
-
-        return matches;
     }
 
     static TournamentFrameworkSimulationAggregate ExecuteTournamentFrameworkModeCalculation(
@@ -554,13 +528,6 @@ internal static partial class Program
         bool IsExactCalculation,
         TournamentRuleSetMode TournamentRuleSetMode,
         TournamentFrameworkExecutionResult RepresentativeExecutionResult);
-
-    internal readonly record struct RepresentativeExecutionRankRow(
-        string Name,
-        int Points,
-        string RankLabel,
-        double AveragePlace,
-        double FirstPlaceProbability);
 
     sealed class StandardLikeMatchResultResolver(double firstPlayerWinRateRating) : IMatchResultResolver
     {

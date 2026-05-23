@@ -10,6 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Folder Include="Application\Reporting\" />
     <Folder Include="Output\FinalRanking\" />
     <Folder Include="Output\PlayerList\" />
     <Folder Include="Output\Proposer\" />
