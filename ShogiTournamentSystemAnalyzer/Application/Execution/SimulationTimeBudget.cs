@@ -8,12 +8,18 @@ namespace ShogiTournamentSystemAnalyzer.Application.Execution;
 /// </summary>
 internal static class SimulationTimeBudget
 {
+    /// <summary>
+    /// シミュレーションは最大ｎ分までにするぜ（＾▽＾）！　あまり長くなりすぎると、結果が出る前に心が折れちゃうからな（＾～＾）！
+    /// </summary>
+    internal static readonly TimeSpan SimulationTimeLimit = TimeSpan.FromMinutes(3);
+    static DateTime? _simulationDeadlineUtc;
+
     internal static SimulationBudgetScope BeginSimulationBudget()
     {
-        var ownsBudget = !Program._simulationDeadlineUtc.HasValue;
+        var ownsBudget = !_simulationDeadlineUtc.HasValue;
         if (ownsBudget)
         {
-            Program._simulationDeadlineUtc = DateTime.UtcNow + Program.SimulationTimeLimit;
+            _simulationDeadlineUtc = DateTime.UtcNow + SimulationTimeLimit;
         }
 
         return new SimulationBudgetScope(ownsBudget);
@@ -21,7 +27,7 @@ internal static class SimulationTimeBudget
 
     internal static bool HasSimulationTimeRemaining()
     {
-        return !Program._simulationDeadlineUtc.HasValue || DateTime.UtcNow < Program._simulationDeadlineUtc.Value;
+        return !_simulationDeadlineUtc.HasValue || DateTime.UtcNow < _simulationDeadlineUtc.Value;
     }
 
     internal static void NormalizePlaceProbabilities(double[,] placeProbabilities, int sampleCount)
@@ -43,7 +49,7 @@ internal static class SimulationTimeBudget
         {
             if (OwnsBudget)
             {
-                Program._simulationDeadlineUtc = null;
+                _simulationDeadlineUtc = null;
             }
         }
     }

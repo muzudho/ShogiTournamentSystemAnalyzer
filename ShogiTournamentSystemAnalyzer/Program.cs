@@ -81,24 +81,16 @@ internal static partial class Program
                 default:
                     throw new InvalidOperationException("未対応のモードです。");
             }
+
+            // TODO: ここで［大会品質レポートという境界］を用意されている（＾～＾）
+            // TODO: ［読者域］は、フォルダーを開いて、レポートを読む。ファイルの場所だけ示してやる（＾～＾）
+
+
         }
         catch (OperationCanceledException ex)
         {
             Console.WriteLine($"入力を中断しました: {ex.Message}");
         }
     }
-
-
-    // ========================================
-    // 詳細
-    // ========================================
-
-
-    /// <summary>
-    /// シミュレーションは最大ｎ分までにするぜ（＾▽＾）！　あまり長くなりすぎると、結果が出る前に心が折れちゃうからな（＾～＾）！
-    /// </summary>
-    internal static readonly TimeSpan SimulationTimeLimit = TimeSpan.FromMinutes(3);
-    internal static DateTime? _simulationDeadlineUtc;
-
 }
 
