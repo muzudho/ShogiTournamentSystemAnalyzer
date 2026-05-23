@@ -135,9 +135,28 @@ internal static partial class Program
         var end = executionOptions.SweepOptions.EndPercent;
         var step = executionOptions.SweepOptions.StepPercent;
         var currentPointCount = Math.Max(1, (int)Math.Floor((end - start) / step) + 1);
-        var remainingWidth = Math.Max(1.0, end - start);
-        var suggestedEnd = stoppedByTimeout ? Math.Min(end, start + Math.Max(step, remainingWidth / 2.0)) : end;
-        var suggestedStep = stoppedByTimeout ? Math.Max(step * 2.0, Math.Ceiling(step * 2.0)) : step;
+        var completionRate = Math.Clamp((double)completedPointCount / currentPointCount, 0.0, 1.0);
+        var width = Math.Max(step, end - start);
+        var widthScale = stoppedByTimeout
+            ? completionRate switch
+            {
+                <= 0.20 => 0.25,
+                <= 0.40 => 0.40,
+                <= 0.70 => 0.60,
+                _ => 0.80,
+            }
+            : 1.10;
+        var stepScale = stoppedByTimeout
+            ? completionRate switch
+            {
+                <= 0.20 => 4.0,
+                <= 0.40 => 3.0,
+                <= 0.70 => 2.0,
+                _ => 1.5,
+            }
+            : 1.0;
+        var suggestedEnd = Math.Min(100.0, start + Math.Max(step, width * widthScale));
+        var suggestedStep = Math.Max(step, Math.Ceiling(step * stepScale));
         var suggestedSettings = new List<string>
         {
             $"開始する先手勝率(%) = {start.ToString("F2", CultureInfo.InvariantCulture)}",
@@ -145,8 +164,14 @@ internal static partial class Program
             $"刻み幅(%) = {suggestedStep.ToString("F2", CultureInfo.InvariantCulture)}"
         };
 
+        if (stoppedByTimeout)
+        {
+            var targetPointCount = Math.Max(1, (int)Math.Ceiling(currentPointCount * Math.Max(0.25, completionRate * 1.5)));
+            suggestedSettings.Add($"目安の評価点数 = {targetPointCount}");
+        }
+
         var reason = stoppedByTimeout
-            ? $"今回の計算点数は {completedPointCount}/{currentPointCount} 件だったので、範囲を半分程度に縮め、刻み幅を広げる案です。"
+            ? $"今回の計算点数は {completedPointCount}/{currentPointCount} 件（完了率 {(completionRate * 100.0).ToString("F0", CultureInfo.InvariantCulture)}%）だったので、完了率に応じて範囲と刻み幅を自動調整した案です。"
             : "今回の範囲で最後まで回せたので、同条件を基準に少しずつ広げられます。";
 
         return new TournamentQualityNextCycleSuggestion("次回の n%スイープ提案", suggestedSettings, reason);
@@ -167,9 +192,20 @@ internal static partial class Program
         {
             var currentSimulationCount = executionOptions.SimulationCount.Value;
             var suggestedSimulationCount = stoppedByTimeout
-                ? Math.Max(1000, currentSimulationCount / 10)
-                : Math.Max(1000, currentSimulationCount / 2);
+                ? currentSimulationCount switch
+                {
+                    >= 500_000 => Math.Max(5_000, currentSimulationCount / 20),
+                    >= 200_000 => Math.Max(5_000, currentSimulationCount / 10),
+                    >= 50_000 => Math.Max(2_000, currentSimulationCount / 5),
+                    _ => Math.Max(1_000, currentSimulationCount / 2),
+                }
+                : Math.Max(1_000, currentSimulationCount / 2);
             suggestedSettings.Add($"シミュレーション試行回数 = {suggestedSimulationCount:N0}");
+            if (stoppedByTimeout)
+            {
+                var quickTrialSimulationCount = Math.Max(1_000, suggestedSimulationCount / 2);
+                suggestedSettings.Add($"さらに様子見するなら試行回数 = {quickTrialSimulationCount:N0}");
+            }
         }
 
         if (suggestedSettings.Count == 0)
@@ -178,7 +214,7 @@ internal static partial class Program
         }
 
         var reason = stoppedByTimeout
-            ? $"今回の品質評価は時間切れになったので、計算量を一段下げる案です。取得できた選手行数は {completedPlayerRowCount} 件です。"
+            ? $"今回の品質評価は時間切れになったので、現在の試行回数帯に合わせて一段階ずつ下げる案です。取得できた選手行数は {completedPlayerRowCount} 件です。"
             : "今回の条件で回せたので、同条件を基準に比較を続けられます。";
 
         return new TournamentQualityNextCycleSuggestion("次回の品質評価提案", suggestedSettings, reason);

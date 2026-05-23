@@ -1,0 +1,11 @@
+metricName,metricValue,note
+spearmanCorrelation,0.966888,Elo順位と期待総合順位の相関
+meanAbsoluteRankError,1.275000,期待総合順位とElo順位のずれの絶対値平均
+averageTop8Retention,7.106667,Elo上位8名が総合上位8位に残る人数の期待値
+eloTop1OverallTop1Probability,23.333333,Elo1位が総合1位になる確率(%)
+mostPenalizedPlayerDelta,2.600000,飛
+mostAdvantagedPlayerDelta,-3.250000,ひよこ
+nextCycleSuggestionTitle,,次回の品質評価提案
+nextCycleSuggestedSetting,,同Elo対局時の先手勝率(%) = 51.00
+nextCycleSuggestedSetting,,"シミュレーション試行回数 = 1,000"
+nextCycleSuggestionReason,,今回の条件で回せたので、同条件を基準に比較を続けられます。
