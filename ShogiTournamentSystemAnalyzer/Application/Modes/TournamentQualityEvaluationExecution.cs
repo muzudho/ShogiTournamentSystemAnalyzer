@@ -82,7 +82,7 @@ internal static partial class Program
             }
         }
 
-        var suggestion = BuildNextCycleSuggestionForSweep(executionOptions, sweepRows.Count, stoppedByTimeout);
+        var suggestion = BuildNextCycleSuggestionForSweep(input, executionOptions, sweepRows.Count, stoppedByTimeout);
         return BoundaryDataBuilders.BuildTournamentQualitySweepReportBoundaryData(sweepRows, stoppedByTimeout, suggestion);
     }
 
@@ -122,21 +122,32 @@ internal static partial class Program
         var calculationMode = qualityPlayerRows.Count == 0 && !result.Mode.Contains("時間切れ", StringComparison.Ordinal)
             ? result.Mode + " (0回)"
             : result.Mode;
-        var suggestion = BuildNextCycleSuggestionForSingleRun(executionOptions, result.Mode.Contains("時間切れ", StringComparison.Ordinal), qualityPlayerRows.Count);
+        var suggestion = BuildNextCycleSuggestionForSingleRun(input, executionOptions, result.Mode.Contains("時間切れ", StringComparison.Ordinal), qualityPlayerRows.Count);
         return new TournamentQualityReportRun(qualityPlayerRows, qualitySummary, calculationMode, suggestion);
     }
 
     static TournamentQualityNextCycleSuggestion BuildNextCycleSuggestionForSweep(
+        TournamentQualityEvaluationInput input,
         TournamentQualityEvaluationExecutionOptions executionOptions,
         int completedPointCount,
         bool stoppedByTimeout)
     {
+        var participantCount = input.Participants.Count;
+        var matchCount = input.Matches.Count;
         var start = executionOptions.SweepOptions.StartPercent;
         var end = executionOptions.SweepOptions.EndPercent;
         var step = executionOptions.SweepOptions.StepPercent;
         var currentPointCount = Math.Max(1, (int)Math.Floor((end - start) / step) + 1);
         var completionRate = Math.Clamp((double)completedPointCount / currentPointCount, 0.0, 1.0);
         var width = Math.Max(step, end - start);
+        var workloadScore = CalculateWorkloadScore(participantCount, matchCount, executionOptions.SimulationCount, currentPointCount);
+        var workloadScale = workloadScore switch
+        {
+            >= 200_000_000 => 0.60,
+            >= 50_000_000 => 0.75,
+            >= 10_000_000 => 0.90,
+            _ => 1.00,
+        };
         var widthScale = stoppedByTimeout
             ? completionRate switch
             {
@@ -145,7 +156,7 @@ internal static partial class Program
                 <= 0.70 => 0.60,
                 _ => 0.80,
             }
-            : 1.10;
+            : 1.10 * workloadScale;
         var stepScale = stoppedByTimeout
             ? completionRate switch
             {
@@ -154,14 +165,22 @@ internal static partial class Program
                 <= 0.70 => 2.0,
                 _ => 1.5,
             }
-            : 1.0;
+            : workloadScale < 1.0 ? 1.5 : 1.0;
         var suggestedEnd = Math.Min(100.0, start + Math.Max(step, width * widthScale));
         var suggestedStep = Math.Max(step, Math.Ceiling(step * stepScale));
+        var suggestedStart = completionRate <= 0.40
+            ? start
+            : Math.Max(start, suggestedEnd - Math.Max(suggestedStep * 2.0, Math.Ceiling(width * 0.30)));
+        var pinpointPercent = Math.Round(Math.Min(suggestedEnd, suggestedStart + (suggestedEnd - suggestedStart) / 2.0), 2);
+        var focusStart = Math.Round(Math.Max(start, pinpointPercent - suggestedStep), 2);
+        var focusEnd = Math.Round(Math.Min(end, pinpointPercent + suggestedStep), 2);
         var suggestedSettings = new List<string>
         {
-            $"開始する先手勝率(%) = {start.ToString("F2", CultureInfo.InvariantCulture)}",
+            $"開始する先手勝率(%) = {suggestedStart.ToString("F2", CultureInfo.InvariantCulture)}",
             $"終了する先手勝率(%) = {suggestedEnd.ToString("F2", CultureInfo.InvariantCulture)}",
-            $"刻み幅(%) = {suggestedStep.ToString("F2", CultureInfo.InvariantCulture)}"
+            $"刻み幅(%) = {suggestedStep.ToString("F2", CultureInfo.InvariantCulture)}",
+            $"ピンポイント確認候補(%) = {pinpointPercent.ToString("F2", CultureInfo.InvariantCulture)}",
+            $"再探索するなら範囲(%) = {focusStart.ToString("F2", CultureInfo.InvariantCulture)} ～ {focusEnd.ToString("F2", CultureInfo.InvariantCulture)}"
         };
 
         if (stoppedByTimeout)
@@ -170,22 +189,33 @@ internal static partial class Program
             suggestedSettings.Add($"目安の評価点数 = {targetPointCount}");
         }
 
+        if (workloadScore >= 10_000_000)
+        {
+            suggestedSettings.Add($"軽量確認の目安 = 選手 {participantCount} 人 / 対局 {matchCount} 件なので、まず 1 点または 3 点だけ確認");
+        }
+
         var reason = stoppedByTimeout
-            ? $"今回の計算点数は {completedPointCount}/{currentPointCount} 件（完了率 {(completionRate * 100.0).ToString("F0", CultureInfo.InvariantCulture)}%）だったので、完了率に応じて範囲と刻み幅を自動調整した案です。"
-            : "今回の範囲で最後まで回せたので、同条件を基準に少しずつ広げられます。";
+            ? $"今回の計算点数は {completedPointCount}/{currentPointCount} 件（完了率 {(completionRate * 100.0).ToString("F0", CultureInfo.InvariantCulture)}%）で、選手数 {participantCount} 人・対局数 {matchCount} 件の負荷を見て、範囲縮小とピンポイント確認を組み合わせた案です。"
+            : $"今回の範囲は完走できました。選手数 {participantCount} 人・対局数 {matchCount} 件なので、まず中央一点 {pinpointPercent.ToString("F2", CultureInfo.InvariantCulture)}% を基準に比較し、必要なら狭い範囲へ広げられます。";
 
         return new TournamentQualityNextCycleSuggestion("次回の n%スイープ提案", suggestedSettings, reason);
     }
 
     static TournamentQualityNextCycleSuggestion BuildNextCycleSuggestionForSingleRun(
+        TournamentQualityEvaluationInput input,
         TournamentQualityEvaluationExecutionOptions executionOptions,
         bool stoppedByTimeout,
         int completedPlayerRowCount)
     {
+        var participantCount = input.Participants.Count;
+        var matchCount = input.Matches.Count;
+        var workloadScore = CalculateWorkloadScore(participantCount, matchCount, executionOptions.SimulationCount, 1);
         var suggestedSettings = new List<string>();
         if (executionOptions.FirstPlayerWinRatePercent.HasValue)
         {
-            suggestedSettings.Add($"同Elo対局時の先手勝率(%) = {executionOptions.FirstPlayerWinRatePercent.Value.ToString("F2", CultureInfo.InvariantCulture)}");
+            var currentPercent = executionOptions.FirstPlayerWinRatePercent.Value;
+            suggestedSettings.Add($"同Elo対局時の先手勝率(%) = {currentPercent.ToString("F2", CultureInfo.InvariantCulture)}");
+            suggestedSettings.Add($"ピンポイント比較候補(%) = {Math.Round(currentPercent + 1.0, 2).ToString("F2", CultureInfo.InvariantCulture)}");
         }
 
         if (executionOptions.SimulationCount.HasValue)
@@ -201,11 +231,21 @@ internal static partial class Program
                 }
                 : Math.Max(1_000, currentSimulationCount / 2);
             suggestedSettings.Add($"シミュレーション試行回数 = {suggestedSimulationCount:N0}");
+            if (workloadScore >= 10_000_000)
+            {
+                var pinpointSimulationCount = Math.Max(1_000, suggestedSimulationCount / 2);
+                suggestedSettings.Add($"まず一点だけ見る試行回数 = {pinpointSimulationCount:N0}");
+            }
             if (stoppedByTimeout)
             {
                 var quickTrialSimulationCount = Math.Max(1_000, suggestedSimulationCount / 2);
                 suggestedSettings.Add($"さらに様子見するなら試行回数 = {quickTrialSimulationCount:N0}");
             }
+        }
+
+        if (participantCount >= 16 || matchCount >= 40)
+        {
+            suggestedSettings.Add($"軽量確認の見方 = 選手 {participantCount} 人 / 対局 {matchCount} 件では、先に 1 条件だけ再確認してから横比較");
         }
 
         if (suggestedSettings.Count == 0)
@@ -214,10 +254,23 @@ internal static partial class Program
         }
 
         var reason = stoppedByTimeout
-            ? $"今回の品質評価は時間切れになったので、現在の試行回数帯に合わせて一段階ずつ下げる案です。取得できた選手行数は {completedPlayerRowCount} 件です。"
-            : "今回の条件で回せたので、同条件を基準に比較を続けられます。";
+            ? $"今回の品質評価は時間切れになりました。選手数 {participantCount} 人・対局数 {matchCount} 件の負荷を見て、まず一点確認しやすい試行回数まで落とす案です。取得できた選手行数は {completedPlayerRowCount} 件です。"
+            : $"今回の条件で回せました。選手数 {participantCount} 人・対局数 {matchCount} 件なので、現条件とピンポイント候補を並べて比較できます。";
 
         return new TournamentQualityNextCycleSuggestion("次回の品質評価提案", suggestedSettings, reason);
+    }
+
+    static long CalculateWorkloadScore(
+        int participantCount,
+        int matchCount,
+        int? simulationCount,
+        int evaluationPointCount)
+    {
+        var simulationFactor = simulationCount ?? 1;
+        return (long)Math.Max(1, participantCount)
+            * Math.Max(1, matchCount)
+            * Math.Max(1, simulationFactor)
+            * Math.Max(1, evaluationPointCount);
     }
 
     /// <summary>
