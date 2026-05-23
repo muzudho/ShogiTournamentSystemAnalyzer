@@ -18,6 +18,8 @@ internal static partial class Program
 
         void Explore(int matchIndex, double scenarioProbability)
         {
+            if (!SimulationTimeBudget.HasApplicationTimeRemaining()) throw new OperationCanceledException($"プログラム開始から {SimulationTimeBudget.ApplicationTimeLimit.TotalMinutes:F0} 分を超えたため、厳密計算を打ち切りました。");
+
             if (matchIndex == matches.Count)
             {
                 if (tournamentRuleSetMode == TournamentRuleSetMode.Twill)
@@ -99,6 +101,12 @@ internal static partial class Program
 
             for (var matchIndex = 0; matchIndex < matches.Count; matchIndex++)
             {
+                if (!SimulationTimeBudget.HasApplicationTimeRemaining())
+                {
+                    simulation = simulationCount;
+                    break;
+                }
+
                 var match = matches[matchIndex];
                 var firstPlayerWinProbability = SimulationRatingMath.GetWinProbability(players[match.FirstPlayer], players[match.SecondPlayer], firstPlayerWinRateRating);
                 if (Random.Shared.NextDouble() < firstPlayerWinProbability)
@@ -124,6 +132,8 @@ internal static partial class Program
                     }
                 }
             }
+
+            if (!SimulationTimeBudget.HasApplicationTimeRemaining()) break;
 
             if (tournamentRuleSetMode == TournamentRuleSetMode.Twill)
             {

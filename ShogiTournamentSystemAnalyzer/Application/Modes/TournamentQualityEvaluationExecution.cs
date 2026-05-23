@@ -52,6 +52,12 @@ internal static partial class Program
         var stoppedByTimeout = false;
         for (var firstPlayerWinRatePercent = executionOptions.SweepOptions.StartPercent; firstPlayerWinRatePercent <= executionOptions.SweepOptions.EndPercent + 1e-9; firstPlayerWinRatePercent += executionOptions.SweepOptions.StepPercent)
         {
+            if (!SimulationTimeBudget.HasApplicationTimeRemaining())
+            {
+                stoppedByTimeout = true;
+                break;
+            }
+
             var qualityEvaluationRun = ExecuteTournamentQualityEvaluationRun(
                 input,
                 ruleDefinition,

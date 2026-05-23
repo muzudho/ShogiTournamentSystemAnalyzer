@@ -3,6 +3,7 @@
  */
 namespace ShogiTournamentSystemAnalyzer;
 
+using ShogiTournamentSystemAnalyzer.Application.Execution;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using System.Globalization;
 using System.Text;
@@ -30,6 +31,8 @@ internal static partial class Program
 
         try
         {
+            SimulationTimeBudget.BeginApplicationBudget();
+
             // このプログラムの説明を最初にするぜ（＾▽＾）！
             Console.WriteLine("このプログラムは、２人用ゲーム大会（例えば将棋）の大会ルールをいくつか選び、コンピューター上で模擬戦し、その結果を比較して、より良いルール作りを目指すツールだぜ（＾▽＾）！\n");
 

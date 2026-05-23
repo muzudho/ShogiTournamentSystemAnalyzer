@@ -3,6 +3,7 @@
  */
 namespace ShogiTournamentSystemAnalyzer;
 
+using ShogiTournamentSystemAnalyzer.Application.Execution;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using System.Globalization;
 
@@ -24,6 +25,7 @@ internal static class ConsolePromptReaders
         var attempt = 0;
         while (true)
         {
+            SimulationTimeBudget.ThrowIfApplicationTimeExpired("目的選択");
             attempt++;
             Console.Write("番号を入力してください [1]: ");
             var input = Console.ReadLine()?.Trim();
@@ -62,6 +64,7 @@ internal static class ConsolePromptReaders
         var attempt = 0;
         while (true)
         {
+            SimulationTimeBudget.ThrowIfApplicationTimeExpired("対象ルール選択");
             attempt++;
             Console.Write("番号を入力してください [1]: ");
             var input = Console.ReadLine()?.Trim();
@@ -111,6 +114,7 @@ internal static class ConsolePromptReaders
         var attempt = 0;
         while (true)
         {
+            SimulationTimeBudget.ThrowIfApplicationTimeExpired("整数入力");
             Console.Write(prompt);
             var input = Console.ReadLine()?.Trim();
             if (input is null) throw new OperationCanceledException("整数入力中に入力ストリームが終了しました。");
@@ -131,6 +135,7 @@ internal static class ConsolePromptReaders
         var attempt = 0;
         while (true)
         {
+            SimulationTimeBudget.ThrowIfApplicationTimeExpired("数値入力");
             Console.Write(prompt);
             var input = Console.ReadLine()?.Trim();
             if (input is null) throw new OperationCanceledException("数値入力中に入力ストリームが終了しました。");

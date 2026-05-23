@@ -18,6 +18,8 @@ internal static partial class Program
 
         void Explore(int matchIndex, double scenarioProbability)
         {
+            if (!SimulationTimeBudget.HasApplicationTimeRemaining()) throw new OperationCanceledException($"プログラム開始から {SimulationTimeBudget.ApplicationTimeLimit.TotalMinutes:F0} 分を超えたため、本戦専用厳密計算を打ち切りました。");
+
             if (matchIndex == matches.Count)
             {
                 AccumulateFinalStagePlaceProbabilities(wins, players, apexPlayerIndexes, innovPlayerIndexes, additionalApexCount, boundaryRescueMode, firstPlayerWinRateRating, scenarioProbability, placeProbabilities, promotedInnovCount);
@@ -56,6 +58,12 @@ internal static partial class Program
 
             foreach (var match in matches)
             {
+                if (!SimulationTimeBudget.HasApplicationTimeRemaining())
+                {
+                    simulation = simulationCount;
+                    break;
+                }
+
                 var firstPlayerWinProbability = SimulationRatingMath.GetWinProbability(players[match.FirstPlayer], players[match.SecondPlayer], firstPlayerWinRateRating);
                 if (Random.Shared.NextDouble() < firstPlayerWinProbability)
                 {
@@ -66,6 +74,8 @@ internal static partial class Program
                     wins[match.SecondPlayer]++;
                 }
             }
+
+            if (!SimulationTimeBudget.HasApplicationTimeRemaining()) break;
 
             AccumulateFinalStagePlaceProbabilities(wins, players, apexPlayerIndexes, innovPlayerIndexes, additionalApexCount, boundaryRescueMode, firstPlayerWinRateRating, 1.0, placeProbabilities, promotedInnovCount);
             completedSimulationCount++;

@@ -3,6 +3,7 @@
  */
 namespace ShogiTournamentSystemAnalyzer;
 
+using ShogiTournamentSystemAnalyzer.Application.Execution;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
@@ -14,6 +15,7 @@ internal static class ConsoleInputReaders
         var attempt = 0;
         while (true)
         {
+            SimulationTimeBudget.ThrowIfApplicationTimeExpired("参考対局入力");
             attempt++;
             Console.WriteLine($"\n{prompt} 入力終了は END 行です。空のまま END で省略できます。\n");
 
@@ -50,6 +52,7 @@ internal static class ConsoleInputReaders
         var attempt = 0;
         while (true)
         {
+            SimulationTimeBudget.ThrowIfApplicationTimeExpired("実験レポートの Good / Bad 分離");
             attempt++;
             Console.Write("モード番号を入力してください [1]: ");
             var input = Console.ReadLine()?.Trim();
@@ -75,6 +78,7 @@ internal static class ConsoleInputReaders
 
     static string ReadOptionalEvaluationMemo()
     {
+        SimulationTimeBudget.ThrowIfApplicationTimeExpired("評価メモ入力");
         Console.Write("評価メモを1行で入力してください（省略可）: ");
         var input = Console.ReadLine();
         if (input is null) throw new OperationCanceledException("評価メモ入力中に入力ストリームが終了しました。");
@@ -92,6 +96,7 @@ internal static class ConsoleInputReaders
         var attempt = 0;
         while (true)
         {
+            SimulationTimeBudget.ThrowIfApplicationTimeExpired("実験レポート評価");
             attempt++;
             Console.Write("評価番号を入力してください [1]: ");
             var input = Console.ReadLine()?.Trim();
@@ -118,6 +123,7 @@ internal static class ConsoleInputReaders
         var attempt = 0;
         while (true)
         {
+            SimulationTimeBudget.ThrowIfApplicationTimeExpired("グループ対応CSV入力");
             attempt++;
             Console.WriteLine("グループ対応CSVを貼り付けてください。入力終了は空行です。\n");
             ConsoleSamplePrinter.PrintFinalStageGroupCsvExample();
@@ -152,6 +158,7 @@ internal static class ConsoleInputReaders
         var attempt = 0;
         while (true)
         {
+            SimulationTimeBudget.ThrowIfApplicationTimeExpired("選手一覧CSV入力");
             attempt++;
             Console.WriteLine($"{prompt} 入力終了は空行です。空のまま Enter で省略できます。\n");
             ConsoleSamplePrinter.PrintOptionalPlayersCsvExample();
@@ -180,6 +187,7 @@ internal static class ConsoleInputReaders
         var attempt = 0;
         while (true)
         {
+            SimulationTimeBudget.ThrowIfApplicationTimeExpired("選手一覧CSV入力");
             attempt++;
             Console.WriteLine("選手一覧CSVを貼り付けてください。入力終了は空行です。\n");
             ConsoleSamplePrinter.PrintPlayersCsvExample();
@@ -219,6 +227,7 @@ internal static class ConsoleInputReaders
         var attempt = 0;
         while (true)
         {
+            SimulationTimeBudget.ThrowIfApplicationTimeExpired("対局入力");
             attempt++;
             Console.WriteLine("\n対局CSVまたは Round/Black-White/対局記号表を貼り付けてください。入力終了は END 行です。\n");
             ConsoleSamplePrinter.PrintMatchesCsvExample();
@@ -259,6 +268,7 @@ internal static class ConsoleInputReaders
         var attempt = 0;
         while (true)
         {
+            SimulationTimeBudget.ThrowIfApplicationTimeExpired("ファイルパス入力");
             attempt++;
             Console.Write(prompt);
             var input = Console.ReadLine()?.Trim();
@@ -279,6 +289,7 @@ internal static class ConsoleInputReaders
 
     internal static string? ReadOptionalFilePath(string prompt)
     {
+        SimulationTimeBudget.ThrowIfApplicationTimeExpired("ファイルパス入力");
         Console.Write(prompt);
         var input = Console.ReadLine()?.Trim();
         Console.WriteLine();
@@ -290,6 +301,7 @@ internal static class ConsoleInputReaders
         var attempt = 0;
         while (true)
         {
+            SimulationTimeBudget.ThrowIfApplicationTimeExpired("整数入力");
             attempt++;
             Console.Write(prompt);
             var input = Console.ReadLine()?.Trim();

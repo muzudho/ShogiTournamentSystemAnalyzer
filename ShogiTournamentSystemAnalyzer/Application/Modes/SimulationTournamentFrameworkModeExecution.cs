@@ -311,6 +311,8 @@ internal static partial class Program
 
         void Explore(int matchIndex, double scenarioProbability)
         {
+            if (!SimulationTimeBudget.HasApplicationTimeRemaining()) throw new OperationCanceledException($"プログラム開始から {SimulationTimeBudget.ApplicationTimeLimit.TotalMinutes:F0} 分を超えたため、大会進行フレームワーク厳密計算を打ち切りました。");
+
             if (matchIndex == matches.Length)
             {
                 var finalState = initialState with
