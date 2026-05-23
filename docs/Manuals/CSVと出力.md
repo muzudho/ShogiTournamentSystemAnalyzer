@@ -91,6 +91,7 @@ END
   - `eloDelta`
 
 フォルダーパスを指定した場合は、その中に自動ファイル名で結果CSVを作成します。
+既定では `Output/Ranking/FinalRanking` に出力します。
 
 ## 結果Markdown
 通常モードや本戦専用モードでは、結果CSVと同じ場所に Markdown レポートも出力します。
@@ -98,9 +99,13 @@ END
 - 通常モードでは、優勝確率と平均順位を見やすい表でまとめます
 - 本戦モードでは、グループ情報、グループ1位確率、総合1位確率も含めてまとめます
 - 出力先は結果CSVと同名で、拡張子だけ `.md` になります
+- 既定では結果CSVと同じく `Output/Ranking/FinalRanking` に出力します
 
 ## 大会進行フレームワークの出力
 大会進行フレームワークでは、通常の結果表に加えて、代表実行 1 件ぶんの大会最終状態テーブルも出力します。
+
+- aggregate 結果と representative 順位表の既定出力先は `Output/Ranking/FinalRanking`
+- representative 大会最終状態の既定出力先は `Output/Simulation/TournamentFinalState`
 
 ### aggregate 結果
 - `tournament_framework_aggregate_result_*.csv`
@@ -145,6 +150,7 @@ END
 - 総ペアリング数は `0` です
 - 大会最終状態件数は `0` です
 - 大会最終状態テーブルも 0 件のまま出力されます
+- 既定では結果は `Output/Ranking/FinalRanking`、大会最終状態は `Output/Simulation/TournamentFinalState` に出力します
 
 ## 品質評価CSV
 品質評価モードでは、次の 2 種類の CSV を出力します。
@@ -157,6 +163,7 @@ END
 - `mostPenalizedPlayerDelta`
 - `mostAdvantagedPlayerDelta`
 - 必要に応じて `evaluationMemo`
+- 既定出力先は `Output/TournamentQualityEvaluator/TournamentQualityReport/Summary`
 
 ### 選手別CSV
 - `playerName`
@@ -167,6 +174,7 @@ END
 - `overallPlaceDeltaFromEloRank`
 - `overallTop1ProbabilityPercent`
 - `overallTop8ProbabilityPercent`
+- 既定出力先は `Output/TournamentQualityEvaluator/TournamentQualityReport/Players`
 
 ## 品質評価Markdownレポート
 品質評価モードでは、CSV に加えて人が読みやすい Markdown レポートも出力します。
@@ -185,6 +193,7 @@ END
   - 各評価点の一覧表
   - 最良点の要約
   - Mermaid による推移図
+- 既定出力先は `Output/TournamentQualityEvaluator/TournamentQualityReport/Sweeps`
 
 ## 実効Eloとは
 実効Eloは、対戦相手構成と黒白割り当てを含めた期待勝率を、色補正なしの通常 Elo 戦に置き換えたときのレーティング相当値です。

@@ -26,12 +26,12 @@ internal static partial class Program
         Console.WriteLine($"総ペアリング数: {pairingCount}");
         Console.WriteLine($"大会最終状態件数: {tournamentMatchRecordCount}\n");
 
-        var defaultOutputCsvPath = Path.GetFullPath($"empty_rule_result_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
+        var defaultOutputCsvPath = ReportOutputPathBuilder.BuildFinalRankingDefaultOutputPath($"empty_rule_result_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
         var outputCsvPath = CsvOutputHelpers.ResolveOutputCsvPath(ConsolePromptReaders.ReadTextWithDefault(
             $"空ルール結果CSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
             defaultOutputCsvPath));
         var outputMarkdownPath = CsvOutputHelpers.ChangeOutputExtension(outputCsvPath, ".md");
-        var tournamentMatchRecordsCsvPath = CsvOutputHelpers.BuildSiblingOutputCsvPath(outputCsvPath, "tournament_match_records_empty");
+        var tournamentMatchRecordsCsvPath = ReportOutputPathBuilder.BuildTournamentFinalStateDefaultOutputPath($"tournament_match_records_empty_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
         var tournamentMatchRecordsMarkdownPath = CsvOutputHelpers.ChangeOutputExtension(tournamentMatchRecordsCsvPath, ".md");
 
         WriterHelper.WriteText(
