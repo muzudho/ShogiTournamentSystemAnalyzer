@@ -4,6 +4,7 @@
 namespace ShogiTournamentSystemAnalyzer;
 
 using ShogiTournamentSystemAnalyzer.Application.Helpers;
+using ShogiTournamentSystemAnalyzer.Application.Validation;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
@@ -24,7 +25,7 @@ internal static partial class Program
         var tournamentRuleSetMode = TournamentRuleSetMode.Neutral;
         var groupMap = ModeSupportHelpers.ReadOptionalFinalStageGroupMap(groupingMode, participants);
         string errorMessage;
-        var participantsAreValid = ValidateFinalStageParticipants(participants, groupMap!, out errorMessage);
+        var participantsAreValid = FinalStageValidators.ValidateFinalStageParticipants(participants, groupMap!, out errorMessage);
         if (!participantsAreValid)
         {
             Console.WriteLine($"本戦参加者の検証に失敗しました: {errorMessage}\n");
@@ -40,7 +41,7 @@ internal static partial class Program
         {
             Console.WriteLine();
             additionalApexParticipants = ConsoleInputReaders.ReadOptionalPlayersFromCsv("本戦不出場Apex一覧CSVを貼り付けてください。");
-            if (!ValidateAdditionalApexParticipants(participants, groupMap!, additionalApexParticipants, out errorMessage))
+            if (!FinalStageValidators.ValidateAdditionalApexParticipants(participants, groupMap!, additionalApexParticipants, out errorMessage))
             {
                 Console.WriteLine($"本戦不出場Apex一覧の検証に失敗しました: {errorMessage}\n");
                 context = default;
@@ -62,7 +63,7 @@ internal static partial class Program
         Console.WriteLine("本戦参加者の入力を受け付けました。\n");
 
         var matches = ConsoleInputReaders.ReadMatchesFromCsv(participants);
-        var matchesAreValid = ValidateFinalStageMatches(participants, groupMap!, matches, out errorMessage);
+        var matchesAreValid = FinalStageValidators.ValidateFinalStageMatches(participants, groupMap!, matches, out errorMessage);
         if (!matchesAreValid)
         {
             Console.WriteLine($"本戦対局の検証に失敗しました: {errorMessage}\n");

@@ -4,6 +4,7 @@
 namespace ShogiTournamentSystemAnalyzer;
 
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
+using ShogiTournamentSystemAnalyzer.Infrastructure.Parsing;
 
 internal static partial class Program
 {
@@ -88,7 +89,7 @@ internal static partial class Program
         if (!line.StartsWith("Stage(", StringComparison.OrdinalIgnoreCase) || !line.EndsWith(')')) throw new OperationCanceledException($"DSL の Stage 行が不正です: {line} ({sourceLabel})");
 
         var inner = line[6..^1];
-        var columns = SplitCsvLine(inner);
+        var columns = InputParsers.SplitCsvLine(inner);
         if (columns.Count < 3) throw new OperationCanceledException($"DSL の Stage 行は 3 項目以上必要です: {line} ({sourceLabel})");
 
         if (!int.TryParse(columns[0].Trim(), out var stageId)) throw new OperationCanceledException($"DSL の Stage id を整数で入力してください: {line} ({sourceLabel})");

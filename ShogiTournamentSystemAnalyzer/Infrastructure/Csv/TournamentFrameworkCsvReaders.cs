@@ -62,7 +62,7 @@ internal static partial class Program
         if (lines.Count == 0) { errorMessage = "ステージ入力がありません。"; return false; }
 
         var startIndex = 0;
-        var firstColumns = SplitCsvLine(lines[0]);
+        var firstColumns = InputParsers.SplitCsvLine(lines[0]);
         if (LooksLikeStageEntryHeaderRow(firstColumns))
         {
             startIndex = 1;
@@ -70,7 +70,7 @@ internal static partial class Program
 
         for (var i = startIndex; i < lines.Count; i++)
         {
-            var columns = SplitCsvLine(lines[i]);
+            var columns = InputParsers.SplitCsvLine(lines[i]);
             // 👓　列数の確認
             if (columns.Count < 5) { errorMessage = $"{i + 1} 行目は 5 列以上必要です。"; return false; }
             // 👓　［ステージＩｄ］の型確認
@@ -110,7 +110,7 @@ internal static partial class Program
         if (lines.Count == 0) { errorMessage = "対局記録入力がありません。"; return false; }
 
         var startIndex = 0;
-        var firstColumns = SplitCsvLine(lines[0]);
+        var firstColumns = InputParsers.SplitCsvLine(lines[0]);
         if (LooksLikeTournamentMatchRecordHeaderRow(firstColumns))
         {
             startIndex = 1;
@@ -118,7 +118,7 @@ internal static partial class Program
 
         for (var i = startIndex; i < lines.Count; i++)
         {
-            var columns = SplitCsvLine(lines[i]);
+            var columns = InputParsers.SplitCsvLine(lines[i]);
             // 👓　列数の確認
             if (columns.Count < 9) { errorMessage = $"{i + 1} 行目は 9 列以上必要です。"; return false; }
 

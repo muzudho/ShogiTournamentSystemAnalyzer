@@ -5,6 +5,7 @@ namespace ShogiTournamentSystemAnalyzer;
 
 using ShogiTournamentSystemAnalyzer.Application.Execution;
 using ShogiTournamentSystemAnalyzer.Application.Helpers;
+using ShogiTournamentSystemAnalyzer.Application.Validation;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
@@ -76,8 +77,8 @@ internal static partial class Program
             : null;
 
         var playersAreValid = groupingMode == FinalStageGroupingMode.On
-            ? ValidateFinalStageParticipants(players, groupMap!, out var errorMessage)
-            : ValidateFinalStageParticipants(players, out errorMessage);
+            ? FinalStageValidators.ValidateFinalStageParticipants(players, groupMap!, out var errorMessage)
+            : FinalStageValidators.ValidateFinalStageParticipants(players, out errorMessage);
         if (!playersAreValid)
         {
             var targetLabel = groupingMode == FinalStageGroupingMode.On ? "本戦選手" : "選手一覧";
@@ -96,7 +97,7 @@ internal static partial class Program
         {
             Console.WriteLine();
             additionalApexPlayers = ConsoleInputReaders.ReadOptionalPlayersFromCsv("本戦不出場Apex一覧CSVを貼り付けてください。");
-            if (!ValidateAdditionalApexParticipants(players, groupMap!, additionalApexPlayers, out errorMessage))
+            if (!FinalStageValidators.ValidateAdditionalApexParticipants(players, groupMap!, additionalApexPlayers, out errorMessage))
             {
                 Console.WriteLine($"本戦不出場Apex一覧の検証に失敗しました: {errorMessage}\n");
                 ruleDefinition = default;
@@ -134,8 +135,8 @@ internal static partial class Program
     {
         var matches = ConsoleInputReaders.ReadMatchesFromCsv(players);
         var matchesAreValid = ruleDefinition.UsesFinalStageGrouping
-            ? ValidateFinalStageMatches(players, ruleDefinition.GroupMap!, matches, out var errorMessage)
-            : ValidateFinalStageMatches(players, matches, out errorMessage);
+            ? FinalStageValidators.ValidateFinalStageMatches(players, ruleDefinition.GroupMap!, matches, out var errorMessage)
+            : FinalStageValidators.ValidateFinalStageMatches(players, matches, out errorMessage);
         if (!matchesAreValid)
         {
             var matchLabel = ruleDefinition.UsesFinalStageGrouping ? "本戦対局" : "対局";
