@@ -3,6 +3,7 @@
  */
 namespace ShogiTournamentSystemAnalyzer;
 
+using ShogiTournamentSystemAnalyzer.Application.Execution;
 using ShogiTournamentSystemAnalyzer.Application.Helpers;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
@@ -52,7 +53,7 @@ internal static partial class Program
         ConsoleResultPrinter.PrintTournamentQualityReportPlayerHighlights(tournamentQualityReportData);
         if (tournamentQualityReportData.CalculationMode.Contains("時間切れ", StringComparison.Ordinal))
         {
-            Console.WriteLine($"シミュレーションは時間上限 {Program.SimulationTimeLimit.TotalMinutes:F0} 分で打ち切りました。\n");
+            Console.WriteLine($"シミュレーションは時間上限 {SimulationTimeBudget.SimulationTimeLimit.TotalMinutes:F0} 分で打ち切りました。\n");
         }
 
         var outputOptions = ReadTournamentQualityReportOutputOptions(ruleDefinition);
