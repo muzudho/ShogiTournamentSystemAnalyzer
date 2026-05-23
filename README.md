@@ -1,231 +1,162 @@
-# ShogiTournamentSystemAnalyzer
+﻿# ShogiTournamentSystemAnalyzer
 
-将棋大会の［大会ルール］を入力し、シミュレーションや品質評価で比較するための .NET コンソールアプリです。  
+将棋大会の大会ルールを入力し、対局シミュレーションと品質評価で比べるための .NET コンソールアプリです。  
+予選・本戦を含む大会システム全体を対象に、ルールの部品を試しながら、現在の基準より良い大会ルールを反復的に作っていくことを目的にしています。
 
-対局表と選手の強さを与えると、順位分布や実力反映性を計算できます。  
-黒番有利なゲームを想定しており、黒番・白番の偏りや、対局表による有利不利も確認できます。  
+この README は、最初の 1 回を通すための入口です。  
+重い背景説明や用語の詳細は `docs/Manuals` に分けています。
 
-この README は**最初の 1 回を通すための入口**に絞り、詳細説明は `docs/Manuals` に分けています。  
+## まずここだけ見ればよい
 
-## このツールでできること
-
-- 大会ルールの案を、シミュレーションで比較できる
-- 現在の最高品質を基準にして、新しい案が良いか悪いかを見られる
-- 対局表の偏りや、順位ルールの違いが結果にどう効くか確認できる
-- 1 回の評価だけでなく、条件を変えながら繰り返し試せる
-
-
-## こんな人に向いています
-
-- 大会制度を改善したい人
-- 「公平そう」に見えるルールを、数値で確かめたい人
-- 予選・本戦を含む大会システム全体を試行錯誤したい人
-- ルールの部品を差し替えながら、少しずつ品質を上げたい人
-
-
-## 主な機能
-
-- 対局シミュレーション / 通常ルール（総当たり戦分析）
-- 対局シミュレーション / 本戦ルール（Apex / Innov 定先戦分析）
-- 対局シミュレーション / 空ルール（ペアリング0回・大会最終状態0件の確認）
-- 品質評価 / 通常ルール（総当たり戦向けルールの実力反映性評価）
-- 品質評価 / 本戦ルール（本戦ルールの実力反映性評価）
-- ルールセットの切り替えによる比較
-
-### 細かな機能
-- 起動時の目的選択とルール選択
-- 順位ルールセット選択
-  - `Neutral`（勝ち数ベースのニュートラル順位）
-  - `Twill`（ツイル式トーナメント）
-- 対局CSV入力
-- `Round / Black/White / 対局記号表` からの対局CSV自動生成
-- 少ない対局数では厳密計算、多い対局数ではシミュレーション
-- 結果のコンソール表示、CSV 出力、Markdown レポート出力
-
-
-## クイックスタート
-Visual Studio から実行するか、プロジェクトディレクトリーで次を実行します。
+### 1. 起動方法
+Visual Studio から実行するか、プロジェクト ルートで次を実行します。
 
 ```powershell
 dotnet run --project .\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyzer.csproj
 ```
 
-起動後は、まず目的を選び、その後に対象ルールを選びます。
+入力ファイルで流すときは次です。
 
-- 目的
-  - `1`: 対局シミュレーション
-  - `2`: 品質評価
-- 対象ルール
-  - `1`: 通常ルール
-  - `2`: 本戦ルール
-  - `4`: 空ルール
+```powershell
+dotnet run --project .\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyzer.csproj -- --input-file .\ShogiTournamentSystemAnalyzer\Data\Inputs\Bench\quality_input_[黒8x白8].txt
+```
 
-> [!NOTE]
-> 入力ミスで止まらなくならないよう、主要な入力の再試行は 10 回で打ち切り、中断メッセージを表示します。
+### 2. 大会ルールの入力方法
+このツールは、1 枚の設定画面に全部書く方式ではなく、起動後の選択肢を順に選んで大会ルールを組み立てます。
 
-## 最初に知りたい：大会ルールの入力方法
-このツールでは、**大会ルールを最初から 1 枚の設定画面でまとめて入力するのではなく、起動後の選択肢を順に選んでいく**形で入力します。
-
-基本の流れは次の通りです。
+基本の流れ:
 
 1. 目的を選ぶ
    - `1`: 対局シミュレーション
    - `2`: 品質評価
-2. 対象ルールを選ぶ
+2. ルール種別を選ぶ
    - `1`: 通常ルール
    - `2`: 本戦ルール
    - `4`: 空ルール
 3. そのモードで必要な大会ルールの部品を入力する
 4. 選手一覧、対局表、必要に応じて参考対局や試行回数を入力する
-5. 結果をコンソール / CSV / Markdown で確認する
+5. 結果をコンソール、CSV、Markdown で確認する
 
-### 空ルールの入力
-空ルールでは、対局を 1 件も組みません。
+モードごとの詳しい入力順は [モード別ガイド](./docs/Manuals/モード別ガイド.md) を参照してください。
 
-- ペアリング回数は `0`
-- 大会最終状態件数は `0`
-- 入力するのは結果CSVの出力先だけです
+> [!NOTE]
+> 入力ミスで止まらなくならないよう、主要な入力の再試行は 10 回で打ち切り、中断メッセージを表示します。
 
-つまり空ルールは、**出力形式や最小動作確認のための空ケース**です。
+### 3. 出力先
+既定の出力先は `Output` 配下に整理されています。
 
-### 通常ルールの入力
-通常ルールでは、最初に**順位ルールセット**を選びます。
+- 順位表、通常結果、本戦結果
+  - `ShogiTournamentSystemAnalyzer/Output/Ranking/FinalRanking`
+- 大会最終状態、代表実行の対局記録
+  - `ShogiTournamentSystemAnalyzer/Output/Simulation/TournamentFinalState`
+- 品質評価レポート
+  - `ShogiTournamentSystemAnalyzer/Output/TournamentQualityEvaluator/TournamentQualityReport/Summary`
+  - `ShogiTournamentSystemAnalyzer/Output/TournamentQualityEvaluator/TournamentQualityReport/Players`
+  - `ShogiTournamentSystemAnalyzer/Output/TournamentQualityEvaluator/TournamentQualityReport/Sweeps`
+
+出力内容の読み方は [CSVと出力](./docs/Manuals/CSVと出力.md) を参照してください。
+
+## このツールでできること
+
+- 大会ルールの案を、対局シミュレーションで比べる
+- 品質評価で、現在の基準より良いか悪いかを見る
+- 黒番 / 白番の偏りや、対局表の有利不利を確認する
+- 予選・本戦を含む大会制度全体を試行錯誤する
+- 条件を変えながら実験を繰り返し、より良い大会ルールへ寄せる
+
+## 主なモード
+
+- 対局シミュレーション / 通常ルール
+  - 総当たり戦などの順位分布を確認する
+- 対局シミュレーション / 本戦ルール
+  - Apex / Innov や本戦補助ルールを含む大会制度を確認する
+- 対局シミュレーション / 空ルール
+  - ペアリング 0 回、大会最終状態 0 件の最小動作を確認する
+- 品質評価 / 通常ルール
+  - 通常ルールの実力反映性を評価する
+- 品質評価 / 本戦ルール
+  - 本戦ルールの実力反映性を評価する
+
+## 最初に知りたい入力の考え方
+
+### 通常ルール
+最初に順位ルールセットを選びます。
 
 - `Neutral`
   - 勝ち数ベースのニュートラル順位
 - `Twill`
   - ツイル式トーナメント
 
-つまり通常ルールの「大会ルール入力」は、まず **`Neutral` と `Twill` のどちらで評価するかを選ぶ**ところから始まります。
-
-### 本戦ルールの入力
+### 本戦ルール
 本戦ルールでは、次のような部品を順に入力します。
 
-- グループ対応CSV
-- 本戦不出場Apex一覧CSV（省略可）
-- 本戦不出場Apexの扱い
+- グループ対応 CSV
+- 本戦不出場 Apex 一覧 CSV（省略可）
+- 本戦不出場 Apex の扱い
 - 境界救済戦の有無
-- 可変定員8ルールの有無
+- 可変定員 8 ルールの有無
 
-つまり本戦ルールの「大会ルール入力」は、**Apex / Innov の分け方や、本戦補助ルールの On / Off を順に決める**形です。
+### 空ルール
+空ルールでは、対局を 1 件も組みません。
 
-### まずはどこを見ればよいか
-- 入力順を見たい: [モード別ガイド](./docs/Manuals/モード別ガイド.md)
-- 大会進行フレームワークだけを見たい: [大会進行フレームワークガイド](./docs/Manuals/大会進行フレームワークガイド.md)
-- ルールの意味を知りたい: [トーナメントルール](./docs/Manuals/トーナメントルール.md)
-- 実行用入力ファイルで流したい: [入力ファイル仕様](./docs/Manuals/入力ファイル仕様.md)
-- 出力の読み方を知りたい: [CSVと出力](./docs/Manuals/CSVと出力.md)
-  - 大会進行フレームワークの `aggregate` / `representative` の違いもここで案内しています
-- 次世代の入力ファイル方式案を見たい: [STSAInput/2 仕様](./docs/Manuals/STSAInput2仕様.md)
-  - `FirstPlayerWinRatePercent` のような安定キーで入力する案
+- ペアリング回数は `0`
+- 大会最終状態件数は `0`
+- 主に出力先だけを確認する最小ケースです
 
-## すぐ試すなら
-- 実行用入力ファイルの例: `ShogiTournamentSystemAnalyzer/Data/Inputs`
-- 見本やメモ: `ShogiTournamentSystemAnalyzer/Examples`
-- レポート例: [docs/Reports](./docs/Reports/README.md)
+## 入力ファイルと見本の置き場
 
-## 主なモード
-- 対局シミュレーション / 通常ルール（総当たり戦分析）
-- 対局シミュレーション / 本戦ルール（Apex / Innov 定先戦分析）
-- 品質評価 / 通常ルール（総当たり戦向けルールの実力反映性評価）
-- 品質評価 / 本戦ルール（本戦ルールの実力反映性評価）
+- `ShogiTournamentSystemAnalyzer/Data/Inputs`
+  - `--input-file` で流す実行用入力ファイル
+  - `Smoke`: 1 回や少数回の確認用
+  - `Bench`: 単発評価や軽いベンチマーク用
+  - `Sweeps`: n% スイープ実験用
+- `ShogiTournamentSystemAnalyzer/Examples`
+  - 人が読むための見本、対局記号表、メモ
+- `ShogiTournamentSystemAnalyzer/Data/Players`
+  - 再利用する選手データ
+- `ShogiTournamentSystemAnalyzer/Data/Matches`
+  - 再利用する対局表、参考対局表
+- `ShogiTournamentSystemAnalyzer/Data/FinalStage`
+  - 本戦専用モードの補助 CSV
+- `ShogiTournamentSystemAnalyzer/Data/RuleSets`
+  - 保存して再利用する大会ルール
 
-### 細かな機能
-- 起動時の目的選択とルール選択
-- 順位ルールセット選択
-  - `Neutral`（勝ち数ベースのニュートラル順位）
-  - `Twill`（ツイル式トーナメント）
-- 対局CSV入力
-- `Round / Black/White / 対局記号表` からの対局CSV自動生成
-- 少ない対局数では厳密計算、多い対局数ではシミュレーション
-- 結果のコンソール表示、CSV 出力、Markdown レポート出力
+## まずどの文書を見るか
 
+- 入力順を見たい
+  - [モード別ガイド](./docs/Manuals/モード別ガイド.md)
+- 大会ルールの意味を知りたい
+  - [トーナメントルール](./docs/Manuals/トーナメントルール.md)
+- 入力ファイルで実行したい
+  - [入力ファイル仕様](./docs/Manuals/入力ファイル仕様.md)
+- 出力の読み方を知りたい
+  - [CSVと出力](./docs/Manuals/CSVと出力.md)
+- 品質評価の見方を知りたい
+  - [品質評価](./docs/Manuals/品質評価.md)
+- 大会進行フレームワークを知りたい
+  - [大会進行フレームワークガイド](./docs/Manuals/大会進行フレームワークガイド.md)
+- 実装の場所を探したい
+  - [実装ファイル案内](./docs/Manuals/実装ファイル案内.md)
 
 ## 進め方のイメージ
 
-1. ルールの部品を考える
+1. 大会ルールの部品を考える
 2. その部品を大会ルールへ取り入れる
-3. 品質評価でシミュレーションする
-4. 現在の最高品質を上回るか比較する
-5. 良ければ次の基準にし、さらに改良する
+3. 対局シミュレーションや品質評価で比べる
+4. 現在の基準より良ければ次の基準にする
+5. さらに改良する
 
-この繰り返しで、大会ルールを育てていくプロジェクトです。
-
-## プロジェクトの考え方
-用語メモ、背景の仮定、README から外した思想的な説明は次に分けました。
-
-- [プロジェクトの考え方](./docs/Manuals/プロジェクトの考え方.md)
-
-## ドキュメント案内
+## 補足ドキュメント
 
 - [説明書の総合目次](./docs/Manuals/README.md)
-  - まず説明書の一覧から探したいときの入口
-
-### 利用者向け説明書
-- [トーナメントルール](./docs/Manuals/トーナメントルール.md)
-  - 前提ルール、`Neutral`、`Twill` の概要
-- [モード別ガイド](./docs/Manuals/モード別ガイド.md)
-	- 対局シミュレーション / 品質評価 と、通常ルール / 本戦ルール の組み合わせごとの入力順
-- [大会進行フレームワークガイド](./docs/Manuals/大会進行フレームワークガイド.md)
-  - TournamentFramework の入力と出力の見方をまとめた短い案内
-- [品質評価](./docs/Manuals/品質評価.md)
-  - 評価指標、比較の考え方、n% スイープ実験、レポート運用
-- [入力ファイル仕様](./docs/Manuals/入力ファイル仕様.md)
-  - `--input-file`、`#[Prompt]`、`#[Enter]`、`Data/Inputs` フォルダー運用
-- [CSVと出力](./docs/Manuals/CSVと出力.md)
-  - 選手一覧CSV、対局CSV、結果CSV、品質評価CSV、実効Elo
-
-### 実装者向け案内
-- [実装ファイル案内](./docs/Manuals/実装ファイル案内.md)
-  - どこにどんなファイルがあるか、何を直したいときにどのファイルを見るか、ミニ目次付きで逆引きできる案内
-
-### 開発・計画メモ
+- [プロジェクトの考え方](./docs/Manuals/プロジェクトの考え方.md)
 - [docs フォルダー案内](./docs/README.md)
-  - `docs` 配下の資料全体を見渡したいときの入口
-- [実装計画の目次](./docs/実装計画/README.md)
-  - 実装予定、設計メモ、改修方針
 - [Reports の案内](./docs/Reports/README.md)
-  - 実験結果や品質評価レポートを探したいときの入口
-- `docs/notes.md`
-  - 補助メモ
-- `docs/むずでょの案`
-  - ルール案や発想メモ
-
-## 入力ファイルとレポートの置き場
-- `ShogiTournamentSystemAnalyzer/Examples`
-	- 人が読むための見本、対局記号表、メモ
-  - 詳細: `ShogiTournamentSystemAnalyzer/Examples/README.md`
-- `ShogiTournamentSystemAnalyzer/Data/Inputs`
-  - `--input-file` で流す実行用入力ファイル
-  - `Smoke`: 1 回や少数回のスモークテスト用
-  - `Bench`: 単発評価や軽いベンチマーク用
-  - `Sweeps`: n% スイープ実験用
-- `ShogiTournamentSystemAnalyzer/Data/Players`
-  - 年度別・地域別の選手名とレーティングを置く場所
-- `ShogiTournamentSystemAnalyzer/Data/Matches`
-  - 再利用する対局表、参考対局表を置く場所
-- `ShogiTournamentSystemAnalyzer/Data/FinalStage`
-  - 本戦専用モードのグループ対応表や補助CSVを置く場所
-- `ShogiTournamentSystemAnalyzer/Data/RuleSets`
-  - 保存して再利用する大会ルールを置く場所
-- `docs/Reports`
-	- 実行結果の CSV、Markdown レポート、実験メモの保存先
-
-入力ファイルでは `#` で始まる行をコメントとして無視できます。  
-また、`#[Enter]` は空行 1 行として扱われます。  
-値だけでは意味が分かりにくい箇所には `#[Prompt]` を添える運用です。
-
-## 最初に読むなら
-- 説明書一覧から探したい: [説明書の総合目次](./docs/Manuals/README.md)
-- ルールを知りたい: [トーナメントルール](./docs/Manuals/トーナメントルール.md)
-- 品質評価の考え方を知りたい: [品質評価](./docs/Manuals/品質評価.md)
-- 実行用入力ファイルの書き方を知りたい: [入力ファイル仕様](./docs/Manuals/入力ファイル仕様.md)
-- CSV 形式や出力内容を知りたい: [CSVと出力](./docs/Manuals/CSVと出力.md)
-- 実装の場所を探したい: [実装ファイル案内](./docs/Manuals/実装ファイル案内.md)
-	- 「最初に読む順」「よくある修正例」「ミニ目次」から探せます
 
 ## 関連リンク
+
 - [白黒対抗ルール案](https://note.com/muzudho/n/n311536fd1812?app_launch=false)
 
 ## ライセンス
+
 - [MIT License](./LICENSE)
