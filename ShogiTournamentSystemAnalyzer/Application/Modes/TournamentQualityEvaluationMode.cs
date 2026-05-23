@@ -34,7 +34,7 @@ internal static partial class Program
 
 
         var executionOptions = ReadTournamentQualityEvaluationExecutionOptions(input, ruleDefinition);
-        PrintTournamentQualityEvaluationContext(input, ruleDefinition);
+        TournamentQualityEvaluationOutputCoordinator.PrintTournamentQualityEvaluationContext(input, ruleDefinition);
 
         if (executionOptions.IsSweep)
         {
@@ -57,8 +57,8 @@ internal static partial class Program
             Console.WriteLine($"シミュレーションは時間上限 {SimulationTimeBudget.SimulationTimeLimit.TotalMinutes:F0} 分で打ち切りました。\n");
         }
 
-        var outputOptions = ReadTournamentQualityReportOutputOptions(ruleDefinition);
-        WriteTournamentQualityReportOutputs(tournamentQualityReportData, outputOptions);
+        var outputOptions = TournamentQualityEvaluationOutputCoordinator.ReadTournamentQualityReportOutputOptions(ruleDefinition);
+        TournamentQualityEvaluationOutputCoordinator.WriteTournamentQualityReportOutputs(tournamentQualityReportData, outputOptions);
     }
 
     static bool TryReadQualityEvaluationRuleDefinition(
