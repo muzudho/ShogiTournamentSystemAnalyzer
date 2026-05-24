@@ -40,12 +40,50 @@ internal static class FinalStageSimulationMainline
         out IReadOnlyList<ResultRow>? standardResultRows,
         out IReadOnlyList<FinalStageResultRow>? finalStageResultRows)
     {
+        CalculationResult ExecuteStandardMainline()
+        {
+            if (context.Matches.Count <= 20)
+            {
+                Console.WriteLine($"{TournamentRuleSetRule.GetLabel(context.TournamentRuleSetMode)} の厳密計算を行います。\n");
+                return StandardCalculationEngine.CalculateExactly(context.Players, context.Matches, context.FirstPlayerWinRateRating, context.TournamentRuleSetMode);
+            }
+
+            const int defaultSimulationCount = 200_000;
+            var simulationCount = ConsolePromptReaders.ReadIntWithDefault(
+                $"局数が多いため {TournamentRuleSetRule.GetLabel(context.TournamentRuleSetMode)} のシミュレーションで近似します。試行回数を入力してください [{defaultSimulationCount}]: ",
+                defaultSimulationCount,
+                min: 1);
+
+            Console.WriteLine();
+            using var simulationBudget = SimulationTimeBudget.BeginSimulationBudget();
+            return StandardCalculationEngine.CalculateBySimulation(context.Players, context.Matches, context.FirstPlayerWinRateRating, simulationCount, context.TournamentRuleSetMode);
+        }
+
+        CalculationResult ExecuteFinalStageMainline()
+        {
+            if (context.Matches.Count <= 20)
+            {
+                Console.WriteLine("本戦専用の厳密計算を行います。\n");
+                return FinalStageCalculationEngine.CalculateFinalStageExactly(context.Players, context.Matches, context.GroupMap!, context.EffectiveAdditionalApexCount, context.BoundaryRescueMode, context.FirstPlayerWinRateRating);
+            }
+
+            const int finalStageDefaultSimulationCount = 200_000;
+            var finalStageSimulationCount = ConsolePromptReaders.ReadIntWithDefault(
+                $"局数が多いため本戦専用シミュレーションで近似します。試行回数を入力してください [{finalStageDefaultSimulationCount}]: ",
+                finalStageDefaultSimulationCount,
+                min: 1);
+
+            Console.WriteLine();
+            using var finalStageSimulationBudget = SimulationTimeBudget.BeginSimulationBudget();
+            return FinalStageCalculationEngine.CalculateFinalStageBySimulation(context.Players, context.Matches, context.GroupMap!, context.EffectiveAdditionalApexCount, context.BoundaryRescueMode, context.FirstPlayerWinRateRating, finalStageSimulationCount);
+        }
+
         standardResultRows = null;
         finalStageResultRows = null;
 
         if (context.GroupingMode == FinalStageGroupingMode.Off)
         {
-            var result = ExecuteStandardMainlineForFinalStageMode(context);
+            var result = ExecuteStandardMainline();
             standardResultRows = RankingResultRowBuilder.BuildResultRows(context.Players, context.Matches, result, context.FirstPlayerWinRatePercent);
             ConsoleResultPrinter.PrintResult(context.Players.Count, result, context.FirstPlayerWinRatePercent, standardResultRows);
             if (result.Mode.Contains("時間切れ", StringComparison.Ordinal))
@@ -56,7 +94,7 @@ internal static class FinalStageSimulationMainline
             return result;
         }
 
-        var finalStageResult = ExecuteTournamentFinalStateForFinalStageMode(context);
+        var finalStageResult = ExecuteFinalStageMainline();
         finalStageResultRows = RankingResultRowBuilder.BuildFinalStageResultRows(context.Players, context.Matches, finalStageResult, context.FirstPlayerWinRatePercent, context.GroupMap!, context.EffectiveAdditionalApexCount);
         ConsoleResultPrinter.PrintFinalStageResult(finalStageResult, context.FirstPlayerWinRatePercent, finalStageResultRows);
         if (finalStageResult.Mode.Contains("時間切れ", StringComparison.Ordinal))
@@ -65,44 +103,6 @@ internal static class FinalStageSimulationMainline
         }
 
         return finalStageResult;
-    }
-
-    static CalculationResult ExecuteStandardMainlineForFinalStageMode(FinalStageModeContext context)
-    {
-        if (context.Matches.Count <= 20)
-        {
-            Console.WriteLine($"{TournamentRuleSetRule.GetLabel(context.TournamentRuleSetMode)} の厳密計算を行います。\n");
-            return StandardCalculationEngine.CalculateExactly(context.Players, context.Matches, context.FirstPlayerWinRateRating, context.TournamentRuleSetMode);
-        }
-
-        const int defaultSimulationCount = 200_000;
-        var simulationCount = ConsolePromptReaders.ReadIntWithDefault(
-            $"局数が多いため {TournamentRuleSetRule.GetLabel(context.TournamentRuleSetMode)} のシミュレーションで近似します。試行回数を入力してください [{defaultSimulationCount}]: ",
-            defaultSimulationCount,
-            min: 1);
-
-        Console.WriteLine();
-        using var simulationBudget = SimulationTimeBudget.BeginSimulationBudget();
-        return StandardCalculationEngine.CalculateBySimulation(context.Players, context.Matches, context.FirstPlayerWinRateRating, simulationCount, context.TournamentRuleSetMode);
-    }
-
-    static CalculationResult ExecuteTournamentFinalStateForFinalStageMode(FinalStageModeContext context)
-    {
-        if (context.Matches.Count <= 20)
-        {
-            Console.WriteLine("本戦専用の厳密計算を行います。\n");
-            return FinalStageCalculationEngine.CalculateFinalStageExactly(context.Players, context.Matches, context.GroupMap!, context.EffectiveAdditionalApexCount, context.BoundaryRescueMode, context.FirstPlayerWinRateRating);
-        }
-
-        const int finalStageDefaultSimulationCount = 200_000;
-        var finalStageSimulationCount = ConsolePromptReaders.ReadIntWithDefault(
-            $"局数が多いため本戦専用シミュレーションで近似します。試行回数を入力してください [{finalStageDefaultSimulationCount}]: ",
-            finalStageDefaultSimulationCount,
-            min: 1);
-
-        Console.WriteLine();
-        using var finalStageSimulationBudget = SimulationTimeBudget.BeginSimulationBudget();
-        return FinalStageCalculationEngine.CalculateFinalStageBySimulation(context.Players, context.Matches, context.GroupMap!, context.EffectiveAdditionalApexCount, context.BoundaryRescueMode, context.FirstPlayerWinRateRating, finalStageSimulationCount);
     }
 
     /// <summary>
