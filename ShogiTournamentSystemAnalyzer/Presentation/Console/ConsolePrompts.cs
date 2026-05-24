@@ -1,5 +1,5 @@
 /*
- * ［プログラム］
+ * ［プレゼンテーション　＞　オーケストレーション］
  */
 namespace ShogiTournamentSystemAnalyzer;
 
@@ -11,11 +11,21 @@ internal static class ConsolePromptReaders
 {
     internal static readonly int InputRetryLimit = 10;
 
+    /// <summary>
+    /// 無限ループに陥るのを防ぐぜ（＾▽＾）
+    /// </summary>
+    /// <param name="targetLabel"></param>
+    /// <param name="lastErrorMessage"></param>
+    /// <exception cref="OperationCanceledException"></exception>
     internal static void ThrowInputRetryLimitExceeded(string targetLabel, string lastErrorMessage)
     {
         throw new OperationCanceledException($"{targetLabel}の入力失敗が {InputRetryLimit} 回に達したため中断しました。最後のエラー: {lastErrorMessage}");
     }
 
+    /// <summary>
+    /// TODO: ［４大域］を選ばせるぜ（＾▽＾）
+    /// </summary>
+    /// <returns></returns>
     internal static AnalysisFlowMode ReadAnalysisFlowMode()
     {
         Console.WriteLine("目的を選んでください。");
@@ -47,6 +57,14 @@ internal static class ConsolePromptReaders
         }
     }
 
+    /// <summary>
+    ///     <pre>
+    /// 対象［大会ルール］を選ばせるぜ（＾▽＾）！
+    /// これは、外部の設定ファイルで編集できるようにしたいぜ（＾▽＾）！
+    ///     </pre>
+    /// </summary>
+    /// <param name="flowMode"></param>
+    /// <returns></returns>
     internal static RuleProfileMode ReadRuleProfileMode(AnalysisFlowMode flowMode)
     {
         var flowLabel = flowMode == AnalysisFlowMode.Simulation ? "対局シミュレーション" : "品質評価";
