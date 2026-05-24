@@ -22,32 +22,18 @@ internal static partial class Program
         ConsoleResultPrinter.PrintMatchesCsv(context.Players, context.Matches);
         Console.WriteLine($"\n総対局数: {context.Matches.Count}");
 
-        var result = ExecuteStandardModeCalculation(context);
-        var resultRows = RankingResultRowBuilder.BuildResultRows(context.Players, context.Matches, result, context.FirstPlayerWinRatePercent);
-        ConsoleResultPrinter.PrintResult(context.Players.Count, result, context.FirstPlayerWinRatePercent, resultRows);
-        if (result.Mode.Contains("時間切れ", StringComparison.Ordinal))
+        var tournamentFinalState = ExecuteTournamentFinalStateForStandardMode(context);
+        var finalRankingRows = BuildFinalRankingRowsForStandardMode(context, tournamentFinalState);
+        ConsoleResultPrinter.PrintResult(context.Players.Count, tournamentFinalState, context.FirstPlayerWinRatePercent, finalRankingRows);
+        if (tournamentFinalState.Mode.Contains("時間切れ", StringComparison.Ordinal))
         {
             Console.WriteLine($"シミュレーションは時間上限 {SimulationTimeBudget.SimulationTimeLimit.TotalMinutes:F0} 分で打ち切りました。\n");
         }
 
-        var defaultOutputCsvPath = ReportOutputPathBuilder.BuildFinalRankingDefaultOutputPath($"standard_final_ranking_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
-        var outputCsvPath = CsvOutputHelpers.ResolveOutputCsvPath(ConsolePromptReaders.ReadTextWithDefault(
-            $"\n結果CSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
-            defaultOutputCsvPath));
-        WriterHelper.WriteText(
-            outputPath: outputCsvPath,
-            getLines: () => ResultCsvWriter.CreateResultCsv(result.Mode, context.FirstPlayerWinRatePercent, resultRows));
-
-        var outputMarkdownPath = CsvOutputHelpers.ChangeOutputExtension(outputCsvPath, ".md");
-        WriterHelper.WriteText(
-            outputPath: outputMarkdownPath,
-            getLines: () => ResultCsvWriter.CreateResultMarkdown(outputMarkdownPath, outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, resultRows));
-
-        Console.WriteLine($"結果CSVを出力しました: {outputCsvPath}");
-        Console.WriteLine($"結果Markdownを出力しました: {outputMarkdownPath}");
+        WriteFinalRankingOutputsForStandardMode(context, tournamentFinalState, finalRankingRows);
     }
 
-    static CalculationResult ExecuteStandardModeCalculation(StandardModeContext context)
+    static CalculationResult ExecuteTournamentFinalStateForStandardMode(StandardModeContext context)
     {
         if (context.Matches.Count <= 20)
         {
@@ -64,6 +50,30 @@ internal static partial class Program
         Console.WriteLine();
         using var simulationBudget = SimulationTimeBudget.BeginSimulationBudget();
         return CalculateBySimulation(context.Players, context.Matches, context.FirstPlayerWinRateRating, simulationCount, context.TournamentRuleSetMode);
+    }
+
+    static IReadOnlyList<ResultRow> BuildFinalRankingRowsForStandardMode(StandardModeContext context, CalculationResult tournamentFinalState)
+    {
+        return RankingResultRowBuilder.BuildResultRows(context.Players, context.Matches, tournamentFinalState, context.FirstPlayerWinRatePercent);
+    }
+
+    static void WriteFinalRankingOutputsForStandardMode(StandardModeContext context, CalculationResult tournamentFinalState, IReadOnlyList<ResultRow> finalRankingRows)
+    {
+        var defaultOutputCsvPath = ReportOutputPathBuilder.BuildFinalRankingDefaultOutputPath($"standard_final_ranking_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
+        var outputCsvPath = CsvOutputHelpers.ResolveOutputCsvPath(ConsolePromptReaders.ReadTextWithDefault(
+            $"\n結果CSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
+            defaultOutputCsvPath));
+        WriterHelper.WriteText(
+            outputPath: outputCsvPath,
+            getLines: () => ResultCsvWriter.CreateResultCsv(tournamentFinalState.Mode, context.FirstPlayerWinRatePercent, finalRankingRows));
+
+        var outputMarkdownPath = CsvOutputHelpers.ChangeOutputExtension(outputCsvPath, ".md");
+        WriterHelper.WriteText(
+            outputPath: outputMarkdownPath,
+            getLines: () => ResultCsvWriter.CreateResultMarkdown(outputMarkdownPath, outputCsvPath, tournamentFinalState.Mode, context.FirstPlayerWinRatePercent, finalRankingRows));
+
+        Console.WriteLine($"結果CSVを出力しました: {outputCsvPath}");
+        Console.WriteLine($"結果Markdownを出力しました: {outputMarkdownPath}");
     }
 }
 

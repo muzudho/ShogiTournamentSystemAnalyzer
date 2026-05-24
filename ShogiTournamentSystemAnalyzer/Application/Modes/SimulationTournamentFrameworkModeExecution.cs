@@ -6,6 +6,7 @@ namespace ShogiTournamentSystemAnalyzer;
 using ShogiTournamentSystemAnalyzer.Application.Execution;
 using ShogiTournamentSystemAnalyzer.Domain.FinalRanking;
 using ShogiTournamentSystemAnalyzer.Domain.Ranking;
+using ShogiTournamentSystemAnalyzer.Domain.RankingSettings;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
 using ShogiTournamentSystemAnalyzer.Infrastructure.Csv;
@@ -141,6 +142,29 @@ internal static partial class Program
             Console.WriteLine($"シミュレーションは時間上限 {SimulationTimeBudget.SimulationTimeLimit.TotalMinutes:F0} 分で打ち切りました。\n");
         }
 
+        WriteFinalRankingAndTournamentFinalStateOutputsForTournamentFramework(
+            context,
+            tournamentRuleData,
+            rankingSettingsData,
+            tournamentFinalStateData,
+            stages,
+            players,
+            representativeExecutionRankRows,
+            result,
+            resultRows);
+    }
+
+    static void WriteFinalRankingAndTournamentFinalStateOutputsForTournamentFramework(
+        TournamentFrameworkModeContext context,
+        TournamentRuleData tournamentRuleData,
+        RankingSettingsData rankingSettingsData,
+        TournamentFinalStateData tournamentFinalStateData,
+        IReadOnlyList<StageEntry> stages,
+        IReadOnlyList<PlayerEntry> players,
+        IReadOnlyList<RepresentativeExecutionRankRow> representativeExecutionRankRows,
+        CalculationResult finalRankingCalculation,
+        IReadOnlyList<ResultRow> finalRankingRows)
+    {
         var defaultOutputCsvPath = ReportOutputPathBuilder.BuildFinalRankingDefaultOutputPath($"tournament_framework_aggregate_final_ranking_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
         var requestedOutputPath = string.IsNullOrWhiteSpace(context.OutputPath)
             ? ConsolePromptReaders.ReadTextWithDefault($"\naggregate結果CSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ", defaultOutputCsvPath)
@@ -149,9 +173,9 @@ internal static partial class Program
         WriterHelper.WriteText(
             outputPath: outputCsvPath,
             getLines: () => ResultCsvWriter.CreateResultCsv(
-                result.Mode,
+                finalRankingCalculation.Mode,
                 tournamentRuleData.FirstPlayerWinRatePercent ?? context.FirstPlayerWinRatePercent,
-                resultRows,
+                finalRankingRows,
                 overviewNote: "この順位表は複数回試行の aggregate 結果です。大会最終状態CSVとは 1 対 1 には対応しません。"));
 
         var outputMarkdownPath = CsvOutputHelpers.ChangeOutputExtension(outputCsvPath, ".md");
@@ -165,9 +189,9 @@ internal static partial class Program
             getLines: () => ResultCsvWriter.CreateResultMarkdown(
                 outputMarkdownPath,
                 outputCsvPath,
-                result.Mode,
+                finalRankingCalculation.Mode,
                 tournamentRuleData.FirstPlayerWinRatePercent ?? context.FirstPlayerWinRatePercent,
-                resultRows,
+                finalRankingRows,
                 overviewNote: "この順位表は複数回試行の aggregate 結果です。下記の大会最終状態テーブルとは 1 対 1 には対応しません。",
                 representativeRankingMarkdownPath: representativeRankingMarkdownPath));
 
