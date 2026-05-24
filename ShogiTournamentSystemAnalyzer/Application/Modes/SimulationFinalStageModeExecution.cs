@@ -108,7 +108,7 @@ internal static partial class Program
         }
     }
 
-    static void WriteFinalStageModeOutputs(
+    static void WriteFinalRankingOutputsForFinalStageMode(
         FinalStageModeContext context,
         CalculationResult result,
         IReadOnlyList<ResultRow>? standardResultRows,

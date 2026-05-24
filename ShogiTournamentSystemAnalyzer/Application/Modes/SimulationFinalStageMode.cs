@@ -19,7 +19,7 @@ internal static partial class Program
     {
         var result = ExecuteTournamentFinalStateAndFinalRanking(context, out var standardResultRows, out var finalStageResultRows);
         PrintFinalStageModeContext(context);
-        WriteFinalStageModeOutputs(context, result, standardResultRows, finalStageResultRows);
+        WriteFinalRankingOutputsForFinalStageMode(context, result, standardResultRows, finalStageResultRows);
     }
 }
 
