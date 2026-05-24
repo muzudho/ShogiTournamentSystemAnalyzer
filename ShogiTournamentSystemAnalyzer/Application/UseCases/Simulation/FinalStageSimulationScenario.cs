@@ -10,16 +10,29 @@ internal static partial class Program
 
         public RuleProfileMode RuleProfileMode => RuleProfileMode.FinalStage;
 
-        public void Run()
+        public void PrintOverview()
         {
             Console.WriteLine("対局シミュレーション / 本戦ルール: Apex / Innov 分割の定先戦を分析します。\n");
 
             ConsoleSamplePrinter.PrintSimulationFinalStageOverview();
-            if (!TryReadFinalStageModeContext(out var context)) return;
+        }
 
-            var result = ExecuteTournamentFinalStateAndFinalRanking(context, out var standardResultRows, out var finalStageResultRows);
-            PrintFinalStageModeContext(context);
-            WriteFinalRankingOutputsForFinalStageMode(context, result, standardResultRows, finalStageResultRows);
+        public bool TryPrepareExecution(out Action execute)
+        {
+            if (!TryReadFinalStageModeContext(out var context))
+            {
+                execute = static () => { };
+                return false;
+            }
+
+            execute = () =>
+            {
+                var result = ExecuteTournamentFinalStateAndFinalRanking(context, out var standardResultRows, out var finalStageResultRows);
+                PrintFinalStageModeContext(context);
+                WriteFinalRankingOutputsForFinalStageMode(context, result, standardResultRows, finalStageResultRows);
+            };
+
+            return true;
         }
     }
 }

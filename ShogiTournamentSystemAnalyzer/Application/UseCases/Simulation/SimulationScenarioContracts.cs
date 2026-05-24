@@ -7,14 +7,18 @@ internal static partial class Program
     interface ISimulationScenario
     {
         RuleProfileMode RuleProfileMode { get; }
-        void Run();
+        void PrintOverview();
+        bool TryPrepareExecution(out Action execute);
     }
 
     static class SimulationScenarioRunner
     {
         internal static void Run(ISimulationScenario scenario)
         {
-            scenario.Run();
+            scenario.PrintOverview();
+            if (!scenario.TryPrepareExecution(out var execute)) return;
+
+            execute();
         }
     }
 }
