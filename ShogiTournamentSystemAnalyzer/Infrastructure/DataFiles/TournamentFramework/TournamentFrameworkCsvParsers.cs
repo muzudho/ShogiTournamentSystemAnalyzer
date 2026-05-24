@@ -1,11 +1,14 @@
 /*
- * ［プログラム］
+ * ［大会フレームワーク］
  */
 namespace ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.TournamentFramework;
 
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Infrastructure.Parsing;
 
+/// <summary>
+/// ［大会フレームワーク］のデータファイルを作成するクラスだぜ（＾▽＾）！
+/// </summary>
 internal static class TournamentFrameworkCsvParsers
 {
     internal static List<PlayerEntry> ReadPlayerEntriesFromCsvPath(string path)

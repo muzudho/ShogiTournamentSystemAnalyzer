@@ -1,5 +1,5 @@
 /*
- * ［プログラム］
+ * ［大会最終状態という境界］
  */
 namespace ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.TournamentFinalState;
 
@@ -7,6 +7,9 @@ using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.Shared;
 using System.Globalization;
 
+/// <summary>
+/// ［大会最終状態］境界のデータファイルを作成するクラスだぜ（＾▽＾）！
+/// </summary>
 internal static class TournamentFinalStateDataFileWriter
 {
     static string EscapeCsv(string value) => CsvOutputHelpers.EscapeCsv(value);
@@ -15,11 +18,30 @@ internal static class TournamentFinalStateDataFileWriter
     {
         var stageNameById = stages.ToDictionary(stage => stage.StageId, stage => stage.StageName);
         var playerNameById = players.ToDictionary(player => player.PlayerId, player => player.Name);
+        var specificHeaderColumns = new List<string>
+        {
+            "matchId",
+            "stageId",
+            "stageName",
+            "firstPlayerId",
+            "firstPlayerName",
+            "secondPlayerId",
+            "secondPlayerName",
+            "startTime",
+            "endTime",
+            "status",
+            "resultType",
+            "roundNo"
+        };
+
+        if (!string.IsNullOrWhiteSpace(overviewNote))
+        {
+            specificHeaderColumns.Add("note");
+        }
+
         var lines = new List<string>
         {
-            string.IsNullOrWhiteSpace(overviewNote)
-                ? "matchId,stageId,stageName,firstPlayerId,firstPlayerName,secondPlayerId,secondPlayerName,startTime,endTime,status,resultType,roundNo"
-                : "matchId,stageId,stageName,firstPlayerId,firstPlayerName,secondPlayerId,secondPlayerName,startTime,endTime,status,resultType,roundNo,note"
+            string.Join(",", CsvSchemaCommonColumns.BuildHeaderColumns(specificHeaderColumns).Select(EscapeCsv))
         };
 
         foreach (var match in matchRecords.OrderBy(match => match.StartTime).ThenBy(match => match.MatchId))
@@ -28,7 +50,7 @@ internal static class TournamentFinalStateDataFileWriter
             var firstPlayerName = playerNameById.TryGetValue(match.FirstPlayerId, out var firstPlayer) ? firstPlayer : string.Empty;
             var secondPlayerName = playerNameById.TryGetValue(match.SecondPlayerId, out var secondPlayer) ? secondPlayer : string.Empty;
 
-            var columns = new List<string>
+            var specificColumns = new List<string>
             {
                 match.MatchId.ToString(CultureInfo.InvariantCulture),
                 match.StageId.ToString(CultureInfo.InvariantCulture),
@@ -46,8 +68,14 @@ internal static class TournamentFinalStateDataFileWriter
 
             if (!string.IsNullOrWhiteSpace(overviewNote))
             {
-                columns.Add(overviewNote);
+                specificColumns.Add(overviewNote);
             }
+
+            var columns = CsvSchemaCommonColumns.BuildRowColumns(
+                boundaryName: "TournamentFinalState",
+                schemaName: "tournamentMatchRecord",
+                rowType: "data",
+                specificColumns.ToArray());
 
             lines.Add(string.Join(",", columns.Select(EscapeCsv)));
         }

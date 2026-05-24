@@ -1,5 +1,5 @@
 /*
- * ［プログラム］
+ * ［最終順位という境界］
  */
 namespace ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.FinalRanking;
 
@@ -9,6 +9,9 @@ using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.Shared;
 using System.Globalization;
 
+/// <summary>
+/// ［最終順位］境界のデータファイルを作成するクラスだぜ（＾▽＾）！
+/// </summary>
 internal static class FinalRankingDataFileWriter
 {
     static string EscapeCsv(string value) => CsvOutputHelpers.EscapeCsv(value);
@@ -18,7 +21,7 @@ internal static class FinalRankingDataFileWriter
         IReadOnlyList<RepresentativeExecutionRankRow> rows,
         string? overviewNote = null)
     {
-        var headerColumns = new List<string>
+        var specificHeaderColumns = new List<string>
         {
             "tournamentRuleSetMode",
             "playerName",
@@ -30,17 +33,17 @@ internal static class FinalRankingDataFileWriter
 
         if (!string.IsNullOrWhiteSpace(overviewNote))
         {
-            headerColumns.Add("note");
+            specificHeaderColumns.Add("note");
         }
 
         var lines = new List<string>
         {
-            string.Join(",", headerColumns.Select(EscapeCsv))
+            string.Join(",", CsvSchemaCommonColumns.BuildHeaderColumns(specificHeaderColumns).Select(EscapeCsv))
         };
 
         foreach (var row in rows)
         {
-            var columns = new List<string>
+            var specificColumns = new List<string>
             {
                 TournamentRuleSetRule.GetLabel(tournamentRuleSetMode),
                 row.Name,
@@ -52,8 +55,14 @@ internal static class FinalRankingDataFileWriter
 
             if (!string.IsNullOrWhiteSpace(overviewNote))
             {
-                columns.Add(overviewNote);
+                specificColumns.Add(overviewNote);
             }
+
+            var columns = CsvSchemaCommonColumns.BuildRowColumns(
+                boundaryName: "FinalRanking",
+                schemaName: "representativeExecutionRank",
+                rowType: "data",
+                specificColumns.ToArray());
 
             lines.Add(string.Join(",", columns.Select(EscapeCsv)));
         }
@@ -123,7 +132,7 @@ internal static class FinalRankingDataFileWriter
 
     internal static IEnumerable<string> CreateResultCsv(string mode, double firstPlayerWinRatePercent, IReadOnlyList<ResultRow> resultRows, string? overviewNote = null)
     {
-        var headerColumns = new List<string>
+        var specificHeaderColumns = new List<string>
         {
             "calculationMode",
             "firstPlayerWinRatePercent",
@@ -141,29 +150,29 @@ internal static class FinalRankingDataFileWriter
 
         if (!string.IsNullOrWhiteSpace(overviewNote))
         {
-            headerColumns.Add("note");
+            specificHeaderColumns.Add("note");
         }
 
         if (resultRows.Count > 0)
         {
             for (var place = 0; place < resultRows[0].PlaceProbabilities.Length; place++)
             {
-                headerColumns.Add($"place{place + 1}Percent");
+                specificHeaderColumns.Add($"place{place + 1}Percent");
                 if (resultRows[0].PlaceCounts is not null)
                 {
-                    headerColumns.Add($"place{place + 1}Count");
+                    specificHeaderColumns.Add($"place{place + 1}Count");
                 }
             }
         }
 
         var lines = new List<string>
         {
-            string.Join(",", headerColumns.Select(EscapeCsv))
+            string.Join(",", CsvSchemaCommonColumns.BuildHeaderColumns(specificHeaderColumns).Select(EscapeCsv))
         };
 
         foreach (var row in resultRows)
         {
-            var columns = new List<string>
+            var specificColumns = new List<string>
             {
                 mode,
                 firstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture),
@@ -181,17 +190,23 @@ internal static class FinalRankingDataFileWriter
 
             if (!string.IsNullOrWhiteSpace(overviewNote))
             {
-                columns.Add(overviewNote);
+                specificColumns.Add(overviewNote);
             }
 
             for (var place = 0; place < row.PlaceProbabilities.Length; place++)
             {
-                columns.Add((row.PlaceProbabilities[place] * 100).ToString("F2", CultureInfo.InvariantCulture));
+                specificColumns.Add((row.PlaceProbabilities[place] * 100).ToString("F2", CultureInfo.InvariantCulture));
                 if (row.PlaceCounts is not null)
                 {
-                    columns.Add(row.PlaceCounts[place].ToString("F3", CultureInfo.InvariantCulture));
+                    specificColumns.Add(row.PlaceCounts[place].ToString("F3", CultureInfo.InvariantCulture));
                 }
             }
+
+            var columns = CsvSchemaCommonColumns.BuildRowColumns(
+                boundaryName: "FinalRanking",
+                schemaName: "standardFinalRanking",
+                rowType: "data",
+                specificColumns.ToArray());
 
             lines.Add(string.Join(",", columns.Select(EscapeCsv)));
         }
@@ -309,7 +324,7 @@ internal static class FinalRankingDataFileWriter
 
     internal static IEnumerable<string> CreateFinalStageResultCsv(string outputCsvPath, string mode, double firstPlayerWinRatePercent, IReadOnlyList<FinalStageResultRow> resultRows)
     {
-        var headerColumns = new List<string>
+        var specificHeaderColumns = new List<string>
         {
             "calculationMode",
             "firstPlayerWinRatePercent",
@@ -332,22 +347,22 @@ internal static class FinalRankingDataFileWriter
         {
             for (var place = 0; place < resultRows[0].PlaceProbabilities.Length; place++)
             {
-                headerColumns.Add($"place{place + 1}Percent");
+                specificHeaderColumns.Add($"place{place + 1}Percent");
                 if (resultRows[0].PlaceCounts is not null)
                 {
-                    headerColumns.Add($"place{place + 1}Count");
+                    specificHeaderColumns.Add($"place{place + 1}Count");
                 }
             }
         }
 
         var lines = new List<string>
         {
-            string.Join(",", headerColumns.Select(EscapeCsv))
+            string.Join(",", CsvSchemaCommonColumns.BuildHeaderColumns(specificHeaderColumns).Select(EscapeCsv))
         };
 
         foreach (var row in resultRows)
         {
-            var columns = new List<string>
+            var specificColumns = new List<string>
             {
                 mode,
                 firstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture),
@@ -368,12 +383,18 @@ internal static class FinalRankingDataFileWriter
 
             for (var place = 0; place < row.PlaceProbabilities.Length; place++)
             {
-                columns.Add((row.PlaceProbabilities[place] * 100).ToString("F2", CultureInfo.InvariantCulture));
+                specificColumns.Add((row.PlaceProbabilities[place] * 100).ToString("F2", CultureInfo.InvariantCulture));
                 if (row.PlaceCounts is not null)
                 {
-                    columns.Add(row.PlaceCounts[place].ToString("F3", CultureInfo.InvariantCulture));
+                    specificColumns.Add(row.PlaceCounts[place].ToString("F3", CultureInfo.InvariantCulture));
                 }
             }
+
+            var columns = CsvSchemaCommonColumns.BuildRowColumns(
+                boundaryName: "FinalRanking",
+                schemaName: "finalStageFinalRanking",
+                rowType: "data",
+                specificColumns.ToArray());
 
             lines.Add(string.Join(",", columns.Select(EscapeCsv)));
         }
