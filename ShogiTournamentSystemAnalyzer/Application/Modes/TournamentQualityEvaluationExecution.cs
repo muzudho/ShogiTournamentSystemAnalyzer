@@ -100,30 +100,46 @@ internal static partial class Program
         TournamentQualityEvaluationExecutionOptions executionOptions)
     {
         var firstPlayerWinRatePercent = executionOptions.FirstPlayerWinRatePercent!.Value;
-        var firstPlayerWinRateRating = SimulationRatingMath.ConvertFirstPlayerWinRatePercentToRating(firstPlayerWinRatePercent);
-        using var simulationBudget = executionOptions.SimulationCount.HasValue ? SimulationTimeBudget.BeginSimulationBudget() : default;
-        var result = ruleDefinition.GroupingMode == FinalStageGroupingMode.On
-            ? executionOptions.SimulationCount.HasValue
-                ? CalculateFinalStageBySimulation(input.Players, input.Matches, ruleDefinition.GroupMap!, ruleDefinition.EffectiveAdditionalApexCount, ruleDefinition.BoundaryRescueMode, firstPlayerWinRateRating, executionOptions.SimulationCount.Value, ruleDefinition.PromotedInnovCount)
-                : CalculateFinalStageExactly(input.Players, input.Matches, ruleDefinition.GroupMap!, ruleDefinition.EffectiveAdditionalApexCount, ruleDefinition.BoundaryRescueMode, firstPlayerWinRateRating, ruleDefinition.PromotedInnovCount)
-            : executionOptions.SimulationCount.HasValue
-                ? CalculateBySimulation(input.Players, input.Matches, firstPlayerWinRateRating, executionOptions.SimulationCount.Value, ruleDefinition.TournamentRuleSetMode)
-                : CalculateExactly(input.Players, input.Matches, firstPlayerWinRateRating, ruleDefinition.TournamentRuleSetMode);
-
-        var resultRows = RankingResultRowBuilder.BuildResultRows(input.Players, input.Matches, result, firstPlayerWinRatePercent);
+        var tournamentFinalState = ExecuteTournamentFinalStateForQualityEvaluation(input, ruleDefinition, executionOptions, firstPlayerWinRatePercent);
+        var finalRankingRows = BuildFinalRankingRowsForQualityEvaluation(input, tournamentFinalState, firstPlayerWinRatePercent);
         var qualityPlayerRows = TournamentQualityEvaluationReportBuilder.BuildTournamentQualityReportPlayerRows(
-            resultRows,
+            finalRankingRows,
             ruleDefinition.GroupMap,
             ruleDefinition.AdditionalApexPlayers,
             ruleDefinition.AdditionalApexPlacementMode,
             input.InnovExpectedRankOffsetMode,
             input.InnovExpectedRankOffsetCount);
         var qualitySummary = TournamentQualityEvaluationReportBuilder.BuildTournamentQualityReportSummary(qualityPlayerRows);
-        var calculationMode = qualityPlayerRows.Count == 0 && !result.Mode.Contains("時間切れ", StringComparison.Ordinal)
-            ? result.Mode + " (0回)"
-            : result.Mode;
-        var suggestion = BuildNextCycleSuggestionForSingleRun(input, executionOptions, result.Mode.Contains("時間切れ", StringComparison.Ordinal), qualityPlayerRows.Count);
+        var calculationMode = qualityPlayerRows.Count == 0 && !tournamentFinalState.Mode.Contains("時間切れ", StringComparison.Ordinal)
+            ? tournamentFinalState.Mode + " (0回)"
+            : tournamentFinalState.Mode;
+        var suggestion = BuildNextCycleSuggestionForSingleRun(input, executionOptions, tournamentFinalState.Mode.Contains("時間切れ", StringComparison.Ordinal), qualityPlayerRows.Count);
         return new TournamentQualityReportRun(qualityPlayerRows, qualitySummary, calculationMode, suggestion);
+    }
+
+    static CalculationResult ExecuteTournamentFinalStateForQualityEvaluation(
+        TournamentQualityEvaluationInput input,
+        TournamentQualityEvaluationRuleDefinition ruleDefinition,
+        TournamentQualityEvaluationExecutionOptions executionOptions,
+        double firstPlayerWinRatePercent)
+    {
+        var firstPlayerWinRateRating = SimulationRatingMath.ConvertFirstPlayerWinRatePercentToRating(firstPlayerWinRatePercent);
+        using var simulationBudget = executionOptions.SimulationCount.HasValue ? SimulationTimeBudget.BeginSimulationBudget() : default;
+        return ruleDefinition.GroupingMode == FinalStageGroupingMode.On
+            ? executionOptions.SimulationCount.HasValue
+                ? CalculateFinalStageBySimulation(input.Players, input.Matches, ruleDefinition.GroupMap!, ruleDefinition.EffectiveAdditionalApexCount, ruleDefinition.BoundaryRescueMode, firstPlayerWinRateRating, executionOptions.SimulationCount.Value, ruleDefinition.PromotedInnovCount)
+                : CalculateFinalStageExactly(input.Players, input.Matches, ruleDefinition.GroupMap!, ruleDefinition.EffectiveAdditionalApexCount, ruleDefinition.BoundaryRescueMode, firstPlayerWinRateRating, ruleDefinition.PromotedInnovCount)
+            : executionOptions.SimulationCount.HasValue
+                ? CalculateBySimulation(input.Players, input.Matches, firstPlayerWinRateRating, executionOptions.SimulationCount.Value, ruleDefinition.TournamentRuleSetMode)
+                : CalculateExactly(input.Players, input.Matches, firstPlayerWinRateRating, ruleDefinition.TournamentRuleSetMode);
+    }
+
+    static IReadOnlyList<ResultRow> BuildFinalRankingRowsForQualityEvaluation(
+        TournamentQualityEvaluationInput input,
+        CalculationResult tournamentFinalState,
+        double firstPlayerWinRatePercent)
+    {
+        return RankingResultRowBuilder.BuildResultRows(input.Players, input.Matches, tournamentFinalState, firstPlayerWinRatePercent);
     }
 
     static TournamentQualityNextCycleSuggestion BuildNextCycleSuggestionForSweep(

@@ -12,7 +12,12 @@ internal static partial class Program
         ConsoleSamplePrinter.PrintSimulationFinalStageOverview();
         if (!TryReadFinalStageModeContext(out var context)) return;
 
-        var result = ExecuteFinalStageMode(context, out var standardResultRows, out var finalStageResultRows);
+        RunMainlineToFinalRanking(context);
+    }
+
+    static void RunMainlineToFinalRanking(FinalStageModeContext context)
+    {
+        var result = ExecuteTournamentFinalStateAndFinalRanking(context, out var standardResultRows, out var finalStageResultRows);
         PrintFinalStageModeContext(context);
         WriteFinalStageModeOutputs(context, result, standardResultRows, finalStageResultRows);
     }

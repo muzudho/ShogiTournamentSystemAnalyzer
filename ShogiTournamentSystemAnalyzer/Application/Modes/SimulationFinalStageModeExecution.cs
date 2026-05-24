@@ -11,7 +11,7 @@ using ShogiTournamentSystemAnalyzer.Infrastructure.Csv;
 
 internal static partial class Program
 {
-    static CalculationResult ExecuteFinalStageMode(
+    static CalculationResult ExecuteTournamentFinalStateAndFinalRanking(
         FinalStageModeContext context,
         out IReadOnlyList<ResultRow>? standardResultRows,
         out IReadOnlyList<FinalStageResultRow>? finalStageResultRows)
@@ -21,25 +21,7 @@ internal static partial class Program
 
         if (context.GroupingMode == FinalStageGroupingMode.Off)
         {
-            CalculationResult result;
-            if (context.Matches.Count <= 20)
-            {
-                Console.WriteLine($"{TournamentRuleSetRule.GetLabel(context.TournamentRuleSetMode)} の厳密計算を行います。\n");
-                result = CalculateExactly(context.Players, context.Matches, context.FirstPlayerWinRateRating, context.TournamentRuleSetMode);
-            }
-            else
-            {
-                const int defaultSimulationCount = 200_000;
-                var simulationCount = ConsolePromptReaders.ReadIntWithDefault(
-                    $"局数が多いため {TournamentRuleSetRule.GetLabel(context.TournamentRuleSetMode)} のシミュレーションで近似します。試行回数を入力してください [{defaultSimulationCount}]: ",
-                    defaultSimulationCount,
-                    min: 1);
-
-                Console.WriteLine();
-                using var simulationBudget = SimulationTimeBudget.BeginSimulationBudget();
-                result = CalculateBySimulation(context.Players, context.Matches, context.FirstPlayerWinRateRating, simulationCount, context.TournamentRuleSetMode);
-            }
-
+            var result = ExecuteStandardMainlineForFinalStageMode(context);
             standardResultRows = RankingResultRowBuilder.BuildResultRows(context.Players, context.Matches, result, context.FirstPlayerWinRatePercent);
             ConsoleResultPrinter.PrintResult(context.Players.Count, result, context.FirstPlayerWinRatePercent, standardResultRows);
             if (result.Mode.Contains("時間切れ", StringComparison.Ordinal))
@@ -50,18 +32,42 @@ internal static partial class Program
             return result;
         }
 
+        var finalStageResult = ExecuteTournamentFinalStateForFinalStageMode(context);
+        finalStageResultRows = RankingResultRowBuilder.BuildFinalStageResultRows(context.Players, context.Matches, finalStageResult, context.FirstPlayerWinRatePercent, context.GroupMap!, context.EffectiveAdditionalApexCount);
+        ConsoleResultPrinter.PrintFinalStageResult(finalStageResult, context.FirstPlayerWinRatePercent, finalStageResultRows);
+        if (finalStageResult.Mode.Contains("時間切れ", StringComparison.Ordinal))
+        {
+            Console.WriteLine($"シミュレーションは時間上限 {SimulationTimeBudget.SimulationTimeLimit.TotalMinutes:F0} 分で打ち切りました。\n");
+        }
+
+        return finalStageResult;
+    }
+
+    static CalculationResult ExecuteStandardMainlineForFinalStageMode(FinalStageModeContext context)
+    {
+        if (context.Matches.Count <= 20)
+        {
+            Console.WriteLine($"{TournamentRuleSetRule.GetLabel(context.TournamentRuleSetMode)} の厳密計算を行います。\n");
+            return CalculateExactly(context.Players, context.Matches, context.FirstPlayerWinRateRating, context.TournamentRuleSetMode);
+        }
+
+        const int defaultSimulationCount = 200_000;
+        var simulationCount = ConsolePromptReaders.ReadIntWithDefault(
+            $"局数が多いため {TournamentRuleSetRule.GetLabel(context.TournamentRuleSetMode)} のシミュレーションで近似します。試行回数を入力してください [{defaultSimulationCount}]: ",
+            defaultSimulationCount,
+            min: 1);
+
+        Console.WriteLine();
+        using var simulationBudget = SimulationTimeBudget.BeginSimulationBudget();
+        return CalculateBySimulation(context.Players, context.Matches, context.FirstPlayerWinRateRating, simulationCount, context.TournamentRuleSetMode);
+    }
+
+    static CalculationResult ExecuteTournamentFinalStateForFinalStageMode(FinalStageModeContext context)
+    {
         if (context.Matches.Count <= 20)
         {
             Console.WriteLine("本戦専用の厳密計算を行います。\n");
-            var result = CalculateFinalStageExactly(context.Players, context.Matches, context.GroupMap!, context.EffectiveAdditionalApexCount, context.BoundaryRescueMode, context.FirstPlayerWinRateRating);
-            finalStageResultRows = RankingResultRowBuilder.BuildFinalStageResultRows(context.Players, context.Matches, result, context.FirstPlayerWinRatePercent, context.GroupMap!, context.EffectiveAdditionalApexCount);
-            ConsoleResultPrinter.PrintFinalStageResult(result, context.FirstPlayerWinRatePercent, finalStageResultRows);
-            if (result.Mode.Contains("時間切れ", StringComparison.Ordinal))
-            {
-                Console.WriteLine($"シミュレーションは時間上限 {SimulationTimeBudget.SimulationTimeLimit.TotalMinutes:F0} 分で打ち切りました。\n");
-            }
-
-            return result;
+            return CalculateFinalStageExactly(context.Players, context.Matches, context.GroupMap!, context.EffectiveAdditionalApexCount, context.BoundaryRescueMode, context.FirstPlayerWinRateRating);
         }
 
         const int finalStageDefaultSimulationCount = 200_000;
@@ -72,16 +78,7 @@ internal static partial class Program
 
         Console.WriteLine();
         using var finalStageSimulationBudget = SimulationTimeBudget.BeginSimulationBudget();
-        var finalStageSimulationResult = CalculateFinalStageBySimulation(context.Players, context.Matches, context.GroupMap!, context.EffectiveAdditionalApexCount, context.BoundaryRescueMode, context.FirstPlayerWinRateRating, finalStageSimulationCount);
-
-        finalStageResultRows = RankingResultRowBuilder.BuildFinalStageResultRows(context.Players, context.Matches, finalStageSimulationResult, context.FirstPlayerWinRatePercent, context.GroupMap!, context.EffectiveAdditionalApexCount);
-        ConsoleResultPrinter.PrintFinalStageResult(finalStageSimulationResult, context.FirstPlayerWinRatePercent, finalStageResultRows);
-        if (finalStageSimulationResult.Mode.Contains("時間切れ", StringComparison.Ordinal))
-        {
-            Console.WriteLine($"シミュレーションは時間上限 {SimulationTimeBudget.SimulationTimeLimit.TotalMinutes:F0} 分で打ち切りました。\n");
-        }
-
-        return finalStageSimulationResult;
+        return CalculateFinalStageBySimulation(context.Players, context.Matches, context.GroupMap!, context.EffectiveAdditionalApexCount, context.BoundaryRescueMode, context.FirstPlayerWinRateRating, finalStageSimulationCount);
     }
 
     static void PrintFinalStageModeContext(FinalStageModeContext context)
