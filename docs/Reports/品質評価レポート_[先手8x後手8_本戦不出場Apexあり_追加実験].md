@@ -1,11 +1,11 @@
-# 【品質評価レポート】[黒8x白8_本戦不出場Apexあり] 追加実験
+# 【品質評価レポート】[先手8x後手8_本戦不出場Apexあり] 追加実験
 
 ## 作成日
 2026-05-14
 
 ## 目的
 今日は最後の追加実験として、
-`[黒8x白8_本戦不出場Apexあり]` に対して
+`[先手8x後手8_本戦不出場Apexあり]` に対して
 - 改善案A On
 - 境界救済戦 On
 の併用を試し、
@@ -15,12 +15,12 @@
 A. 改善案A 単独
 - AdditionalApexPlacement: On
 - BoundaryRescue: Off
-- `ShogiTournamentSystemAnalyzer\Output\TournamentQualityEvaluator\TournamentQualityReport\Summary\Good\[黒8x白8_本戦不出場Apexあり]_[On]_quality_summary.csv`
+- `ShogiTournamentSystemAnalyzer\Output\TournamentQualityEvaluator\TournamentQualityReport\Summary\Good\[先手8x後手8_本戦不出場Apexあり]_[On]_quality_summary.csv`
 
 B. 追加実験（併用）
 - AdditionalApexPlacement: On
 - BoundaryRescue: On
-- `ShogiTournamentSystemAnalyzer\Output\TournamentQualityEvaluator\TournamentQualityReport\Summary\Good\[黒8x白8_本戦不出場Apexあり]_[AdditionalOn_BoundaryOn]_quality_summary.csv`
+- `ShogiTournamentSystemAnalyzer\Output\TournamentQualityEvaluator\TournamentQualityReport\Summary\Good\[先手8x後手8_本戦不出場Apexあり]_[additional_on_boundary_on]_quality_summary.csv`
 
 ## 比較表
 A. 改善案A 単独

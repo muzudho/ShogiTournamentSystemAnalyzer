@@ -99,4 +99,4 @@ END
 20000
 2
 2
-E:\\github.com\\muzudho\\ShogiTournamentSystemAnalyzer\\ShogiTournamentSystemAnalyzer\\Output\\TournamentQualityEvaluator\\TournamentQualityReport\\Summary\\Bad\\[トップ集団小さめ]_[AdditionalOff_BoundaryOff]_quality_summary.csv
+E:\\github.com\\muzudho\\ShogiTournamentSystemAnalyzer\\ShogiTournamentSystemAnalyzer\\Output\\TournamentQualityEvaluator\\TournamentQualityReport\\Summary\\Bad\\[トップ集団小さめ]_[additional_off_boundary_off]_quality_summary.csv

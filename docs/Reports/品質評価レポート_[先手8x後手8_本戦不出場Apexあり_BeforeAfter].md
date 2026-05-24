@@ -1,26 +1,26 @@
-# 【品質評価レポート】[黒8x白8_本戦不出場Apexあり] 3ケース比較
+# 【品質評価レポート】[先手8x後手8_本戦不出場Apexあり] 3ケース比較
 
 ## 作成日
 2026-05-17
 
 ## 目的
-`[黒8x白8_本戦不出場Apexあり]` ケースについて、
+`[先手8x後手8_本戦不出場Apexあり]` ケースについて、
 現行案（Off）、現行案＋品質評価補正、改善案A（On）を比較し、
 品質評価パラメーター追加後にどう見えるかを確認する。
 
 ## 比較対象
 1. 現行案（Bad / Off）
 - 本戦不出場Apexを Innov より前の順位帯へ挿入する
-- 出力先: [Output/TournamentQualityEvaluator/TournamentQualityReport/Summary/Bad/[黒8x白8_本戦不出場Apexあり]_[Off]_modern_quality_summary.csv](../../ShogiTournamentSystemAnalyzer/Output/TournamentQualityEvaluator/TournamentQualityReport/Summary/Bad/[黒8x白8_本戦不出場Apexあり]_[Off]_modern_quality_summary.csv)
+- 出力先: [Output/TournamentQualityEvaluator/TournamentQualityReport/Summary/Bad/[先手8x後手8_本戦不出場Apexあり]_[Off]_modern_quality_summary.csv](../../ShogiTournamentSystemAnalyzer/Output/TournamentQualityEvaluator/TournamentQualityReport/Summary/Bad/[先手8x後手8_本戦不出場Apexあり]_[Off]_modern_quality_summary.csv)
 
 2. 現行案 + 品質評価補正（Bad / Off+Offset）
 - 大会ルール自体は現行案のまま
 - 品質評価だけ、Innov の比較基準順位を本戦不出場Apex人数+1ぶん後ろへずらす
-- 出力先: [Output/TournamentQualityEvaluator/TournamentQualityReport/Summary/Bad/[黒8x白8_本戦不出場Apexあり]_[Off_QualityInnovOffsetOn]_quality_summary.csv](../../ShogiTournamentSystemAnalyzer/Output/TournamentQualityEvaluator/TournamentQualityReport/Summary/Bad/[黒8x白8_本戦不出場Apexあり]_[Off_QualityInnovOffsetOn]_quality_summary.csv)
+- 出力先: [Output/TournamentQualityEvaluator/TournamentQualityReport/Summary/Bad/[先手8x後手8_本戦不出場Apexあり]_[off_quality_innov_offset_on]_quality_summary.csv](../../ShogiTournamentSystemAnalyzer/Output/TournamentQualityEvaluator/TournamentQualityReport/Summary/Bad/[先手8x後手8_本戦不出場Apexあり]_[off_quality_innov_offset_on]_quality_summary.csv)
 
 3. 改善案A（Good / On）
 - 本戦不出場Apexを総合順位へ挿入しない
-- 出力先: [Output/TournamentQualityEvaluator/TournamentQualityReport/Summary/Good/[黒8x白8_本戦不出場Apexあり]_[On]_modern_quality_summary.csv](../../ShogiTournamentSystemAnalyzer/Output/TournamentQualityEvaluator/TournamentQualityReport/Summary/Good/[黒8x白8_本戦不出場Apexあり]_[On]_modern_quality_summary.csv)
+- 出力先: [Output/TournamentQualityEvaluator/TournamentQualityReport/Summary/Good/[先手8x後手8_本戦不出場Apexあり]_[On]_modern_quality_summary.csv](../../ShogiTournamentSystemAnalyzer/Output/TournamentQualityEvaluator/TournamentQualityReport/Summary/Good/[先手8x後手8_本戦不出場Apexあり]_[On]_modern_quality_summary.csv)
 
 ## 比較表
 ### 現行案（Off）

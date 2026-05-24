@@ -1,9 +1,9 @@
-# 品質評価レポート: Twill+CommonOpp の途中比較（黒8x白8 / 50%・60%・70%）
+# 品質評価レポート: Twill+CommonOpp の途中比較（先手8x後手8 / 50%・60%・70%）
 
 ## 概要
 このレポートは、新しく追加した **Twill+CommonOpp** を、既存の **Neutral** / **Twill** と比較した途中まとめです。
 
-対象ケースは `黒8x白8` で、先手勝率 `50% / 60% / 70%` の比較を行いました。
+対象ケースは `先手8x後手8` で、先手勝率 `50% / 60% / 70%` の比較を行いました。
 
 ただし、`Twill+CommonOpp` は計算時間の都合でスイープを最後まで完走できず、今回は次の 3 点までを比較対象にしています。
 
@@ -12,17 +12,17 @@
 - 70%
 
 ## 今回の前提
-- ケース: `黒8x白8`
+- ケース: `先手8x後手8`
 - 比較対象ルール:
   - `Neutral`
   - `Twill`
   - `Twill+CommonOpp`
 - Twill+CommonOpp の出力元:
-	- [twill_commonopp_[黒8x白8]_50to100_quality_sweep.csv](./twill_commonopp_[黒8x白8]_50to100_quality_sweep.csv)
-  - [twill_commonopp_[黒8x白8]_70to100_fast_quality_sweep.csv](./twill_commonopp_[黒8x白8]_70to100_fast_quality_sweep.csv)
+	- [twill_commonopp_[先手8x後手8]_50to100_quality_sweep.csv](./twill_commonopp_[先手8x後手8]_50to100_quality_sweep.csv)
+  - [twill_commonopp_[先手8x後手8]_70to100_fast_quality_sweep.csv](./twill_commonopp_[先手8x後手8]_70to100_fast_quality_sweep.csv)
 - 既存比較用の出力元:
-	- [neutral_[黒8x白8]_50to100_quality_sweep.csv](./neutral_[黒8x白8]_50to100_quality_sweep.csv)
-  - [twill_[黒8x白8]_50to100_quality_sweep.csv](./twill_[黒8x白8]_50to100_quality_sweep.csv)
+	- [neutral_[先手8x後手8]_50to100_quality_sweep.csv](./neutral_[先手8x後手8]_50to100_quality_sweep.csv)
+  - [twill_[先手8x後手8]_50to100_quality_sweep.csv](./twill_[先手8x後手8]_50to100_quality_sweep.csv)
 
 ## 比較表
 

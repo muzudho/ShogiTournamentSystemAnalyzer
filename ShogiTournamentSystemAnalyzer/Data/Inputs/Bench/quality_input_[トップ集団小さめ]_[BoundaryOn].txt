@@ -99,4 +99,4 @@ END
 20000
 2
 1
-E:\\github.com\\muzudho\\ShogiTournamentSystemAnalyzer\\docs\\Reports\Good\[トップ集団小さめ]_[AdditionalOff_BoundaryOn]_quality_summary.csv
+E:\\github.com\\muzudho\\ShogiTournamentSystemAnalyzer\\docs\\Reports\Good\[トップ集団小さめ]_[additional_off_boundary_on]_quality_summary.csv

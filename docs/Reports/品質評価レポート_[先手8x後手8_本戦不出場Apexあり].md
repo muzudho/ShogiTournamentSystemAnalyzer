@@ -1,23 +1,23 @@
-# 【品質評価レポート】[黒8x白8_本戦不出場Apexあり]
+# 【品質評価レポート】[先手8x後手8_本戦不出場Apexあり]
 
 ## 作成日
 2026-05-13
 
 ## 対象
 ShogiTournamentPairingAnalyzer の品質評価モードを使い、
-`[黒8x白8]` を土台に、本戦不出場Apexを 2 名追加したケースをシミュレーションした。
+`[先手8x後手8]` を土台に、本戦不出場Apexを 2 名追加したケースをシミュレーションした。
 
 ## 使用ファイル
 - 選手一覧CSV
-  - `ShogiTournamentPairingAnalyzer\Examples\【選手一覧】[黒8x白8].csv`
+  - `ShogiTournamentPairingAnalyzer\Examples\【選手一覧】[先手8x後手8].csv`
 - グループ対応CSV
-  - `ShogiTournamentPairingAnalyzer\Examples\【グループ対応表】[本戦専用_黒8x白8].csv`
+  - `ShogiTournamentSystemAnalyzer\Data\FinalStage\【グループ対応表】[本戦専用_先手8x後手8].csv`
 - 本戦不出場Apex一覧CSV
-  - `ShogiTournamentPairingAnalyzer\Examples\【本戦不出場Apex一覧】[黒8x白8_2名].csv`
+  - `ShogiTournamentSystemAnalyzer\Data\FinalStage\【本戦不出場Apex一覧】[先手8x後手8_2名].csv`
 - 対局表
-  - `ShogiTournamentPairingAnalyzer\Examples\【対局表】[黒8x白8].csv`
+  - `ShogiTournamentPairingAnalyzer\Examples\【対局表】[先手8x後手8].csv`
 - 品質評価サマリーCSV
-  - `ShogiTournamentSystemAnalyzer\Output\TournamentQualityEvaluator\TournamentQualityReport\Summary\[黒8x白8_本戦不出場Apexあり]_quality_summary.csv`
+  - `ShogiTournamentSystemAnalyzer\Output\TournamentQualityEvaluator\TournamentQualityReport\Summary\[先手8x後手8_本戦不出場Apexあり]_quality_summary.csv`
 - 品質評価選手別CSV
   - `ShogiTournamentSystemAnalyzer\Output\TournamentQualityEvaluator\TournamentQualityReport\Players\20260513_230924_quality_players.csv`
 
@@ -30,7 +30,7 @@ ShogiTournamentPairingAnalyzer の品質評価モードを使い、
 - 試行回数: 20000 回
 
 ## シチュエーション
-本戦出場者は前回の `[黒8x白8]` と同じである。
+本戦出場者は前回の `[先手8x後手8]` と同じである。
 
 - Apex
   - 飛, 角, 玉, 金, 銀, 桂, 香, 歩
@@ -113,7 +113,7 @@ Innov 側の期待総合順位:
   「本戦外の Apex が順位を先取りする」点にもある
 
 ## 前のケースとの比較
-[黒8x白8]:
+[先手8x後手8]:
 - Spearman 相関: 1.000000
 - 平均順位ずれ: 1.379225
 
@@ -125,7 +125,7 @@ Innov 側の期待総合順位:
 - Spearman 相関: 0.997059
 - 平均順位ずれ: 1.348922
 
-[黒8x白8_本戦不出場Apexあり]:
+[先手8x後手8_本戦不出場Apexあり]:
 - Spearman 相関: 0.771996
 - 平均順位ずれ: 2.989098
 

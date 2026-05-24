@@ -4,7 +4,7 @@
 2026-05-14
 
 ## 目的
-`[黒8x白8_本戦不出場Apexあり]` について、
+`[先手8x後手8_本戦不出場Apexあり]` について、
 
 - 改善案A 単独
 - 改善案A + 境界救済戦（併用）
@@ -14,10 +14,10 @@
 
 ## 比較対象
 A. 改善案A単独
-- `docs\Reports\Good\[黒8x白8_本戦不出場Apexあり]_[AdditionalOn_BoundaryOff_50to90_by5]_quality_sweep.csv`
+- `docs\Reports\Good\[先手8x後手8_本戦不出場Apexあり]_[additional_on_boundary_off_50to90_by5]_quality_sweep.csv`
 
 B. 併用
-- `docs\Reports\Good\[黒8x白8_本戦不出場Apexあり]_[AdditionalOn_BoundaryOn_50to90_by5]_quality_sweep.csv`
+- `docs\Reports\Good\[先手8x後手8_本戦不出場Apexあり]_[additional_on_boundary_on_50to90_by5]_quality_sweep.csv`
 
 ## まず結論
 今回の比較では、

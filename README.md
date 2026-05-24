@@ -1,4 +1,4 @@
-﻿# ShogiTournamentSystemAnalyzer
+# ShogiTournamentSystemAnalyzer
 
 将棋大会の大会ルールを入力し、対局シミュレーションと品質評価で比べるための .NET コンソールアプリです。  
 予選・本戦を含む大会システム全体を対象に、ルールの部品を試しながら、現在の基準より良い大会ルールを反復的に作っていくことを目的にしています。
@@ -18,7 +18,7 @@ dotnet run --project .\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyz
 入力ファイルで流すときは次です。
 
 ```powershell
-dotnet run --project .\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyzer.csproj -- --input-file .\ShogiTournamentSystemAnalyzer\Data\Inputs\Bench\quality_input_[黒8x白8].txt
+dotnet run --project .\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyzer.csproj -- --input-file .\ShogiTournamentSystemAnalyzer\Data\Inputs\Bench\quality_input_[先手8x後手8].txt
 ```
 
 ### 2. 大会ルールの入力方法

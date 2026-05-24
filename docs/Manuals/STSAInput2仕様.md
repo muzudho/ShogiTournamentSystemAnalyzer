@@ -159,7 +159,7 @@ B, "Bob"
 ### 本戦ルール向け
 - `AdditionalApexPlacementMode`
 - `BoundaryRescueMode`
-- `VariableTop8Mode`
+- `variable_top8Mode`
 - `QualityInnovExpectedRankOffsetMode`
 
 ### 品質評価向け
@@ -186,7 +186,7 @@ On / Off 切り替えは、次のような表現を想定します。
 
 ```plaintext
 BoundaryRescueMode=On
-VariableTop8Mode=Off
+variable_top8Mode=Off
 ```
 
 ### 列挙値
@@ -319,7 +319,7 @@ RuleProfileMode=FinalStage
 FirstPlayerWinRatePercent=51
 AdditionalApexPlacementMode=On
 BoundaryRescueMode=On
-VariableTop8Mode=On
+variable_top8Mode=On
 ExecutionMode=Single
 SimulationCount=20000
 OutputPath=docs/Reports
