@@ -18,7 +18,7 @@ internal static partial class TournamentQualityEvaluationMode
     /// <param name="input"></param>
     /// <param name="ruleDefinition"></param>
     /// <param name="executionOptions"></param>
-    static void RunTournamentQualitySweepExperiment(
+    internal static void RunTournamentQualitySweepExperiment(
         TournamentQualityEvaluationInput input,
         TournamentQualityEvaluationRuleDefinition ruleDefinition,
         TournamentQualityEvaluationExecutionOptions executionOptions)
@@ -332,7 +332,7 @@ internal static partial class TournamentQualityEvaluationMode
     /// <param name="ruleDefinition"></param>
     /// <param name="executionOptions"></param>
     /// <returns></returns>
-    static TournamentQualityReportData ExecuteTournamentQualityReport(
+    internal static TournamentQualityReportData ExecuteTournamentQualityReport(
         TournamentQualityEvaluationInput input,
         TournamentQualityEvaluationRuleDefinition ruleDefinition,
         TournamentQualityEvaluationExecutionOptions executionOptions)
@@ -341,7 +341,7 @@ internal static partial class TournamentQualityEvaluationMode
         return BoundaryDataBuilders.BuildTournamentQualityReportBoundaryData(qualityEvaluationRun);
     }
 
-    static TournamentQualityEvaluationExecutionOptions ReadTournamentQualityEvaluationExecutionOptions(
+    internal static TournamentQualityEvaluationExecutionOptions ReadTournamentQualityEvaluationExecutionOptions(
         TournamentQualityEvaluationInput input,
         TournamentQualityEvaluationRuleDefinition ruleDefinition)
     {
