@@ -12,6 +12,11 @@ internal static partial class Program
 
         ConsoleSamplePrinter.PrintSimulationStandardOverview();
         var context = SimulationModeInputReaders.ReadStandardModeContext();
+        RunMainlineToFinalRanking(context);
+    }
+
+    static void RunMainlineToFinalRanking(StandardModeContext context)
+    {
         ExecuteStandardMode(context);
     }
 }

@@ -25,13 +25,16 @@ internal static partial class Program
             ConsoleSamplePrinter.PrintQualityEvaluationFinalStageOverview();
         }
 
+        RunMainlineToTournamentQualityReport(ruleProfileMode);
+    }
+
+    static void RunMainlineToTournamentQualityReport(RuleProfileMode ruleProfileMode)
+    {
         var players = ConsoleInputReaders.ReadPlayersFromCsv();
         Console.WriteLine();
 
         if (!TryReadQualityEvaluationRuleDefinition(players, ruleProfileMode, out var ruleDefinition)) return;
-
         if (!TryReadQualityEvaluationInput(players, ruleDefinition, out var input)) return;
-
 
         var executionOptions = ReadTournamentQualityEvaluationExecutionOptions(input, ruleDefinition);
         TournamentQualityEvaluationOutputCoordinator.PrintTournamentQualityEvaluationContext(input, ruleDefinition);

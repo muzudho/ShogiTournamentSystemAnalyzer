@@ -103,11 +103,11 @@ internal static partial class Program
                 break;
 
             case (AnalysisFlowMode.QualityEvaluation, RuleProfileMode.Standard):
-                RunTournamentQualityEvaluationMode(RuleProfileMode.Standard);
+                RunMainlineToTournamentQualityReport(RuleProfileMode.Standard);
                 break;
 
             case (AnalysisFlowMode.QualityEvaluation, RuleProfileMode.FinalStage):
-                RunTournamentQualityEvaluationMode(RuleProfileMode.FinalStage);
+                RunMainlineToTournamentQualityReport(RuleProfileMode.FinalStage);
                 break;
 
             default:

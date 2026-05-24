@@ -12,6 +12,11 @@ internal static partial class Program
     {
         Console.WriteLine("対局シミュレーション / 空ルール: ペアリングを一切行わず、大会最終状態 0 件の最小結果を出力します。\n");
         ConsoleSamplePrinter.PrintSimulationEmptyOverview();
+        RunMainlineToEmptyTournamentFinalState();
+    }
+
+    static void RunMainlineToEmptyTournamentFinalState()
+    {
         ExecuteEmptyMode();
     }
 
