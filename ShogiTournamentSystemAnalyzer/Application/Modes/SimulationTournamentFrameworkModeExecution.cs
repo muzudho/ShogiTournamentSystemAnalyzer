@@ -9,7 +9,7 @@ using ShogiTournamentSystemAnalyzer.Domain.Ranking;
 using ShogiTournamentSystemAnalyzer.Domain.RankingSettings;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
-using ShogiTournamentSystemAnalyzer.Infrastructure.Csv;
+using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles;
 using ShogiTournamentSystemAnalyzer.Infrastructure.Parsing;
 using ShogiTournamentSystemAnalyzer.Application.Helpers;
 

@@ -4,7 +4,7 @@
 namespace ShogiTournamentSystemAnalyzer;
 
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
-using ShogiTournamentSystemAnalyzer.Infrastructure.Csv;
+using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles;
 
 internal static partial class Program
 {

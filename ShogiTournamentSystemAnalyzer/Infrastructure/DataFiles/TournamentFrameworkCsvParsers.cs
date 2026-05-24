@@ -1,7 +1,7 @@
 /*
  * ［Infrastructure / Csv］
  */
-namespace ShogiTournamentSystemAnalyzer.Infrastructure.Csv;
+namespace ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles;
 
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Infrastructure.Parsing;

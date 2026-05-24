@@ -1,4 +1,4 @@
-﻿namespace ShogiTournamentSystemAnalyzer.Infrastructure.Csv;
+﻿namespace ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles;
 
 using System;
 using System.Collections.Generic;

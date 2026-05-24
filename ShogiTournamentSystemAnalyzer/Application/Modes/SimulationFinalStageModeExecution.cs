@@ -7,7 +7,7 @@ using ShogiTournamentSystemAnalyzer.Application.Execution;
 using ShogiTournamentSystemAnalyzer.Domain.Ranking;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
-using ShogiTournamentSystemAnalyzer.Infrastructure.Csv;
+using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles;
 
 internal static partial class Program
 {

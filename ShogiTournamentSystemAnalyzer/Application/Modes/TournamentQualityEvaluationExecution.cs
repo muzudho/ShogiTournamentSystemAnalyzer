@@ -8,7 +8,7 @@ using ShogiTournamentSystemAnalyzer.Application.Helpers;
 using ShogiTournamentSystemAnalyzer.Domain.Ranking;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
-using ShogiTournamentSystemAnalyzer.Infrastructure.Csv;
+using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles;
 using System.Globalization;
 
 internal static partial class Program

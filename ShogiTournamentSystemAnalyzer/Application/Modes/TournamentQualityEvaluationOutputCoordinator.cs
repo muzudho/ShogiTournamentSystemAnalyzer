@@ -4,7 +4,7 @@
 namespace ShogiTournamentSystemAnalyzer;
 
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
-using ShogiTournamentSystemAnalyzer.Infrastructure.Csv;
+using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles;
 
 internal static class TournamentQualityEvaluationOutputCoordinator
 {
