@@ -45,6 +45,7 @@ internal static partial class Program
             var ruleProfileMode = ConsolePromptReaders.ReadRuleProfileMode(flowMode);
             PrintSelectedMainline(flowMode, ruleProfileMode);
 
+            // 選択フロー
             ExecuteSelectedFlow(flowMode, ruleProfileMode);
         }
         catch (OperationCanceledException ex)
@@ -82,6 +83,12 @@ internal static partial class Program
         Console.WriteLine($"選択された主線: {profileLabel} / {mainlineLabel}\n");
     }
 
+    /// <summary>
+    /// 選択フロー
+    /// </summary>
+    /// <param name="flowMode"></param>
+    /// <param name="ruleProfileMode"></param>
+    /// <exception cref="InvalidOperationException"></exception>
     static void ExecuteSelectedFlow(AnalysisFlowMode flowMode, RuleProfileMode ruleProfileMode)
     {
         switch ((flowMode, ruleProfileMode))
@@ -102,6 +109,7 @@ internal static partial class Program
                 RunEmptyMode();
                 break;
 
+            // ［大会品質評価フロー］
             case (AnalysisFlowMode.QualityEvaluation, RuleProfileMode.Standard):
                 RunMainlineToTournamentQualityReport(RuleProfileMode.Standard);
                 break;

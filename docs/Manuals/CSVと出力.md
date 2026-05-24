@@ -40,6 +40,60 @@
 - 出力フォーマットは、この文書の [品質評価CSV](#品質評価csv) と [品質評価Markdownレポート](#品質評価markdownレポート) を見てください
 - 解釈の補足は [品質評価](./品質評価.md) を見てください
 
+## CSV共通規約
+
+出力 CSV は、境界ごとに 1 行の意味や専用列は違いますが、先頭の外枠だけは共通化しています。
+
+### 共通部列
+- `boundaryName`
+  - どの境界の CSV かを表します
+- `schemaName`
+  - その境界の中でどの表形式かを表します
+- `rowType`
+  - その行が何の種類かを表します
+
+つまり、各 CSV は次の形です。
+
+- 共通部列
+  - `boundaryName, schemaName, rowType`
+- 専用列部
+  - 境界ごとの本体列
+
+### rowType の見方
+- `data`
+  - 通常のデータ行です
+- `metric`
+  - 指標名と値を並べる行です
+- `meta`
+  - メモや補足などの行です
+
+### schemaName 一覧
+
+#### FinalRanking
+- `representativeExecutionRank`
+  - representative 順位表 CSV
+- `standardFinalRanking`
+  - 通常モードの順位表 CSV
+- `finalStageFinalRanking`
+  - 本戦専用モードの順位表 CSV
+
+#### TournamentFinalState
+- `tournamentMatchRecord`
+  - 大会最終状態の対局記録 CSV
+
+#### TournamentQualityReport
+- `summaryMetrics`
+  - 品質評価サマリー CSV
+- `playerReport`
+  - 選手別 CSV
+- `sweepReport`
+  - n% スイープ CSV
+
+### 考え方
+- 1 行が何を表すかは境界ごとに違います
+- そのため、専用列は無理に共通化しません
+- 代わりに、CSV の先頭だけ共通部列を置いて、読み手が「どの境界のどの表か」をすぐ見分けられるようにしています
+
 ## 選手 / Player 一覧CSV
 - 1列目: 名前
 - 2列目: Elo レーティング
@@ -119,6 +173,7 @@ END
 ## 結果CSV
 通常モードや本戦専用モードでは、結果CSVに次を出力します。
 
+- 先頭に共通部列 `boundaryName`, `schemaName`, `rowType` が付きます
 - コンソール表示の内容
 - 各順位の確率
 - シミュレーション時は各順位の出現相当回数
@@ -153,6 +208,7 @@ END
 - これは **複数回試行を集計した順位表** です
 - `優勝確率` や `平均順位` は、この aggregate 結果を見ます
 - CSV には `note` 列が付き、aggregate 結果であることを明示します
+- `schemaName` は `standardFinalRanking` です
 
 ### representative 大会最終状態
 - `tournament_framework_representative_final_ranking_*.csv`
@@ -160,6 +216,7 @@ END
 - これは **代表実行 1 件の順位表** です
 - コンソールに出る `代表実行順位` と同じ系統の情報です
 - aggregate の順位表とは別物です
+- `schemaName` は `representativeExecutionRank` です
 
 - `representative_tournament_final_state_*.csv`
 - `representative_tournament_final_state_*.md`
@@ -167,6 +224,7 @@ END
 - aggregate の順位表と 1 対 1 には対応しません
 - どんな対局順・勝敗例になったかを確認したいときに見ます
 - CSV には `note` 列が付き、representative であることを明示します
+- `schemaName` は `tournamentMatchRecord` です
 
 ### どう見分けるか
 - ファイル名に `aggregate` が入っていれば、集計済みの順位表です
@@ -195,6 +253,8 @@ END
 ## 品質評価CSV
 品質評価モードでは、次の 2 種類の CSV を出力します。
 
+- 先頭に共通部列 `boundaryName`, `schemaName`, `rowType` が付きます
+
 ### サマリーCSV
 - `spearmanCorrelation`
 - `meanAbsoluteRankError`
@@ -204,6 +264,8 @@ END
 - `mostAdvantagedPlayerDelta`
 - 必要に応じて `evaluationMemo`
 - 既定出力先は `Output/TournamentQualityEvaluator/TournamentQualityReport/Summary`
+- `schemaName` は `summaryMetrics` です
+- 指標行は `rowType = metric`、補足行は `rowType = meta` です
 
 ### 選手別CSV
 - `playerName`
@@ -215,6 +277,22 @@ END
 - `overallTop1ProbabilityPercent`
 - `overallTop8ProbabilityPercent`
 - 既定出力先は `Output/TournamentQualityEvaluator/TournamentQualityReport/Players`
+- `schemaName` は `playerReport`、通常行は `rowType = data` です
+
+### スイープCSV
+- `firstPlayerWinRatePercent`
+- `spearmanCorrelation`
+- `meanAbsoluteRankError`
+- `averageTop8Retention`
+- `eloTop1OverallTop1ProbabilityPercent`
+- `mostPenalizedPlayer`
+- `mostPenalizedDelta`
+- `mostAdvantagedPlayer`
+- `mostAdvantagedDelta`
+- 必要に応じて `evaluationMemo`
+- 既定出力先は `Output/TournamentQualityEvaluator/TournamentQualityReport/Sweeps`
+- `schemaName` は `sweepReport` です
+- 通常行は `rowType = data`、補足行は `rowType = meta` です
 
 ## 品質評価Markdownレポート
 品質評価モードでは、CSV に加えて人が読みやすい Markdown レポートも出力します。
