@@ -94,11 +94,11 @@ internal static partial class Program
         switch ((flowMode, ruleProfileMode))
         {
             case (AnalysisFlowMode.Simulation, RuleProfileMode.Standard):
-                RunStandardMode();
+                SimulationScenarioRunner.Run(SimulationScenarioFactory.Create(ruleProfileMode));
                 break;
 
             case (AnalysisFlowMode.Simulation, RuleProfileMode.FinalStage):
-                RunFinalStageMode();
+                SimulationScenarioRunner.Run(SimulationScenarioFactory.Create(ruleProfileMode));
                 break;
 
             case (AnalysisFlowMode.Simulation, RuleProfileMode.TournamentFramework):
