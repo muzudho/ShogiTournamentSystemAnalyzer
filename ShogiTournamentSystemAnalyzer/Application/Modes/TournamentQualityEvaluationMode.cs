@@ -10,9 +10,9 @@ using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
 
-internal static partial class Program
+internal static partial class TournamentQualityEvaluationMode
 {
-    static void RunTournamentQualityEvaluationMode(RuleProfileMode ruleProfileMode)
+    internal static void Run(RuleProfileMode ruleProfileMode)
     {
         if (ruleProfileMode == RuleProfileMode.Standard)
         {

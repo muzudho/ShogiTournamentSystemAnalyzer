@@ -10,7 +10,7 @@ using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using System.Globalization;
 
-internal static partial class Program
+internal static partial class TournamentQualityEvaluationMode
 {
     /// <summary>
     /// ［大会品質評価フロー］の実行。単発評価か n% スイープ実験のどちらかを選択して実行します。
@@ -126,11 +126,11 @@ internal static partial class Program
         using var simulationBudget = executionOptions.SimulationCount.HasValue ? SimulationTimeBudget.BeginSimulationBudget() : default;
         return ruleDefinition.GroupingMode == FinalStageGroupingMode.On
             ? executionOptions.SimulationCount.HasValue
-                ? CalculateFinalStageBySimulation(input.Players, input.Matches, ruleDefinition.GroupMap!, ruleDefinition.EffectiveAdditionalApexCount, ruleDefinition.BoundaryRescueMode, firstPlayerWinRateRating, executionOptions.SimulationCount.Value, ruleDefinition.PromotedInnovCount)
-                : CalculateFinalStageExactly(input.Players, input.Matches, ruleDefinition.GroupMap!, ruleDefinition.EffectiveAdditionalApexCount, ruleDefinition.BoundaryRescueMode, firstPlayerWinRateRating, ruleDefinition.PromotedInnovCount)
+                ? FinalStageCalculationEngine.CalculateFinalStageBySimulation(input.Players, input.Matches, ruleDefinition.GroupMap!, ruleDefinition.EffectiveAdditionalApexCount, ruleDefinition.BoundaryRescueMode, firstPlayerWinRateRating, executionOptions.SimulationCount.Value, ruleDefinition.PromotedInnovCount)
+                : FinalStageCalculationEngine.CalculateFinalStageExactly(input.Players, input.Matches, ruleDefinition.GroupMap!, ruleDefinition.EffectiveAdditionalApexCount, ruleDefinition.BoundaryRescueMode, firstPlayerWinRateRating, ruleDefinition.PromotedInnovCount)
             : executionOptions.SimulationCount.HasValue
-                ? CalculateBySimulation(input.Players, input.Matches, firstPlayerWinRateRating, executionOptions.SimulationCount.Value, ruleDefinition.TournamentRuleSetMode)
-                : CalculateExactly(input.Players, input.Matches, firstPlayerWinRateRating, ruleDefinition.TournamentRuleSetMode);
+                ? StandardCalculationEngine.CalculateBySimulation(input.Players, input.Matches, firstPlayerWinRateRating, executionOptions.SimulationCount.Value, ruleDefinition.TournamentRuleSetMode)
+                : StandardCalculationEngine.CalculateExactly(input.Players, input.Matches, firstPlayerWinRateRating, ruleDefinition.TournamentRuleSetMode);
     }
 
     static IReadOnlyList<ResultRow> BuildFinalRankingRowsForQualityEvaluation(

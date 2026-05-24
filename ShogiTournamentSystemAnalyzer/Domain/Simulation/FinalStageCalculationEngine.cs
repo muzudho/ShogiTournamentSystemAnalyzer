@@ -7,9 +7,9 @@ using ShogiTournamentSystemAnalyzer.Application.Execution;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
 
-internal static partial class Program
+internal static class FinalStageCalculationEngine
 {
-    static CalculationResult CalculateFinalStageExactly(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, IReadOnlyDictionary<string, FinalStageGroup> groupMap, int additionalApexCount, BoundaryRescueMode boundaryRescueMode, double firstPlayerWinRateRating, int promotedInnovCount = 0)
+    internal static CalculationResult CalculateFinalStageExactly(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, IReadOnlyDictionary<string, FinalStageGroup> groupMap, int additionalApexCount, BoundaryRescueMode boundaryRescueMode, double firstPlayerWinRateRating, int promotedInnovCount = 0)
     {
         var placeProbabilities = new double[players.Count, players.Count + additionalApexCount];
         var wins = new int[players.Count];
@@ -48,7 +48,7 @@ internal static partial class Program
         return new CalculationResult(placeProbabilities, modeLabel, null);
     }
 
-    static CalculationResult CalculateFinalStageBySimulation(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, IReadOnlyDictionary<string, FinalStageGroup> groupMap, int additionalApexCount, BoundaryRescueMode boundaryRescueMode, double firstPlayerWinRateRating, int simulationCount, int promotedInnovCount = 0)
+    internal static CalculationResult CalculateFinalStageBySimulation(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, IReadOnlyDictionary<string, FinalStageGroup> groupMap, int additionalApexCount, BoundaryRescueMode boundaryRescueMode, double firstPlayerWinRateRating, int simulationCount, int promotedInnovCount = 0)
     {
         var placeProbabilities = new double[players.Count, players.Count + additionalApexCount];
         var wins = new int[players.Count];

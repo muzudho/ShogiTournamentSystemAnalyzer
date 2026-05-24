@@ -9,7 +9,7 @@ using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
 
-internal static partial class Program
+internal static partial class SimulationModeInputReaders
 {
     internal static bool TryReadFinalStageModeContext(out FinalStageModeContext context)
     {

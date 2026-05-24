@@ -21,7 +21,7 @@ internal sealed class FinalStageSimulationScenario : ISimulationScenario
 
     public bool TryPrepareExecution(out SimulationExecutionPlan plan)
     {
-        if (!Program.TryReadFinalStageModeContext(out var context))
+        if (!SimulationModeInputReaders.TryReadFinalStageModeContext(out var context))
         {
             plan = default;
             return false;
@@ -30,7 +30,7 @@ internal sealed class FinalStageSimulationScenario : ISimulationScenario
         plan = new SimulationExecutionPlan(
             RuleProfileMode,
             "FinalStageMainline",
-            () => Program.RunMainlineToFinalRanking(context));
+            () => FinalStageSimulationMainline.Run(context));
 
         return true;
     }

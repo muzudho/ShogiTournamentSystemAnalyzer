@@ -9,9 +9,9 @@ using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.FinalRanking;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.Shared;
 
-internal static partial class Program
+internal static class StandardSimulationMainline
 {
-    static void ExecuteStandardMode(StandardModeContext context)
+    internal static void Run(StandardModeContext context)
     {
         Console.WriteLine($"順位ルール: {TournamentRuleSetRule.GetLabel(context.TournamentRuleSetMode)}\n");
 
@@ -39,7 +39,7 @@ internal static partial class Program
         if (context.Matches.Count <= 20)
         {
             Console.WriteLine("厳密計算を行います。\n");
-            return CalculateExactly(context.Players, context.Matches, context.FirstPlayerWinRateRating, context.TournamentRuleSetMode);
+            return StandardCalculationEngine.CalculateExactly(context.Players, context.Matches, context.FirstPlayerWinRateRating, context.TournamentRuleSetMode);
         }
 
         const int defaultSimulationCount = 200_000;
@@ -50,7 +50,7 @@ internal static partial class Program
 
         Console.WriteLine();
         using var simulationBudget = SimulationTimeBudget.BeginSimulationBudget();
-        return CalculateBySimulation(context.Players, context.Matches, context.FirstPlayerWinRateRating, simulationCount, context.TournamentRuleSetMode);
+        return StandardCalculationEngine.CalculateBySimulation(context.Players, context.Matches, context.FirstPlayerWinRateRating, simulationCount, context.TournamentRuleSetMode);
     }
 
     static IReadOnlyList<ResultRow> BuildFinalRankingRowsForStandardMode(StandardModeContext context, CalculationResult tournamentFinalState)

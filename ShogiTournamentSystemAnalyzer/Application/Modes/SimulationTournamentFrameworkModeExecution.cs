@@ -16,7 +16,7 @@ using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.TournamentFinalStat
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.TournamentFramework;
 using ShogiTournamentSystemAnalyzer.Infrastructure.Parsing;
 
-internal static partial class Program
+internal static partial class SimulationTournamentFrameworkMode
 {
     /// <summary>
     /// ［大会フレームワーク　＞　シミュレーション回数　＞　既定値］

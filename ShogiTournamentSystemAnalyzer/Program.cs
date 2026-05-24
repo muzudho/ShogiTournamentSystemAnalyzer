@@ -95,28 +95,22 @@ internal static partial class Program
         switch ((flowMode, ruleProfileMode))
         {
             case (AnalysisFlowMode.Simulation, RuleProfileMode.Standard):
-                SimulationScenarioRunner.Run(SimulationScenarioFactory.Create(ruleProfileMode));
-                break;
-
             case (AnalysisFlowMode.Simulation, RuleProfileMode.FinalStage):
                 SimulationScenarioRunner.Run(SimulationScenarioFactory.Create(ruleProfileMode));
                 break;
 
             case (AnalysisFlowMode.Simulation, RuleProfileMode.TournamentFramework):
-                RunTournamentFrameworkMode();
+                SimulationTournamentFrameworkMode.Run();
                 break;
 
             case (AnalysisFlowMode.Simulation, RuleProfileMode.Empty):
-                RunEmptyMode();
+                SimulationEmptyMode.Run();
                 break;
 
             // ［大会品質評価フロー］
             case (AnalysisFlowMode.QualityEvaluation, RuleProfileMode.Standard):
-                RunMainlineToTournamentQualityReport(RuleProfileMode.Standard);
-                break;
-
             case (AnalysisFlowMode.QualityEvaluation, RuleProfileMode.FinalStage):
-                RunMainlineToTournamentQualityReport(RuleProfileMode.FinalStage);
+                TournamentQualityEvaluationMode.Run(ruleProfileMode);
                 break;
 
             default:

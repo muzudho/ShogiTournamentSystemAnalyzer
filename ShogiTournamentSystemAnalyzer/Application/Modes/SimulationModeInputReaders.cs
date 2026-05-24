@@ -6,7 +6,7 @@ namespace ShogiTournamentSystemAnalyzer;
 using ShogiTournamentSystemAnalyzer.Application.Helpers;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 
-internal static class SimulationModeInputReaders
+internal static partial class SimulationModeInputReaders
 {
     internal static StandardModeContext ReadStandardModeContext()
     {

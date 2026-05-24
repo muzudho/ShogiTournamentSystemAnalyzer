@@ -3,9 +3,9 @@
  */
 namespace ShogiTournamentSystemAnalyzer;
 
-internal static partial class Program
+internal static partial class SimulationTournamentFrameworkMode
 {
-    static void RunTournamentFrameworkMode()
+    internal static void Run()
     {
         Console.WriteLine("対局シミュレーション / 大会進行フレームワーク: 一般化した大会進行モデルで大会記録を実行します。\n");
         ConsoleSamplePrinter.PrintSimulationTournamentFrameworkOverview();

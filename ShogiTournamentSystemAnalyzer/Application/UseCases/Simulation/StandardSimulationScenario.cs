@@ -26,7 +26,7 @@ internal sealed class StandardSimulationScenario : ISimulationScenario
         plan = new SimulationExecutionPlan(
             RuleProfileMode,
             "StandardMainline",
-            () => Program.RunMainlineToFinalRanking(context));
+            () => StandardSimulationMainline.Run(context));
         return true;
     }
 }

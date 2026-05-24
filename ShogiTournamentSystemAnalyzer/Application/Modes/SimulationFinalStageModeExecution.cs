@@ -10,8 +10,31 @@ using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.FinalRanking;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.Shared;
 
-internal static partial class Program
+internal static class FinalStageSimulationMainline
 {
+    /// <summary>
+    /// シミュレーション実行のメインラインです。
+    /// </summary>
+    /// <param name="context"></param>
+    internal static void Run(FinalStageModeContext context)
+    {
+        // シミュレーションして、最終順位付け。
+        var result = ExecuteTournamentFinalStateAndFinalRanking(context, out var standardResultRows, out var finalStageResultRows);
+
+        // 表示。
+        PrintFinalStageModeContext(context);
+
+        // 出力。
+        WriteFinalRankingOutputsForFinalStageMode(context, result, standardResultRows, finalStageResultRows);
+    }
+
+    /// <summary>
+    /// シミュレーションして、最終順位付け。
+    /// </summary>
+    /// <param name="context"></param>
+    /// <param name="standardResultRows"></param>
+    /// <param name="finalStageResultRows"></param>
+    /// <returns></returns>
     static CalculationResult ExecuteTournamentFinalStateAndFinalRanking(
         FinalStageModeContext context,
         out IReadOnlyList<ResultRow>? standardResultRows,
@@ -49,7 +72,7 @@ internal static partial class Program
         if (context.Matches.Count <= 20)
         {
             Console.WriteLine($"{TournamentRuleSetRule.GetLabel(context.TournamentRuleSetMode)} の厳密計算を行います。\n");
-            return CalculateExactly(context.Players, context.Matches, context.FirstPlayerWinRateRating, context.TournamentRuleSetMode);
+            return StandardCalculationEngine.CalculateExactly(context.Players, context.Matches, context.FirstPlayerWinRateRating, context.TournamentRuleSetMode);
         }
 
         const int defaultSimulationCount = 200_000;
@@ -60,7 +83,7 @@ internal static partial class Program
 
         Console.WriteLine();
         using var simulationBudget = SimulationTimeBudget.BeginSimulationBudget();
-        return CalculateBySimulation(context.Players, context.Matches, context.FirstPlayerWinRateRating, simulationCount, context.TournamentRuleSetMode);
+        return StandardCalculationEngine.CalculateBySimulation(context.Players, context.Matches, context.FirstPlayerWinRateRating, simulationCount, context.TournamentRuleSetMode);
     }
 
     static CalculationResult ExecuteTournamentFinalStateForFinalStageMode(FinalStageModeContext context)
@@ -68,7 +91,7 @@ internal static partial class Program
         if (context.Matches.Count <= 20)
         {
             Console.WriteLine("本戦専用の厳密計算を行います。\n");
-            return CalculateFinalStageExactly(context.Players, context.Matches, context.GroupMap!, context.EffectiveAdditionalApexCount, context.BoundaryRescueMode, context.FirstPlayerWinRateRating);
+            return FinalStageCalculationEngine.CalculateFinalStageExactly(context.Players, context.Matches, context.GroupMap!, context.EffectiveAdditionalApexCount, context.BoundaryRescueMode, context.FirstPlayerWinRateRating);
         }
 
         const int finalStageDefaultSimulationCount = 200_000;
@@ -79,9 +102,13 @@ internal static partial class Program
 
         Console.WriteLine();
         using var finalStageSimulationBudget = SimulationTimeBudget.BeginSimulationBudget();
-        return CalculateFinalStageBySimulation(context.Players, context.Matches, context.GroupMap!, context.EffectiveAdditionalApexCount, context.BoundaryRescueMode, context.FirstPlayerWinRateRating, finalStageSimulationCount);
+        return FinalStageCalculationEngine.CalculateFinalStageBySimulation(context.Players, context.Matches, context.GroupMap!, context.EffectiveAdditionalApexCount, context.BoundaryRescueMode, context.FirstPlayerWinRateRating, finalStageSimulationCount);
     }
 
+    /// <summary>
+    /// 表示
+    /// </summary>
+    /// <param name="context"></param>
     static void PrintFinalStageModeContext(FinalStageModeContext context)
     {
         Console.WriteLine($"順位ルール: {TournamentRuleSetRule.GetLabel(context.TournamentRuleSetMode)}\n");
@@ -109,6 +136,13 @@ internal static partial class Program
         }
     }
 
+    /// <summary>
+    /// 出力
+    /// </summary>
+    /// <param name="context"></param>
+    /// <param name="result"></param>
+    /// <param name="standardResultRows"></param>
+    /// <param name="finalStageResultRows"></param>
     static void WriteFinalRankingOutputsForFinalStageMode(
         FinalStageModeContext context,
         CalculationResult result,

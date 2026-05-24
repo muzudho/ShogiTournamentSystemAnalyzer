@@ -7,9 +7,9 @@ using ShogiTournamentSystemAnalyzer.Application.Execution;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
 
-internal static partial class Program
+internal static class StandardCalculationEngine
 {
-    static CalculationResult CalculateExactly(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, double firstPlayerWinRateRating, TournamentRuleSetMode tournamentRuleSetMode = TournamentRuleSetMode.Neutral)
+    internal static CalculationResult CalculateExactly(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, double firstPlayerWinRateRating, TournamentRuleSetMode tournamentRuleSetMode = TournamentRuleSetMode.Neutral)
     {
         var placeProbabilities = new double[players.Count, players.Count];
         var usesTwillRule = tournamentRuleSetMode is TournamentRuleSetMode.Twill or TournamentRuleSetMode.TwillCommonOpponentWeighted;
@@ -85,7 +85,7 @@ internal static partial class Program
         return new CalculationResult(placeProbabilities, modeLabel, null);
     }
 
-    static CalculationResult CalculateBySimulation(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, double firstPlayerWinRateRating, int simulationCount, TournamentRuleSetMode tournamentRuleSetMode = TournamentRuleSetMode.Neutral)
+    internal static CalculationResult CalculateBySimulation(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, double firstPlayerWinRateRating, int simulationCount, TournamentRuleSetMode tournamentRuleSetMode = TournamentRuleSetMode.Neutral)
     {
         var placeProbabilities = new double[players.Count, players.Count];
         var usesTwillRule = tournamentRuleSetMode is TournamentRuleSetMode.Twill or TournamentRuleSetMode.TwillCommonOpponentWeighted;
