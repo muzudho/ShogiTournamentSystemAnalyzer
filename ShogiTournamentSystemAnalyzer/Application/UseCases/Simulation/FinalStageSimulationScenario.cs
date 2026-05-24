@@ -1,8 +1,9 @@
 /*
  * ［シミュレーション域］
  */
-namespace ShogiTournamentSystemAnalyzer;
+namespace ShogiTournamentSystemAnalyzer.Application.UseCases.Simulation;
 
+using ShogiTournamentSystemAnalyzer;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 
 internal sealed class FinalStageSimulationScenario : ISimulationScenario

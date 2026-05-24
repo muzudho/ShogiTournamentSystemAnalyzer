@@ -1,7 +1,7 @@
 /*
  * ［シミュレーション域］
  */
-namespace ShogiTournamentSystemAnalyzer;
+namespace ShogiTournamentSystemAnalyzer.Application.UseCases.Simulation;
 
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 
