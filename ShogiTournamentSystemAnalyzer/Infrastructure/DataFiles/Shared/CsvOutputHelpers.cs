@@ -1,7 +1,7 @@
 /*
  * ［プログラム］
  */
-namespace ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles;
+namespace ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.Shared;
 
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using System.Text;
@@ -88,4 +88,3 @@ internal static class CsvOutputHelpers
         return $"\"{value.Replace("\"", "\"\"")}\"";
     }
 }
-

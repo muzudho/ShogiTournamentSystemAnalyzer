@@ -5,6 +5,8 @@ namespace ShogiTournamentSystemAnalyzer;
 
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles;
+using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.Shared;
+using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.TournamentQualityReport;
 
 internal static class TournamentQualityEvaluationOutputCoordinator
 {
@@ -67,18 +69,18 @@ internal static class TournamentQualityEvaluationOutputCoordinator
     {
         WriterHelper.WriteText(
             outputPath: outputOptions.OutputCsvPath,
-            getLines: () => ResultCsvWriter.CreateTournamentQualityReportSummaryCsv(tournamentQualityReportData.Summary, outputOptions.ReportGroupingOptions, tournamentQualityReportData.Suggestion));
+            getLines: () => TournamentQualityReportDataFileWriter.CreateTournamentQualityReportSummaryCsv(tournamentQualityReportData.Summary, outputOptions.ReportGroupingOptions, tournamentQualityReportData.Suggestion));
 
         var playerCsvPath = outputOptions.PlayerCsvPath
             ?? CsvOutputHelpers.BuildSiblingOutputCsvPath(outputOptions.OutputCsvPath, "quality_players");
         WriterHelper.WriteText(
             outputPath: playerCsvPath,
-            getLines: () => ResultCsvWriter.CreateTournamentQualityReportPlayerCsv(tournamentQualityReportData.PlayerRows));
+            getLines: () => TournamentQualityReportDataFileWriter.CreateTournamentQualityReportPlayerCsv(tournamentQualityReportData.PlayerRows));
 
         var summaryMarkdownPath = CsvOutputHelpers.ChangeOutputExtension(outputOptions.OutputCsvPath, ".md");
         WriterHelper.WriteText(
             outputPath: summaryMarkdownPath,
-            getLines: () => ResultCsvWriter.CreateTournamentQualityReportSummaryMarkdown(
+            getLines: () => TournamentQualityReportDataFileWriter.CreateTournamentQualityReportSummaryMarkdown(
                 summaryMarkdownPath,
                 tournamentQualityReportData.PlayerRows,
                 tournamentQualityReportData.Summary,
@@ -99,12 +101,12 @@ internal static class TournamentQualityEvaluationOutputCoordinator
     {
         WriterHelper.WriteText(
             outputPath: outputOptions.OutputCsvPath,
-            getLines: () => ResultCsvWriter.CreateTournamentQualitySweepReportCsv(tournamentQualitySweepReportData.SweepRows, outputOptions.ReportGroupingOptions, tournamentQualitySweepReportData.Suggestion));
+            getLines: () => TournamentQualityReportDataFileWriter.CreateTournamentQualitySweepReportCsv(tournamentQualitySweepReportData.SweepRows, outputOptions.ReportGroupingOptions, tournamentQualitySweepReportData.Suggestion));
 
         var sweepMarkdownPath = CsvOutputHelpers.ChangeOutputExtension(outputOptions.OutputCsvPath, ".md");
         WriterHelper.WriteText(
             outputPath: sweepMarkdownPath,
-            getLines: () => ResultCsvWriter.CreateTournamentQualitySweepReportMarkdown(sweepMarkdownPath, tournamentQualitySweepReportData.SweepRows, outputOptions.OutputCsvPath, outputOptions.ReportGroupingOptions, tournamentQualitySweepReportData.StoppedByTimeout, tournamentQualitySweepReportData.Suggestion));
+            getLines: () => TournamentQualityReportDataFileWriter.CreateTournamentQualitySweepReportMarkdown(sweepMarkdownPath, tournamentQualitySweepReportData.SweepRows, outputOptions.OutputCsvPath, outputOptions.ReportGroupingOptions, tournamentQualitySweepReportData.StoppedByTimeout, tournamentQualitySweepReportData.Suggestion));
 
         Console.WriteLine($"n%スイープ結果CSVを出力しました: {outputOptions.OutputCsvPath}");
         Console.WriteLine($"n%スイープ結果Markdownを出力しました: {sweepMarkdownPath}");

@@ -5,6 +5,8 @@ namespace ShogiTournamentSystemAnalyzer;
 
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles;
+using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.Shared;
+using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.TournamentFinalState;
 
 internal static partial class Program
 {
@@ -56,7 +58,7 @@ internal static partial class Program
 
         WriterHelper.WriteText(
             outputPath: tournamentMatchRecordsCsvPath,
-            getLines: () => ResultCsvWriter.CreateTournamentMatchRecordCsv(
+            getLines: () => TournamentFinalStateDataFileWriter.CreateTournamentMatchRecordCsv(
                 Array.Empty<StageEntry>(),
                 Array.Empty<PlayerEntry>(),
                 Array.Empty<TournamentMatchRecord>(),
@@ -64,7 +66,7 @@ internal static partial class Program
 
         WriterHelper.WriteText(
             outputPath: tournamentMatchRecordsMarkdownPath,
-            getLines: () => ResultCsvWriter.CreateTournamentMatchRecordMarkdown(
+            getLines: () => TournamentFinalStateDataFileWriter.CreateTournamentMatchRecordMarkdown(
                 tournamentMatchRecordsMarkdownPath,
                 tournamentMatchRecordsCsvPath,
                 Array.Empty<StageEntry>(),
@@ -105,11 +107,11 @@ internal static partial class Program
             "# 空ルール結果レポート",
             string.Empty,
             "## 概要",
-            $"- 結果CSV: {ResultCsvWriter.BuildMarkdownFileLink(outputMarkdownPath, outputCsvPath)}",
+            $"- 結果CSV: {MarkdownOutputHelpers.BuildMarkdownFileLink(outputMarkdownPath, outputCsvPath)}",
             $"- 計算モード: {mode}",
             $"- 総ペアリング数: {pairingCount}",
             $"- 大会最終状態件数: {tournamentMatchRecordCount}",
-            $"- 大会最終状態Markdown: {ResultCsvWriter.BuildMarkdownFileLink(outputMarkdownPath, tournamentMatchRecordsMarkdownPath)}",
+            $"- 大会最終状態Markdown: {MarkdownOutputHelpers.BuildMarkdownFileLink(outputMarkdownPath, tournamentMatchRecordsMarkdownPath)}",
             $"- 注記: {note}",
             string.Empty,
             "## 説明",

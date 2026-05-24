@@ -10,6 +10,10 @@ using ShogiTournamentSystemAnalyzer.Domain.RankingSettings;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles;
+using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.FinalRanking;
+using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.Shared;
+using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.TournamentFinalState;
+using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.TournamentFramework;
 using ShogiTournamentSystemAnalyzer.Infrastructure.Parsing;
 using ShogiTournamentSystemAnalyzer.Application.Helpers;
 
@@ -172,7 +176,7 @@ internal static partial class Program
         var outputCsvPath = CsvOutputHelpers.ResolveOutputCsvPath(requestedOutputPath);
         WriterHelper.WriteText(
             outputPath: outputCsvPath,
-            getLines: () => ResultCsvWriter.CreateResultCsv(
+            getLines: () => FinalRankingDataFileWriter.CreateResultCsv(
                 finalRankingCalculation.Mode,
                 tournamentRuleData.FirstPlayerWinRatePercent ?? context.FirstPlayerWinRatePercent,
                 finalRankingRows,
@@ -186,7 +190,7 @@ internal static partial class Program
 
         WriterHelper.WriteText(
             outputPath: outputMarkdownPath,
-            getLines: () => ResultCsvWriter.CreateResultMarkdown(
+            getLines: () => FinalRankingDataFileWriter.CreateResultMarkdown(
                 outputMarkdownPath,
                 outputCsvPath,
                 finalRankingCalculation.Mode,
@@ -197,14 +201,14 @@ internal static partial class Program
 
         WriterHelper.WriteText(
             outputPath: representativeRankingCsvPath,
-            getLines: () => ResultCsvWriter.CreateRepresentativeExecutionRankCsv(
+            getLines: () => FinalRankingDataFileWriter.CreateRepresentativeExecutionRankCsv(
                 rankingSettingsData.TournamentRuleSetMode,
                 representativeExecutionRankRows,
                 overviewNote: "この順位表は代表実行 1 件の順位です。aggregate 結果の順位表そのものではありません。"));
 
         WriterHelper.WriteText(
             outputPath: representativeRankingMarkdownPath,
-            getLines: () => ResultCsvWriter.CreateRepresentativeExecutionRankMarkdown(
+            getLines: () => FinalRankingDataFileWriter.CreateRepresentativeExecutionRankMarkdown(
                 representativeRankingMarkdownPath,
                 representativeRankingCsvPath,
                 rankingSettingsData.TournamentRuleSetMode,
@@ -214,7 +218,7 @@ internal static partial class Program
 
         WriterHelper.WriteText(
             outputPath: tournamentMatchRecordsCsvPath,
-            getLines: () => ResultCsvWriter.CreateTournamentMatchRecordCsv(
+            getLines: () => TournamentFinalStateDataFileWriter.CreateTournamentMatchRecordCsv(
                 stages,
                 players,
                 tournamentFinalStateData.MatchRecords,
@@ -222,7 +226,7 @@ internal static partial class Program
 
         WriterHelper.WriteText(
             outputPath: tournamentMatchRecordsMarkdownPath,
-            getLines: () => ResultCsvWriter.CreateTournamentMatchRecordMarkdown(
+            getLines: () => TournamentFinalStateDataFileWriter.CreateTournamentMatchRecordMarkdown(
                 tournamentMatchRecordsMarkdownPath,
                 tournamentMatchRecordsCsvPath,
                 stages,

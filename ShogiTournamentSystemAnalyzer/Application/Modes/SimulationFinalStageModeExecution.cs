@@ -8,6 +8,8 @@ using ShogiTournamentSystemAnalyzer.Domain.Ranking;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles;
+using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.FinalRanking;
+using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.Shared;
 
 internal static partial class Program
 {
@@ -126,21 +128,21 @@ internal static partial class Program
         {
             WriterHelper.WriteText(
                 outputPath: outputCsvPath,
-                getLines: () => ResultCsvWriter.CreateFinalStageResultCsv(outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, finalStageResultRows!));
+            getLines: () => FinalRankingDataFileWriter.CreateFinalStageResultCsv(outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, finalStageResultRows!));
 
             WriterHelper.WriteText(
                 outputPath: outputMarkdownPath,
-                getLines: () => ResultCsvWriter.CreateFinalStageResultMarkdown(outputMarkdownPath, outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, finalStageResultRows!, referenceMatchesCsvPath));
+            getLines: () => FinalRankingDataFileWriter.CreateFinalStageResultMarkdown(outputMarkdownPath, outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, finalStageResultRows!, referenceMatchesCsvPath));
         }
         else
         {
             WriterHelper.WriteText(
                 outputPath: outputCsvPath,
-                getLines: () => ResultCsvWriter.CreateResultCsv(result.Mode, context.FirstPlayerWinRatePercent, standardResultRows!));
+            getLines: () => FinalRankingDataFileWriter.CreateResultCsv(result.Mode, context.FirstPlayerWinRatePercent, standardResultRows!));
 
             WriterHelper.WriteText(
                 outputPath: outputMarkdownPath,
-                getLines: () => ResultCsvWriter.CreateResultMarkdown(outputMarkdownPath, outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, standardResultRows!));
+            getLines: () => FinalRankingDataFileWriter.CreateResultMarkdown(outputMarkdownPath, outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, standardResultRows!));
 
         }
         Console.WriteLine($"結果CSVを出力しました: {outputCsvPath}");

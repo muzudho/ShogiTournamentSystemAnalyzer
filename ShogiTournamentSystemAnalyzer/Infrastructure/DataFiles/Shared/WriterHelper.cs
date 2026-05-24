@@ -1,4 +1,4 @@
-﻿namespace ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles;
+namespace ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.Shared;
 
 using System;
 using System.Collections.Generic;

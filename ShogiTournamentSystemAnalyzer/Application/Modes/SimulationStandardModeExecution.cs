@@ -7,6 +7,8 @@ using ShogiTournamentSystemAnalyzer.Application.Execution;
 using ShogiTournamentSystemAnalyzer.Domain.Ranking;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles;
+using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.FinalRanking;
+using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.Shared;
 
 internal static partial class Program
 {
@@ -65,12 +67,12 @@ internal static partial class Program
             defaultOutputCsvPath));
         WriterHelper.WriteText(
             outputPath: outputCsvPath,
-            getLines: () => ResultCsvWriter.CreateResultCsv(tournamentFinalState.Mode, context.FirstPlayerWinRatePercent, finalRankingRows));
+            getLines: () => FinalRankingDataFileWriter.CreateResultCsv(tournamentFinalState.Mode, context.FirstPlayerWinRatePercent, finalRankingRows));
 
         var outputMarkdownPath = CsvOutputHelpers.ChangeOutputExtension(outputCsvPath, ".md");
         WriterHelper.WriteText(
             outputPath: outputMarkdownPath,
-            getLines: () => ResultCsvWriter.CreateResultMarkdown(outputMarkdownPath, outputCsvPath, tournamentFinalState.Mode, context.FirstPlayerWinRatePercent, finalRankingRows));
+            getLines: () => FinalRankingDataFileWriter.CreateResultMarkdown(outputMarkdownPath, outputCsvPath, tournamentFinalState.Mode, context.FirstPlayerWinRatePercent, finalRankingRows));
 
         Console.WriteLine($"結果CSVを出力しました: {outputCsvPath}");
         Console.WriteLine($"結果Markdownを出力しました: {outputMarkdownPath}");

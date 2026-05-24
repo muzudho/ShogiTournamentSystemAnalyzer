@@ -29,6 +29,8 @@
 - Use longer, explicit type names prefixed with the main data boundary names (大会ルールデータ・プレイヤー一覧データ・順位付けの設定データ・大会結果データ・最終順位データ・大会品質レポート) rather than short generic names in this project.
 - このプロジェクトでは 6大境界の名称として TournamentFinalState を使う。
 - このプロジェクトでは Domain フォルダー配下を『5大域 / 6大境界』のフォルダーだけで構成する方針を採る。
+- ユーザーは Infrastructure/DataFiles 配下を『境界名ごとのデータファイル実装 + Shared』で構成する方針を希望し、この方針を今後も覚えておくことを求めている。
+- ユーザーは Infrastructure/DataFiles 配下の大きなファイル内メソッドも、役割に応じて『4大域』『6大境界』または Shared の専用クラスへ分割する構成を好む。
 
 ## アーキテクチャ
 - 各データ要素の境界を明確に分離する: 大会ルールデータ・プレイヤー一覧データ・順位付けの設定データ・大会結果データ・最終順位データ・大会品質レポート を個別の責務として扱う。
