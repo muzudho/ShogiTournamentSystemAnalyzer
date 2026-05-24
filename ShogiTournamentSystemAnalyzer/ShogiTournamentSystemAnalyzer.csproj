@@ -11,8 +11,6 @@
 
   <ItemGroup>
     <Folder Include="Application\Reporting\" />
-    <Folder Include="Output\Ranking\FinalRanking\" />
-    <Folder Include="Output\Ranking\" />
   </ItemGroup>
 
 </Project>
