@@ -1,7 +1,7 @@
 /*
  * ［プログラム］
  */
-namespace ShogiTournamentSystemAnalyzer;
+namespace ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles;
 
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using System.Text;
