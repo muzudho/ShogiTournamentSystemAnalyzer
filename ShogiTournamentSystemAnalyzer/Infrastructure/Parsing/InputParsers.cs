@@ -493,7 +493,7 @@ internal static class InputParsers
     /// <returns></returns>
     static bool IsMatchHeaderRow(IReadOnlyList<string> columns)
     {
-        // 👓　先頭列が "black", "先手", "first", "white", "後手", または "second" であることを確認
+        // 👓　先頭列が "先手", "first", "後手", または "second" であることを確認
         if (columns.Count < 2) return false;
 
         var first = columns[0].Trim();
@@ -501,12 +501,8 @@ internal static class InputParsers
 
         return first.Equals("first", StringComparison.OrdinalIgnoreCase)
             || first.Equals("先手", StringComparison.OrdinalIgnoreCase)
-            || first.Equals("black", StringComparison.OrdinalIgnoreCase)
-            || first.Equals("黒番", StringComparison.OrdinalIgnoreCase)
             || second.Equals("second", StringComparison.OrdinalIgnoreCase)
-            || second.Equals("後手", StringComparison.OrdinalIgnoreCase)
-            || second.Equals("white", StringComparison.OrdinalIgnoreCase)
-            || second.Equals("白番", StringComparison.OrdinalIgnoreCase);
+            || second.Equals("後手", StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>

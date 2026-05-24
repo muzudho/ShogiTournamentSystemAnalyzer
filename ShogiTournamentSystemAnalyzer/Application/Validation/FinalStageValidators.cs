@@ -79,9 +79,9 @@ internal static class FinalStageValidators
 
             if (blackGroup == whiteGroup) { errorMessage = $"{matchIndex + 1} 局目の対局 '{blackPlayer.Name} vs {whitePlayer.Name}' は同グループ同士です。"; return false; }
 
-            if (blackGroup != FinalStageGroup.Innov) { errorMessage = $"{matchIndex + 1} 局目の黒番 '{blackPlayer.Name}' は Innov である必要があります。"; return false; }
+            if (blackGroup != FinalStageGroup.Innov) { errorMessage = $"{matchIndex + 1} 局目の先手 '{blackPlayer.Name}' は Innov である必要があります。"; return false; }
 
-            if (whiteGroup != FinalStageGroup.Apex) { errorMessage = $"{matchIndex + 1} 局目の白番 '{whitePlayer.Name}' は Apex である必要があります。"; return false; }
+            if (whiteGroup != FinalStageGroup.Apex) { errorMessage = $"{matchIndex + 1} 局目の後手 '{whitePlayer.Name}' は Apex である必要があります。"; return false; }
         }
 
         return true;

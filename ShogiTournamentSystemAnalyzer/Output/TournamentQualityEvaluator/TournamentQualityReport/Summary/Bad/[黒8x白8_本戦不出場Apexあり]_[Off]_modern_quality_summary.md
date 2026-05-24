@@ -3,7 +3,7 @@
 ## 概要
 - 計算モード: 本戦専用 シミュレーション (20,000回)
 - 対象選手数: 16
-- サマリーCSV: [[黒8x白8_本戦不出場Apexあり]_[Off]_modern_quality_summary.csv]([黒8x白8_本戦不出場Apexあり]_[Off]_modern_quality_summary.csv)
+- サマリーCSV: [[先手8x後手8_本戦不出場Apexあり]_[Off]_modern_quality_summary.csv]([先手8x後手8_本戦不出場Apexあり]_[Off]_modern_quality_summary.csv)
 - 選手別CSV: [20260517_133317_quality_players.csv](../../Players/Bad/20260517_133317_quality_players.csv)
 - 評価メモ: 現行案: 本戦不出場Apexを Innov より前の順位帯へ挿入する
 

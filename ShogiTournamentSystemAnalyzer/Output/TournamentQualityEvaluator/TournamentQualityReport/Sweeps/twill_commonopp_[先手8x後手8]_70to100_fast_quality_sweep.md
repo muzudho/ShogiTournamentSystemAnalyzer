@@ -2,7 +2,7 @@
 
 ## 概要
 - 評価点数: 1
-- 出力CSV: `twill_commonopp_[黒8x白8]_70to100_fast_quality_sweep.csv`
+- 出力CSV: `twill_commonopp_[先手8x後手8]_70to100_fast_quality_sweep.csv`
 
 ## 注目ポイント
 - Spearman 相関が最良の点: **70.00%**（0.897059）
