@@ -10,7 +10,7 @@ using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using System.Globalization;
 
-internal static partial class TournamentQualityEvaluationMode
+internal static class TournamentQualityEvaluationExecutor
 {
     /// <summary>
     /// ［大会品質評価フロー］の実行。単発評価か n% スイープ実験のどちらかを選択して実行します。

@@ -21,14 +21,14 @@ internal static class TournamentQualityEvaluationMainline
         if (!TournamentQualityEvaluationInputReader.TryReadQualityEvaluationInput(players, ruleDefinition, out var input)) return;
 
         // 実行オプションを読み取る
-        var executionOptions = TournamentQualityEvaluationMode.ReadTournamentQualityEvaluationExecutionOptions(input, ruleDefinition);
+        var executionOptions = TournamentQualityEvaluationExecutor.ReadTournamentQualityEvaluationExecutionOptions(input, ruleDefinition);
 
         // 大会品質評価の実行コンテキストを出力
         TournamentQualityEvaluationOutputCoordinator.PrintTournamentQualityEvaluationContext(input, ruleDefinition);
 
         if (executionOptions.IsSweep)
         {
-            TournamentQualityEvaluationMode.RunTournamentQualitySweepExperiment(
+            TournamentQualityEvaluationExecutor.RunTournamentQualitySweepExperiment(
                 input,
                 ruleDefinition,
                 executionOptions);
@@ -36,7 +36,7 @@ internal static class TournamentQualityEvaluationMainline
         }
 
         // 大会品質評価レポートを実行
-        var tournamentQualityReportData = TournamentQualityEvaluationMode.ExecuteTournamentQualityReport(
+        var tournamentQualityReportData = TournamentQualityEvaluationExecutor.ExecuteTournamentQualityReport(
             input,
             ruleDefinition,
             executionOptions);
