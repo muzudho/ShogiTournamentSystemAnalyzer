@@ -9,8 +9,15 @@ using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
 using System.Globalization;
 
+/// <summary>
+/// CSVを書き出す。
+/// </summary>
 internal static class ResultCsvWriter
 {
+    // ========================================
+    // 共通ヘルパー
+    // ========================================
+
     static string EscapeCsv(string value) => CsvOutputHelpers.EscapeCsv(value);
 
     static IEnumerable<string> BuildAdjustmentCycleAdviceLines(bool timedOut, bool zeroResults, int completedCount, string subjectLabel)
@@ -68,6 +75,10 @@ internal static class ResultCsvWriter
 
         return lines;
     }
+
+    // ========================================
+    // 大会品質レポート: Summary / Players / Sweeps
+    // ========================================
 
     /// <summary>
     /// ［品質評価］サマリーCSVを作成する
@@ -536,6 +547,10 @@ internal static class ResultCsvWriter
         };
     }
 
+    // ========================================
+    // FinalRanking: representative順位表
+    // ========================================
+
     internal static IEnumerable<string> CreateRepresentativeExecutionRankCsv(
         TournamentRuleSetMode tournamentRuleSetMode,
         IReadOnlyList<RepresentativeExecutionRankRow> rows,
@@ -670,6 +685,10 @@ internal static class ResultCsvWriter
             ? start.ToString("F2", CultureInfo.InvariantCulture) + "% 付近"
             : start.ToString("F2", CultureInfo.InvariantCulture) + "%〜" + end.ToString("F2", CultureInfo.InvariantCulture) + "%";
     }
+
+    // ========================================
+    // FinalRanking: 標準 / 本戦 / aggregate
+    // ========================================
 
     internal static IEnumerable<string> CreateTournamentQualityReportPlayerCsv(IReadOnlyList<TournamentQualityReportPlayerRow> playerRows)
     {
@@ -1129,6 +1148,10 @@ internal static class ResultCsvWriter
         var fileName = Path.GetFileName(targetPath);
         return $"[{fileName}]({relativePath})";
     }
+
+    // ========================================
+    // TournamentFinalState
+    // ========================================
 
     internal static IEnumerable<string> CreateTournamentMatchRecordCsv(IReadOnlyList<StageEntry> stages, IReadOnlyList<PlayerEntry> players, IReadOnlyList<TournamentMatchRecord> matchRecords, string? overviewNote = null)
     {
