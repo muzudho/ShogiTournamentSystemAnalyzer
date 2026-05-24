@@ -56,6 +56,15 @@ dotnet run --project .\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyz
 
 出力内容の読み方は [CSVと出力](./docs/Manuals/CSVと出力.md) を参照してください。
 
+## 6大境界のフォーマット仕様入口
+
+- [TournamentRule（大会ルールデータ）](./docs/Manuals/CSVと出力.md#boundary-tournament-rule)
+- [PlayerList（プレイヤー一覧データ）](./docs/Manuals/CSVと出力.md#boundary-player-list)
+- [RankingSettings（順位付けの設定データ）](./docs/Manuals/CSVと出力.md#boundary-ranking-settings)
+- [TournamentResult（大会結果データ）](./docs/Manuals/CSVと出力.md#boundary-tournament-result)
+- [FinalRanking（最終順位データ）](./docs/Manuals/CSVと出力.md#boundary-final-ranking)
+- [TournamentQualityReport（大会品質レポート）](./docs/Manuals/CSVと出力.md#boundary-tournament-quality-report)
+
 ## このツールでできること
 
 - 大会ルールの案を、対局シミュレーションで比べる
