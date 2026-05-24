@@ -1,19 +1,19 @@
+/*
+ * ［シミュレーション域］
+ */
 namespace ShogiTournamentSystemAnalyzer;
 
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 
-internal static partial class Program
+internal static class SimulationScenarioFactory
 {
-    static class SimulationScenarioFactory
+    internal static ISimulationScenario Create(RuleProfileMode ruleProfileMode)
     {
-        internal static ISimulationScenario Create(RuleProfileMode ruleProfileMode)
+        return ruleProfileMode switch
         {
-            return ruleProfileMode switch
-            {
-                RuleProfileMode.Standard => StandardSimulationScenario.Instance,
-                RuleProfileMode.FinalStage => FinalStageSimulationScenario.Instance,
-                _ => throw new InvalidOperationException($"Simulation 用の scenario が未対応です: {ruleProfileMode}")
-            };
-        }
+            RuleProfileMode.Standard => StandardSimulationScenario.Instance,
+            RuleProfileMode.FinalStage => FinalStageSimulationScenario.Instance,
+            _ => throw new InvalidOperationException($"Simulation 用の scenario が未対応です: {ruleProfileMode}")
+        };
     }
 }

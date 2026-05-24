@@ -1,5 +1,5 @@
 /*
- * ［プログラム］
+ * ［シミュレーション域］
  */
 namespace ShogiTournamentSystemAnalyzer;
 
@@ -10,7 +10,7 @@ internal static partial class Program
         SimulationScenarioRunner.Run(StandardSimulationScenario.Instance);
     }
 
-    static void RunMainlineToFinalRanking(StandardModeContext context)
+    internal static void RunMainlineToFinalRanking(StandardModeContext context)
     {
         ExecuteStandardMode(context);
     }

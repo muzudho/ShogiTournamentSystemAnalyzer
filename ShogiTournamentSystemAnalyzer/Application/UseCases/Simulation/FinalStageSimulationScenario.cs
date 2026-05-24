@@ -1,38 +1,36 @@
+/*
+ * ［シミュレーション域］
+ */
 namespace ShogiTournamentSystemAnalyzer;
 
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 
-internal static partial class Program
+internal sealed class FinalStageSimulationScenario : ISimulationScenario
 {
-    sealed class FinalStageSimulationScenario : ISimulationScenario
+    internal static readonly FinalStageSimulationScenario Instance = new();
+
+    public RuleProfileMode RuleProfileMode => RuleProfileMode.FinalStage;
+
+    public void PrintOverview()
     {
-        internal static readonly FinalStageSimulationScenario Instance = new();
+        Console.WriteLine("対局シミュレーション / 本戦ルール: Apex / Innov 分割の定先戦を分析します。\n");
 
-        public RuleProfileMode RuleProfileMode => RuleProfileMode.FinalStage;
+        ConsoleSamplePrinter.PrintSimulationFinalStageOverview();
+    }
 
-        public void PrintOverview()
+    public bool TryPrepareExecution(out SimulationExecutionPlan plan)
+    {
+        if (!Program.TryReadFinalStageModeContext(out var context))
         {
-            Console.WriteLine("対局シミュレーション / 本戦ルール: Apex / Innov 分割の定先戦を分析します。\n");
-
-            ConsoleSamplePrinter.PrintSimulationFinalStageOverview();
+            plan = default;
+            return false;
         }
 
-        public bool TryPrepareExecution(out Action execute)
-        {
-            if (!TryReadFinalStageModeContext(out var context))
-            {
-                execute = static () => { };
-                return false;
-            }
+        plan = new SimulationExecutionPlan(
+            RuleProfileMode,
+            "FinalStageMainline",
+            () => Program.RunMainlineToFinalRanking(context));
 
-            execute = () =>
-            {
-                var result = ExecuteTournamentFinalStateAndFinalRanking(context, out var standardResultRows, out var finalStageResultRows);
-                PrintFinalStageModeContext(context);
-                WriteFinalRankingOutputsForFinalStageMode(context, result, standardResultRows, finalStageResultRows);
-            };
-
-            return true;
-        }
+        return true;
     }
 }

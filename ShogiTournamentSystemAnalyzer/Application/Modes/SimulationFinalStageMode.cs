@@ -1,5 +1,5 @@
 /*
- * ［プログラム］
+ * ［シミュレーション域］
  */
 namespace ShogiTournamentSystemAnalyzer;
 
@@ -10,7 +10,7 @@ internal static partial class Program
         SimulationScenarioRunner.Run(FinalStageSimulationScenario.Instance);
     }
 
-    static void RunMainlineToFinalRanking(FinalStageModeContext context)
+    internal static void RunMainlineToFinalRanking(FinalStageModeContext context)
     {
         var result = ExecuteTournamentFinalStateAndFinalRanking(context, out var standardResultRows, out var finalStageResultRows);
         PrintFinalStageModeContext(context);

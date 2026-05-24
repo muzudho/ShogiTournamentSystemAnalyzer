@@ -1,3 +1,6 @@
+/*
+ * ［シミュレーション域］
+ */
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
 
 internal readonly record struct TournamentFrameworkModeContext(

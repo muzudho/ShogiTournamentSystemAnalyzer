@@ -1,5 +1,5 @@
 /*
- * ［シミュレーション時間管理］
+ * ［シミュレーション域］
  */
 namespace ShogiTournamentSystemAnalyzer.Application.Execution;
 

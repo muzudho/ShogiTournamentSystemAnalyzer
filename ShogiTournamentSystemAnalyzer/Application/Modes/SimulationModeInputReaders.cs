@@ -1,5 +1,5 @@
 /*
- * ［Application / Modes］
+ * ［シミュレーション域］
  */
 namespace ShogiTournamentSystemAnalyzer;
 

@@ -1,28 +1,31 @@
+/*
+ * ［シミュレーション域］
+ */
 namespace ShogiTournamentSystemAnalyzer;
 
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 
-internal static partial class Program
+internal sealed class StandardSimulationScenario : ISimulationScenario
 {
-    sealed class StandardSimulationScenario : ISimulationScenario
+    internal static readonly StandardSimulationScenario Instance = new();
+
+    public RuleProfileMode RuleProfileMode => RuleProfileMode.Standard;
+
+    public void PrintOverview()
     {
-        internal static readonly StandardSimulationScenario Instance = new();
+        Console.WriteLine("対局シミュレーション / 通常ルール: 総当たり戦の順位分布を計算します。\n");
+        Console.WriteLine("前提: 各対局は先手・後手を持ち、勝率は Elo レーティング差と先手有利率から計算します。\n");
 
-        public RuleProfileMode RuleProfileMode => RuleProfileMode.Standard;
+        ConsoleSamplePrinter.PrintSimulationStandardOverview();
+    }
 
-        public void PrintOverview()
-        {
-            Console.WriteLine("対局シミュレーション / 通常ルール: 総当たり戦の順位分布を計算します。\n");
-            Console.WriteLine("前提: 各対局は先手・後手を持ち、勝率は Elo レーティング差と先手有利率から計算します。\n");
-
-            ConsoleSamplePrinter.PrintSimulationStandardOverview();
-        }
-
-        public bool TryPrepareExecution(out Action execute)
-        {
-            var context = SimulationModeInputReaders.ReadStandardModeContext();
-            execute = () => ExecuteStandardMode(context);
-            return true;
-        }
+    public bool TryPrepareExecution(out SimulationExecutionPlan plan)
+    {
+        var context = SimulationModeInputReaders.ReadStandardModeContext();
+        plan = new SimulationExecutionPlan(
+            RuleProfileMode,
+            "StandardMainline",
+            () => Program.RunMainlineToFinalRanking(context));
+        return true;
     }
 }

@@ -1,5 +1,5 @@
 /*
- * ［Application / Modes］
+ * ［大会品質評価フロー域］
  */
 namespace ShogiTournamentSystemAnalyzer;
 

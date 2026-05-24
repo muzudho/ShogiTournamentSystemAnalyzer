@@ -1,3 +1,6 @@
+/*
+ * ［シミュレーション域］
+ */
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
 
