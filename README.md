@@ -61,9 +61,67 @@ dotnet run --project .\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyz
 - [TournamentRule（大会ルールデータ）](./docs/Manuals/CSVと出力.md#boundary-tournament-rule)
 - [PlayerList（プレイヤー一覧データ）](./docs/Manuals/CSVと出力.md#boundary-player-list)
 - [RankingSettings（順位付けの設定データ）](./docs/Manuals/CSVと出力.md#boundary-ranking-settings)
-- [TournamentResult（大会結果データ）](./docs/Manuals/CSVと出力.md#boundary-tournament-result)
+- [TournamentFinalState（大会最終状態データ）](./docs/Manuals/CSVと出力.md#boundary-tournament-final-state)
 - [FinalRanking（最終順位データ）](./docs/Manuals/CSVと出力.md#boundary-final-ranking)
 - [TournamentQualityReport（大会品質レポート）](./docs/Manuals/CSVと出力.md#boundary-tournament-quality-report)
+
+### 直列の主線
+
+```text
+TournamentRule ┐
+PlayerList     ├─> TournamentFinalState -> FinalRanking -> TournamentQualityReport
+RankingSettings┘
+```
+
+- `TournamentRule`
+  - 大会ルールデータ
+- `PlayerList`
+  - プレイヤー一覧データ
+- `RankingSettings`
+  - 順位付けの設定データ
+- `TournamentFinalState`
+  - 大会最終状態データ
+- `FinalRanking`
+  - 最終順位データ
+- `TournamentQualityReport`
+  - 大会品質レポート
+
+### 位置づけ
+
+- `TournamentRule` / `PlayerList` / `RankingSettings`
+  - 主線へ流し込む前提入力
+- `TournamentFinalState`
+  - 大会で何が起きたかを表す境界
+- `FinalRanking`
+  - 大会最終状態を順位へ変換する境界
+- `TournamentQualityReport`
+  - 最終順位を評価してレポート化する境界
+
+### 設計方針
+
+- 境界は分けたままにする
+- 依存方向はできるだけ一方向にそろえる
+- 主線は次の 1 本にまとめる
+
+```text
+TournamentFinalState -> FinalRanking -> TournamentQualityReport
+```
+
+### 依存の見方
+
+- `TournamentFinalState`
+  - `TournamentRule`
+  - `PlayerList`
+  - `RankingSettings`
+  - を使って生成される
+- `FinalRanking`
+  - `TournamentFinalState`
+  - 必要に応じて `RankingSettings`
+  - を使う
+- `TournamentQualityReport`
+  - 主に `FinalRanking`
+  - 必要に応じて `TournamentRule` / `PlayerList`
+  - を参照する
 
 ## このツールでできること
 
