@@ -180,7 +180,7 @@ T9. 本戦専用モードの結果モデルを追加する
 作業:
 - FinalStageResultRow を追加するか、既存 ResultRow を拡張する
 - 少なくとも次の情報を持てるようにする
-  - participantName
+	- playerName
   - group
   - originalElo
   - effectiveElo
@@ -220,7 +220,7 @@ T11. 本戦専用モードの結果CSV出力を追加する
 - WriteFinalStageResultCsv() を追加する
 - ヘッダー命名を現行方針に合わせる
 - 例:
-  - participantName
+	- playerName
   - group
   - originalElo
   - effectiveElo
@@ -310,7 +310,7 @@ Q4. Spearman 相関を実装する
 
 作業:
 - CalculateSpearmanCorrelation() を追加する
-- 入力は participantName / eloRank / expectedOverallPlace など
+- 入力は playerName / eloRank / expectedOverallPlace など
 
 完了条件:
 - 相関係数が出力できる

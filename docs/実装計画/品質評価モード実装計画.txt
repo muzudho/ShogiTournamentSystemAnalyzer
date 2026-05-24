@@ -159,7 +159,7 @@ D. 逆転・歪み指標
 - 最も大きい境界ペナルティを受けた参加者
 
 CSV で出す明細:
-- participantName
+- playerName
 - group
 - originalElo
 - eloRank
