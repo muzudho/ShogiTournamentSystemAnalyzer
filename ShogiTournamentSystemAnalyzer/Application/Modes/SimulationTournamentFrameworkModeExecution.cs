@@ -49,6 +49,12 @@ internal static partial class Program
         // ［大会ルールデータ］
         var tournamentRuleData = BoundaryDataBuilders.BuildTournamentRuleBoundaryData(context, dslDefinition);
 
+        // ［選手一覧データ］
+        var playerListData = BoundaryDataBuilders.BuildPlayerListBoundaryData(players);
+
+        // ［順位設定データ］
+        var rankingSettingsData = BoundaryDataBuilders.BuildRankingSettingsBoundaryData(tournamentRuleData);
+
         // ［初回状態］
         var initialState = new TournamentState(0, players, stages, matchRecords);
 
@@ -75,12 +81,6 @@ internal static partial class Program
 
         // ［実行結果］
         var executionResult = aggregateResult.RepresentativeExecutionResult;
-
-        // ［選手一覧データ］
-        var playerListData = BoundaryDataBuilders.BuildPlayerListBoundaryData(players);
-
-        // ［順位設定データ］
-        var rankingSettingsData = BoundaryDataBuilders.BuildRankingSettingsBoundaryData(tournamentRuleData);
 
         // ［大会最終状態データ］
         var tournamentFinalStateData = BoundaryDataBuilders.BuildTournamentFinalStateBoundaryData(executionResult);
