@@ -29,7 +29,7 @@ internal static class TournamentQualityEvaluationMainline
 
         if (executionOptions.IsSweep)
         {
-            TournamentQualityEvaluationExecutor.RunTournamentQualitySweepExperiment(
+            TournamentQualityEvaluationSweepExecutor.Run(
                 input,
                 ruleDefinition,
                 executionOptions);
@@ -37,7 +37,7 @@ internal static class TournamentQualityEvaluationMainline
         }
 
         // 大会品質評価レポートを実行
-        var tournamentQualityReportData = TournamentQualityEvaluationExecutor.ExecuteTournamentQualityReport(
+        var tournamentQualityReportData = TournamentQualityEvaluationSingleRunExecutor.ExecuteReport(
             input,
             ruleDefinition,
             executionOptions);
