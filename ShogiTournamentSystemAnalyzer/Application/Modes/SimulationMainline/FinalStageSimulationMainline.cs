@@ -1,5 +1,5 @@
 /*
- * ［アプリケーション　＞　モード］
+ * ［アプリケーション　＞　モード　＞　シミュレーション主線］
  */
 namespace ShogiTournamentSystemAnalyzer.Application.Modes.SimulationMainline;
 
@@ -16,7 +16,8 @@ using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 /// <summary>
 /// ［シミュレーション　＞　本戦モード］の主フロー
 /// </summary>
-internal static class FinalStageSimulationMainline
+internal class FinalStageSimulationMainline
+    : AbstractSimulationMainline
 {
     /// <summary>
     /// シミュレーション実行のメインラインです。
@@ -46,6 +47,34 @@ internal static class FinalStageSimulationMainline
         out IReadOnlyList<ResultRow>? standardResultRows,
         out IReadOnlyList<FinalStageResultRow>? finalStageResultRows)
     {
+        standardResultRows = null;
+        finalStageResultRows = null;
+
+        if (context.GroupingMode == FinalStageGroupingMode.Off)
+        {
+            var result = ExecuteStandardMainline();
+            standardResultRows = RankingResultRowBuilder.BuildResultRows(context.Players, context.Matches, result, context.FirstPlayerWinRatePercent);
+            ConsoleResultPrinter.PrintResult(context.Players.Count, result, context.FirstPlayerWinRatePercent, standardResultRows);
+            if (result.Mode.Contains("時間切れ", StringComparison.Ordinal))
+            {
+                Console.WriteLine($"シミュレーションは時間上限 {SimulationTimeBudget.SimulationTimeLimit.TotalMinutes:F0} 分で打ち切りました。\n");
+            }
+
+            return result;
+        }
+
+        var finalStageResult = ExecuteFinalStageMainline();
+        finalStageResultRows = RankingResultRowBuilder.BuildFinalStageResultRows(context.Players, context.Matches, finalStageResult, context.FirstPlayerWinRatePercent, context.GroupMap!, context.EffectiveAdditionalApexCount);
+        ConsoleResultPrinter.PrintFinalStageResult(finalStageResult, context.FirstPlayerWinRatePercent, finalStageResultRows);
+        if (finalStageResult.Mode.Contains("時間切れ", StringComparison.Ordinal))
+        {
+            Console.WriteLine($"シミュレーションは時間上限 {SimulationTimeBudget.SimulationTimeLimit.TotalMinutes:F0} 分で打ち切りました。\n");
+        }
+
+        return finalStageResult;
+
+        // 以下、ローカル関数
+
         CalculationResult ExecuteStandardMainline()
         {
             if (context.Matches.Count <= 20)
@@ -83,32 +112,6 @@ internal static class FinalStageSimulationMainline
             using var finalStageSimulationBudget = SimulationTimeBudget.BeginSimulationBudget();
             return FinalStageCalculationEngine.CalculateFinalStageBySimulation(context.Players, context.Matches, context.GroupMap!, context.EffectiveAdditionalApexCount, context.BoundaryRescueMode, context.FirstPlayerWinRateRating, finalStageSimulationCount);
         }
-
-        standardResultRows = null;
-        finalStageResultRows = null;
-
-        if (context.GroupingMode == FinalStageGroupingMode.Off)
-        {
-            var result = ExecuteStandardMainline();
-            standardResultRows = RankingResultRowBuilder.BuildResultRows(context.Players, context.Matches, result, context.FirstPlayerWinRatePercent);
-            ConsoleResultPrinter.PrintResult(context.Players.Count, result, context.FirstPlayerWinRatePercent, standardResultRows);
-            if (result.Mode.Contains("時間切れ", StringComparison.Ordinal))
-            {
-                Console.WriteLine($"シミュレーションは時間上限 {SimulationTimeBudget.SimulationTimeLimit.TotalMinutes:F0} 分で打ち切りました。\n");
-            }
-
-            return result;
-        }
-
-        var finalStageResult = ExecuteFinalStageMainline();
-        finalStageResultRows = RankingResultRowBuilder.BuildFinalStageResultRows(context.Players, context.Matches, finalStageResult, context.FirstPlayerWinRatePercent, context.GroupMap!, context.EffectiveAdditionalApexCount);
-        ConsoleResultPrinter.PrintFinalStageResult(finalStageResult, context.FirstPlayerWinRatePercent, finalStageResultRows);
-        if (finalStageResult.Mode.Contains("時間切れ", StringComparison.Ordinal))
-        {
-            Console.WriteLine($"シミュレーションは時間上限 {SimulationTimeBudget.SimulationTimeLimit.TotalMinutes:F0} 分で打ち切りました。\n");
-        }
-
-        return finalStageResult;
     }
 
     /// <summary>

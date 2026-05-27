@@ -1,5 +1,5 @@
 /*
- * ［アプリケーション　＞　モード］
+ * ［アプリケーション　＞　モード　＞　シミュレーション主線］
  */
 namespace ShogiTournamentSystemAnalyzer.Application.Modes.SimulationMainline;
 
@@ -15,10 +15,35 @@ using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 /// <summary>
 /// ［シミュレーション　＞　標準モード］の主フロー
 /// </summary>
-internal static class StandardSimulationMainline
+internal class StandardSimulationMainline
+    : AbstractSimulationMainline
 {
     internal static void Run(StandardModeContext context)
     {
+        Console.WriteLine($"順位ルール: {TournamentRuleSetRule.GetLabel(context.TournamentRuleSetMode)}\n");
+
+        if (context.ExcludedPlayerCount > 0)
+        {
+            Console.WriteLine($"未対局の選手 {context.ExcludedPlayerCount} 人を結果から除外します。\n");
+        }
+
+        ConsoleResultPrinter.PrintMatchesCsv(context.Players, context.Matches);
+        Console.WriteLine($"\n総対局数: {context.Matches.Count}");
+
+        var tournamentFinalState = ExecuteTournamentFinalState();
+        var finalRankingRows = BuildFinalRankingRows(tournamentFinalState);
+        ConsoleResultPrinter.PrintResult(context.Players.Count, tournamentFinalState, context.FirstPlayerWinRatePercent, finalRankingRows);
+        if (tournamentFinalState.Mode.Contains("時間切れ", StringComparison.Ordinal))
+        {
+            Console.WriteLine($"シミュレーションは時間上限 {SimulationTimeBudget.SimulationTimeLimit.TotalMinutes:F0} 分で打ち切りました。\n");
+        }
+
+        WriteFinalRankingOutputsForStandardMode(context, tournamentFinalState, finalRankingRows);
+
+        return;
+
+        // 以下、ローカル関数
+
         CalculationResult ExecuteTournamentFinalState()
         {
             if (context.Matches.Count <= 20)
@@ -42,26 +67,6 @@ internal static class StandardSimulationMainline
         {
             return RankingResultRowBuilder.BuildResultRows(context.Players, context.Matches, tournamentFinalState, context.FirstPlayerWinRatePercent);
         }
-
-        Console.WriteLine($"順位ルール: {TournamentRuleSetRule.GetLabel(context.TournamentRuleSetMode)}\n");
-
-        if (context.ExcludedPlayerCount > 0)
-        {
-            Console.WriteLine($"未対局の選手 {context.ExcludedPlayerCount} 人を結果から除外します。\n");
-        }
-
-        ConsoleResultPrinter.PrintMatchesCsv(context.Players, context.Matches);
-        Console.WriteLine($"\n総対局数: {context.Matches.Count}");
-
-        var tournamentFinalState = ExecuteTournamentFinalState();
-        var finalRankingRows = BuildFinalRankingRows(tournamentFinalState);
-        ConsoleResultPrinter.PrintResult(context.Players.Count, tournamentFinalState, context.FirstPlayerWinRatePercent, finalRankingRows);
-        if (tournamentFinalState.Mode.Contains("時間切れ", StringComparison.Ordinal))
-        {
-            Console.WriteLine($"シミュレーションは時間上限 {SimulationTimeBudget.SimulationTimeLimit.TotalMinutes:F0} 分で打ち切りました。\n");
-        }
-
-        WriteFinalRankingOutputsForStandardMode(context, tournamentFinalState, finalRankingRows);
     }
 
     static void WriteFinalRankingOutputsForStandardMode(StandardModeContext context, CalculationResult tournamentFinalState, IReadOnlyList<ResultRow> finalRankingRows)
