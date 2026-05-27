@@ -1,0 +1,17 @@
+boundaryName,schemaName,rowType,playerName,group,originalElo,eloRank,expectedOverallPlace,overallPlaceDeltaFromEloRank,overallTop1ProbabilityPercent,overallTop8ProbabilityPercent
+TournamentQualityReport,playerReport,data,圭,Apex,5110,1,4.360,3.360,7.00,99.02
+TournamentQualityReport,playerReport,data,杏,Apex,5090,2,4.449,2.449,17.00,95.11
+TournamentQualityReport,playerReport,data,と,Apex,5070,3,3.585,0.585,12.00,96.52
+TournamentQualityReport,playerReport,data,飛,Apex,5050,4,5.123,1.123,0.00,97.71
+TournamentQualityReport,playerReport,data,角,Apex,5030,5,4.036,-0.964,35.00,96.44
+TournamentQualityReport,playerReport,data,玉,Apex,5010,6,4.860,-1.140,22.00,88.98
+TournamentQualityReport,playerReport,data,金,Apex,4990,7,4.685,-2.315,7.00,96.51
+TournamentQualityReport,playerReport,data,銀,Apex,4970,8,5.244,-2.756,0.00,95.62
+TournamentQualityReport,playerReport,data,桂,Innov,4950,9,11.039,1.039,0.00,11.13
+TournamentQualityReport,playerReport,data,香,Innov,4930,10,11.213,0.213,0.00,8.71
+TournamentQualityReport,playerReport,data,歩,Innov,4910,11,10.953,-1.047,0.00,9.67
+TournamentQualityReport,playerReport,data,きりん,Innov,4870,12,12.579,-0.421,0.00,2.08
+TournamentQualityReport,playerReport,data,ぞう,Innov,4850,13,12.750,-1.250,0.00,0.00
+TournamentQualityReport,playerReport,data,らいおん,Innov,4830,14,13.696,-1.304,0.00,0.41
+TournamentQualityReport,playerReport,data,いぬ,Innov,4810,15,13.429,-2.571,0.00,2.10
+TournamentQualityReport,playerReport,data,ねこ,Innov,4790,16,14.000,-3.000,0.00,0.00

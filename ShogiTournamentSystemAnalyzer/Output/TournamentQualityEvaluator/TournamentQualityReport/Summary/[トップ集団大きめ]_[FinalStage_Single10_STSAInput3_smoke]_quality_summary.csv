@@ -1,0 +1,13 @@
+boundaryName,schemaName,rowType,metricName,metricValue,note
+TournamentQualityReport,summaryMetrics,metric,spearmanCorrelation,0.938235,Elo順位と期待総合順位の相関
+TournamentQualityReport,summaryMetrics,metric,meanAbsoluteRankError,1.596005,期待総合順位とElo順位のずれの絶対値平均
+TournamentQualityReport,summaryMetrics,metric,averageTop8Retention,7.658980,Elo上位8名が総合上位8位に残る人数の期待値
+TournamentQualityReport,summaryMetrics,metric,eloTop1OverallTop1Probability,7.000000,Elo1位が総合1位になる確率(%)
+TournamentQualityReport,summaryMetrics,metric,mostPenalizedPlayerDelta,3.359765,圭
+TournamentQualityReport,summaryMetrics,metric,mostAdvantagedPlayerDelta,-3.000000,ねこ
+nextCycleSuggestionTitle,,次回の品質評価提案
+nextCycleSuggestedSetting,,同Elo対局時の先手勝率(%) = 51.00
+nextCycleSuggestedSetting,,ピンポイント比較候補(%) = 52.00
+nextCycleSuggestedSetting,,"シミュレーション試行回数 = 1,000"
+nextCycleSuggestedSetting,,軽量確認の見方 = 選手 16 人 / 対局 64 件では、先に 1 条件だけ再確認してから横比較
+nextCycleSuggestionReason,,今回の条件で回せました。選手数 16 人・対局数 64 件なので、現条件とピンポイント候補を並べて比較できます。
