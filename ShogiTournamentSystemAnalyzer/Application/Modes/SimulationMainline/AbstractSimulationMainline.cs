@@ -5,6 +5,7 @@ namespace ShogiTournamentSystemAnalyzer.Application.Modes.SimulationMainline;
 
 using ShogiTournamentSystemAnalyzer.Application.Modes.SimulationContext;
 using ShogiTournamentSystemAnalyzer.Application.Execution;
+using ShogiTournamentSystemAnalyzer.Domain.Ranking;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
@@ -33,5 +34,32 @@ internal abstract class AbstractSimulationMainline
         if (!result.Mode.Contains("時間切れ", StringComparison.Ordinal)) return;
 
         Console.WriteLine($"シミュレーションは時間上限 {SimulationTimeBudget.SimulationTimeLimit.TotalMinutes:F0} 分で打ち切りました。\n");
+    }
+
+    protected static CalculationResult ExecuteStandardTournamentFinalState(
+        AbstractSimulationContext context,
+        string exactCalculationMessage,
+        string simulationPrompt)
+    {
+        if (context.Matches.Count <= 20)
+        {
+            Console.WriteLine(exactCalculationMessage);
+            return StandardCalculationEngine.CalculateExactly(context.Players, context.Matches, context.FirstPlayerWinRateRating, context.TournamentRuleSetMode);
+        }
+
+        const int defaultSimulationCount = 200_000;
+        var simulationCount = ConsolePromptReaders.ReadIntWithDefault(
+            simulationPrompt,
+            defaultSimulationCount,
+            min: 1);
+
+        Console.WriteLine();
+        using var simulationBudget = SimulationTimeBudget.BeginSimulationBudget();
+        return StandardCalculationEngine.CalculateBySimulation(context.Players, context.Matches, context.FirstPlayerWinRateRating, simulationCount, context.TournamentRuleSetMode);
+    }
+
+    protected static IReadOnlyList<ResultRow> BuildStandardResultRows(AbstractSimulationContext context, CalculationResult result)
+    {
+        return RankingResultRowBuilder.BuildResultRows(context.Players, context.Matches, result, context.FirstPlayerWinRatePercent);
     }
 }

@@ -54,7 +54,7 @@ internal class FinalStageSimulationMainline
         if (context.GroupingMode == FinalStageGroupingMode.Off)
         {
             var result = ExecuteStandardMainline();
-            standardResultRows = RankingResultRowBuilder.BuildResultRows(context.Players, context.Matches, result, context.FirstPlayerWinRatePercent);
+            standardResultRows = BuildStandardResultRows(context, result);
             ConsoleResultPrinter.PrintResult(context.Players.Count, result, context.FirstPlayerWinRatePercent, standardResultRows);
             PrintTimeLimitIfNeeded(result);
 
@@ -72,21 +72,11 @@ internal class FinalStageSimulationMainline
 
         CalculationResult ExecuteStandardMainline()
         {
-            if (context.Matches.Count <= 20)
-            {
-                Console.WriteLine($"{TournamentRuleSetRule.GetLabel(context.TournamentRuleSetMode)} の厳密計算を行います。\n");
-                return StandardCalculationEngine.CalculateExactly(context.Players, context.Matches, context.FirstPlayerWinRateRating, context.TournamentRuleSetMode);
-            }
-
-            const int defaultSimulationCount = 200_000;
-            var simulationCount = ConsolePromptReaders.ReadIntWithDefault(
-                $"局数が多いため {TournamentRuleSetRule.GetLabel(context.TournamentRuleSetMode)} のシミュレーションで近似します。試行回数を入力してください [{defaultSimulationCount}]: ",
-                defaultSimulationCount,
-                min: 1);
-
-            Console.WriteLine();
-            using var simulationBudget = SimulationTimeBudget.BeginSimulationBudget();
-            return StandardCalculationEngine.CalculateBySimulation(context.Players, context.Matches, context.FirstPlayerWinRateRating, simulationCount, context.TournamentRuleSetMode);
+            var ruleLabel = TournamentRuleSetRule.GetLabel(context.TournamentRuleSetMode);
+            return ExecuteStandardTournamentFinalState(
+                context,
+                exactCalculationMessage: $"{ruleLabel} の厳密計算を行います。\n",
+                simulationPrompt: $"局数が多いため {ruleLabel} のシミュレーションで近似します。試行回数を入力してください [200000]: ");
         }
 
         CalculationResult ExecuteFinalStageMainline()
