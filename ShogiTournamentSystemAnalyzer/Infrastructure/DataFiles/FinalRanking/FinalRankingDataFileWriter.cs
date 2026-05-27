@@ -16,6 +16,45 @@ internal abstract class AbstractFinalRankingDataFileWriter
 {
     protected static string EscapeCsv(string value) => CsvOutputHelpers.EscapeCsv(value);
 
+    protected static List<string> BuildFinalRankingMarkdownOverviewLines(
+        string outputMarkdownPath,
+        string outputCsvPath,
+        string mode,
+        double firstPlayerWinRatePercent,
+        int playerCount,
+        string editionLabel,
+        string? overviewNote = null,
+        string? representativeRankingMarkdownPath = null,
+        string? referenceMatchesCsvPath = null)
+    {
+        var lines = new List<string>
+        {
+            "## 概要",
+            $"- 結果CSV: {MarkdownOutputHelpers.BuildMarkdownFileLink(outputMarkdownPath, outputCsvPath)}",
+            $"- 版: {editionLabel}",
+            $"- 計算モード: {mode}",
+            $"- 同Elo対局時の先手勝率: {firstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture)}%",
+            $"- 対象選手数: {playerCount}"
+        };
+
+        if (!string.IsNullOrWhiteSpace(representativeRankingMarkdownPath))
+        {
+            lines.Add($"- representative順位表: {MarkdownOutputHelpers.BuildMarkdownFileLink(outputMarkdownPath, representativeRankingMarkdownPath)}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(referenceMatchesCsvPath))
+        {
+            lines.Add($"- 参考対局CSV: {MarkdownOutputHelpers.BuildMarkdownFileLink(outputMarkdownPath, referenceMatchesCsvPath)}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(overviewNote))
+        {
+            lines.Add($"- 注記: {overviewNote}");
+        }
+
+        return lines;
+    }
+
     internal static IEnumerable<string> CreateRepresentativeExecutionRankCsv(
         TournamentRuleSetMode tournamentRuleSetMode,
         IReadOnlyList<RepresentativeExecutionRankRow> rows,
@@ -283,13 +322,22 @@ internal abstract class AbstractFinalRankingDataFileWriter
 
         var lines = new List<string>
         {
-            "# 通常モード結果レポート",
-            string.Empty,
-            "## 概要",
-            $"- 結果CSV: {MarkdownOutputHelpers.BuildMarkdownFileLink(outputMarkdownPath, outputCsvPath)}",
-            $"- 計算モード: {mode}",
-            $"- 同Elo対局時の先手勝率: {firstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture)}%",
-            $"- 対象選手数: {resultRows.Count}",
+            "# 最終順位結果レポート",
+            string.Empty
+        };
+
+        lines.AddRange(BuildFinalRankingMarkdownOverviewLines(
+            outputMarkdownPath,
+            outputCsvPath,
+            mode,
+            firstPlayerWinRatePercent,
+            resultRows.Count,
+            editionLabel: "標準版",
+            overviewNote: overviewNote,
+            representativeRankingMarkdownPath: representativeRankingMarkdownPath));
+
+        lines.AddRange(new[]
+        {
             string.Empty,
             "## 注目ポイント",
             $"- 優勝確率が最も高い選手: **{bestChampionshipRowName}**（{(bestChampionshipProbability * 100).ToString("F2", CultureInfo.InvariantCulture)}%）",
@@ -305,17 +353,7 @@ internal abstract class AbstractFinalRankingDataFileWriter
             "## 上位候補一覧",
             "| 選手 | 元Elo | 実効Elo | 差分 | 優勝確率 | 平均順位 |",
             "| --- | ---: | ---: | ---: | ---: | ---: |"
-        };
-
-        if (!string.IsNullOrWhiteSpace(representativeRankingMarkdownPath))
-        {
-            lines.Insert(7, $"- representative順位表: {MarkdownOutputHelpers.BuildMarkdownFileLink(outputMarkdownPath, representativeRankingMarkdownPath)}");
-        }
-
-        if (!string.IsNullOrWhiteSpace(overviewNote))
-        {
-            lines.Insert(7, $"- 注記: {overviewNote}");
-        }
+        });
 
         lines.AddRange(topChampionshipRows.Select(row =>
             $"| {row.Name} | {SimulationRatingMath.FormatRating(row.OriginalRating)} | {SimulationRatingMath.FormatRating(row.EffectiveRating)} | {SimulationRatingMath.FormatSignedRating(row.RatingDelta)} | {(row.ChampionshipProbability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {row.AveragePlace.ToString("F3", CultureInfo.InvariantCulture)} |"));
