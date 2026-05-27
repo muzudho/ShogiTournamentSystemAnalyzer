@@ -26,16 +26,12 @@ internal class StandardSimulationMainline
             Console.WriteLine($"未対局の選手 {context.ExcludedPlayerCount} 人を結果から除外します。\n");
         }
 
-        ConsoleResultPrinter.PrintMatchesCsv(context.Players, context.Matches);
-        Console.WriteLine($"\n総対局数: {context.Matches.Count}");
+        PrintMatchesAndCount(context, "総対局数");
 
         var tournamentFinalState = ExecuteTournamentFinalState();
         var finalRankingRows = BuildFinalRankingRows(tournamentFinalState);
         ConsoleResultPrinter.PrintResult(context.Players.Count, tournamentFinalState, context.FirstPlayerWinRatePercent, finalRankingRows);
-        if (tournamentFinalState.Mode.Contains("時間切れ", StringComparison.Ordinal))
-        {
-            Console.WriteLine($"シミュレーションは時間上限 {SimulationTimeBudget.SimulationTimeLimit.TotalMinutes:F0} 分で打ち切りました。\n");
-        }
+        PrintTimeLimitIfNeeded(tournamentFinalState);
 
         WriteFinalRankingOutputsForStandardMode(context, tournamentFinalState, finalRankingRows);
 

@@ -4,7 +4,10 @@
 namespace ShogiTournamentSystemAnalyzer.Application.Modes.SimulationMainline;
 
 using ShogiTournamentSystemAnalyzer.Application.Modes.SimulationContext;
+using ShogiTournamentSystemAnalyzer.Application.Execution;
+using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
+using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 
 internal abstract class AbstractSimulationMainline
 {
@@ -17,5 +20,18 @@ internal abstract class AbstractSimulationMainline
 
     protected virtual void RunDynamicCore(AbstractSimulationContext context)
     {
+    }
+
+    protected static void PrintMatchesAndCount(AbstractSimulationContext context, string matchCountLabel)
+    {
+        ConsoleResultPrinter.PrintMatchesCsv(context.Players, context.Matches);
+        Console.WriteLine($"\n{matchCountLabel}: {context.Matches.Count}");
+    }
+
+    protected static void PrintTimeLimitIfNeeded(CalculationResult result)
+    {
+        if (!result.Mode.Contains("時間切れ", StringComparison.Ordinal)) return;
+
+        Console.WriteLine($"シミュレーションは時間上限 {SimulationTimeBudget.SimulationTimeLimit.TotalMinutes:F0} 分で打ち切りました。\n");
     }
 }
