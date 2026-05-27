@@ -13,28 +13,41 @@ using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 internal class StandardSimulationMainline
     : AbstractSimulationMainline
 {
-    internal static void RunStatic(StandardModeSimulationContext context)
+    protected override void BeforeExecuteSimulationContext(AbstractSimulationContext context)
     {
-        PrintStandardModeContext(context);
+        PrintStandardModeContext((StandardModeSimulationContext)context);
+    }
 
-        var tournamentFinalState = ExecuteTournamentFinalState();
-        var finalRankingRows = BuildStandardResultRows(context, tournamentFinalState);
-        ConsoleResultPrinter.PrintResult(context.Players.Count, tournamentFinalState, context.FirstPlayerWinRatePercent, finalRankingRows);
-        PrintTimeLimitIfNeeded(tournamentFinalState);
+    protected override SimulationMainlineExecutionResult ExecuteSimulation(AbstractSimulationContext context)
+    {
+        var standardContext = (StandardModeSimulationContext)context;
+        var tournamentFinalState = ExecuteTournamentFinalState(standardContext);
+        var finalRankingRows = BuildStandardResultRows(standardContext, tournamentFinalState);
+        return new SimulationMainlineExecutionResult(tournamentFinalState, finalRankingRows);
+    }
 
-        WriteFinalRankingOutputsForStandardMode(context, tournamentFinalState, finalRankingRows);
+    protected override void PrintSimulationResult(AbstractSimulationContext context, SimulationMainlineExecutionResult executionResult)
+    {
+        var standardContext = (StandardModeSimulationContext)context;
+        ConsoleResultPrinter.PrintResult(
+            standardContext.Players.Count,
+            executionResult.Result,
+            standardContext.FirstPlayerWinRatePercent,
+            executionResult.StandardResultRows!);
+    }
 
-        return;
+    protected override void WriteSimulationOutputs(AbstractSimulationContext context, SimulationMainlineExecutionResult executionResult)
+    {
+        var standardContext = (StandardModeSimulationContext)context;
+        WriteFinalRankingOutputsForStandardMode(standardContext, executionResult.Result, executionResult.StandardResultRows!);
+    }
 
-        // 以下、ローカル関数
-
-        CalculationResult ExecuteTournamentFinalState()
-        {
-            return ExecuteStandardTournamentFinalState(
-                context,
-                exactCalculationMessage: "厳密計算を行います。\n",
-                simulationPrompt: "局数が多いためシミュレーションで近似します。試行回数を入力してください [200000]: ");
-        }
+    static CalculationResult ExecuteTournamentFinalState(StandardModeSimulationContext context)
+    {
+        return ExecuteStandardTournamentFinalState(
+            context,
+            exactCalculationMessage: "厳密計算を行います。\n",
+            simulationPrompt: "局数が多いためシミュレーションで近似します。試行回数を入力してください [200000]: ");
     }
 
     static void PrintStandardModeContext(StandardModeSimulationContext context)

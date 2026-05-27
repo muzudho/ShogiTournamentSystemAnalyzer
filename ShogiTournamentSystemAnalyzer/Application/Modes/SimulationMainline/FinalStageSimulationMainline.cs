@@ -20,20 +20,36 @@ using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 internal class FinalStageSimulationMainline
     : AbstractSimulationMainline
 {
-    /// <summary>
-    /// シミュレーション実行のメインラインです。
-    /// </summary>
-    /// <param name="context"></param>
-    internal static void RunStatic(FinalStageModeSimulationContext context)
+    protected override SimulationMainlineExecutionResult ExecuteSimulation(AbstractSimulationContext context)
     {
-        // シミュレーションして、最終順位付け。
-        var result = ExecuteTournamentFinalStateAndFinalRanking(context, out var standardResultRows, out var finalStageResultRows);
+        var finalStageContext = (FinalStageModeSimulationContext)context;
+        return ExecuteTournamentFinalStateAndFinalRanking(finalStageContext);
+    }
 
-        // 表示。
-        PrintFinalStageModeContext(context);
+    protected override void AfterExecuteSimulationContext(AbstractSimulationContext context, SimulationMainlineExecutionResult executionResult)
+    {
+        PrintFinalStageModeContext((FinalStageModeSimulationContext)context);
+    }
 
-        // 出力。
-        WriteFinalRankingOutputsForFinalStageMode(context, result, standardResultRows, finalStageResultRows);
+    protected override void PrintSimulationResult(AbstractSimulationContext context, SimulationMainlineExecutionResult executionResult)
+    {
+        var finalStageContext = (FinalStageModeSimulationContext)context;
+        if (finalStageContext.GroupingMode == FinalStageGroupingMode.Off)
+        {
+            ConsoleResultPrinter.PrintResult(finalStageContext.Players.Count, executionResult.Result, finalStageContext.FirstPlayerWinRatePercent, executionResult.StandardResultRows!);
+            return;
+        }
+
+        ConsoleResultPrinter.PrintFinalStageResult(executionResult.Result, finalStageContext.FirstPlayerWinRatePercent, executionResult.FinalStageResultRows!);
+    }
+
+    protected override void WriteSimulationOutputs(AbstractSimulationContext context, SimulationMainlineExecutionResult executionResult)
+    {
+        WriteFinalRankingOutputsForFinalStageMode(
+            (FinalStageModeSimulationContext)context,
+            executionResult.Result,
+            executionResult.StandardResultRows,
+            executionResult.FinalStageResultRows);
     }
 
     /// <summary>
@@ -43,30 +59,18 @@ internal class FinalStageSimulationMainline
     /// <param name="standardResultRows"></param>
     /// <param name="finalStageResultRows"></param>
     /// <returns></returns>
-    static CalculationResult ExecuteTournamentFinalStateAndFinalRanking(
-        FinalStageModeSimulationContext context,
-        out IReadOnlyList<ResultRow>? standardResultRows,
-        out IReadOnlyList<FinalStageResultRow>? finalStageResultRows)
+    static SimulationMainlineExecutionResult ExecuteTournamentFinalStateAndFinalRanking(FinalStageModeSimulationContext context)
     {
-        standardResultRows = null;
-        finalStageResultRows = null;
-
         if (context.GroupingMode == FinalStageGroupingMode.Off)
         {
             var result = ExecuteStandardMainline();
-            standardResultRows = BuildStandardResultRows(context, result);
-            ConsoleResultPrinter.PrintResult(context.Players.Count, result, context.FirstPlayerWinRatePercent, standardResultRows);
-            PrintTimeLimitIfNeeded(result);
-
-            return result;
+            var standardResultRows = BuildStandardResultRows(context, result);
+            return new SimulationMainlineExecutionResult(result, standardResultRows);
         }
 
         var finalStageResult = ExecuteFinalStageMainline();
-        finalStageResultRows = RankingResultRowBuilder.BuildFinalStageResultRows(context.Players, context.Matches, finalStageResult, context.FirstPlayerWinRatePercent, context.GroupMap!, context.EffectiveAdditionalApexCount);
-        ConsoleResultPrinter.PrintFinalStageResult(finalStageResult, context.FirstPlayerWinRatePercent, finalStageResultRows);
-        PrintTimeLimitIfNeeded(finalStageResult);
-
-        return finalStageResult;
+        var finalStageResultRows = RankingResultRowBuilder.BuildFinalStageResultRows(context.Players, context.Matches, finalStageResult, context.FirstPlayerWinRatePercent, context.GroupMap!, context.EffectiveAdditionalApexCount);
+        return new SimulationMainlineExecutionResult(finalStageResult, FinalStageResultRows: finalStageResultRows);
 
         // 以下、ローカル関数
 

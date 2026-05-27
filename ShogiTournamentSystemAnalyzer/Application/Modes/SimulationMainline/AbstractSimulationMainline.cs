@@ -22,9 +22,35 @@ internal abstract class AbstractSimulationMainline
         RunDynamicCore(context);
     }
 
+    public void RunStatic(AbstractSimulationContext context)
+    {
+        BeforeExecuteSimulationContext(context);
+
+        var executionResult = ExecuteSimulation(context);
+
+        AfterExecuteSimulationContext(context, executionResult);
+        PrintSimulationResult(context, executionResult);
+        PrintTimeLimitIfNeeded(executionResult.Result);
+        WriteSimulationOutputs(context, executionResult);
+    }
+
     protected virtual void RunDynamicCore(AbstractSimulationContext context)
     {
     }
+
+    protected virtual void BeforeExecuteSimulationContext(AbstractSimulationContext context)
+    {
+    }
+
+    protected virtual void AfterExecuteSimulationContext(AbstractSimulationContext context, SimulationMainlineExecutionResult executionResult)
+    {
+    }
+
+    protected abstract SimulationMainlineExecutionResult ExecuteSimulation(AbstractSimulationContext context);
+
+    protected abstract void PrintSimulationResult(AbstractSimulationContext context, SimulationMainlineExecutionResult executionResult);
+
+    protected abstract void WriteSimulationOutputs(AbstractSimulationContext context, SimulationMainlineExecutionResult executionResult);
 
     protected static void PrintMatchesAndCount(AbstractSimulationContext context, string matchCountLabel)
     {
@@ -129,3 +155,8 @@ internal abstract class AbstractSimulationMainline
             getLines: () => FinalRankingDataFileWriter.CreateFinalStageResultMarkdown(outputMarkdownPath, outputCsvPath, result.Mode, firstPlayerWinRatePercent, resultRows, referenceMatchesCsvPath));
     }
 }
+
+internal sealed record SimulationMainlineExecutionResult(
+    CalculationResult Result,
+    IReadOnlyList<ResultRow>? StandardResultRows = null,
+    IReadOnlyList<FinalStageResultRow>? FinalStageResultRows = null);
