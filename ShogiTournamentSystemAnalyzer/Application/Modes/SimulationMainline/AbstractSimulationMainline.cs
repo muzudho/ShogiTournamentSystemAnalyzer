@@ -132,12 +132,16 @@ internal abstract class AbstractSimulationMainline
         WriterHelper.WriteText(
             outputPath: outputCsvPath,
             // XXX: なんで［標準版］と［本戦版］で出力内容が違うんだ（＾～＾）？
-            getLines: () => FinalRankingDataFileWriter.CreateResultCsv(result.Mode, firstPlayerWinRatePercent, resultRows));
+            getLines: () => FinalRankingDataFileWriter.CreateResultCsv(
+                result.Mode, firstPlayerWinRatePercent, resultRows  // ここは共通だ（＾▽＾）
+                ));
 
         WriterHelper.WriteText(
             outputPath: outputMarkdownPath,
             // XXX: なんで［標準版］と［本戦版］で出力内容が違うんだ（＾～＾）？
-            getLines: () => FinalRankingDataFileWriter.CreateResultMarkdown(outputMarkdownPath, outputCsvPath, result.Mode, firstPlayerWinRatePercent, resultRows));
+            getLines: () => FinalRankingDataFileWriter.CreateResultMarkdown(
+                outputMarkdownPath, outputCsvPath, result.Mode, firstPlayerWinRatePercent, resultRows   // ここは共通だ（＾▽＾）
+                ));
     }
 
     protected static void WriteFinalStageFinalRankingOutputs(
@@ -151,13 +155,17 @@ internal abstract class AbstractSimulationMainline
         WriterHelper.WriteText(
             outputPath: outputCsvPath,
             // XXX: なんで［標準版］と［本戦版］で出力内容が違うんだ（＾～＾）？
-            getLines: () => FinalRankingDataFileWriter.CreateFinalStageResultCsv(outputCsvPath, result.Mode, firstPlayerWinRatePercent, resultRows));
+            getLines: () => FinalRankingDataFileWriter.CreateFinalStageResultCsv(
+                outputCsvPath,  // XXX: ［本戦版］はCSVに出力パスを入れる
+                result.Mode, firstPlayerWinRatePercent, resultRows  // ここは共通だ（＾▽＾）
+                ));
 
         WriterHelper.WriteText(
             outputPath: outputMarkdownPath,
             // XXX: なんで［標準版］と［本戦版］で出力内容が違うんだ（＾～＾）？
-            getLines: () => FinalRankingDataFileWriter.CreateFinalStageResultMarkdown(outputMarkdownPath, outputCsvPath, result.Mode, firstPlayerWinRatePercent, resultRows,
-                referenceMatchesCsvPath // これが［本戦版］にだけある（＾～＾）？
+            getLines: () => FinalRankingDataFileWriter.CreateFinalStageResultMarkdown(
+                outputMarkdownPath, outputCsvPath, result.Mode, firstPlayerWinRatePercent, resultRows,  // ここは共通だ（＾▽＾）
+                referenceMatchesCsvPath // XXX: これが［本戦版］にだけある（＾～＾）？
                 ));
     }
 }

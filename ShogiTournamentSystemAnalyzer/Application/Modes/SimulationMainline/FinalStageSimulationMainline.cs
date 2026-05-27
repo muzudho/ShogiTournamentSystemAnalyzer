@@ -34,22 +34,26 @@ internal class FinalStageSimulationMainline
     protected override void PrintSimulationResult(AbstractSimulationContext context, SimulationMainlineExecutionResult executionResult)
     {
         var finalStageContext = (FinalStageModeSimulationContext)context;
-        if (finalStageContext.GroupingMode == FinalStageGroupingMode.Off)
+        if (executionResult is StandardSimulationExecutionResult standardExecutionResult)
         {
-            ConsoleResultPrinter.PrintResult(finalStageContext.Players.Count, executionResult.Result, finalStageContext.FirstPlayerWinRatePercent, executionResult.StandardResultRows!);
+            ConsoleResultPrinter.PrintResult(finalStageContext.Players.Count, standardExecutionResult.Result, finalStageContext.FirstPlayerWinRatePercent, standardExecutionResult.ResultRows);
             return;
         }
 
-        ConsoleResultPrinter.PrintFinalStageResult(executionResult.Result, finalStageContext.FirstPlayerWinRatePercent, executionResult.FinalStageResultRows!);
+        var finalStageExecutionResult = (FinalStageSimulationExecutionResult)executionResult;
+        ConsoleResultPrinter.PrintFinalStageResult(finalStageExecutionResult.Result, finalStageContext.FirstPlayerWinRatePercent, finalStageExecutionResult.ResultRows);
     }
 
     protected override void WriteSimulationOutputs(AbstractSimulationContext context, SimulationMainlineExecutionResult executionResult)
     {
-        WriteFinalRankingOutputsForFinalStageMode(
-            (FinalStageModeSimulationContext)context,
-            executionResult.Result,
-            executionResult.StandardResultRows,
-            executionResult.FinalStageResultRows);
+        var finalStageContext = (FinalStageModeSimulationContext)context;
+        if (executionResult is StandardSimulationExecutionResult standardExecutionResult)
+        {
+            WriteFinalRankingOutputsForFinalStageMode(finalStageContext, standardExecutionResult);
+            return;
+        }
+
+        WriteFinalRankingOutputsForFinalStageMode(finalStageContext, (FinalStageSimulationExecutionResult)executionResult);
     }
 
     /// <summary>
@@ -65,12 +69,12 @@ internal class FinalStageSimulationMainline
         {
             var result = ExecuteStandardMainline();
             var standardResultRows = BuildStandardResultRows(context, result);
-            return new SimulationMainlineExecutionResult(result, standardResultRows);
+            return new StandardSimulationExecutionResult(result, standardResultRows);
         }
 
         var finalStageResult = ExecuteFinalStageMainline();
         var finalStageResultRows = RankingResultRowBuilder.BuildFinalStageResultRows(context.Players, context.Matches, finalStageResult, context.FirstPlayerWinRatePercent, context.GroupMap!, context.EffectiveAdditionalApexCount);
-        return new SimulationMainlineExecutionResult(finalStageResult, FinalStageResultRows: finalStageResultRows);
+        return new FinalStageSimulationExecutionResult(finalStageResult, finalStageResultRows);
 
         // 以下、ローカル関数
 
@@ -137,22 +141,31 @@ internal class FinalStageSimulationMainline
     /// <param name="finalStageResultRows"></param>
     static void WriteFinalRankingOutputsForFinalStageMode(
         FinalStageModeSimulationContext context,
-        CalculationResult result,
-        IReadOnlyList<ResultRow>? standardResultRows,
-        IReadOnlyList<FinalStageResultRow>? finalStageResultRows)
+        StandardSimulationExecutionResult executionResult)
     {
         var (outputCsvPath, outputMarkdownPath) = ResolveFinalRankingOutputPaths($"final_stage_final_ranking_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
         var referenceMatchesCsvPath = context.ReferenceMatches.Count > 0
             ? ReportOutputPathBuilder.BuildTournamentFinalStateDefaultOutputPath($"reference_matches_{DateTime.Now:yyyyMMdd_HHmmss}.csv")
             : null;
-        if (context.GroupingMode == FinalStageGroupingMode.On)
+        WriteStandardFinalRankingOutputs(outputCsvPath, outputMarkdownPath, executionResult.Result, context.FirstPlayerWinRatePercent, executionResult.ResultRows);
+        PrintFinalRankingOutputCompleted(outputCsvPath, outputMarkdownPath);
+
+        if (context.ReferenceMatches.Count > 0)
         {
-            WriteFinalStageFinalRankingOutputs(outputCsvPath, outputMarkdownPath, result, context.FirstPlayerWinRatePercent, finalStageResultRows!, referenceMatchesCsvPath);
+            CsvOutputHelpers.WriteReferenceMatchCsv(referenceMatchesCsvPath!, context.Players, context.ReferenceMatches);
+            Console.WriteLine($"参考対局CSVを出力しました: {referenceMatchesCsvPath}");
         }
-        else
-        {
-            WriteStandardFinalRankingOutputs(outputCsvPath, outputMarkdownPath, result, context.FirstPlayerWinRatePercent, standardResultRows!);
-        }
+    }
+
+    static void WriteFinalRankingOutputsForFinalStageMode(
+        FinalStageModeSimulationContext context,
+        FinalStageSimulationExecutionResult executionResult)
+    {
+        var (outputCsvPath, outputMarkdownPath) = ResolveFinalRankingOutputPaths($"final_stage_final_ranking_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
+        var referenceMatchesCsvPath = context.ReferenceMatches.Count > 0
+            ? ReportOutputPathBuilder.BuildTournamentFinalStateDefaultOutputPath($"reference_matches_{DateTime.Now:yyyyMMdd_HHmmss}.csv")
+            : null;
+        WriteFinalStageFinalRankingOutputs(outputCsvPath, outputMarkdownPath, executionResult.Result, context.FirstPlayerWinRatePercent, executionResult.ResultRows, referenceMatchesCsvPath);
         PrintFinalRankingOutputCompleted(outputCsvPath, outputMarkdownPath);
 
         if (context.ReferenceMatches.Count > 0)

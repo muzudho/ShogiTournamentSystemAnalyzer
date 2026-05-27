@@ -130,6 +130,17 @@ internal static class FinalRankingDataFileWriter
         return lines;
     }
 
+    /// <summary>
+    ///     <pre>
+    /// これは［標準版］。
+    /// TODO: ［本戦版］と同じ引数リストにしてほしい（＾～＾）
+    ///     </pre>
+    /// </summary>
+    /// <param name="mode"></param>
+    /// <param name="firstPlayerWinRatePercent"></param>
+    /// <param name="resultRows"></param>
+    /// <param name="overviewNote"></param>
+    /// <returns></returns>
     internal static IEnumerable<string> CreateResultCsv(string mode, double firstPlayerWinRatePercent, IReadOnlyList<ResultRow> resultRows, string? overviewNote = null)
     {
         var specificHeaderColumns = new List<string>
@@ -214,6 +225,20 @@ internal static class FinalRankingDataFileWriter
         return lines;
     }
 
+    /// <summary>
+    ///     <pre>
+    /// これは［標準版］。
+    /// TODO: ［本戦版］と同じ引数リストにしてほしい（＾～＾）
+    ///     </pre>
+    /// </summary>
+    /// <param name="outputMarkdownPath"></param>
+    /// <param name="outputCsvPath"></param>
+    /// <param name="mode"></param>
+    /// <param name="firstPlayerWinRatePercent"></param>
+    /// <param name="resultRows"></param>
+    /// <param name="overviewNote"></param>
+    /// <param name="representativeRankingMarkdownPath"></param>
+    /// <returns></returns>
     internal static IEnumerable<string> CreateResultMarkdown(
         string outputMarkdownPath,
         string outputCsvPath,
@@ -322,7 +347,20 @@ internal static class FinalRankingDataFileWriter
         return lines;
     }
 
-    internal static IEnumerable<string> CreateFinalStageResultCsv(string outputCsvPath, string mode, double firstPlayerWinRatePercent, IReadOnlyList<FinalStageResultRow> resultRows)
+    /// <summary>
+    ///     <pre>
+    /// これは［本戦版］。
+    /// TODO: ［標準版］と同じ引数リストにしてほしい（＾～＾）
+    ///     </pre>
+    /// </summary>
+    /// <param name="outputCsvPath"></param>
+    /// <param name="mode"></param>
+    /// <param name="firstPlayerWinRatePercent"></param>
+    /// <param name="resultRows"></param>
+    /// <returns></returns>
+    internal static IEnumerable<string> CreateFinalStageResultCsv(
+        string outputCsvPath,   // XXX: 要るの（＾～＾）？
+        string mode, double firstPlayerWinRatePercent, IReadOnlyList<FinalStageResultRow> resultRows)
     {
         var specificHeaderColumns = new List<string>
         {
@@ -402,6 +440,19 @@ internal static class FinalRankingDataFileWriter
         return lines;
     }
 
+    /// <summary>
+    ///     <pre>
+    /// これは［本戦版］。
+    /// TODO: ［標準版］と同じ引数リストにしてほしい（＾～＾）
+    ///     </pre>
+    /// </summary>
+    /// <param name="outputMarkdownPath"></param>
+    /// <param name="outputCsvPath"></param>
+    /// <param name="mode"></param>
+    /// <param name="firstPlayerWinRatePercent"></param>
+    /// <param name="resultRows"></param>
+    /// <param name="referenceMatchesCsvPath">参考対局CSVファイルへのパス</param>
+    /// <returns></returns>
     internal static IEnumerable<string> CreateFinalStageResultMarkdown(string outputMarkdownPath, string outputCsvPath, string mode, double firstPlayerWinRatePercent, IReadOnlyList<FinalStageResultRow> resultRows, string? referenceMatchesCsvPath = null)
     {
         var topRows = resultRows

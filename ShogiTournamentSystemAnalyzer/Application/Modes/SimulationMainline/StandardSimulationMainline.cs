@@ -23,23 +23,25 @@ internal class StandardSimulationMainline
         var standardContext = (StandardModeSimulationContext)context;
         var tournamentFinalState = ExecuteTournamentFinalState(standardContext);
         var finalRankingRows = BuildStandardResultRows(standardContext, tournamentFinalState);
-        return new SimulationMainlineExecutionResult(tournamentFinalState, finalRankingRows);
+        return new StandardSimulationExecutionResult(tournamentFinalState, finalRankingRows);
     }
 
     protected override void PrintSimulationResult(AbstractSimulationContext context, SimulationMainlineExecutionResult executionResult)
     {
         var standardContext = (StandardModeSimulationContext)context;
+        var standardExecutionResult = (StandardSimulationExecutionResult)executionResult;
         ConsoleResultPrinter.PrintResult(
             standardContext.Players.Count,
-            executionResult.Result,
+            standardExecutionResult.Result,
             standardContext.FirstPlayerWinRatePercent,
-            executionResult.StandardResultRows!);
+            standardExecutionResult.ResultRows);
     }
 
     protected override void WriteSimulationOutputs(AbstractSimulationContext context, SimulationMainlineExecutionResult executionResult)
     {
         var standardContext = (StandardModeSimulationContext)context;
-        WriteFinalRankingOutputsForStandardMode(standardContext, executionResult.Result, executionResult.StandardResultRows!);
+        var standardExecutionResult = (StandardSimulationExecutionResult)executionResult;
+        WriteFinalRankingOutputsForStandardMode(standardContext, standardExecutionResult.Result, standardExecutionResult.ResultRows);
     }
 
     static CalculationResult ExecuteTournamentFinalState(StandardModeSimulationContext context)
