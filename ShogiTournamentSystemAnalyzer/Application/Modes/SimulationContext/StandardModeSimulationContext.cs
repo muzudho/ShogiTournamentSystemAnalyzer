@@ -6,13 +6,19 @@ namespace ShogiTournamentSystemAnalyzer.Application.Modes.SimulationContext;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
 
-internal readonly record struct StandardModeSimulationContext(
+internal sealed record class StandardModeSimulationContext(
     TournamentRuleSetMode TournamentRuleSetMode,
     double FirstPlayerWinRatePercent,
     double FirstPlayerWinRateRating,
     IReadOnlyList<Player> AllPlayers,
     IReadOnlyList<Player> Players,
     IReadOnlyList<Match> Matches)
+    : AbstractSimulationContext(
+        TournamentRuleSetMode,
+        FirstPlayerWinRatePercent,
+        FirstPlayerWinRateRating,
+        Players,
+        Matches)
 {
     internal int ExcludedPlayerCount => AllPlayers.Count - Players.Count;
 }

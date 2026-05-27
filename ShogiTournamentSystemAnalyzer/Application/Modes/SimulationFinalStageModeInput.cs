@@ -77,11 +77,11 @@ internal static partial class SimulationModeInputReaders
         var referenceMatches = ConsoleInputReaders.ReadOptionalMatchesFromCsv(players, "参考対局CSVまたは Round/Black-White/対局記号表を貼り付けてください。大会記録に含めない場合だけ使います。");
 
         context = new FinalStageModeSimulationContext(
+            tournamentRuleSetMode,
             firstPlayerWinRatePercent,
             firstPlayerWinRateRating,
             players,
             groupingMode,
-            tournamentRuleSetMode,
             groupMap,
             additionalApexPlayers,
             additionalApexPlacementMode,
