@@ -1,3 +1,8 @@
+/*
+ * ［大会最終状態という境界］
+ */
+namespace ShogiTournamentSystemAnalyzer.Domain.TournamentFinalState;
+
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 
 /// <summary>

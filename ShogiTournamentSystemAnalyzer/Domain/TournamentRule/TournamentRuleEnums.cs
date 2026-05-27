@@ -1,5 +1,5 @@
 ﻿/*
- * ［大会ルール境界］で使う列挙型
+ * ［大会ルールという境界］
  */
 namespace ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
 

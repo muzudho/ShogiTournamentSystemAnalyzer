@@ -3,8 +3,6 @@
  */
 namespace ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 
-using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
-
 /// <summary>
 /// ［大会品質評価フロー域　＞　選手の行］だ。
 /// </summary>

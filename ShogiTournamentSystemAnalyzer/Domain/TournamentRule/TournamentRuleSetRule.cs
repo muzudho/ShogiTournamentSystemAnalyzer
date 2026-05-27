@@ -1,4 +1,7 @@
-using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
+/*
+ * ［大会ルールという境界］
+ */
+namespace ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
 
 internal static class TournamentRuleSetRule
 {

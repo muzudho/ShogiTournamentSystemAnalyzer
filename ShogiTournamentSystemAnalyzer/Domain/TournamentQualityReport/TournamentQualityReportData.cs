@@ -1,3 +1,8 @@
+/*
+ * ［大会品質レポートという境界］
+ */
+namespace ShogiTournamentSystemAnalyzer.Domain.TournamentQualityReport;
+
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 
 /// <summary>

@@ -4,8 +4,6 @@
 namespace ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
-using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
-using System.Text.RegularExpressions;
 using Match = ShogiTournamentSystemAnalyzer.Domain.Simulation.Match;
 
 internal readonly record struct TournamentQualityEvaluationInput(

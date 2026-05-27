@@ -1,3 +1,5 @@
+using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
+
 sealed record class TournamentFrameworkRuleSet(
     IPairingRule PairingRule,
     IRankingRule RankingRule,

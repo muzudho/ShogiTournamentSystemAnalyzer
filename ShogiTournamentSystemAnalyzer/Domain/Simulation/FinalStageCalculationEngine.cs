@@ -1,10 +1,9 @@
 /*
- * ［プログラム］
+ * ［シミュレーション域］
  */
-namespace ShogiTournamentSystemAnalyzer;
+namespace ShogiTournamentSystemAnalyzer.Domain.Simulation;
 
 using ShogiTournamentSystemAnalyzer.Application.Execution;
-using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
 
 internal static class FinalStageCalculationEngine

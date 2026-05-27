@@ -1,3 +1,8 @@
+/*
+ * ［大会ルールという境界］
+ */
+namespace ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
+
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
 
 internal static class VariableTop8Rule
