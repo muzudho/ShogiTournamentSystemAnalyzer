@@ -3,11 +3,14 @@
  */
 namespace ShogiTournamentSystemAnalyzer.Application.Modes.SimulationMainline;
 
-using System;
-using System.Collections.Generic;
-using System.Text;
+using ShogiTournamentSystemAnalyzer.Application.Modes.SimulationContext;
+using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
 
 internal abstract class AbstractSimulationMainline
 {
-    public abstract void RunDynamic();
+    public virtual void RunDynamic(AbstractSimulationContext context)
+    {
+        Console.WriteLine($"順位ルール: {TournamentRuleSetRule.GetLabel(context.TournamentRuleSetMode)}\n");
+
+    }
 }

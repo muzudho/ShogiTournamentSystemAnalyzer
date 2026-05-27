@@ -20,8 +20,9 @@ using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 internal class FinalStageSimulationMainline
     : AbstractSimulationMainline
 {
-    public override void RunDynamic()
+    public override void RunDynamic(AbstractSimulationContext context)
     {
+        base.RunDynamic(context);
 
     }
 
@@ -126,7 +127,6 @@ internal class FinalStageSimulationMainline
     /// <param name="context"></param>
     static void PrintFinalStageModeContext(FinalStageModeSimulationContext context)
     {
-        Console.WriteLine($"順位ルール: {TournamentRuleSetRule.GetLabel(context.TournamentRuleSetMode)}\n");
         Console.WriteLine($"Apex / Innov の分け方: {FinalStageGroupingRule.GetLabel(context.GroupingMode)}\n");
         if (context.UsesFinalStageGrouping)
         {

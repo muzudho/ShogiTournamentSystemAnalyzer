@@ -19,14 +19,14 @@ using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 internal class StandardSimulationMainline
     : AbstractSimulationMainline
 {
-    public override void RunDynamic()
+    public override void RunDynamic(AbstractSimulationContext context)
     {
+        base.RunDynamic(context);
 
     }
 
     internal static void RunStatic(StandardModeSimulationContext context)
     {
-        Console.WriteLine($"順位ルール: {TournamentRuleSetRule.GetLabel(context.TournamentRuleSetMode)}\n");
 
         if (context.ExcludedPlayerCount > 0)
         {
