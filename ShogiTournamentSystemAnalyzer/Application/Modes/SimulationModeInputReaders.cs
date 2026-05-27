@@ -4,12 +4,13 @@
 namespace ShogiTournamentSystemAnalyzer.Application.Modes;
 
 using ShogiTournamentSystemAnalyzer.Application.Helpers;
+using ShogiTournamentSystemAnalyzer.Application.Modes.SimulationContext;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 
 internal static partial class SimulationModeInputReaders
 {
-    internal static StandardModeContext ReadStandardModeContext()
+    internal static StandardModeSimulationContext ReadStandardModeContext()
     {
         var tournamentRuleSetMode = ConsoleRuleReaders.ReadTournamentRuleSetMode();
         Console.WriteLine("補足: 空欄のまま Enter すると既定値 51 を使います。\n");
@@ -21,7 +22,7 @@ internal static partial class SimulationModeInputReaders
         var allMatches = ConsoleInputReaders.ReadMatchesFromCsv(allPlayers);
         var (players, matches) = ModeSupportHelpers.FilterToScheduledPlayers(allPlayers, allMatches);
 
-        return new StandardModeContext(
+        return new StandardModeSimulationContext(
             tournamentRuleSetMode,
             firstPlayerWinRatePercent,
             firstPlayerWinRateRating,

@@ -32,7 +32,11 @@ internal sealed class FinalStageSimulationScenario : ISimulationScenario
         plan = new SimulationExecutionPlan(
             RuleProfileMode,
             "FinalStageMainline",
-            () => FinalStageSimulationMainline.Run(context));
+            () =>
+            {
+                new FinalStageSimulationMainline().RunDynamic();
+                FinalStageSimulationMainline.RunStatic(context);
+            });
 
         return true;
     }

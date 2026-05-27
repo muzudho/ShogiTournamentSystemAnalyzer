@@ -4,6 +4,7 @@
 namespace ShogiTournamentSystemAnalyzer.Application.Modes.SimulationMainline;
 
 using ShogiTournamentSystemAnalyzer.Application.Execution;
+using ShogiTournamentSystemAnalyzer.Application.Modes.SimulationContext;
 using ShogiTournamentSystemAnalyzer.Application.Paths;
 using ShogiTournamentSystemAnalyzer.Domain.Ranking;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
@@ -18,7 +19,12 @@ using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 internal class StandardSimulationMainline
     : AbstractSimulationMainline
 {
-    internal static void Run(StandardModeContext context)
+    public override void RunDynamic()
+    {
+
+    }
+
+    internal static void RunStatic(StandardModeSimulationContext context)
     {
         Console.WriteLine($"順位ルール: {TournamentRuleSetRule.GetLabel(context.TournamentRuleSetMode)}\n");
 
@@ -69,7 +75,7 @@ internal class StandardSimulationMainline
         }
     }
 
-    static void WriteFinalRankingOutputsForStandardMode(StandardModeContext context, CalculationResult tournamentFinalState, IReadOnlyList<ResultRow> finalRankingRows)
+    static void WriteFinalRankingOutputsForStandardMode(StandardModeSimulationContext context, CalculationResult tournamentFinalState, IReadOnlyList<ResultRow> finalRankingRows)
     {
         var defaultOutputCsvPath = ReportOutputPathBuilder.BuildFinalRankingDefaultOutputPath($"standard_final_ranking_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
         var outputCsvPath = CsvOutputHelpers.ResolveOutputCsvPath(ConsolePromptReaders.ReadTextWithDefault(

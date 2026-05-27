@@ -9,4 +9,5 @@ using System.Text;
 
 internal abstract class AbstractSimulationMainline
 {
+    public abstract void RunDynamic();
 }

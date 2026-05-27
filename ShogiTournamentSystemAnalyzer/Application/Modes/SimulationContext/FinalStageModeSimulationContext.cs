@@ -1,13 +1,13 @@
 /*
- * ［アプリケーション　＞　モード］
+ * ［アプリケーション　＞　モード　＞　シミュレーションコンテキスト］
  */
-namespace ShogiTournamentSystemAnalyzer.Application.Modes;
+namespace ShogiTournamentSystemAnalyzer.Application.Modes.SimulationContext;
 
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
 
-internal readonly record struct FinalStageModeContext(
+internal readonly record struct FinalStageModeSimulationContext(
     double FirstPlayerWinRatePercent,
     double FirstPlayerWinRateRating,
     IReadOnlyList<Player> Players,

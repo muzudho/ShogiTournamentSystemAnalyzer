@@ -4,6 +4,7 @@
 namespace ShogiTournamentSystemAnalyzer.Application.Modes.SimulationMainline;
 
 using ShogiTournamentSystemAnalyzer.Application.Execution;
+using ShogiTournamentSystemAnalyzer.Application.Modes.SimulationContext;
 using ShogiTournamentSystemAnalyzer.Application.Paths;
 using ShogiTournamentSystemAnalyzer.Domain.Ranking;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
@@ -19,11 +20,16 @@ using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 internal class FinalStageSimulationMainline
     : AbstractSimulationMainline
 {
+    public override void RunDynamic()
+    {
+
+    }
+
     /// <summary>
     /// シミュレーション実行のメインラインです。
     /// </summary>
     /// <param name="context"></param>
-    internal static void Run(FinalStageModeContext context)
+    internal static void RunStatic(FinalStageModeSimulationContext context)
     {
         // シミュレーションして、最終順位付け。
         var result = ExecuteTournamentFinalStateAndFinalRanking(context, out var standardResultRows, out var finalStageResultRows);
@@ -43,7 +49,7 @@ internal class FinalStageSimulationMainline
     /// <param name="finalStageResultRows"></param>
     /// <returns></returns>
     static CalculationResult ExecuteTournamentFinalStateAndFinalRanking(
-        FinalStageModeContext context,
+        FinalStageModeSimulationContext context,
         out IReadOnlyList<ResultRow>? standardResultRows,
         out IReadOnlyList<FinalStageResultRow>? finalStageResultRows)
     {
@@ -118,7 +124,7 @@ internal class FinalStageSimulationMainline
     /// 表示
     /// </summary>
     /// <param name="context"></param>
-    static void PrintFinalStageModeContext(FinalStageModeContext context)
+    static void PrintFinalStageModeContext(FinalStageModeSimulationContext context)
     {
         Console.WriteLine($"順位ルール: {TournamentRuleSetRule.GetLabel(context.TournamentRuleSetMode)}\n");
         Console.WriteLine($"Apex / Innov の分け方: {FinalStageGroupingRule.GetLabel(context.GroupingMode)}\n");
@@ -153,7 +159,7 @@ internal class FinalStageSimulationMainline
     /// <param name="standardResultRows"></param>
     /// <param name="finalStageResultRows"></param>
     static void WriteFinalRankingOutputsForFinalStageMode(
-        FinalStageModeContext context,
+        FinalStageModeSimulationContext context,
         CalculationResult result,
         IReadOnlyList<ResultRow>? standardResultRows,
         IReadOnlyList<FinalStageResultRow>? finalStageResultRows)

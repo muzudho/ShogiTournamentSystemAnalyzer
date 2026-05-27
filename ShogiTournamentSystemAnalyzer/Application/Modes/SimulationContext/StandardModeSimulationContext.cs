@@ -1,12 +1,12 @@
 /*
- * ［アプリケーション　＞　モード］
+ * ［アプリケーション　＞　モード　＞　シミュレーションコンテキスト］
  */
-namespace ShogiTournamentSystemAnalyzer.Application.Modes;
+namespace ShogiTournamentSystemAnalyzer.Application.Modes.SimulationContext;
 
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
 
-internal readonly record struct StandardModeContext(
+internal readonly record struct StandardModeSimulationContext(
     TournamentRuleSetMode TournamentRuleSetMode,
     double FirstPlayerWinRatePercent,
     double FirstPlayerWinRateRating,
