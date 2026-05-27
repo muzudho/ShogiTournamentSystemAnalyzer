@@ -1,3 +1,8 @@
+/*
+ * ［アプリケーション　＞　大会フレームワーク］
+ */
+namespace ShogiTournamentSystemAnalyzer.Application.TournamentFramework;
+
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 
 sealed record class TournamentDslDefinition(

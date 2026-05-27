@@ -1,5 +1,5 @@
 /*
- * ［シミュレーション域］
+ * ［アプリケーション　＞　ユースケース　＞　シミュレーション域］
  */
 namespace ShogiTournamentSystemAnalyzer.Application.UseCases.Simulation;
 

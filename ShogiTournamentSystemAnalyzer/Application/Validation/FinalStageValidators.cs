@@ -1,5 +1,5 @@
 /*
- * ［プログラム］
+ * ［アプリケーション　＞　バリデーション］
  */
 namespace ShogiTournamentSystemAnalyzer.Application.Validation;
 

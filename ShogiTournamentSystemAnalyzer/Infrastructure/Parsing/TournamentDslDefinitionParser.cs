@@ -3,6 +3,7 @@
  */
 namespace ShogiTournamentSystemAnalyzer.Infrastructure.Parsing;
 
+using ShogiTournamentSystemAnalyzer.Application.TournamentFramework;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 
 internal static class TournamentDslDefinitionParser
