@@ -29,13 +29,15 @@ internal sealed class FinalStageSimulationScenario : ISimulationScenario
             return false;
         }
 
+        var finalStageContext = context!;
+
         plan = new SimulationExecutionPlan(
             RuleProfileMode,
             "FinalStageMainline",
             () =>
             {
-                new FinalStageSimulationMainline().RunDynamic(context);
-                FinalStageSimulationMainline.RunStatic(context);
+                new FinalStageSimulationMainline().RunDynamic(finalStageContext);
+                FinalStageSimulationMainline.RunStatic(finalStageContext);
             });
 
         return true;

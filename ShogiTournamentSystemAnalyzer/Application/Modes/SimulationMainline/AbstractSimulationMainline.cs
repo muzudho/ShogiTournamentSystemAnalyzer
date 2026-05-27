@@ -8,9 +8,14 @@ using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
 
 internal abstract class AbstractSimulationMainline
 {
-    public virtual void RunDynamic(AbstractSimulationContext context)
+    public void RunDynamic(AbstractSimulationContext context)
     {
         Console.WriteLine($"順位ルール: {TournamentRuleSetRule.GetLabel(context.TournamentRuleSetMode)}\n");
 
+        RunDynamicCore(context);
+    }
+
+    protected virtual void RunDynamicCore(AbstractSimulationContext context)
+    {
     }
 }

@@ -13,7 +13,7 @@ using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 
 internal static partial class SimulationModeInputReaders
 {
-    internal static bool TryReadFinalStageModeContext(out FinalStageModeSimulationContext context)
+    internal static bool TryReadFinalStageModeContext(out FinalStageModeSimulationContext? context)
     {
         Console.WriteLine("補足: 空欄のまま Enter すると既定値 51 を使います。\n");
         var firstPlayerWinRatePercent = ConsolePromptReaders.ReadDoubleWithDefaultInRange("同Elo対局時の先手勝率(%)を入力してください [51]: ", 51.0, 0.0, 100.0);
@@ -31,7 +31,7 @@ internal static partial class SimulationModeInputReaders
         if (!playersAreValid)
         {
             Console.WriteLine($"本戦参加者の検証に失敗しました: {errorMessage}\n");
-            context = default;
+            context = null;
             return false;
         }
 
@@ -46,7 +46,7 @@ internal static partial class SimulationModeInputReaders
             if (!FinalStageValidators.ValidateAdditionalApexPlayers(players, groupMap!, additionalApexPlayers, out errorMessage))
             {
                 Console.WriteLine($"本戦不出場Apex一覧の検証に失敗しました: {errorMessage}\n");
-                context = default;
+                context = null;
                 return false;
             }
 
@@ -69,7 +69,7 @@ internal static partial class SimulationModeInputReaders
         if (!matchesAreValid)
         {
             Console.WriteLine($"本戦対局の検証に失敗しました: {errorMessage}\n");
-            context = default;
+            context = null;
             return false;
         }
 
