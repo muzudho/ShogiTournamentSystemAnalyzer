@@ -1,5 +1,5 @@
 /*
- * ［Infrastructure / Parsing］
+ * ［インフラストラクチャー　＞　パーシング］
  */
 namespace ShogiTournamentSystemAnalyzer.Infrastructure.Parsing;
 

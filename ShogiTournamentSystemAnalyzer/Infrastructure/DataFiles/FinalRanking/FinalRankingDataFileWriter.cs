@@ -1,5 +1,5 @@
 /*
- * ［最終順位という境界］
+ * ［インフラストラクチャー　＞　データファイル　＞　最終順位という境界］
  */
 namespace ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.FinalRanking;
 

@@ -1,5 +1,5 @@
 /*
- * ［大会品質評価レポートという境界］
+ * ［インフラストラクチャー　＞　大会品質評価レポートという境界］
  */
 namespace ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.TournamentQualityReport;
 

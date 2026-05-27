@@ -1,5 +1,5 @@
 /*
- * ［大会フレームワーク］
+ * ［インフラストラクチャー　＞　大会フレームワーク］
  */
 namespace ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.TournamentFramework;
 

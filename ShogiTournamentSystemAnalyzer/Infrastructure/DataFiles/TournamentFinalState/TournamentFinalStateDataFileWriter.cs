@@ -1,5 +1,5 @@
 /*
- * ［大会最終状態という境界］
+ * ［インフラストラクチャー　＞　大会最終状態という境界］
  */
 namespace ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.TournamentFinalState;
 

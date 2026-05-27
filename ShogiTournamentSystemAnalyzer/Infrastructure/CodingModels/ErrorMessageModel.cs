@@ -1,4 +1,7 @@
-﻿namespace ShogiTournamentSystemAnalyzer.Infrastructure.CodingModels;
+﻿/*
+ * ［インフラストラクチャー　＞　コーディングモデル］
+ */
+namespace ShogiTournamentSystemAnalyzer.Infrastructure.CodingModels;
 
 /// <summary>
 /// ［エラーメッセージ］だ。

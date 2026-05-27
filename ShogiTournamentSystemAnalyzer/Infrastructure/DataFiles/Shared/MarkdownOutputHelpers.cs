@@ -1,3 +1,6 @@
+/*
+ * ［インフラストラクチャー　＞　データファイル　＞　共通ヘルパー］
+ */
 namespace ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.Shared;
 
 internal static class MarkdownOutputHelpers
