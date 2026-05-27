@@ -9,7 +9,6 @@ using ShogiTournamentSystemAnalyzer.Domain.Ranking;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityReport;
-using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
 
 internal static class TournamentQualityEvaluationSingleRunExecutor
 {

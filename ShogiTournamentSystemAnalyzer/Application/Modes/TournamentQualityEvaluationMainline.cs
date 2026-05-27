@@ -7,6 +7,9 @@ using ShogiTournamentSystemAnalyzer.Application.Execution;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 
+/// <summary>
+/// ［大会品質評価］モードのメインライン。スイープ実行と結果出力を行う。
+/// </summary>
 internal static class TournamentQualityEvaluationMainline
 {
     internal static void Run(RuleProfileMode ruleProfileMode)
@@ -15,18 +18,19 @@ internal static class TournamentQualityEvaluationMainline
         var players = ConsoleInputReaders.ReadPlayersFromCsv();
         Console.WriteLine();
 
-        // 大会品質評価ルール定義を読み取る
+        // ［大会品質評価ルール定義］を読み取る
         if (!TournamentQualityEvaluationInputReader.TryReadQualityEvaluationRuleDefinition(players, ruleProfileMode, out var ruleDefinition)) return;
 
-        // 大会品質評価の入力を読み取る
+        // ［大会品質評価入力］を読み取る
         if (!TournamentQualityEvaluationInputReader.TryReadQualityEvaluationInput(players, ruleDefinition, out var input)) return;
 
-        // 実行オプションを読み取る
+        // ［大会品質評価実行オプション］を読み取る
         var executionOptions = TournamentQualityEvaluationExecutor.ReadTournamentQualityEvaluationExecutionOptions(input, ruleDefinition);
 
-        // 大会品質評価の実行コンテキストを出力
+        // ［大会品質評価実行コンテキスト］を出力
         TournamentQualityEvaluationOutputCoordinator.PrintTournamentQualityEvaluationContext(input, ruleDefinition);
 
+        // スイープ実行
         if (executionOptions.IsSweep)
         {
             TournamentQualityEvaluationSweepExecutor.Run(
