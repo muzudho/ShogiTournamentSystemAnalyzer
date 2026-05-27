@@ -397,8 +397,11 @@ internal abstract class AbstractFinalRankingDataFileWriter
     /// <param name="resultRows"></param>
     /// <returns></returns>
     protected IEnumerable<string> CreateFinalStageResultCsvCore(
-        string outputCsvPath,   // XXX: 要るの（＾～＾）？
-        string mode, double firstPlayerWinRatePercent, IReadOnlyList<FinalStageResultRow> resultRows)
+        string outputCsvPath,
+        string mode,
+        double firstPlayerWinRatePercent,
+        IReadOnlyList<FinalStageResultRow> resultRows,
+        string? overviewNote = null)
     {
         var specificHeaderColumns = new List<string>
         {
@@ -418,6 +421,11 @@ internal abstract class AbstractFinalRankingDataFileWriter
             "overallPlace1ProbabilityPercent",
             "overallPlaceAverage"
         };
+
+        if (!string.IsNullOrWhiteSpace(overviewNote))
+        {
+            specificHeaderColumns.Add("note");
+        }
 
         if (resultRows.Count > 0)
         {
@@ -457,6 +465,11 @@ internal abstract class AbstractFinalRankingDataFileWriter
                 row.OverallPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)
             };
 
+            if (!string.IsNullOrWhiteSpace(overviewNote))
+            {
+                specificColumns.Add(overviewNote);
+            }
+
             for (var place = 0; place < row.PlaceProbabilities.Length; place++)
             {
                 specificColumns.Add((row.PlaceProbabilities[place] * 100).ToString("F2", CultureInfo.InvariantCulture));
@@ -491,7 +504,15 @@ internal abstract class AbstractFinalRankingDataFileWriter
     /// <param name="resultRows"></param>
     /// <param name="referenceMatchesCsvPath">参考対局CSVファイルへのパス</param>
     /// <returns></returns>
-    protected IEnumerable<string> CreateFinalStageResultMarkdownCore(string outputMarkdownPath, string outputCsvPath, string mode, double firstPlayerWinRatePercent, IReadOnlyList<FinalStageResultRow> resultRows, string? referenceMatchesCsvPath = null)
+    protected IEnumerable<string> CreateFinalStageResultMarkdownCore(
+        string outputMarkdownPath,
+        string outputCsvPath,
+        string mode,
+        double firstPlayerWinRatePercent,
+        IReadOnlyList<FinalStageResultRow> resultRows,
+        string? overviewNote = null,
+        string? representativeRankingMarkdownPath = null,
+        string? referenceMatchesCsvPath = null)
     {
         var topRows = resultRows
             .OrderByDescending(row => row.OverallPlace1Probability)
@@ -531,13 +552,23 @@ internal abstract class AbstractFinalRankingDataFileWriter
 
         var lines = new List<string>
         {
-            "# 本戦モード結果レポート",
-            string.Empty,
-            "## 概要",
-            $"- 結果CSV: {MarkdownOutputHelpers.BuildMarkdownFileLink(outputMarkdownPath, outputCsvPath)}",
-            $"- 計算モード: {mode}",
-            $"- 同Elo対局時の先手勝率: {firstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture)}%",
-            $"- 対象選手数: {resultRows.Count}",
+            "# 最終順位結果レポート",
+            string.Empty
+        };
+
+        lines.AddRange(BuildFinalRankingMarkdownOverviewLines(
+            outputMarkdownPath,
+            outputCsvPath,
+            mode,
+            firstPlayerWinRatePercent,
+            resultRows.Count,
+            editionLabel: "本戦版",
+            overviewNote: overviewNote,
+            representativeRankingMarkdownPath: representativeRankingMarkdownPath,
+            referenceMatchesCsvPath: referenceMatchesCsvPath));
+
+        lines.AddRange(new[]
+        {
             string.Empty,
             "## 注目ポイント",
             $"- 総合1位確率が最も高い選手: **{bestOverallRowName}**（{(bestOverallProbability * 100).ToString("F2", CultureInfo.InvariantCulture)}%）",
@@ -553,12 +584,7 @@ internal abstract class AbstractFinalRankingDataFileWriter
             "## 上位候補一覧",
             "| 選手 | グループ | 元Elo | 実効Elo | 差分 | グループ1位確率 | 総合1位確率 | 総合平均順位 |",
             "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |"
-        };
-
-        if (!string.IsNullOrWhiteSpace(referenceMatchesCsvPath))
-        {
-            lines.Insert(4, $"- 参考対局CSV: {MarkdownOutputHelpers.BuildMarkdownFileLink(outputMarkdownPath, referenceMatchesCsvPath)}");
-        }
+        });
 
         lines.AddRange(topRows.Select(row =>
             $"| {row.Name} | {row.Group} | {SimulationRatingMath.FormatRating(row.OriginalRating)} | {SimulationRatingMath.FormatRating(row.EffectiveRating)} | {SimulationRatingMath.FormatSignedRating(row.RatingDelta)} | {(row.GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {(row.OverallPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {row.OverallPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} |"));
