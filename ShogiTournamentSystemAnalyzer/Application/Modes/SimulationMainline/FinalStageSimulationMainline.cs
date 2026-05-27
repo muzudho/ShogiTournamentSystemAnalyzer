@@ -137,11 +137,7 @@ internal class FinalStageSimulationMainline
         IReadOnlyList<ResultRow>? standardResultRows,
         IReadOnlyList<FinalStageResultRow>? finalStageResultRows)
     {
-        var defaultOutputCsvPath = ReportOutputPathBuilder.BuildFinalRankingDefaultOutputPath($"final_stage_final_ranking_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
-        var outputCsvPath = CsvOutputHelpers.ResolveOutputCsvPath(ConsolePromptReaders.ReadTextWithDefault(
-            $"\n結果CSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
-            defaultOutputCsvPath));
-        var outputMarkdownPath = CsvOutputHelpers.ChangeOutputExtension(outputCsvPath, ".md");
+        var (outputCsvPath, outputMarkdownPath) = ResolveFinalRankingOutputPaths($"final_stage_final_ranking_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
         var referenceMatchesCsvPath = context.ReferenceMatches.Count > 0
             ? ReportOutputPathBuilder.BuildTournamentFinalStateDefaultOutputPath($"reference_matches_{DateTime.Now:yyyyMMdd_HHmmss}.csv")
             : null;
@@ -149,25 +145,24 @@ internal class FinalStageSimulationMainline
         {
             WriterHelper.WriteText(
                 outputPath: outputCsvPath,
-            getLines: () => FinalRankingDataFileWriter.CreateFinalStageResultCsv(outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, finalStageResultRows!));
+                getLines: () => FinalRankingDataFileWriter.CreateFinalStageResultCsv(outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, finalStageResultRows!));
 
             WriterHelper.WriteText(
                 outputPath: outputMarkdownPath,
-            getLines: () => FinalRankingDataFileWriter.CreateFinalStageResultMarkdown(outputMarkdownPath, outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, finalStageResultRows!, referenceMatchesCsvPath));
+                getLines: () => FinalRankingDataFileWriter.CreateFinalStageResultMarkdown(outputMarkdownPath, outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, finalStageResultRows!, referenceMatchesCsvPath));
         }
         else
         {
             WriterHelper.WriteText(
                 outputPath: outputCsvPath,
-            getLines: () => FinalRankingDataFileWriter.CreateResultCsv(result.Mode, context.FirstPlayerWinRatePercent, standardResultRows!));
+                getLines: () => FinalRankingDataFileWriter.CreateResultCsv(result.Mode, context.FirstPlayerWinRatePercent, standardResultRows!));
 
             WriterHelper.WriteText(
                 outputPath: outputMarkdownPath,
-            getLines: () => FinalRankingDataFileWriter.CreateResultMarkdown(outputMarkdownPath, outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, standardResultRows!));
+                getLines: () => FinalRankingDataFileWriter.CreateResultMarkdown(outputMarkdownPath, outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, standardResultRows!));
 
         }
-        Console.WriteLine($"結果CSVを出力しました: {outputCsvPath}");
-        Console.WriteLine($"結果Markdownを出力しました: {outputMarkdownPath}");
+        PrintFinalRankingOutputCompleted(outputCsvPath, outputMarkdownPath);
 
         if (context.ReferenceMatches.Count > 0)
         {

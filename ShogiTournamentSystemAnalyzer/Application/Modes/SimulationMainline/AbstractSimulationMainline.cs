@@ -5,9 +5,11 @@ namespace ShogiTournamentSystemAnalyzer.Application.Modes.SimulationMainline;
 
 using ShogiTournamentSystemAnalyzer.Application.Modes.SimulationContext;
 using ShogiTournamentSystemAnalyzer.Application.Execution;
+using ShogiTournamentSystemAnalyzer.Application.Paths;
 using ShogiTournamentSystemAnalyzer.Domain.Ranking;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
+using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.Shared;
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 
 internal abstract class AbstractSimulationMainline
@@ -75,5 +77,21 @@ internal abstract class AbstractSimulationMainline
     protected static IReadOnlyList<ResultRow> BuildStandardResultRows(AbstractSimulationContext context, CalculationResult result)
     {
         return RankingResultRowBuilder.BuildResultRows(context.Players, context.Matches, result, context.FirstPlayerWinRatePercent);
+    }
+
+    protected static (string OutputCsvPath, string OutputMarkdownPath) ResolveFinalRankingOutputPaths(string defaultFileName)
+    {
+        var defaultOutputCsvPath = ReportOutputPathBuilder.BuildFinalRankingDefaultOutputPath(defaultFileName);
+        var outputCsvPath = CsvOutputHelpers.ResolveOutputCsvPath(ConsolePromptReaders.ReadTextWithDefault(
+            $"\n結果CSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
+            defaultOutputCsvPath));
+        var outputMarkdownPath = CsvOutputHelpers.ChangeOutputExtension(outputCsvPath, ".md");
+        return (outputCsvPath, outputMarkdownPath);
+    }
+
+    protected static void PrintFinalRankingOutputCompleted(string outputCsvPath, string outputMarkdownPath)
+    {
+        Console.WriteLine($"結果CSVを出力しました: {outputCsvPath}");
+        Console.WriteLine($"結果Markdownを出力しました: {outputMarkdownPath}");
     }
 }
