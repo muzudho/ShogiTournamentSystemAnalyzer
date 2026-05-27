@@ -9,7 +9,7 @@ using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityReport;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.Shared;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.TournamentQualityReport;
-using ShogiTournamentSystemAnalyzer.Presentation.Console;
+using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 
 internal static class TournamentQualityEvaluationOutputCoordinator
 {

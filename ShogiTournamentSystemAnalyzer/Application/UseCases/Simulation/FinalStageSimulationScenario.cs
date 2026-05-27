@@ -5,7 +5,7 @@ namespace ShogiTournamentSystemAnalyzer.Application.UseCases.Simulation;
 
 using ShogiTournamentSystemAnalyzer.Application.Modes;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
-using ShogiTournamentSystemAnalyzer.Presentation.Console;
+using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 
 internal sealed class FinalStageSimulationScenario : ISimulationScenario
 {

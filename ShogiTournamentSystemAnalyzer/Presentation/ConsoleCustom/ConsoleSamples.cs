@@ -1,7 +1,7 @@
 /*
- * ［プレゼンテーション　＞　コンソール入力］
+ * ［プレゼンテーション　＞　コンソール改］
  */
-namespace ShogiTournamentSystemAnalyzer.Presentation.Console;
+namespace ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 
 using System;
 

@@ -10,7 +10,7 @@ using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.FinalRanking;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.Shared;
-using ShogiTournamentSystemAnalyzer.Presentation.Console;
+using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 
 internal static class StandardSimulationMainline
 {

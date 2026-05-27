@@ -18,7 +18,7 @@ using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.Shared;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.TournamentFinalState;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.TournamentFramework;
 using ShogiTournamentSystemAnalyzer.Infrastructure.Parsing;
-using ShogiTournamentSystemAnalyzer.Presentation.Console;
+using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 
 internal static partial class SimulationTournamentFrameworkMode
 {
