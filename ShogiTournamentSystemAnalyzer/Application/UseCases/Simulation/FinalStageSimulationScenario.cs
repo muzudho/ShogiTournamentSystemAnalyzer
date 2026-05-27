@@ -4,6 +4,7 @@
 namespace ShogiTournamentSystemAnalyzer.Application.UseCases.Simulation;
 
 using ShogiTournamentSystemAnalyzer.Application.Modes;
+using ShogiTournamentSystemAnalyzer.Application.Modes.SimulationMainline;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 
