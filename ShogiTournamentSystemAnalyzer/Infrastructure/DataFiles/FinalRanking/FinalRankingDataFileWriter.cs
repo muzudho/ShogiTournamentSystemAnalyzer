@@ -10,7 +10,14 @@ using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.Shared;
 using System.Globalization;
 
 /// <summary>
+///     <pre>
 /// ［最終順位］境界のデータファイルを作成するクラスだぜ（＾▽＾）！
+/// 
+/// XXX: ［標準版］と［本戦版］のメソッドが混在している（＾～＾）！
+/// TODO: サブクラスを作って、この２つを切り分けてほしい（＾～＾）このクラスは共通部分だけがある抽象クラスにしてほしい（＾～＾）！
+/// TODO: ［標準版］と［本戦版］のメソッドのシグニチャーは、揃えてほしい（＾～＾）
+/// TODO: 出力されるCSVファイル、.md ファイルのフォーマットも、揃えてほしい（＾～＾）！
+///     </pre>
 /// </summary>
 internal static class FinalRankingDataFileWriter
 {
