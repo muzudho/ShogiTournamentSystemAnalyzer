@@ -119,14 +119,9 @@ internal class FinalStageSimulationMainline
             Console.WriteLine($"対局者数: {context.Players.Count} 名\n");
         }
 
-        PrintMatchesAndCount(context, "本戦対局数");
+        PrintCommonSimulationContext(context, "本戦対局数");
         Console.WriteLine();
-        if (context.ReferenceMatches.Count > 0)
-        {
-            ConsoleResultPrinter.PrintMatchesCsv(context.Players, context.ReferenceMatches, "参考対局CSV:");
-            Console.WriteLine($"参考対局数: {context.ReferenceMatches.Count}");
-            Console.WriteLine("参考対局は順位計算に含めません。\n");
-        }
+        PrintReferenceMatchesIfAny(context.Players, context.ReferenceMatches);
     }
 
     /// <summary>

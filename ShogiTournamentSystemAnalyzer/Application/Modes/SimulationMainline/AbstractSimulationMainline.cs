@@ -29,6 +29,20 @@ internal abstract class AbstractSimulationMainline
         Console.WriteLine($"\n{matchCountLabel}: {context.Matches.Count}");
     }
 
+    protected static void PrintCommonSimulationContext(AbstractSimulationContext context, string matchCountLabel)
+    {
+        PrintMatchesAndCount(context, matchCountLabel);
+    }
+
+    protected static void PrintReferenceMatchesIfAny(IReadOnlyList<Player> players, IReadOnlyList<Match> referenceMatches)
+    {
+        if (referenceMatches.Count == 0) return;
+
+        ConsoleResultPrinter.PrintMatchesCsv(players, referenceMatches, "参考対局CSV:");
+        Console.WriteLine($"参考対局数: {referenceMatches.Count}");
+        Console.WriteLine("参考対局は順位計算に含めません。\n");
+    }
+
     protected static void PrintTimeLimitIfNeeded(CalculationResult result)
     {
         if (!result.Mode.Contains("時間切れ", StringComparison.Ordinal)) return;

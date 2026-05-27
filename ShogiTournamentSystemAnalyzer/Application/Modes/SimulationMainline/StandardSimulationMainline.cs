@@ -3,10 +3,8 @@
  */
 namespace ShogiTournamentSystemAnalyzer.Application.Modes.SimulationMainline;
 
-using ShogiTournamentSystemAnalyzer.Application.Execution;
 using ShogiTournamentSystemAnalyzer.Application.Modes.SimulationContext;
 using ShogiTournamentSystemAnalyzer.Application.Paths;
-using ShogiTournamentSystemAnalyzer.Domain.Ranking;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.FinalRanking;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.Shared;
@@ -20,13 +18,7 @@ internal class StandardSimulationMainline
 {
     internal static void RunStatic(StandardModeSimulationContext context)
     {
-
-        if (context.ExcludedPlayerCount > 0)
-        {
-            Console.WriteLine($"未対局の選手 {context.ExcludedPlayerCount} 人を結果から除外します。\n");
-        }
-
-        PrintMatchesAndCount(context, "総対局数");
+        PrintStandardModeContext(context);
 
         var tournamentFinalState = ExecuteTournamentFinalState();
         var finalRankingRows = BuildStandardResultRows(context, tournamentFinalState);
@@ -46,6 +38,16 @@ internal class StandardSimulationMainline
                 exactCalculationMessage: "厳密計算を行います。\n",
                 simulationPrompt: "局数が多いためシミュレーションで近似します。試行回数を入力してください [200000]: ");
         }
+    }
+
+    static void PrintStandardModeContext(StandardModeSimulationContext context)
+    {
+        if (context.ExcludedPlayerCount > 0)
+        {
+            Console.WriteLine($"未対局の選手 {context.ExcludedPlayerCount} 人を結果から除外します。\n");
+        }
+
+        PrintCommonSimulationContext(context, "総対局数");
     }
 
     static void WriteFinalRankingOutputsForStandardMode(StandardModeSimulationContext context, CalculationResult tournamentFinalState, IReadOnlyList<ResultRow> finalRankingRows)
