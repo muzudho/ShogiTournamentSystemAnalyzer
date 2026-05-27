@@ -5,8 +5,6 @@ namespace ShogiTournamentSystemAnalyzer.Application.Modes.SimulationMainline;
 
 using ShogiTournamentSystemAnalyzer.Application.Modes.SimulationContext;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
-using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.FinalRanking;
-using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.Shared;
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 
 /// <summary>
@@ -52,13 +50,7 @@ internal class StandardSimulationMainline
     static void WriteFinalRankingOutputsForStandardMode(StandardModeSimulationContext context, CalculationResult tournamentFinalState, IReadOnlyList<ResultRow> finalRankingRows)
     {
         var (outputCsvPath, outputMarkdownPath) = ResolveFinalRankingOutputPaths($"standard_final_ranking_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
-        WriterHelper.WriteText(
-            outputPath: outputCsvPath,
-            getLines: () => FinalRankingDataFileWriter.CreateResultCsv(tournamentFinalState.Mode, context.FirstPlayerWinRatePercent, finalRankingRows));
-
-        WriterHelper.WriteText(
-            outputPath: outputMarkdownPath,
-            getLines: () => FinalRankingDataFileWriter.CreateResultMarkdown(outputMarkdownPath, outputCsvPath, tournamentFinalState.Mode, context.FirstPlayerWinRatePercent, finalRankingRows));
+        WriteStandardFinalRankingOutputs(outputCsvPath, outputMarkdownPath, tournamentFinalState, context.FirstPlayerWinRatePercent, finalRankingRows);
 
         PrintFinalRankingOutputCompleted(outputCsvPath, outputMarkdownPath);
     }

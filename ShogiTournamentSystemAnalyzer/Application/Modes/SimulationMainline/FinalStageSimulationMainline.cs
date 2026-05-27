@@ -143,24 +143,11 @@ internal class FinalStageSimulationMainline
             : null;
         if (context.GroupingMode == FinalStageGroupingMode.On)
         {
-            WriterHelper.WriteText(
-                outputPath: outputCsvPath,
-                getLines: () => FinalRankingDataFileWriter.CreateFinalStageResultCsv(outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, finalStageResultRows!));
-
-            WriterHelper.WriteText(
-                outputPath: outputMarkdownPath,
-                getLines: () => FinalRankingDataFileWriter.CreateFinalStageResultMarkdown(outputMarkdownPath, outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, finalStageResultRows!, referenceMatchesCsvPath));
+            WriteFinalStageFinalRankingOutputs(outputCsvPath, outputMarkdownPath, result, context.FirstPlayerWinRatePercent, finalStageResultRows!, referenceMatchesCsvPath);
         }
         else
         {
-            WriterHelper.WriteText(
-                outputPath: outputCsvPath,
-                getLines: () => FinalRankingDataFileWriter.CreateResultCsv(result.Mode, context.FirstPlayerWinRatePercent, standardResultRows!));
-
-            WriterHelper.WriteText(
-                outputPath: outputMarkdownPath,
-                getLines: () => FinalRankingDataFileWriter.CreateResultMarkdown(outputMarkdownPath, outputCsvPath, result.Mode, context.FirstPlayerWinRatePercent, standardResultRows!));
-
+            WriteStandardFinalRankingOutputs(outputCsvPath, outputMarkdownPath, result, context.FirstPlayerWinRatePercent, standardResultRows!);
         }
         PrintFinalRankingOutputCompleted(outputCsvPath, outputMarkdownPath);
 
