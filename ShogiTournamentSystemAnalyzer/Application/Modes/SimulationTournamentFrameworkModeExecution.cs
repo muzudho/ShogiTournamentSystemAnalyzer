@@ -20,6 +20,9 @@ using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.TournamentFramework
 using ShogiTournamentSystemAnalyzer.Infrastructure.Parsing;
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 
+/// <summary>
+/// ［シミュレーション　＞　大会フレームワークモード］の主フロー
+/// </summary>
 internal static partial class SimulationTournamentFrameworkMode
 {
     /// <summary>

@@ -13,6 +13,9 @@ using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.FinalRanking;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.Shared;
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 
+/// <summary>
+/// ［シミュレーション　＞　本戦モード］の主フロー
+/// </summary>
 internal static class FinalStageSimulationMainline
 {
     /// <summary>
