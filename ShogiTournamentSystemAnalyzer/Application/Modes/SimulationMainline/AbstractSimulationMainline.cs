@@ -131,6 +131,7 @@ internal abstract class AbstractSimulationMainline
     {
         WriterHelper.WriteText(
             outputPath: outputCsvPath,
+            // XXX: なんで［標準版］と［本戦版］で出力内容が違うんだ（＾～＾）？
             getLines: () => FinalRankingDataFileWriter.CreateResultCsv(result.Mode, firstPlayerWinRatePercent, resultRows));
 
         WriterHelper.WriteText(
@@ -148,6 +149,7 @@ internal abstract class AbstractSimulationMainline
     {
         WriterHelper.WriteText(
             outputPath: outputCsvPath,
+            // XXX: なんで［標準版］と［本戦版］で出力内容が違うんだ（＾～＾）？
             getLines: () => FinalRankingDataFileWriter.CreateFinalStageResultCsv(outputCsvPath, result.Mode, firstPlayerWinRatePercent, resultRows));
 
         WriterHelper.WriteText(
