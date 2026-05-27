@@ -10,18 +10,11 @@ using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.Shared;
 using System.Globalization;
 
 /// <summary>
-///     <pre>
-/// ［最終順位］境界のデータファイルを作成するクラスだぜ（＾▽＾）！
-/// 
-/// XXX: ［標準版］と［本戦版］のメソッドが混在している（＾～＾）！
-/// TODO: サブクラスを作って、この２つを切り分けてほしい（＾～＾）このクラスは共通部分だけがある抽象クラスにしてほしい（＾～＾）！
-/// TODO: ［標準版］と［本戦版］のメソッドのシグニチャーは、揃えてほしい（＾～＾）
-/// TODO: 出力されるCSVファイル、.md ファイルのフォーマットも、揃えてほしい（＾～＾）！
-///     </pre>
+/// ［最終順位］境界のデータファイル writer の共通処理。
 /// </summary>
-internal static class FinalRankingDataFileWriter
+internal abstract class AbstractFinalRankingDataFileWriter
 {
-    static string EscapeCsv(string value) => CsvOutputHelpers.EscapeCsv(value);
+    protected static string EscapeCsv(string value) => CsvOutputHelpers.EscapeCsv(value);
 
     internal static IEnumerable<string> CreateRepresentativeExecutionRankCsv(
         TournamentRuleSetMode tournamentRuleSetMode,
@@ -148,7 +141,7 @@ internal static class FinalRankingDataFileWriter
     /// <param name="resultRows"></param>
     /// <param name="overviewNote"></param>
     /// <returns></returns>
-    internal static IEnumerable<string> CreateResultCsv(string mode, double firstPlayerWinRatePercent, IReadOnlyList<ResultRow> resultRows, string? overviewNote = null)
+    protected IEnumerable<string> CreateResultCsvCore(string mode, double firstPlayerWinRatePercent, IReadOnlyList<ResultRow> resultRows, string? overviewNote = null)
     {
         var specificHeaderColumns = new List<string>
         {
@@ -246,7 +239,7 @@ internal static class FinalRankingDataFileWriter
     /// <param name="overviewNote"></param>
     /// <param name="representativeRankingMarkdownPath"></param>
     /// <returns></returns>
-    internal static IEnumerable<string> CreateResultMarkdown(
+    protected IEnumerable<string> CreateResultMarkdownCore(
         string outputMarkdownPath,
         string outputCsvPath,
         string mode,
@@ -365,7 +358,7 @@ internal static class FinalRankingDataFileWriter
     /// <param name="firstPlayerWinRatePercent"></param>
     /// <param name="resultRows"></param>
     /// <returns></returns>
-    internal static IEnumerable<string> CreateFinalStageResultCsv(
+    protected IEnumerable<string> CreateFinalStageResultCsvCore(
         string outputCsvPath,   // XXX: 要るの（＾～＾）？
         string mode, double firstPlayerWinRatePercent, IReadOnlyList<FinalStageResultRow> resultRows)
     {
@@ -460,7 +453,7 @@ internal static class FinalRankingDataFileWriter
     /// <param name="resultRows"></param>
     /// <param name="referenceMatchesCsvPath">参考対局CSVファイルへのパス</param>
     /// <returns></returns>
-    internal static IEnumerable<string> CreateFinalStageResultMarkdown(string outputMarkdownPath, string outputCsvPath, string mode, double firstPlayerWinRatePercent, IReadOnlyList<FinalStageResultRow> resultRows, string? referenceMatchesCsvPath = null)
+    protected IEnumerable<string> CreateFinalStageResultMarkdownCore(string outputMarkdownPath, string outputCsvPath, string mode, double firstPlayerWinRatePercent, IReadOnlyList<FinalStageResultRow> resultRows, string? referenceMatchesCsvPath = null)
     {
         var topRows = resultRows
             .OrderByDescending(row => row.OverallPlace1Probability)
@@ -587,7 +580,7 @@ internal static class FinalRankingDataFileWriter
         return lines;
     }
 
-    static string BuildTop1Comment(double top1Probability)
+    protected static string BuildTop1Comment(double top1Probability)
     {
         var percent = top1Probability * 100;
         return percent switch
@@ -599,7 +592,7 @@ internal static class FinalRankingDataFileWriter
         };
     }
 
-    static string BuildAveragePlaceComment(double averagePlace)
+    protected static string BuildAveragePlaceComment(double averagePlace)
     {
         return averagePlace switch
         {
@@ -610,7 +603,7 @@ internal static class FinalRankingDataFileWriter
         };
     }
 
-    static string BuildRatingDeltaComment(double biggestBoost, double biggestDrop)
+    protected static string BuildRatingDeltaComment(double biggestBoost, double biggestDrop)
     {
         var spread = biggestBoost - biggestDrop;
         return spread switch
@@ -622,7 +615,7 @@ internal static class FinalRankingDataFileWriter
         };
     }
 
-    static string BuildGroupLeadComment(double groupPlace1Probability, double groupPlaceAverage)
+    protected static string BuildGroupLeadComment(double groupPlace1Probability, double groupPlaceAverage)
     {
         var percent = groupPlace1Probability * 100;
         if (percent >= 35.0 && groupPlaceAverage <= 2.0) return "先頭がかなりはっきりしています。";
@@ -630,7 +623,7 @@ internal static class FinalRankingDataFileWriter
         return "まだ横並び気味です。";
     }
 
-    static string BuildApexInnovGapComment(double apexTopProbability, double innovTopProbability)
+    protected static string BuildApexInnovGapComment(double apexTopProbability, double innovTopProbability)
     {
         var gapPercent = (apexTopProbability - innovTopProbability) * 100;
         return gapPercent switch

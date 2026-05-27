@@ -182,7 +182,8 @@ internal static partial class SimulationTournamentFrameworkMode
         var outputCsvPath = CsvOutputHelpers.ResolveOutputCsvPath(requestedOutputPath);
         WriterHelper.WriteText(
             outputPath: outputCsvPath,
-            getLines: () => FinalRankingDataFileWriter.CreateResultCsv(
+            getLines: () => StandardFinalRankingDataFileWriter.CreateResultCsv(
+                outputCsvPath,
                 finalRankingCalculation.Mode,
                 tournamentRuleData.FirstPlayerWinRatePercent ?? context.FirstPlayerWinRatePercent,
                 finalRankingRows,
@@ -196,7 +197,7 @@ internal static partial class SimulationTournamentFrameworkMode
 
         WriterHelper.WriteText(
             outputPath: outputMarkdownPath,
-            getLines: () => FinalRankingDataFileWriter.CreateResultMarkdown(
+            getLines: () => StandardFinalRankingDataFileWriter.CreateResultMarkdown(
                 outputMarkdownPath,
                 outputCsvPath,
                 finalRankingCalculation.Mode,
@@ -207,14 +208,14 @@ internal static partial class SimulationTournamentFrameworkMode
 
         WriterHelper.WriteText(
             outputPath: representativeRankingCsvPath,
-            getLines: () => FinalRankingDataFileWriter.CreateRepresentativeExecutionRankCsv(
+            getLines: () => AbstractFinalRankingDataFileWriter.CreateRepresentativeExecutionRankCsv(
                 rankingSettingsData.TournamentRuleSetMode,
                 representativeExecutionRankRows,
                 overviewNote: "この順位表は代表実行 1 件の順位です。aggregate 結果の順位表そのものではありません。"));
 
         WriterHelper.WriteText(
             outputPath: representativeRankingMarkdownPath,
-            getLines: () => FinalRankingDataFileWriter.CreateRepresentativeExecutionRankMarkdown(
+            getLines: () => AbstractFinalRankingDataFileWriter.CreateRepresentativeExecutionRankMarkdown(
                 representativeRankingMarkdownPath,
                 representativeRankingCsvPath,
                 rankingSettingsData.TournamentRuleSetMode,

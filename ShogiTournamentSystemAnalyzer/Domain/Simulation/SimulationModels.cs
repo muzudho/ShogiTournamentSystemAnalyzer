@@ -33,7 +33,12 @@ readonly record struct PlayerScore(int PlayerIndex, int Wins);
 readonly record struct CalculationResult(double[,] PlaceProbabilities, string Mode, int? SimulationCount);
 
 /// <summary>
+///     <pre>
+/// ［標準版］の結果の行
 /// 
+/// TODO: なんで［本戦版］と違う構造にしてしまったのか（＾～＾）？　統一してほしい（＾～＾）
+/// TODO: 統一が無理なら、共通部と、専門部を分けてほしい（＾～＾）
+///     </pre>
 /// </summary>
 /// <param name="Name"></param>
 /// <param name="OriginalRating"></param>
@@ -56,13 +61,18 @@ readonly record struct ResultRow(
     int SecondPlayerCount,
     double? FirstPlayerWinRate,
     double? SecondPlayerWinRate,
-    double ChampionshipProbability,
-    double AveragePlace,
+    double ChampionshipProbability,     // ［標準版］優勝確率
+    double AveragePlace,                // ［標準版］平均順位
     double[] PlaceProbabilities,
     double[]? PlaceCounts);
 
 /// <summary>
+///     <pre>
+/// ［本戦版］の結果の行
 /// 
+/// TODO: なんで［標準版］と違う構造にしてしまったのか（＾～＾）？　統一してほしい（＾～＾）
+/// TODO: 統一が無理なら、共通部と、専門部を分けてほしい（＾～＾）
+///     </pre>
 /// </summary>
 /// <param name="Name"></param>
 /// <param name="Group"></param>
@@ -81,7 +91,7 @@ readonly record struct ResultRow(
 /// <param name="PlaceCounts"></param>
 readonly record struct FinalStageResultRow(
     string Name,
-    string Group,
+    string Group,   // ［本戦版］の行にはグループ列がある
     double OriginalRating,
     double EffectiveRating,
     double RatingDelta,
@@ -89,10 +99,10 @@ readonly record struct FinalStageResultRow(
     int SecondPlayerCount,
     double? FirstPlayerWinRate,
     double? SecondPlayerWinRate,
-    double GroupPlace1Probability,
-    double GroupPlaceAverage,
-    double OverallPlace1Probability,
-    double OverallPlaceAverage,
+    double GroupPlace1Probability,      // ［本戦版］グループ内1位の確率
+    double GroupPlaceAverage,           // ［本戦版］グループ内の平均順位
+    double OverallPlace1Probability,    // ［本戦版］全体で1位の確率
+    double OverallPlaceAverage,         // ［本戦版］全体の平均順位
     double[] PlaceProbabilities,
     double[]? PlaceCounts);
 
