@@ -1,7 +1,7 @@
 /*
- * ［プログラム］
+ * ［アプリケーション　＞　入力］
  */
-namespace ShogiTournamentSystemAnalyzer;
+namespace ShogiTournamentSystemAnalyzer.Application.Input;
 
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 

@@ -1,7 +1,7 @@
 /*
- * ［大会品質評価フロー域］
+ * ［アプリケーション　＞　モード］
  */
-namespace ShogiTournamentSystemAnalyzer;
+namespace ShogiTournamentSystemAnalyzer.Application.Modes;
 
 using ShogiTournamentSystemAnalyzer.Application.Helpers;
 using ShogiTournamentSystemAnalyzer.Application.Validation;

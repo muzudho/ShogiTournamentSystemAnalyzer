@@ -1,7 +1,7 @@
 /*
- * ［シミュレーション域］
+ * ［アプリケーション　＞　モード］
  */
-namespace ShogiTournamentSystemAnalyzer;
+namespace ShogiTournamentSystemAnalyzer.Application.Modes;
 
 internal static partial class SimulationTournamentFrameworkMode
 {

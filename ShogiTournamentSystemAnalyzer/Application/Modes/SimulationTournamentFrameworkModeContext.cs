@@ -1,6 +1,8 @@
 /*
- * ［シミュレーション域］
+ * ［アプリケーション　＞　モード］
  */
+namespace ShogiTournamentSystemAnalyzer.Application.Modes;
+
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
 
 internal readonly record struct TournamentFrameworkModeContext(

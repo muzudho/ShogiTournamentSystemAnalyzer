@@ -1,6 +1,8 @@
 /*
- * ［シミュレーション域］
+ * ［アプリケーション　＞　モード］
  */
+namespace ShogiTournamentSystemAnalyzer.Application.Modes;
+
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;

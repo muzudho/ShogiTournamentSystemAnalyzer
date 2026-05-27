@@ -1,8 +1,9 @@
 /*
- * ［アプリケーション　＞　オーケストレーション］
+ * ［アプリケーション　＞　実行］
  */
-namespace ShogiTournamentSystemAnalyzer;
+namespace ShogiTournamentSystemAnalyzer.Application.Execution;
 
+using ShogiTournamentSystemAnalyzer.Application.Modes;
 using ShogiTournamentSystemAnalyzer.Application.UseCases.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 
