@@ -1,9 +1,10 @@
 /*
- * ［プレゼンテーション　＞　オーケストレーション］
+ * ［プレゼンテーション　＞　コンソール入力］
  */
-namespace ShogiTournamentSystemAnalyzer;
+namespace ShogiTournamentSystemAnalyzer.Presentation.Console;
 
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
+using System;
 
 internal static class ProgramConsoleGuide
 {

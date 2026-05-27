@@ -1,10 +1,11 @@
 /*
- * ［プログラム］
+ * ［プレゼンテーション　＞　コンソール入力］
  */
-namespace ShogiTournamentSystemAnalyzer;
+namespace ShogiTournamentSystemAnalyzer.Presentation.Console;
 
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
+using System;
 
 internal static class ConsoleRuleReaders
 {

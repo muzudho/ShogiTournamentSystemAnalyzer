@@ -3,9 +3,9 @@
  */
 namespace ShogiTournamentSystemAnalyzer.Application.UseCases.Simulation;
 
-using ShogiTournamentSystemAnalyzer;
 using ShogiTournamentSystemAnalyzer.Application.Modes;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
+using ShogiTournamentSystemAnalyzer.Presentation.Console;
 
 internal sealed class StandardSimulationScenario : ISimulationScenario
 {

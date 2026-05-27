@@ -11,6 +11,7 @@ using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.FinalRanking;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.Shared;
+using ShogiTournamentSystemAnalyzer.Presentation.Console;
 
 internal static class FinalStageSimulationMainline
 {

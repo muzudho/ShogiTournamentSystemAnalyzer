@@ -7,6 +7,7 @@ using ShogiTournamentSystemAnalyzer.Application.Paths;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.Shared;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.TournamentFinalState;
+using ShogiTournamentSystemAnalyzer.Presentation.Console;
 
 internal static class SimulationEmptyMode
 {

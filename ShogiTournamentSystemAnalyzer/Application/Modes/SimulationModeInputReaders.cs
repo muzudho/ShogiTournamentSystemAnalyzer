@@ -5,6 +5,7 @@ namespace ShogiTournamentSystemAnalyzer.Application.Modes;
 
 using ShogiTournamentSystemAnalyzer.Application.Helpers;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
+using ShogiTournamentSystemAnalyzer.Presentation.Console;
 
 internal static partial class SimulationModeInputReaders
 {

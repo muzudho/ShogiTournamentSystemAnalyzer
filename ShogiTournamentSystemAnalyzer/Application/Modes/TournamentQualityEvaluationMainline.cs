@@ -5,6 +5,7 @@ namespace ShogiTournamentSystemAnalyzer.Application.Modes;
 
 using ShogiTournamentSystemAnalyzer.Application.Execution;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
+using ShogiTournamentSystemAnalyzer.Presentation.Console;
 
 internal static class TournamentQualityEvaluationMainline
 {

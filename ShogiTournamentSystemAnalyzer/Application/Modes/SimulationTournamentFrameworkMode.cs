@@ -3,6 +3,8 @@
  */
 namespace ShogiTournamentSystemAnalyzer.Application.Modes;
 
+using ShogiTournamentSystemAnalyzer.Presentation.Console;
+
 internal static partial class SimulationTournamentFrameworkMode
 {
     internal static void Run()

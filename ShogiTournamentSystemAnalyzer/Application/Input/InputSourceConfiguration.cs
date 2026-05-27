@@ -4,6 +4,7 @@
 namespace ShogiTournamentSystemAnalyzer.Application.Input;
 
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
+using ShogiTournamentSystemAnalyzer.Presentation.Console;
 
 internal static class InputSourceConfiguration
 {

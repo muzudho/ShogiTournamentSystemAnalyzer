@@ -1,13 +1,14 @@
 /*
- * ［プログラム］
+ * ［プレゼンテーション　＞　コンソール入力］
  */
-namespace ShogiTournamentSystemAnalyzer;
+namespace ShogiTournamentSystemAnalyzer.Presentation.Console;
 
 using ShogiTournamentSystemAnalyzer.Application.Execution;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
 using ShogiTournamentSystemAnalyzer.Infrastructure.Parsing;
+using System;
 
 internal static class ConsoleInputReaders
 {

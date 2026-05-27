@@ -1,15 +1,15 @@
 /*
- * ［プログラム］
+ * ［プレゼンテーション　＞　コンソール入力］
  */
-namespace ShogiTournamentSystemAnalyzer;
+namespace ShogiTournamentSystemAnalyzer.Presentation.Console;
 
 using ShogiTournamentSystemAnalyzer.Domain.FinalRanking;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityReport;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
-using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.Shared;
+using System;
 using System.Globalization;
 
 internal static class ConsoleResultPrinter

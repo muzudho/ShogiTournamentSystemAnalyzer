@@ -1,10 +1,11 @@
 /*
- * ［プレゼンテーション　＞　オーケストレーション］
+ * ［プレゼンテーション　＞　コンソール入力］
  */
-namespace ShogiTournamentSystemAnalyzer;
+namespace ShogiTournamentSystemAnalyzer.Presentation.Console;
 
 using ShogiTournamentSystemAnalyzer.Application.Execution;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
+using System;
 using System.Globalization;
 
 internal static class ConsolePromptReaders

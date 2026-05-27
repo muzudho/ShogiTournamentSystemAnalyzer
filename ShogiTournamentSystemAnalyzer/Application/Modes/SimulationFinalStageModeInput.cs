@@ -8,6 +8,7 @@ using ShogiTournamentSystemAnalyzer.Application.Validation;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
+using ShogiTournamentSystemAnalyzer.Presentation.Console;
 
 internal static partial class SimulationModeInputReaders
 {

@@ -5,6 +5,7 @@ namespace ShogiTournamentSystemAnalyzer;
 
 using ShogiTournamentSystemAnalyzer.Application.Execution;
 using ShogiTournamentSystemAnalyzer.Application.Input;
+using ShogiTournamentSystemAnalyzer.Presentation.Console;
 using System.Text;
 
 /// <summary>
