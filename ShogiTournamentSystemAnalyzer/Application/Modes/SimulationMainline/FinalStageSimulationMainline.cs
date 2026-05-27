@@ -3,7 +3,6 @@
  */
 namespace ShogiTournamentSystemAnalyzer.Application.Modes.SimulationMainline;
 
-using ShogiTournamentSystemAnalyzer.Application.Execution;
 using ShogiTournamentSystemAnalyzer.Application.Modes.SimulationContext;
 using ShogiTournamentSystemAnalyzer.Application.Paths;
 using ShogiTournamentSystemAnalyzer.Domain.Ranking;
@@ -72,7 +71,7 @@ internal class FinalStageSimulationMainline
             return new StandardSimulationExecutionResult(result, standardResultRows);
         }
 
-        var finalStageResult = ExecuteFinalStageMainline();
+        var finalStageResult = FinalStageSimulationExecutor.Execute(context);
         var finalStageResultRows = RankingResultRowBuilder.BuildFinalStageResultRows(context.Players, context.Matches, finalStageResult, context.FirstPlayerWinRatePercent, context.GroupMap!, context.EffectiveAdditionalApexCount);
         return new FinalStageSimulationExecutionResult(finalStageResult, finalStageResultRows);
 
@@ -85,25 +84,6 @@ internal class FinalStageSimulationMainline
                 context,
                 exactCalculationMessage: $"{ruleLabel} の厳密計算を行います。\n",
                 simulationPrompt: $"局数が多いため {ruleLabel} のシミュレーションで近似します。試行回数を入力してください [200000]: ");
-        }
-
-        CalculationResult ExecuteFinalStageMainline()
-        {
-            if (context.Matches.Count <= 20)
-            {
-                Console.WriteLine("本戦専用の厳密計算を行います。\n");
-                return FinalStageCalculationEngine.CalculateFinalStageExactly(context.Players, context.Matches, context.GroupMap!, context.EffectiveAdditionalApexCount, context.BoundaryRescueMode, context.FirstPlayerWinRateRating);
-            }
-
-            const int finalStageDefaultSimulationCount = 200_000;
-            var finalStageSimulationCount = ConsolePromptReaders.ReadIntWithDefault(
-                $"局数が多いため本戦専用シミュレーションで近似します。試行回数を入力してください [{finalStageDefaultSimulationCount}]: ",
-                finalStageDefaultSimulationCount,
-                min: 1);
-
-            Console.WriteLine();
-            using var finalStageSimulationBudget = SimulationTimeBudget.BeginSimulationBudget();
-            return FinalStageCalculationEngine.CalculateFinalStageBySimulation(context.Players, context.Matches, context.GroupMap!, context.EffectiveAdditionalApexCount, context.BoundaryRescueMode, context.FirstPlayerWinRateRating, finalStageSimulationCount);
         }
     }
 

@@ -37,8 +37,7 @@ internal sealed class FinalStageSimulationScenario : ISimulationScenario
             () =>
             {
                 var mainline = new FinalStageSimulationMainline();
-                mainline.RunDynamic(finalStageContext);
-                mainline.RunStatic(finalStageContext);
+                mainline.Run(finalStageContext);
             });
 
         return true;

@@ -15,19 +15,9 @@ using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 
 internal abstract class AbstractSimulationMainline
 {
-    /// <summary>
-    /// TODO: RunStatic() メソッドがインスタンスメソッドになったから、このメソッドは不要になった（＾～＾）
-    /// </summary>
-    /// <param name="context"></param>
-    public void RunDynamic(AbstractSimulationContext context)
+    public void Run(AbstractSimulationContext context)
     {
         Console.WriteLine($"順位ルール: {TournamentRuleSetRule.GetLabel(context.TournamentRuleSetMode)}\n");
-
-        RunDynamicCore(context);
-    }
-
-    public void RunStatic(AbstractSimulationContext context)
-    {
         BeforeExecuteSimulationContext(context);
 
         var executionResult = ExecuteSimulation(context);
@@ -36,10 +26,6 @@ internal abstract class AbstractSimulationMainline
         PrintSimulationResult(context, executionResult);
         PrintTimeLimitIfNeeded(executionResult.Result);
         WriteSimulationOutputs(context, executionResult);
-    }
-
-    protected virtual void RunDynamicCore(AbstractSimulationContext context)
-    {
     }
 
     protected virtual void BeforeExecuteSimulationContext(AbstractSimulationContext context)

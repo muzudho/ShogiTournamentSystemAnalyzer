@@ -31,8 +31,7 @@ internal sealed class StandardSimulationScenario : ISimulationScenario
             () =>
             {
                 var mainline = new StandardSimulationMainline();
-                mainline.RunDynamic(context);
-                mainline.RunStatic(context);
+                mainline.Run(context);
             });
         return true;
     }
