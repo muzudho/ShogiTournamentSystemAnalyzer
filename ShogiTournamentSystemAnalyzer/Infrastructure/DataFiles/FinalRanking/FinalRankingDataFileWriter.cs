@@ -3,6 +3,7 @@
  */
 namespace ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.FinalRanking;
 
+using ShogiTournamentSystemAnalyzer.Application.DataDefinitions;
 using ShogiTournamentSystemAnalyzer.Domain.FinalRanking;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
@@ -14,7 +15,31 @@ using System.Globalization;
 /// </summary>
 internal abstract class AbstractFinalRankingDataFileWriter
 {
+    const string StandardFinalRankingTableTypeFileName = "FinalRankingStandardTableType.json";
+    const string FinalStageFinalRankingTableTypeFileName = "FinalRankingFinalStageTableType.json";
+
     protected static string EscapeCsv(string value) => CsvOutputHelpers.EscapeCsv(value);
+
+    static IReadOnlyList<string>? standardFinalRankingFixedColumns;
+    static IReadOnlyList<string>? finalStageFinalRankingFixedColumns;
+
+    protected static IReadOnlyList<string> GetStandardFinalRankingFixedColumns()
+    {
+        return standardFinalRankingFixedColumns ??= LoadFixedColumns(StandardFinalRankingTableTypeFileName);
+    }
+
+    protected static IReadOnlyList<string> GetFinalStageFinalRankingFixedColumns()
+    {
+        return finalStageFinalRankingFixedColumns ??= LoadFixedColumns(FinalStageFinalRankingTableTypeFileName);
+    }
+
+    static IReadOnlyList<string> LoadFixedColumns(string fileName)
+    {
+        return TableTypeDefinitionReader.Load(fileName)
+            .Data
+            .Select(column => column.Name)
+            .ToArray();
+    }
 
     protected static List<string> BuildFinalRankingMarkdownOverviewLines(
         string outputMarkdownPath,
@@ -189,26 +214,8 @@ internal abstract class AbstractFinalRankingDataFileWriter
     {
         _ = outputCsvPath;
 
-        var specificHeaderColumns = new List<string>
-        {
-            "calculationMode",
-            "firstPlayerWinRatePercent",
-            "playerName",
-            "originalElo",
-            "effectiveElo",
-            "eloDelta",
-            "firstPlayerCount",
-            "secondPlayerCount",
-            "firstPlayerWinRatePercent",
-            "secondPlayerWinRatePercent",
-            "championshipProbabilityPercent",
-            "averagePlace"
-        };
-
-        if (!string.IsNullOrWhiteSpace(overviewNote))
-        {
-            specificHeaderColumns.Add("note");
-        }
+        var specificHeaderColumns = GetStandardFinalRankingFixedColumns().ToList();
+        if (string.IsNullOrWhiteSpace(overviewNote)) specificHeaderColumns.Remove("note");
 
         if (resultRows.Count > 0)
         {
@@ -412,30 +419,8 @@ internal abstract class AbstractFinalRankingDataFileWriter
         IReadOnlyList<FinalStageResultRow> resultRows,
         string? overviewNote = null)
     {
-        // TODO: 今は［列名］だけだが、［型］も合わせたオブジェクトにして、DSLファイルで設定できるような、自由形式にできないかな（＾～＾）わたしが別ファイルに案を書いてみるか（＾～＾）
-        var specificHeaderColumns = new List<string>
-        {
-            "calculationMode",
-            "firstPlayerWinRatePercent",
-            "playerName",
-            "group",
-            "originalElo",
-            "effectiveElo",
-            "eloDelta",
-            "firstPlayerCount",
-            "secondPlayerCount",
-            "firstPlayerWinRatePercent",
-            "secondPlayerWinRatePercent",
-            "groupPlace1ProbabilityPercent",
-            "groupPlaceAverage",
-            "overallPlace1ProbabilityPercent",
-            "overallPlaceAverage"
-        };
-
-        if (!string.IsNullOrWhiteSpace(overviewNote))
-        {
-            specificHeaderColumns.Add("note");
-        }
+        var specificHeaderColumns = GetFinalStageFinalRankingFixedColumns().ToList();
+        if (string.IsNullOrWhiteSpace(overviewNote)) specificHeaderColumns.Remove("note");
 
         if (resultRows.Count > 0)
         {

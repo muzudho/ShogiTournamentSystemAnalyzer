@@ -192,7 +192,8 @@ internal abstract class AbstractSimulationMainline
         CalculationResult result,
         double firstPlayerWinRatePercent,
         IReadOnlyList<FinalStageResultRow> resultRows,
-        string? referenceMatchesCsvPath)
+        string? referenceMatchesCsvPath // これが違いかあ（＾～＾）
+        )
     {
         WriteFinalRankingOutputs(
             outputCsvPath,
