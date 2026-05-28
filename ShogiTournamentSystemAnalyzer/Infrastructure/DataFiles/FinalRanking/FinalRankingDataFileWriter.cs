@@ -200,7 +200,7 @@ internal abstract class AbstractFinalRankingDataFileWriter
     /// <param name="resultRows"></param>
     /// <param name="overviewNote"></param>
     /// <returns></returns>
-    protected IEnumerable<string> CreateResultCsvCore(
+    internal IEnumerable<string> CreateResultCsvCore(
         string outputCsvPath,
         string mode,
         double firstPlayerWinRatePercent,
@@ -287,7 +287,7 @@ internal abstract class AbstractFinalRankingDataFileWriter
     /// <param name="representativeRankingMarkdownPath"></param>
     /// <param name="referenceMatchesCsvPath"></param>
     /// <returns></returns>
-    protected IEnumerable<string> CreateResultMarkdownCore(
+    internal IEnumerable<string> CreateResultMarkdownCore(
         string outputMarkdownPath,
         string outputCsvPath,
         string mode,
@@ -407,7 +407,7 @@ internal abstract class AbstractFinalRankingDataFileWriter
     /// <param name="firstPlayerWinRatePercent"></param>
     /// <param name="resultRows"></param>
     /// <returns></returns>
-    protected IEnumerable<string> CreateFinalStageResultCsvCore(
+    internal IEnumerable<string> CreateFinalStageResultCsvCore(
         string outputCsvPath,
         string mode,
         double firstPlayerWinRatePercent,
@@ -493,7 +493,7 @@ internal abstract class AbstractFinalRankingDataFileWriter
     /// <param name="resultRows"></param>
     /// <param name="referenceMatchesCsvPath">参考対局CSVファイルへのパス</param>
     /// <returns></returns>
-    protected IEnumerable<string> CreateFinalStageResultMarkdownCore(
+    internal IEnumerable<string> CreateFinalStageResultMarkdownCore(
         string outputMarkdownPath,
         string outputCsvPath,
         string mode,
