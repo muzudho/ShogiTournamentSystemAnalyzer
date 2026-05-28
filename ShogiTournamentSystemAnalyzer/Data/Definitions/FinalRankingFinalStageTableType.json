@@ -1,0 +1,25 @@
+{
+  "Meta": {
+    "Name": "FinalRankingFinalStage",
+    "Type": "TableType",
+    "Comment": "FinalRanking 境界の本戦ルールCSV固定列定義"
+  },
+  "Data": [
+    { "Name": "calculationMode", "Type": "String", "IsRequired": true, "Comment": "計算モード" },
+    { "Name": "firstPlayerWinRatePercent", "Type": "Double", "IsRequired": true, "Comment": "同Elo対局時の先手勝率" },
+    { "Name": "playerName", "Type": "String", "IsRequired": true, "Comment": "選手名" },
+    { "Name": "group", "Type": "String", "IsRequired": true, "Comment": "グループ" },
+    { "Name": "originalElo", "Type": "Double", "IsRequired": true, "Comment": "元Elo" },
+    { "Name": "effectiveElo", "Type": "Double", "IsRequired": true, "Comment": "実効Elo" },
+    { "Name": "eloDelta", "Type": "Double", "IsRequired": true, "Comment": "差分" },
+    { "Name": "firstPlayerCount", "Type": "Int", "IsRequired": true, "Comment": "先手回数" },
+    { "Name": "secondPlayerCount", "Type": "Int", "IsRequired": true, "Comment": "後手回数" },
+    { "Name": "firstPlayerWinRatePercent", "Type": "Double", "IsRequired": true, "Comment": "先手勝率" },
+    { "Name": "secondPlayerWinRatePercent", "Type": "Double", "IsRequired": true, "Comment": "後手勝率" },
+    { "Name": "groupPlace1ProbabilityPercent", "Type": "Double", "IsRequired": true, "Comment": "群1位確率" },
+    { "Name": "groupPlaceAverage", "Type": "Double", "IsRequired": true, "Comment": "群平均順位" },
+    { "Name": "overallPlace1ProbabilityPercent", "Type": "Double", "IsRequired": true, "Comment": "総合1位確率" },
+    { "Name": "overallPlaceAverage", "Type": "Double", "IsRequired": true, "Comment": "総合平均順位" },
+    { "Name": "note", "Type": "String", "IsRequired": false, "Comment": "注記" }
+  ]
+}
