@@ -13,8 +13,10 @@ using System.Globalization;
 /// <summary>
 /// ［最終順位］境界のデータファイル writer の共通処理。
 /// </summary>
-internal abstract class AbstractFinalRankingDataFileWriter
+internal class AbstractFinalRankingDataFileWriter
 {
+    internal static readonly AbstractFinalRankingDataFileWriter Instance = new();
+
     const string StandardFinalRankingTableTypeFileName = "FinalRankingStandardTableType.json";
     const string FinalStageFinalRankingTableTypeFileName = "FinalRankingFinalStageTableType.json";
     const string RepresentativeExecutionRankTableTypeFileName = "RepresentativeExecutionRankTableType.json";
