@@ -152,6 +152,7 @@ internal abstract class AbstractSimulationMainline
     /// <param name="firstPlayerWinRatePercent"></param>
     /// <param name="resultRows"></param>
     protected static void WriteStandardFinalRankingOutputs(
+        FinalRankingDataFileWriter finalRankingDataFileWriter,
         string outputCsvPath,
         string outputMarkdownPath,
         CalculationResult result,
@@ -164,12 +165,12 @@ internal abstract class AbstractSimulationMainline
             result,
             firstPlayerWinRatePercent,
             resultRows,
-            createCsvLines: (outputCsvPath, mode, firstPlayerWinRatePercent, resultRows) => AbstractFinalRankingDataFileWriter.Instance.CreateResultCsvCore(   // TODO: ヘルパー関数じゃなくて、インスタンスのメソッドにできないのかだぜ（＾～＾）？
+            createCsvLines: (outputCsvPath, mode, firstPlayerWinRatePercent, resultRows) => finalRankingDataFileWriter.CreateResultCsvCore(   // TODO: ヘルパー関数じゃなくて、インスタンスのメソッドにできないのかだぜ（＾～＾）？
                 outputCsvPath,
                 mode,
                 firstPlayerWinRatePercent,
                 resultRows),
-            createMarkdownLines: (outputMarkdownPath, outputCsvPath, mode, firstPlayerWinRatePercent, resultRows) => AbstractFinalRankingDataFileWriter.Instance.CreateResultMarkdownCore(   // TODO: ヘルパー関数じゃなくて、インスタンスのメソッドにできないのかだぜ（＾～＾）？
+            createMarkdownLines: (outputMarkdownPath, outputCsvPath, mode, firstPlayerWinRatePercent, resultRows) => finalRankingDataFileWriter.CreateResultMarkdownCore(   // TODO: ヘルパー関数じゃなくて、インスタンスのメソッドにできないのかだぜ（＾～＾）？
                 outputMarkdownPath,
                 outputCsvPath,
                 mode,
@@ -187,6 +188,7 @@ internal abstract class AbstractSimulationMainline
     /// <param name="resultRows"></param>
     /// <param name="referenceMatchesCsvPath"></param>
     protected static void WriteFinalStageFinalRankingOutputs(
+        FinalRankingDataFileWriter finalRankingDataFileWriter,
         string outputCsvPath,
         string outputMarkdownPath,
         CalculationResult result,
@@ -201,12 +203,12 @@ internal abstract class AbstractSimulationMainline
             result,
             firstPlayerWinRatePercent,
             resultRows,
-            createCsvLines: (outputCsvPath, mode, firstPlayerWinRatePercent, resultRows) => AbstractFinalRankingDataFileWriter.Instance.CreateFinalStageResultCsvCore(   // TODO: ヘルパー関数じゃなくて、インスタンスのメソッドにできないのかだぜ（＾～＾）？
+            createCsvLines: (outputCsvPath, mode, firstPlayerWinRatePercent, resultRows) => finalRankingDataFileWriter.CreateFinalStageResultCsvCore(   // TODO: ヘルパー関数じゃなくて、インスタンスのメソッドにできないのかだぜ（＾～＾）？
                 outputCsvPath,
                 mode,
                 firstPlayerWinRatePercent,
                 resultRows),
-            createMarkdownLines: (outputMarkdownPath, outputCsvPath, mode, firstPlayerWinRatePercent, resultRows) => AbstractFinalRankingDataFileWriter.Instance.CreateFinalStageResultMarkdownCore(   // TODO: ヘルパー関数じゃなくて、インスタンスのメソッドにできないのかだぜ（＾～＾）？
+            createMarkdownLines: (outputMarkdownPath, outputCsvPath, mode, firstPlayerWinRatePercent, resultRows) => finalRankingDataFileWriter.CreateFinalStageResultMarkdownCore(   // TODO: ヘルパー関数じゃなくて、インスタンスのメソッドにできないのかだぜ（＾～＾）？
                 outputMarkdownPath,
                 outputCsvPath,
                 mode,

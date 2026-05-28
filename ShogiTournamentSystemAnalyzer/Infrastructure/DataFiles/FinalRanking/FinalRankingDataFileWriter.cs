@@ -13,9 +13,25 @@ using System.Globalization;
 /// <summary>
 /// ［最終順位］境界のデータファイル writer の共通処理。
 /// </summary>
-internal class AbstractFinalRankingDataFileWriter
+internal class FinalRankingDataFileWriter
 {
-    internal static readonly AbstractFinalRankingDataFileWriter Instance = new();
+
+
+    // ========================================
+    // 生成
+    // ========================================
+
+
+    public FinalRankingDataFileWriter()
+    {
+
+    }
+
+
+    // ========================================
+    // その他
+    // ========================================
+
 
     const string StandardFinalRankingTableTypeFileName = "FinalRankingStandardTableType.json";
     const string FinalStageFinalRankingTableTypeFileName = "FinalRankingFinalStageTableType.json";

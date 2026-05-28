@@ -9,6 +9,7 @@ using ShogiTournamentSystemAnalyzer.Domain.Ranking;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
+using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.FinalRanking;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.Shared;
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 
@@ -127,7 +128,10 @@ internal class FinalStageSimulationMainline
         SimulationMainlineExecutionResult<ResultRow> executionResult)
     {
         var (outputCsvPath, outputMarkdownPath, referenceMatchesCsvPath) = PrepareFinalStageOutputPaths(context);
-        WriteStandardFinalRankingOutputs(outputCsvPath, outputMarkdownPath, executionResult.Result, context.FirstPlayerWinRatePercent, executionResult.ResultRows);
+
+        FinalRankingDataFileWriter finalRankingDataFileWriter = new();
+        WriteStandardFinalRankingOutputs(finalRankingDataFileWriter, outputCsvPath, outputMarkdownPath, executionResult.Result, context.FirstPlayerWinRatePercent, executionResult.ResultRows);
+
         CompleteFinalStageOutputs(context, outputCsvPath, outputMarkdownPath, referenceMatchesCsvPath);
     }
 
@@ -136,7 +140,10 @@ internal class FinalStageSimulationMainline
         SimulationMainlineExecutionResult<FinalStageResultRow> executionResult)
     {
         var (outputCsvPath, outputMarkdownPath, referenceMatchesCsvPath) = PrepareFinalStageOutputPaths(context);
+
+        FinalRankingDataFileWriter finalRankingDataFileWriter = new();
         WriteFinalStageFinalRankingOutputs(
+            finalRankingDataFileWriter,
             outputCsvPath,
             outputMarkdownPath,
             executionResult.Result,

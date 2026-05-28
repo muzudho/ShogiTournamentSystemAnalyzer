@@ -175,6 +175,8 @@ internal static partial class SimulationTournamentFrameworkMode
         CalculationResult finalRankingCalculation,
         IReadOnlyList<ResultRow> finalRankingRows)
     {
+        FinalRankingDataFileWriter finalRankingDataFileWriter = new();
+
         var defaultOutputCsvPath = ReportOutputPathBuilder.BuildFinalRankingDefaultOutputPath($"tournament_framework_aggregate_final_ranking_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
         var requestedOutputPath = string.IsNullOrWhiteSpace(context.OutputPath)
             ? ConsolePromptReaders.ReadTextWithDefault($"\naggregate結果CSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ", defaultOutputCsvPath)
@@ -182,7 +184,7 @@ internal static partial class SimulationTournamentFrameworkMode
         var outputCsvPath = CsvOutputHelpers.ResolveOutputCsvPath(requestedOutputPath);
         WriterHelper.WriteText(
             outputPath: outputCsvPath,
-            getLines: () => AbstractFinalRankingDataFileWriter.Instance.CreateResultCsvCore(
+            getLines: () => finalRankingDataFileWriter.CreateResultCsvCore(
                 outputCsvPath,
                 finalRankingCalculation.Mode,
                 tournamentRuleData.FirstPlayerWinRatePercent ?? context.FirstPlayerWinRatePercent,
@@ -197,7 +199,7 @@ internal static partial class SimulationTournamentFrameworkMode
 
         WriterHelper.WriteText(
             outputPath: outputMarkdownPath,
-            getLines: () => AbstractFinalRankingDataFileWriter.Instance.CreateResultMarkdownCore(
+            getLines: () => finalRankingDataFileWriter.CreateResultMarkdownCore(
                 outputMarkdownPath,
                 outputCsvPath,
                 finalRankingCalculation.Mode,
@@ -208,14 +210,14 @@ internal static partial class SimulationTournamentFrameworkMode
 
         WriterHelper.WriteText(
             outputPath: representativeRankingCsvPath,
-            getLines: () => AbstractFinalRankingDataFileWriter.CreateRepresentativeExecutionRankCsv(
+            getLines: () => FinalRankingDataFileWriter.CreateRepresentativeExecutionRankCsv(
                 rankingSettingsData.TournamentRuleSetMode,
                 representativeExecutionRankRows,
                 overviewNote: "この順位表は代表実行 1 件の順位です。aggregate 結果の順位表そのものではありません。"));
 
         WriterHelper.WriteText(
             outputPath: representativeRankingMarkdownPath,
-            getLines: () => AbstractFinalRankingDataFileWriter.CreateRepresentativeExecutionRankMarkdown(
+            getLines: () => FinalRankingDataFileWriter.CreateRepresentativeExecutionRankMarkdown(
                 representativeRankingMarkdownPath,
                 representativeRankingCsvPath,
                 rankingSettingsData.TournamentRuleSetMode,
