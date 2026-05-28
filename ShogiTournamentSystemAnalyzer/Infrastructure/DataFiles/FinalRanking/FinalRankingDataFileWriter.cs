@@ -34,6 +34,8 @@ internal class FinalRankingDataFileWriter
     // ========================================
 
 
+    #region ［大会ルール］の種類
+
     /// <summary>
     /// ［大会ルール］の種類
     /// </summary>
@@ -54,6 +56,22 @@ internal class FinalRankingDataFileWriter
         }
     }
 
+    #endregion
+
+    #region ［列名の一覧］
+
+    /// <summary>
+    /// ［列名の一覧］取得
+    /// </summary>
+    /// <returns></returns>
+    protected IReadOnlyList<string> GetFinalRankingFixedColumns()
+    {
+        return finalRankingFixedColumns ??= LoadFixedColumns(this.GetFinalRankingTableTypeFileName());
+    }
+    static IReadOnlyList<string>? finalRankingFixedColumns;
+
+    #endregion
+
 
     // ========================================
     // その他
@@ -64,19 +82,8 @@ internal class FinalRankingDataFileWriter
 
     protected static string EscapeCsv(string value) => CsvOutputHelpers.EscapeCsv(value);
 
-    static IReadOnlyList<string>? standardFinalRankingFixedColumns;
-    static IReadOnlyList<string>? finalStageFinalRankingFixedColumns;
     static IReadOnlyList<string>? representativeExecutionRankFixedColumns;
 
-    protected IReadOnlyList<string> GetStandardFinalRankingFixedColumns()
-    {
-        return standardFinalRankingFixedColumns ??= LoadFixedColumns(this.GetFinalRankingTableTypeFileName());
-    }
-
-    protected IReadOnlyList<string> GetFinalStageFinalRankingFixedColumns()
-    {
-        return finalStageFinalRankingFixedColumns ??= LoadFixedColumns(this.GetFinalRankingTableTypeFileName());
-    }
 
     protected static IReadOnlyList<string> GetRepresentativeExecutionRankFixedColumns()
     {
@@ -252,7 +259,7 @@ internal class FinalRankingDataFileWriter
     {
         _ = outputCsvPath;
 
-        var specificHeaderColumns = GetStandardFinalRankingFixedColumns().ToList();
+        var specificHeaderColumns = GetFinalRankingFixedColumns().ToList();
         if (string.IsNullOrWhiteSpace(overviewNote)) specificHeaderColumns.Remove("note");
 
         if (resultRows.Count > 0)
@@ -457,7 +464,7 @@ internal class FinalRankingDataFileWriter
         IReadOnlyList<FinalStageResultRow> resultRows,
         string? overviewNote = null)
     {
-        var specificHeaderColumns = GetFinalStageFinalRankingFixedColumns().ToList();
+        var specificHeaderColumns = GetFinalRankingFixedColumns().ToList();
         if (string.IsNullOrWhiteSpace(overviewNote)) specificHeaderColumns.Remove("note");
 
         if (resultRows.Count > 0)
