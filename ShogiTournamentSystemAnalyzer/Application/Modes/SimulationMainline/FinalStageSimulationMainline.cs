@@ -126,36 +126,41 @@ internal class FinalStageSimulationMainline
         FinalStageModeSimulationContext context,
         StandardSimulationExecutionResult executionResult)
     {
-        var (outputCsvPath, outputMarkdownPath) = ResolveFinalRankingOutputPaths($"final_stage_final_ranking_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
-        var referenceMatchesCsvPath = context.ReferenceMatches.Count > 0
-            ? ReportOutputPathBuilder.BuildTournamentFinalStateDefaultOutputPath($"reference_matches_{DateTime.Now:yyyyMMdd_HHmmss}.csv")
-            : null;
+        var (outputCsvPath, outputMarkdownPath, referenceMatchesCsvPath) = PrepareFinalStageOutputPaths(context);
         WriteStandardFinalRankingOutputs(outputCsvPath, outputMarkdownPath, executionResult.Result, context.FirstPlayerWinRatePercent, executionResult.ResultRows);
-        PrintFinalRankingOutputCompleted(outputCsvPath, outputMarkdownPath);
-
-        if (context.ReferenceMatches.Count > 0)
-        {
-            CsvOutputHelpers.WriteReferenceMatchCsv(referenceMatchesCsvPath!, context.Players, context.ReferenceMatches);
-            Console.WriteLine($"参考対局CSVを出力しました: {referenceMatchesCsvPath}");
-        }
+        CompleteFinalStageOutputs(context, outputCsvPath, outputMarkdownPath, referenceMatchesCsvPath);
     }
 
     static void WriteFinalRankingOutputsForFinalStageMode(
         FinalStageModeSimulationContext context,
         FinalStageSimulationExecutionResult executionResult)
     {
+        var (outputCsvPath, outputMarkdownPath, referenceMatchesCsvPath) = PrepareFinalStageOutputPaths(context);
+        WriteFinalStageFinalRankingOutputs(outputCsvPath, outputMarkdownPath, executionResult.Result, context.FirstPlayerWinRatePercent, executionResult.ResultRows, referenceMatchesCsvPath);
+        CompleteFinalStageOutputs(context, outputCsvPath, outputMarkdownPath, referenceMatchesCsvPath);
+    }
+
+    static (string OutputCsvPath, string OutputMarkdownPath, string? ReferenceMatchesCsvPath) PrepareFinalStageOutputPaths(FinalStageModeSimulationContext context)
+    {
         var (outputCsvPath, outputMarkdownPath) = ResolveFinalRankingOutputPaths($"final_stage_final_ranking_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
         var referenceMatchesCsvPath = context.ReferenceMatches.Count > 0
             ? ReportOutputPathBuilder.BuildTournamentFinalStateDefaultOutputPath($"reference_matches_{DateTime.Now:yyyyMMdd_HHmmss}.csv")
             : null;
-        WriteFinalStageFinalRankingOutputs(outputCsvPath, outputMarkdownPath, executionResult.Result, context.FirstPlayerWinRatePercent, executionResult.ResultRows, referenceMatchesCsvPath);
+        return (outputCsvPath, outputMarkdownPath, referenceMatchesCsvPath);
+    }
+
+    static void CompleteFinalStageOutputs(
+        FinalStageModeSimulationContext context,
+        string outputCsvPath,
+        string outputMarkdownPath,
+        string? referenceMatchesCsvPath)
+    {
         PrintFinalRankingOutputCompleted(outputCsvPath, outputMarkdownPath);
 
-        if (context.ReferenceMatches.Count > 0)
-        {
-            CsvOutputHelpers.WriteReferenceMatchCsv(referenceMatchesCsvPath!, context.Players, context.ReferenceMatches);
-            Console.WriteLine($"参考対局CSVを出力しました: {referenceMatchesCsvPath}");
-        }
+        if (context.ReferenceMatches.Count == 0) return;
+
+        CsvOutputHelpers.WriteReferenceMatchCsv(referenceMatchesCsvPath!, context.Players, context.ReferenceMatches);
+        Console.WriteLine($"参考対局CSVを出力しました: {referenceMatchesCsvPath}");
     }
 }
 

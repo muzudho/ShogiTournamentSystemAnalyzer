@@ -403,6 +403,7 @@ internal abstract class AbstractFinalRankingDataFileWriter
         IReadOnlyList<FinalStageResultRow> resultRows,
         string? overviewNote = null)
     {
+        // TODO: 今は［列名］だけだが、［型］も合わせたオブジェクトにして、DSLファイルで設定できるような、自由形式にできないかな（＾～＾）わたしが別ファイルに案を書いてみるか（＾～＾）
         var specificHeaderColumns = new List<string>
         {
             "calculationMode",

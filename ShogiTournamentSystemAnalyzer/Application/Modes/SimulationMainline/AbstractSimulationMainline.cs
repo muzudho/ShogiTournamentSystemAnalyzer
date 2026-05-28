@@ -112,6 +112,21 @@ internal abstract class AbstractSimulationMainline
         Console.WriteLine($"結果Markdownを出力しました: {outputMarkdownPath}");
     }
 
+    protected static void WriteFinalRankingOutputs(
+        string outputCsvPath,
+        string outputMarkdownPath,
+        Func<IEnumerable<string>> createCsvLines,
+        Func<IEnumerable<string>> createMarkdownLines)
+    {
+        WriterHelper.WriteText(
+            outputPath: outputCsvPath,
+            getLines: createCsvLines);
+
+        WriterHelper.WriteText(
+            outputPath: outputMarkdownPath,
+            getLines: createMarkdownLines);
+    }
+
     /// <summary>
     /// TODO: `WriteFinalStageFinalRankingOutputs()` と統合できないか（＾～＾）？
     /// </summary>
@@ -127,19 +142,13 @@ internal abstract class AbstractSimulationMainline
         double firstPlayerWinRatePercent,
         IReadOnlyList<ResultRow> resultRows)
     {
-        WriterHelper.WriteText(
-            outputPath: outputCsvPath,
-            // XXX: なんで［標準版］と［本戦版］で出力内容が違うんだ（＾～＾）？
-            getLines: () => StandardFinalRankingDataFileWriter.CreateResultCsv(
-                outputCsvPath, result.Mode, firstPlayerWinRatePercent, resultRows  // ここは共通だ（＾▽＾）
-                ));
-
-        WriterHelper.WriteText(
-            outputPath: outputMarkdownPath,
-            // XXX: なんで［標準版］と［本戦版］で出力内容が違うんだ（＾～＾）？
-            getLines: () => StandardFinalRankingDataFileWriter.CreateResultMarkdown(
-                outputMarkdownPath, outputCsvPath, result.Mode, firstPlayerWinRatePercent, resultRows   // ここは共通だ（＾▽＾）
-                ));
+        WriteFinalRankingOutputs(
+            outputCsvPath,
+            outputMarkdownPath,
+            createCsvLines: () => StandardFinalRankingDataFileWriter.CreateResultCsv(
+                outputCsvPath, result.Mode, firstPlayerWinRatePercent, resultRows),
+            createMarkdownLines: () => StandardFinalRankingDataFileWriter.CreateResultMarkdown(
+                outputMarkdownPath, outputCsvPath, result.Mode, firstPlayerWinRatePercent, resultRows));
     }
 
     /// <summary>
@@ -159,21 +168,21 @@ internal abstract class AbstractSimulationMainline
         IReadOnlyList<FinalStageResultRow> resultRows,
         string? referenceMatchesCsvPath)
     {
-        WriterHelper.WriteText(
-            outputPath: outputCsvPath,
-            // XXX: なんで［標準版］と［本戦版］で出力内容が違うんだ（＾～＾）？
-            getLines: () => FinalStageFinalRankingDataFileWriter.CreateResultCsv(
-                outputCsvPath,  // XXX: ［本戦版］はCSVに出力パスを入れる
-                result.Mode, firstPlayerWinRatePercent, resultRows  // ここは共通だ（＾▽＾）
-                ));
-
-        WriterHelper.WriteText(
-            outputPath: outputMarkdownPath,
-            // XXX: なんで［標準版］と［本戦版］で出力内容が違うんだ（＾～＾）？
-            getLines: () => FinalStageFinalRankingDataFileWriter.CreateResultMarkdown(
-                outputMarkdownPath, outputCsvPath, result.Mode, firstPlayerWinRatePercent, resultRows,  // ここは共通だ（＾▽＾）
-                referenceMatchesCsvPath: referenceMatchesCsvPath // XXX: これが［本戦版］にだけある（＾～＾）？
-                ));
+        WriteFinalRankingOutputs(
+            outputCsvPath,
+            outputMarkdownPath,
+            createCsvLines: () => FinalStageFinalRankingDataFileWriter.CreateResultCsv(
+                outputCsvPath,
+                result.Mode,
+                firstPlayerWinRatePercent,
+                resultRows),
+            createMarkdownLines: () => FinalStageFinalRankingDataFileWriter.CreateResultMarkdown(
+                outputMarkdownPath,
+                outputCsvPath,
+                result.Mode,
+                firstPlayerWinRatePercent,
+                resultRows,
+                referenceMatchesCsvPath: referenceMatchesCsvPath));
     }
 }
 
