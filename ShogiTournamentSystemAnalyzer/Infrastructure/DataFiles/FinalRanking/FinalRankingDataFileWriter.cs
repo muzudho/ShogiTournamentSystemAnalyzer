@@ -170,18 +170,25 @@ internal abstract class AbstractFinalRankingDataFileWriter
     }
 
     /// <summary>
-    ///     <pre>
     /// これは［標準版］。
-    /// TODO: ［本戦版］と同じ引数リストにしてほしい（＾～＾）
-    ///     </pre>
+    /// 
+    /// TODO: おー、メソッドのシグニチャが揃ってきたな（＾▽＾） `CreateFinalStageResultCsvCore` メソッドと統合できる感じかだぜ（＾▽＾）？
     /// </summary>
+    /// <param name="outputCsvPath"></param>
     /// <param name="mode"></param>
     /// <param name="firstPlayerWinRatePercent"></param>
     /// <param name="resultRows"></param>
     /// <param name="overviewNote"></param>
     /// <returns></returns>
-    protected IEnumerable<string> CreateResultCsvCore(string mode, double firstPlayerWinRatePercent, IReadOnlyList<ResultRow> resultRows, string? overviewNote = null)
+    protected IEnumerable<string> CreateResultCsvCore(
+        string outputCsvPath,
+        string mode,
+        double firstPlayerWinRatePercent,
+        IReadOnlyList<ResultRow> resultRows,
+        string? overviewNote = null)
     {
+        _ = outputCsvPath;
+
         var specificHeaderColumns = new List<string>
         {
             "calculationMode",
@@ -265,10 +272,9 @@ internal abstract class AbstractFinalRankingDataFileWriter
     }
 
     /// <summary>
-    ///     <pre>
     /// これは［標準版］。
-    /// TODO: ［本戦版］と同じ引数リストにしてほしい（＾～＾）
-    ///     </pre>
+    /// 
+    /// TODO: おー、メソッドのシグニチャが揃ってきたな（＾▽＾） `CreateFinalStageResultMarkdownCore` メソッドと統合できる感じかだぜ（＾▽＾）？
     /// </summary>
     /// <param name="outputMarkdownPath"></param>
     /// <param name="outputCsvPath"></param>
@@ -277,6 +283,7 @@ internal abstract class AbstractFinalRankingDataFileWriter
     /// <param name="resultRows"></param>
     /// <param name="overviewNote"></param>
     /// <param name="representativeRankingMarkdownPath"></param>
+    /// <param name="referenceMatchesCsvPath"></param>
     /// <returns></returns>
     protected IEnumerable<string> CreateResultMarkdownCore(
         string outputMarkdownPath,
@@ -285,8 +292,11 @@ internal abstract class AbstractFinalRankingDataFileWriter
         double firstPlayerWinRatePercent,
         IReadOnlyList<ResultRow> resultRows,
         string? overviewNote = null,
-        string? representativeRankingMarkdownPath = null)
+        string? representativeRankingMarkdownPath = null,
+        string? referenceMatchesCsvPath = null)
     {
+        _ = referenceMatchesCsvPath;
+
         var topChampionshipRows = resultRows
             .OrderByDescending(row => row.ChampionshipProbability)
             .ThenBy(row => row.AveragePlace)
@@ -386,10 +396,9 @@ internal abstract class AbstractFinalRankingDataFileWriter
     }
 
     /// <summary>
-    ///     <pre>
     /// これは［本戦版］。
-    /// TODO: ［標準版］と同じ引数リストにしてほしい（＾～＾）
-    ///     </pre>
+    /// 
+    /// TODO: おー、メソッドのシグニチャが揃ってきたな（＾▽＾） `CreateResultCsvCore` メソッドと統合できる感じかだぜ（＾▽＾）？
     /// </summary>
     /// <param name="outputCsvPath"></param>
     /// <param name="mode"></param>
@@ -493,10 +502,9 @@ internal abstract class AbstractFinalRankingDataFileWriter
     }
 
     /// <summary>
-    ///     <pre>
     /// これは［本戦版］。
-    /// TODO: ［標準版］と同じ引数リストにしてほしい（＾～＾）
-    ///     </pre>
+    /// 
+    /// TODO: おー、メソッドのシグニチャが揃ってきたな（＾▽＾） `CreateResultMarkdownCore` メソッドと統合できる感じかだぜ（＾▽＾）？
     /// </summary>
     /// <param name="outputMarkdownPath"></param>
     /// <param name="outputCsvPath"></param>

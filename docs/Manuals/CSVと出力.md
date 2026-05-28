@@ -174,16 +174,20 @@ END
 通常モードや本戦専用モードでは、結果CSVに次を出力します。
 
 - 先頭に共通部列 `boundaryName`, `schemaName`, `rowType` が付きます
+- `schemaName` は通常モードが `standardFinalRanking`、本戦モードが `finalStageFinalRanking` です
 - コンソール表示の内容
 - 各順位の確率
 - シミュレーション時は各順位の出現相当回数
 - 主なヘッダー名:
   - `calculationMode`
-  - `blackAdvantagePercent`
-	- `playerName`
+	- `firstPlayerWinRatePercent`
+  - `playerName`
   - `originalElo`
   - `effectiveElo`
   - `eloDelta`
+- 通常モードでは主に `championshipProbabilityPercent`, `averagePlace` を出力します
+- 本戦モードでは主に `group`, `groupPlace1ProbabilityPercent`, `groupPlaceAverage`, `overallPlace1ProbabilityPercent`, `overallPlaceAverage` を出力します
+- 必要に応じて `note` 列が付きます
 
 フォルダーパスを指定した場合は、その中に自動ファイル名で結果CSVを作成します。
 既定では `Output/Ranking/FinalRanking` に出力します。
@@ -191,8 +195,10 @@ END
 ## 結果Markdown
 通常モードや本戦専用モードでは、結果CSVと同じ場所に Markdown レポートも出力します。
 
-- 通常モードでは、優勝確率と平均順位を見やすい表でまとめます
-- 本戦モードでは、グループ情報、グループ1位確率、総合1位確率も含めてまとめます
+- 共通して `概要`、`注目ポイント`、`自動コメント`、`上位候補一覧`、`Mermaid 図` を出力します
+- 通常モードでは、優勝確率と平均順位を中心にまとめます
+- 本戦モードでは、グループ情報、グループ1位確率、総合1位確率に加えて `Apex 注目候補` と `Innov 注目候補` も含めてまとめます
+- 参考対局CSVがある場合は、概要欄にそのリンクも出ます
 - 出力先は結果CSVと同名で、拡張子だけ `.md` になります
 - 既定では結果CSVと同じく `Output/Ranking/FinalRanking` に出力します
 

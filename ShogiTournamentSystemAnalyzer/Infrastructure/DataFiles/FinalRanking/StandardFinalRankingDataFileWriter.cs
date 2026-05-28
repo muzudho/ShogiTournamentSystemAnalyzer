@@ -20,7 +20,7 @@ internal sealed class StandardFinalRankingDataFileWriter
         IReadOnlyList<ResultRow> resultRows,
         string? overviewNote = null)
     {
-        return Instance.CreateResultCsvCore(mode, firstPlayerWinRatePercent, resultRows, overviewNote);
+        return Instance.CreateResultCsvCore(outputCsvPath, mode, firstPlayerWinRatePercent, resultRows, overviewNote);
     }
 
     internal static IEnumerable<string> CreateResultMarkdown(
@@ -40,6 +40,7 @@ internal sealed class StandardFinalRankingDataFileWriter
             firstPlayerWinRatePercent,
             resultRows,
             overviewNote,
-            representativeRankingMarkdownPath);
+            representativeRankingMarkdownPath,
+            referenceMatchesCsvPath);
     }
 }

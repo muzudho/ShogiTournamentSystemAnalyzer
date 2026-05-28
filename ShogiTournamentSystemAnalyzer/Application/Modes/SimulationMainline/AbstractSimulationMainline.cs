@@ -146,9 +146,16 @@ internal abstract class AbstractSimulationMainline
             outputCsvPath,
             outputMarkdownPath,
             createCsvLines: () => StandardFinalRankingDataFileWriter.CreateResultCsv(
-                outputCsvPath, result.Mode, firstPlayerWinRatePercent, resultRows),
+                outputCsvPath,
+                result.Mode,
+                firstPlayerWinRatePercent,
+                resultRows),
             createMarkdownLines: () => StandardFinalRankingDataFileWriter.CreateResultMarkdown(
-                outputMarkdownPath, outputCsvPath, result.Mode, firstPlayerWinRatePercent, resultRows));
+                outputMarkdownPath,
+                outputCsvPath,
+                result.Mode,
+                firstPlayerWinRatePercent,
+                resultRows));
     }
 
     /// <summary>
