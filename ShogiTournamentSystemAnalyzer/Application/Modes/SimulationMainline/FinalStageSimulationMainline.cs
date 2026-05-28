@@ -49,14 +49,16 @@ internal class FinalStageSimulationMainline
 
     protected override void WriteSimulationOutputs(AbstractSimulationContext context, SimulationMainlineExecutionResult executionResult)
     {
+        FinalRankingDataFileWriter finalRankingDataFileWriter = new(RuleProfileMode.FinalStage);
+
         var finalStageContext = (FinalStageModeSimulationContext)context;
         if (executionResult is SimulationMainlineExecutionResult<ResultRow> standardExecutionResult)
         {
-            WriteFinalRankingOutputsForFinalStageMode(finalStageContext, standardExecutionResult);
+            WriteFinalRankingOutputsForFinalStageMode(finalRankingDataFileWriter, finalStageContext, standardExecutionResult);
             return;
         }
 
-        WriteFinalRankingOutputsForFinalStageMode(finalStageContext, (SimulationMainlineExecutionResult<FinalStageResultRow>)executionResult);
+        WriteFinalRankingOutputsForFinalStageMode(finalRankingDataFileWriter, finalStageContext, (SimulationMainlineExecutionResult<FinalStageResultRow>)executionResult);
     }
 
     /// <summary>
@@ -124,24 +126,23 @@ internal class FinalStageSimulationMainline
     /// <param name="standardResultRows"></param>
     /// <param name="finalStageResultRows"></param>
     static void WriteFinalRankingOutputsForFinalStageMode(
+        FinalRankingDataFileWriter finalRankingDataFileWriter,
         FinalStageModeSimulationContext context,
         SimulationMainlineExecutionResult<ResultRow> executionResult)
     {
         var (outputCsvPath, outputMarkdownPath, referenceMatchesCsvPath) = PrepareFinalStageOutputPaths(context);
 
-        FinalRankingDataFileWriter finalRankingDataFileWriter = new();
         WriteStandardFinalRankingOutputs(finalRankingDataFileWriter, outputCsvPath, outputMarkdownPath, executionResult.Result, context.FirstPlayerWinRatePercent, executionResult.ResultRows);
 
         CompleteFinalStageOutputs(context, outputCsvPath, outputMarkdownPath, referenceMatchesCsvPath);
     }
 
     static void WriteFinalRankingOutputsForFinalStageMode(
+        FinalRankingDataFileWriter finalRankingDataFileWriter,
         FinalStageModeSimulationContext context,
         SimulationMainlineExecutionResult<FinalStageResultRow> executionResult)
     {
         var (outputCsvPath, outputMarkdownPath, referenceMatchesCsvPath) = PrepareFinalStageOutputPaths(context);
-
-        FinalRankingDataFileWriter finalRankingDataFileWriter = new();
         WriteFinalStageFinalRankingOutputs(
             finalRankingDataFileWriter,
             outputCsvPath,

@@ -5,6 +5,7 @@ namespace ShogiTournamentSystemAnalyzer.Application.Modes.SimulationMainline;
 
 using ShogiTournamentSystemAnalyzer.Application.Modes.SimulationContext;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
+using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.FinalRanking;
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 
@@ -71,7 +72,7 @@ internal class StandardSimulationMainline
     {
         var (outputCsvPath, outputMarkdownPath) = ResolveFinalRankingOutputPaths($"standard_final_ranking_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
 
-        FinalRankingDataFileWriter finalRankingDataFileWriter = new();
+        FinalRankingDataFileWriter finalRankingDataFileWriter = new(RuleProfileMode.Standard);
         WriteStandardFinalRankingOutputs(
             finalRankingDataFileWriter,
             outputCsvPath,

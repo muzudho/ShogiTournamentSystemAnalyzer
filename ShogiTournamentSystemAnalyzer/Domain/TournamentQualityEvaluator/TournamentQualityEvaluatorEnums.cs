@@ -30,6 +30,9 @@ enum AnalysisFlowMode
     QualityEvaluation,
 }
 
+/// <summary>
+/// ［大会ルール］の種類
+/// </summary>
 enum RuleProfileMode
 {
     Standard,

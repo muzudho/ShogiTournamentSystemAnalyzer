@@ -12,6 +12,7 @@ using ShogiTournamentSystemAnalyzer.Domain.Ranking;
 using ShogiTournamentSystemAnalyzer.Domain.RankingSettings;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentFinalState;
+using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.FinalRanking;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.Shared;
@@ -175,7 +176,7 @@ internal static partial class SimulationTournamentFrameworkMode
         CalculationResult finalRankingCalculation,
         IReadOnlyList<ResultRow> finalRankingRows)
     {
-        FinalRankingDataFileWriter finalRankingDataFileWriter = new();
+        FinalRankingDataFileWriter finalRankingDataFileWriter = new(RuleProfileMode.TournamentFramework);
 
         var defaultOutputCsvPath = ReportOutputPathBuilder.BuildFinalRankingDefaultOutputPath($"tournament_framework_aggregate_final_ranking_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
         var requestedOutputPath = string.IsNullOrWhiteSpace(context.OutputPath)

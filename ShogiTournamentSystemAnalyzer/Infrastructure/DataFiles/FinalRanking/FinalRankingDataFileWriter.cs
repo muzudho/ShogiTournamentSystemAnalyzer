@@ -6,6 +6,7 @@ namespace ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.FinalRanking;
 using ShogiTournamentSystemAnalyzer.Application.DataDefinitions;
 using ShogiTournamentSystemAnalyzer.Domain.FinalRanking;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
+using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.Shared;
 using System.Globalization;
@@ -22,10 +23,21 @@ internal class FinalRankingDataFileWriter
     // ========================================
 
 
-    public FinalRankingDataFileWriter()
+    public FinalRankingDataFileWriter(RuleProfileMode ruleProfileMode)
     {
-
+        this.RuleProfileMode = ruleProfileMode;
     }
+
+
+    // ========================================
+    // 窓口データメンバー
+    // ========================================
+
+
+    /// <summary>
+    /// ［大会ルール］の種類
+    /// </summary>
+    internal RuleProfileMode RuleProfileMode { get; init; }
 
 
     // ========================================
