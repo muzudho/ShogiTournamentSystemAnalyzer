@@ -10,19 +10,25 @@ internal enum DataDefinitionValueType
     String,
 }
 
-sealed record class TabularDataDefinitionMeta(
-    string TableName,
-    string? RuleType = null,
-    string? BoundaryName = null,
-    string? SchemaName = null,
+sealed record class TableTypeDefinitionMeta(
+    string Name,
+    string Type = "TableType",
     string? Comment = null);
 
-sealed record class TabularDataColumnDefinition(
+sealed record class TableTypeColumnDefinition(
     string Name,
     DataDefinitionValueType Type,
-    bool IsRequired,
+    bool IsRequired = true,
     string? Comment = null);
 
-sealed record class TabularDataDefinition(
-    TabularDataDefinitionMeta Meta,
-    IReadOnlyList<TabularDataColumnDefinition> Columns);
+sealed record class TableTypeDefinition(
+    TableTypeDefinitionMeta Meta,
+    IReadOnlyList<TableTypeColumnDefinition> Data);
+
+sealed record class TableInstanceMetaDefinition(
+    string TableName,
+    string TableType,
+    string? Comment = null);
+
+sealed record class TableInstanceDefinition(
+    TableInstanceMetaDefinition Meta);

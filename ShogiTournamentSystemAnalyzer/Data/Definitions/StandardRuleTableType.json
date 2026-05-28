@@ -1,0 +1,27 @@
+{
+  "Meta": {
+    "Name": "StandardRule",
+    "Type": "TableType",
+    "Comment": "自由形式CSVのテーブル型定義サンプル"
+  },
+  "Data": [
+    {
+      "Name": "name",
+      "Type": "String",
+      "IsRequired": true,
+      "Comment": "名前"
+    },
+    {
+      "Name": "age",
+      "Type": "Int",
+      "IsRequired": true,
+      "Comment": "年齢"
+    },
+    {
+      "Name": "color",
+      "Type": "String",
+      "IsRequired": false,
+      "Comment": "色"
+    }
+  ]
+}
