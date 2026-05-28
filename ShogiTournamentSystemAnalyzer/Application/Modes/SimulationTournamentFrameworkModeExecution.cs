@@ -185,7 +185,7 @@ internal static partial class SimulationTournamentFrameworkMode
         var outputCsvPath = CsvOutputHelpers.ResolveOutputCsvPath(requestedOutputPath);
         WriterHelper.WriteText(
             outputPath: outputCsvPath,
-            getLines: () => finalRankingDataFileWriter.CreateResultCsvCore(
+            getLines: () => finalRankingDataFileWriter.CreateStandardResultCsvCore(
                 outputCsvPath,
                 finalRankingCalculation.Mode,
                 tournamentRuleData.FirstPlayerWinRatePercent ?? context.FirstPlayerWinRatePercent,
@@ -200,7 +200,7 @@ internal static partial class SimulationTournamentFrameworkMode
 
         WriterHelper.WriteText(
             outputPath: outputMarkdownPath,
-            getLines: () => finalRankingDataFileWriter.CreateResultMarkdownCore(
+            getLines: () => finalRankingDataFileWriter.CreateStandardResultMarkdownCore(
                 outputMarkdownPath,
                 outputCsvPath,
                 finalRankingCalculation.Mode,
