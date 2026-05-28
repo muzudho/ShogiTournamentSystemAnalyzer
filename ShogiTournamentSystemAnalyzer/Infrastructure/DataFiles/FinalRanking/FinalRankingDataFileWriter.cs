@@ -39,14 +39,27 @@ internal class FinalRankingDataFileWriter
     /// </summary>
     internal RuleProfileMode RuleProfileMode { get; init; }
 
+    internal string GetFinalRankingTableTypeFileName()
+    {
+        switch (this.RuleProfileMode)
+        {
+            case RuleProfileMode.Standard:
+                return "FinalRankingStandardTableType.json";
+
+            case RuleProfileMode.FinalStage:
+                return "FinalRankingFinalStageTableType.json";
+
+            default:
+                throw(new InvalidOperationException($"未対応のルールプロファイルモード: {this.RuleProfileMode}"));
+        }
+    }
+
 
     // ========================================
     // その他
     // ========================================
 
 
-    const string StandardFinalRankingTableTypeFileName = "FinalRankingStandardTableType.json";
-    const string FinalStageFinalRankingTableTypeFileName = "FinalRankingFinalStageTableType.json";
     const string RepresentativeExecutionRankTableTypeFileName = "RepresentativeExecutionRankTableType.json";
 
     protected static string EscapeCsv(string value) => CsvOutputHelpers.EscapeCsv(value);
@@ -55,14 +68,14 @@ internal class FinalRankingDataFileWriter
     static IReadOnlyList<string>? finalStageFinalRankingFixedColumns;
     static IReadOnlyList<string>? representativeExecutionRankFixedColumns;
 
-    protected static IReadOnlyList<string> GetStandardFinalRankingFixedColumns()
+    protected IReadOnlyList<string> GetStandardFinalRankingFixedColumns()
     {
-        return standardFinalRankingFixedColumns ??= LoadFixedColumns(StandardFinalRankingTableTypeFileName);
+        return standardFinalRankingFixedColumns ??= LoadFixedColumns(this.GetFinalRankingTableTypeFileName());
     }
 
-    protected static IReadOnlyList<string> GetFinalStageFinalRankingFixedColumns()
+    protected IReadOnlyList<string> GetFinalStageFinalRankingFixedColumns()
     {
-        return finalStageFinalRankingFixedColumns ??= LoadFixedColumns(FinalStageFinalRankingTableTypeFileName);
+        return finalStageFinalRankingFixedColumns ??= LoadFixedColumns(this.GetFinalRankingTableTypeFileName());
     }
 
     protected static IReadOnlyList<string> GetRepresentativeExecutionRankFixedColumns()
