@@ -136,7 +136,13 @@ internal class FinalStageSimulationMainline
         FinalStageSimulationExecutionResult executionResult)
     {
         var (outputCsvPath, outputMarkdownPath, referenceMatchesCsvPath) = PrepareFinalStageOutputPaths(context);
-        WriteFinalStageFinalRankingOutputs(outputCsvPath, outputMarkdownPath, executionResult.Result, context.FirstPlayerWinRatePercent, executionResult.ResultRows, referenceMatchesCsvPath);
+        WriteFinalStageFinalRankingOutputs(
+            outputCsvPath,
+            outputMarkdownPath,
+            executionResult.Result,
+            context.FirstPlayerWinRatePercent,
+            executionResult.ResultRows,
+            referenceMatchesCsvPath);
         CompleteFinalStageOutputs(context, outputCsvPath, outputMarkdownPath, referenceMatchesCsvPath);
     }
 

@@ -112,7 +112,7 @@ internal abstract class AbstractSimulationMainline
         Console.WriteLine($"結果Markdownを出力しました: {outputMarkdownPath}");
     }
 
-    protected static void WriteFinalRankingOutputs(
+    protected static void WriteOutputFiles(
         string outputCsvPath,
         string outputMarkdownPath,
         Func<IEnumerable<string>> createCsvLines,
@@ -125,6 +125,22 @@ internal abstract class AbstractSimulationMainline
         WriterHelper.WriteText(
             outputPath: outputMarkdownPath,
             getLines: createMarkdownLines);
+    }
+
+    protected static void WriteFinalRankingOutputs<TRow>(
+        string outputCsvPath,
+        string outputMarkdownPath,
+        CalculationResult result,
+        double firstPlayerWinRatePercent,
+        IReadOnlyList<TRow> resultRows,
+        Func<string, string, double, IReadOnlyList<TRow>, IEnumerable<string>> createCsvLines,
+        Func<string, string, string, double, IReadOnlyList<TRow>, IEnumerable<string>> createMarkdownLines)
+    {
+        WriteOutputFiles(
+            outputCsvPath,
+            outputMarkdownPath,
+            createCsvLines: () => createCsvLines(outputCsvPath, result.Mode, firstPlayerWinRatePercent, resultRows),
+            createMarkdownLines: () => createMarkdownLines(outputMarkdownPath, outputCsvPath, result.Mode, firstPlayerWinRatePercent, resultRows));
     }
 
     /// <summary>
@@ -145,15 +161,18 @@ internal abstract class AbstractSimulationMainline
         WriteFinalRankingOutputs(
             outputCsvPath,
             outputMarkdownPath,
-            createCsvLines: () => StandardFinalRankingDataFileWriter.CreateResultCsv(
+            result,
+            firstPlayerWinRatePercent,
+            resultRows,
+            createCsvLines: (outputCsvPath, mode, firstPlayerWinRatePercent, resultRows) => StandardFinalRankingDataFileWriter.CreateResultCsv(
                 outputCsvPath,
-                result.Mode,
+                mode,
                 firstPlayerWinRatePercent,
                 resultRows),
-            createMarkdownLines: () => StandardFinalRankingDataFileWriter.CreateResultMarkdown(
+            createMarkdownLines: (outputMarkdownPath, outputCsvPath, mode, firstPlayerWinRatePercent, resultRows) => StandardFinalRankingDataFileWriter.CreateResultMarkdown(
                 outputMarkdownPath,
                 outputCsvPath,
-                result.Mode,
+                mode,
                 firstPlayerWinRatePercent,
                 resultRows));
     }
@@ -178,15 +197,18 @@ internal abstract class AbstractSimulationMainline
         WriteFinalRankingOutputs(
             outputCsvPath,
             outputMarkdownPath,
-            createCsvLines: () => FinalStageFinalRankingDataFileWriter.CreateResultCsv(
+            result,
+            firstPlayerWinRatePercent,
+            resultRows,
+            createCsvLines: (outputCsvPath, mode, firstPlayerWinRatePercent, resultRows) => FinalStageFinalRankingDataFileWriter.CreateResultCsv(
                 outputCsvPath,
-                result.Mode,
+                mode,
                 firstPlayerWinRatePercent,
                 resultRows),
-            createMarkdownLines: () => FinalStageFinalRankingDataFileWriter.CreateResultMarkdown(
+            createMarkdownLines: (outputMarkdownPath, outputCsvPath, mode, firstPlayerWinRatePercent, resultRows) => FinalStageFinalRankingDataFileWriter.CreateResultMarkdown(
                 outputMarkdownPath,
                 outputCsvPath,
-                result.Mode,
+                mode,
                 firstPlayerWinRatePercent,
                 resultRows,
                 referenceMatchesCsvPath: referenceMatchesCsvPath));

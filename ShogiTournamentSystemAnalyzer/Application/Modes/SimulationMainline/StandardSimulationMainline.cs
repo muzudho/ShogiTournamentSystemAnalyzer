@@ -69,7 +69,12 @@ internal class StandardSimulationMainline
     static void WriteFinalRankingOutputsForStandardMode(StandardModeSimulationContext context, CalculationResult tournamentFinalState, IReadOnlyList<ResultRow> finalRankingRows)
     {
         var (outputCsvPath, outputMarkdownPath) = ResolveFinalRankingOutputPaths($"standard_final_ranking_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
-        WriteStandardFinalRankingOutputs(outputCsvPath, outputMarkdownPath, tournamentFinalState, context.FirstPlayerWinRatePercent, finalRankingRows);
+        WriteStandardFinalRankingOutputs(
+            outputCsvPath,
+            outputMarkdownPath,
+            tournamentFinalState,
+            context.FirstPlayerWinRatePercent,
+            finalRankingRows);
 
         PrintFinalRankingOutputCompleted(outputCsvPath, outputMarkdownPath);
     }

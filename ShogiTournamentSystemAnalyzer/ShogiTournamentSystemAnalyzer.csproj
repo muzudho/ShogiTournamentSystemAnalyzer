@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <Folder Include="Application\Reporting\" />
+    <Folder Include="Data\Definitions\" />
     <Folder Include="Domain\Shared\" />
   </ItemGroup>
 
