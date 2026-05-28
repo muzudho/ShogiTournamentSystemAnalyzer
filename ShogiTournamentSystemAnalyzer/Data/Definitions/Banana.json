@@ -1,0 +1,29 @@
+{
+  "Meta": {
+    "TableName": "Banana",
+    "RuleType": "Standard",
+    "BoundaryName": "Examples",
+    "SchemaName": "bananaSample",
+    "Comment": "自由形式CSVのメタ定義サンプル"
+  },
+  "Columns": [
+    {
+      "Name": "name",
+      "Type": "String",
+      "IsRequired": true,
+      "Comment": "名前"
+    },
+    {
+      "Name": "age",
+      "Type": "Int",
+      "IsRequired": true,
+      "Comment": "年齢"
+    },
+    {
+      "Name": "color",
+      "Type": "String",
+      "IsRequired": false,
+      "Comment": "色"
+    }
+  ]
+}
