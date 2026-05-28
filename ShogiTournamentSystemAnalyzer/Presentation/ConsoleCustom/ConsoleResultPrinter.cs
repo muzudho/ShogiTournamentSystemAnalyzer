@@ -150,25 +150,55 @@ internal static class ConsoleResultPrinter
         Console.WriteLine();
     }
 
-    internal static void PrintResult(int playerCount, CalculationResult result, double firstPlayerWinRatePercent, IReadOnlyList<ResultRow> resultRows)
+    static void PrintSimulationResultSummary(CalculationResult result, double firstPlayerWinRatePercent)
     {
         Console.WriteLine($"計算方法: {result.Mode}\n");
         Console.WriteLine($"同Elo対局時の先手勝率: {firstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture)}%\n");
+    }
 
-        if (resultRows.Count == 0)
-        {
-            Console.WriteLine("結果行は 0 件です。条件を短くして再試行してください。\n");
-            PrintAdjustmentCycleGuide("シミュレーション", timedOut: result.Mode.Contains("時間切れ", StringComparison.Ordinal), zeroResults: true);
-            return;
-        }
+    static bool PrintSimulationZeroResultIfNeeded<TRow>(CalculationResult result, IReadOnlyCollection<TRow> resultRows, string scenarioLabel)
+        where TRow : ISimulationResultRow
+    {
+        if (resultRows.Count > 0) return false;
 
-        var nameWidth = Math.Max(6, resultRows.Max(x => x.Name.Length) + 2);
-        var header = "対局者".PadRight(nameWidth)
+        Console.WriteLine("結果行は 0 件です。条件を短くして再試行してください。\n");
+        PrintAdjustmentCycleGuide(scenarioLabel, timedOut: result.Mode.Contains("時間切れ", StringComparison.Ordinal), zeroResults: true);
+        return true;
+    }
+
+    static int ResolveSimulationResultNameWidth(IReadOnlyList<ISimulationResultRow> resultRows)
+    {
+        return Math.Max(6, resultRows.Max(x => x.Name.Length) + 2);
+    }
+
+    static string BuildSimulationResultCommonHeader(int nameWidth)
+    {
+        return "対局者".PadRight(nameWidth)
             + "元Elo".PadLeft(10)
             + "実効Elo".PadLeft(10)
             + "差分".PadLeft(10)
             + "先手".PadLeft(8)
-            + "後手".PadLeft(8)
+            + "後手".PadLeft(8);
+    }
+
+    static string BuildSimulationResultCommonColumns(ISimulationResultRow row, int nameWidth)
+    {
+        return row.Name.PadRight(nameWidth)
+            + SimulationRatingMath.FormatRating(row.OriginalRating).PadLeft(10)
+            + SimulationRatingMath.FormatRating(row.EffectiveRating).PadLeft(10)
+            + SimulationRatingMath.FormatSignedRating(row.RatingDelta).PadLeft(10)
+            + row.FirstPlayerCount.ToString(CultureInfo.InvariantCulture).PadLeft(8)
+            + row.SecondPlayerCount.ToString(CultureInfo.InvariantCulture).PadLeft(8);
+    }
+
+    internal static void PrintResult(int playerCount, CalculationResult result, double firstPlayerWinRatePercent, IReadOnlyList<ResultRow> resultRows)
+    {
+        PrintSimulationResultSummary(result, firstPlayerWinRatePercent);
+
+        if (PrintSimulationZeroResultIfNeeded(result, resultRows, "シミュレーション")) return;
+
+        var nameWidth = ResolveSimulationResultNameWidth(resultRows.Cast<ISimulationResultRow>().ToArray());
+        var header = BuildSimulationResultCommonHeader(nameWidth)
             + "先手勝率".PadLeft(12)
             + "後手勝率".PadLeft(12)
             + "優勝確率".PadLeft(12)
@@ -179,12 +209,7 @@ internal static class ConsoleResultPrinter
 
         foreach (var row in resultRows)
         {
-            var line = row.Name.PadRight(nameWidth)
-                + SimulationRatingMath.FormatRating(row.OriginalRating).PadLeft(10)
-                + SimulationRatingMath.FormatRating(row.EffectiveRating).PadLeft(10)
-                + SimulationRatingMath.FormatSignedRating(row.RatingDelta).PadLeft(10)
-                + row.FirstPlayerCount.ToString(CultureInfo.InvariantCulture).PadLeft(8)
-                + row.SecondPlayerCount.ToString(CultureInfo.InvariantCulture).PadLeft(8)
+            var line = BuildSimulationResultCommonColumns(row, nameWidth)
                 + SimulationRatingMath.FormatOptionalPercent(row.FirstPlayerWinRate).PadLeft(12)
                 + SimulationRatingMath.FormatOptionalPercent(row.SecondPlayerWinRate).PadLeft(12)
                 + SimulationRatingMath.FormatPercent(row.ChampionshipProbability).PadLeft(12)
@@ -224,24 +249,13 @@ internal static class ConsoleResultPrinter
 
     internal static void PrintFinalStageResult(CalculationResult result, double firstPlayerWinRatePercent, IReadOnlyList<FinalStageResultRow> resultRows)
     {
-        Console.WriteLine($"計算方法: {result.Mode}\n");
-        Console.WriteLine($"同Elo対局時の先手勝率: {firstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture)}%\n");
+        PrintSimulationResultSummary(result, firstPlayerWinRatePercent);
 
-        if (resultRows.Count == 0)
-        {
-            Console.WriteLine("結果行は 0 件です。条件を短くして再試行してください。\n");
-            PrintAdjustmentCycleGuide("本戦シミュレーション", timedOut: result.Mode.Contains("時間切れ", StringComparison.Ordinal), zeroResults: true);
-            return;
-        }
+        if (PrintSimulationZeroResultIfNeeded(result, resultRows, "本戦シミュレーション")) return;
 
-        var nameWidth = Math.Max(6, resultRows.Max(x => x.Name.Length) + 2);
-        var header = "対局者".PadRight(nameWidth)
+        var nameWidth = ResolveSimulationResultNameWidth(resultRows.Cast<ISimulationResultRow>().ToArray());
+        var header = BuildSimulationResultCommonHeader(nameWidth)
             + "群".PadLeft(8)
-            + "元Elo".PadLeft(10)
-            + "実効Elo".PadLeft(10)
-            + "差分".PadLeft(10)
-            + "先手".PadLeft(8)
-            + "後手".PadLeft(8)
             + "群1位".PadLeft(10)
             + "群平均".PadLeft(10)
             + "総合1位".PadLeft(10)
@@ -252,13 +266,8 @@ internal static class ConsoleResultPrinter
 
         foreach (var row in resultRows)
         {
-            var line = row.Name.PadRight(nameWidth)
+            var line = BuildSimulationResultCommonColumns(row, nameWidth)
                 + row.Group.PadLeft(8)
-                + SimulationRatingMath.FormatRating(row.OriginalRating).PadLeft(10)
-                + SimulationRatingMath.FormatRating(row.EffectiveRating).PadLeft(10)
-                + SimulationRatingMath.FormatSignedRating(row.RatingDelta).PadLeft(10)
-                + row.FirstPlayerCount.ToString(CultureInfo.InvariantCulture).PadLeft(8)
-                + row.SecondPlayerCount.ToString(CultureInfo.InvariantCulture).PadLeft(8)
                 + SimulationRatingMath.FormatPercent(row.GroupPlace1Probability).PadLeft(10)
                 + row.GroupPlaceAverage.ToString("F3", CultureInfo.InvariantCulture).PadLeft(10)
                 + SimulationRatingMath.FormatPercent(row.OverallPlace1Probability).PadLeft(10)
