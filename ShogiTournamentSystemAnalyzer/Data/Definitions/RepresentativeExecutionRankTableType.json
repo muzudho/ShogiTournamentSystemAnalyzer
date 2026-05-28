@@ -1,0 +1,16 @@
+{
+  "Meta": {
+    "Name": "RepresentativeExecutionRank",
+    "Type": "TableType",
+    "Comment": "FinalRanking 境界の representative 順位表CSV固定列定義"
+  },
+  "Data": [
+    { "Name": "tournamentRuleSetMode", "Type": "String", "IsRequired": true, "Comment": "順位ルール名" },
+    { "Name": "playerName", "Type": "String", "IsRequired": true, "Comment": "選手名" },
+    { "Name": "points", "Type": "Int", "IsRequired": true, "Comment": "勝点" },
+    { "Name": "rankBand", "Type": "String", "IsRequired": true, "Comment": "順位帯" },
+    { "Name": "averagePlace", "Type": "Double", "IsRequired": true, "Comment": "平均順位" },
+    { "Name": "firstPlaceProbabilityPercent", "Type": "Double", "IsRequired": true, "Comment": "1位確率" },
+    { "Name": "note", "Type": "String", "IsRequired": false, "Comment": "注記" }
+  ]
+}

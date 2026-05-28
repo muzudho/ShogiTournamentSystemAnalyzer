@@ -23,6 +23,18 @@ internal sealed class FinalStageFinalRankingDataFileWriter
         return Instance.CreateFinalStageResultCsvCore(outputCsvPath, mode, firstPlayerWinRatePercent, resultRows, overviewNote);
     }
 
+    /// <summary>
+    /// TODO: これラッパー（＾～＾）？　剥がせないのかだぜ（＾～＾）？
+    /// </summary>
+    /// <param name="outputMarkdownPath"></param>
+    /// <param name="outputCsvPath"></param>
+    /// <param name="mode"></param>
+    /// <param name="firstPlayerWinRatePercent"></param>
+    /// <param name="resultRows"></param>
+    /// <param name="overviewNote"></param>
+    /// <param name="representativeRankingMarkdownPath"></param>
+    /// <param name="referenceMatchesCsvPath"></param>
+    /// <returns></returns>
     internal static IEnumerable<string> CreateResultMarkdown(
         string outputMarkdownPath,
         string outputCsvPath,

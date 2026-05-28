@@ -17,11 +17,13 @@ internal abstract class AbstractFinalRankingDataFileWriter
 {
     const string StandardFinalRankingTableTypeFileName = "FinalRankingStandardTableType.json";
     const string FinalStageFinalRankingTableTypeFileName = "FinalRankingFinalStageTableType.json";
+    const string RepresentativeExecutionRankTableTypeFileName = "RepresentativeExecutionRankTableType.json";
 
     protected static string EscapeCsv(string value) => CsvOutputHelpers.EscapeCsv(value);
 
     static IReadOnlyList<string>? standardFinalRankingFixedColumns;
     static IReadOnlyList<string>? finalStageFinalRankingFixedColumns;
+    static IReadOnlyList<string>? representativeExecutionRankFixedColumns;
 
     protected static IReadOnlyList<string> GetStandardFinalRankingFixedColumns()
     {
@@ -31,6 +33,11 @@ internal abstract class AbstractFinalRankingDataFileWriter
     protected static IReadOnlyList<string> GetFinalStageFinalRankingFixedColumns()
     {
         return finalStageFinalRankingFixedColumns ??= LoadFixedColumns(FinalStageFinalRankingTableTypeFileName);
+    }
+
+    protected static IReadOnlyList<string> GetRepresentativeExecutionRankFixedColumns()
+    {
+        return representativeExecutionRankFixedColumns ??= LoadFixedColumns(RepresentativeExecutionRankTableTypeFileName);
     }
 
     static IReadOnlyList<string> LoadFixedColumns(string fileName)
@@ -85,20 +92,8 @@ internal abstract class AbstractFinalRankingDataFileWriter
         IReadOnlyList<RepresentativeExecutionRankRow> rows,
         string? overviewNote = null)
     {
-        var specificHeaderColumns = new List<string>
-        {
-            "tournamentRuleSetMode",
-            "playerName",
-            "points",
-            "rankBand",
-            "averagePlace",
-            "firstPlaceProbabilityPercent"
-        };
-
-        if (!string.IsNullOrWhiteSpace(overviewNote))
-        {
-            specificHeaderColumns.Add("note");
-        }
+        var specificHeaderColumns = GetRepresentativeExecutionRankFixedColumns().ToList();
+        if (string.IsNullOrWhiteSpace(overviewNote)) specificHeaderColumns.Remove("note");
 
         var lines = new List<string>
         {
