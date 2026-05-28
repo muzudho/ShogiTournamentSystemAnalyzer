@@ -32,6 +32,20 @@ readonly record struct PlayerScore(int PlayerIndex, int Wins);
 /// <param name="SimulationCount"></param>
 readonly record struct CalculationResult(double[,] PlaceProbabilities, string Mode, int? SimulationCount);
 
+internal interface ISimulationResultRow
+{
+    string Name { get; }
+    double OriginalRating { get; }
+    double EffectiveRating { get; }
+    double RatingDelta { get; }
+    int FirstPlayerCount { get; }
+    int SecondPlayerCount { get; }
+    double? FirstPlayerWinRate { get; }
+    double? SecondPlayerWinRate { get; }
+    double[] PlaceProbabilities { get; }
+    double[]? PlaceCounts { get; }
+}
+
 /// <summary>
 ///     <pre>
 /// ［標準版］の結果の行
@@ -64,7 +78,8 @@ readonly record struct ResultRow(
     double ChampionshipProbability,     // ［標準版］優勝確率
     double AveragePlace,                // ［標準版］平均順位
     double[] PlaceProbabilities,
-    double[]? PlaceCounts);
+    double[]? PlaceCounts)
+    : ISimulationResultRow;
 
 /// <summary>
 ///     <pre>
@@ -104,7 +119,8 @@ readonly record struct FinalStageResultRow(
     double OverallPlace1Probability,    // ［本戦版］全体で1位の確率
     double OverallPlaceAverage,         // ［本戦版］全体の平均順位
     double[] PlaceProbabilities,
-    double[]? PlaceCounts);
+    double[]? PlaceCounts)
+    : ISimulationResultRow;
 
 
 /// <summary>

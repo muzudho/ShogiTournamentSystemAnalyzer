@@ -217,22 +217,8 @@ internal abstract class AbstractSimulationMainline
 
 internal abstract record SimulationMainlineExecutionResult(CalculationResult Result);
 
-/// <summary>
-/// TODO: ResultRow と FinalStageResultRow をインターフェースにしたら、`FinalStageSimulationExecutionResult` と統合できないかだぜ（＾～＾）？
-/// </summary>
-/// <param name="Result"></param>
-/// <param name="ResultRows"></param>
-internal sealed record StandardSimulationExecutionResult(
+internal sealed record SimulationMainlineExecutionResult<TRow>(
     CalculationResult Result,
-    IReadOnlyList<ResultRow> ResultRows)
-    : SimulationMainlineExecutionResult(Result);
-
-/// <summary>
-/// TODO: ResultRow と FinalStageResultRow をインターフェースにしたら、`StandardSimulationExecutionResult` と統合できないかだぜ（＾～＾）？
-/// </summary>
-/// <param name="Result"></param>
-/// <param name="ResultRows"></param>
-internal sealed record FinalStageSimulationExecutionResult(
-    CalculationResult Result,
-    IReadOnlyList<FinalStageResultRow> ResultRows)
-    : SimulationMainlineExecutionResult(Result);
+    IReadOnlyList<TRow> ResultRows)
+    : SimulationMainlineExecutionResult(Result)
+    where TRow : ISimulationResultRow;
