@@ -165,13 +165,13 @@ internal abstract class AbstractSimulationMainline
             result,
             firstPlayerWinRatePercent,
             resultRows,
-            createCsvLines: (outputCsvPath, mode, firstPlayerWinRatePercent, resultRows) => finalRankingDataFileWriter.CreateStandardResultCsvCore(   // TODO: ヘルパー関数じゃなくて、インスタンスのメソッドにできないのかだぜ（＾～＾）？
+            createCsvLines: (outputCsvPath, mode, firstPlayerWinRatePercent, resultRows) => finalRankingDataFileWriter.CreateStandardResultCsvCore(
                 finalRankingDataFileWriter,
                 outputCsvPath,
                 mode,
                 firstPlayerWinRatePercent,
                 resultRows),
-            createMarkdownLines: (outputMarkdownPath, outputCsvPath, mode, firstPlayerWinRatePercent, resultRows) => finalRankingDataFileWriter.CreateStandardResultMarkdownCore(   // TODO: ヘルパー関数じゃなくて、インスタンスのメソッドにできないのかだぜ（＾～＾）？
+            createMarkdownLines: (outputMarkdownPath, outputCsvPath, mode, firstPlayerWinRatePercent, resultRows) => finalRankingDataFileWriter.CreateStandardResultMarkdownCore(
                 outputMarkdownPath,
                 outputCsvPath,
                 mode,
@@ -204,13 +204,13 @@ internal abstract class AbstractSimulationMainline
             result,
             firstPlayerWinRatePercent,
             resultRows,
-            createCsvLines: (outputCsvPath, mode, firstPlayerWinRatePercent, resultRows) => finalRankingDataFileWriter.CreateFinalStageResultCsvCore(   // TODO: ヘルパー関数じゃなくて、インスタンスのメソッドにできないのかだぜ（＾～＾）？
+            createCsvLines: (outputCsvPath, mode, firstPlayerWinRatePercent, resultRows) => finalRankingDataFileWriter.CreateFinalStageResultCsvCore(
                 finalRankingDataFileWriter,
                 outputCsvPath,
                 mode,
                 firstPlayerWinRatePercent,
                 resultRows),
-            createMarkdownLines: (outputMarkdownPath, outputCsvPath, mode, firstPlayerWinRatePercent, resultRows) => finalRankingDataFileWriter.CreateFinalStageResultMarkdownCore(   // TODO: ヘルパー関数じゃなくて、インスタンスのメソッドにできないのかだぜ（＾～＾）？
+            createMarkdownLines: (outputMarkdownPath, outputCsvPath, mode, firstPlayerWinRatePercent, resultRows) => finalRankingDataFileWriter.CreateFinalStageResultMarkdownCore(
                 outputMarkdownPath,
                 outputCsvPath,
                 mode,
