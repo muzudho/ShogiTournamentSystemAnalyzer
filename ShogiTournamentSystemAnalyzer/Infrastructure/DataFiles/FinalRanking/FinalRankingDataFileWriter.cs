@@ -16,6 +16,7 @@ using System.Globalization;
 /// </summary>
 internal class FinalRankingDataFileWriter
 {
+    internal sealed record class FinalRankingWriterSettings(RuleProfileMode RuleProfileMode);
 
 
     // ========================================
@@ -23,13 +24,9 @@ internal class FinalRankingDataFileWriter
     // ========================================
 
 
-    /// <summary>
-    /// TODO: ここでは ruleProfileMode というフラグ変数を受け取っているが、将来的には DSL ファイルの内容から組み立てたオブジェクトを受け取るようにするといいんじゃないか（＾～＾）？　どう思う（＾～＾）？
-    /// </summary>
-    /// <param name="ruleProfileMode"></param>
-    public FinalRankingDataFileWriter(RuleProfileMode ruleProfileMode)
+    public FinalRankingDataFileWriter(FinalRankingWriterSettings settings)
     {
-        this.RuleProfileMode = ruleProfileMode;
+        this.Settings = settings;
     }
 
 
@@ -43,7 +40,7 @@ internal class FinalRankingDataFileWriter
     /// <summary>
     /// ［大会ルール］の種類
     /// </summary>
-    internal RuleProfileMode RuleProfileMode { get; init; }
+    internal FinalRankingWriterSettings Settings { get; init; }
 
     /// <summary>
     /// TODO: 例えば、入力画面で［RuleProfileMode］を選ばせるんじゃなくて、［{大会ルール設定ファイル名}.json］を選択させるようにして、そこからルールプロファイルモードを決定するようにしたらいいんじゃないか（＾▽＾）？　どう思う（＾～＾）？
@@ -51,7 +48,7 @@ internal class FinalRankingDataFileWriter
     /// <returns></returns>
     internal string GetFinalRankingTableTypeFileName()
     {
-        switch (this.RuleProfileMode)
+        switch (this.Settings.RuleProfileMode)
         {
             case RuleProfileMode.Standard:
                 return "FinalRankingStandardTableType.json";
@@ -63,7 +60,7 @@ internal class FinalRankingDataFileWriter
                 return "FinalRankingStandardTableType.json";
 
             default:
-                throw(new InvalidOperationException($"未対応のルールプロファイルモード: {this.RuleProfileMode}"));
+                throw(new InvalidOperationException($"未対応のルールプロファイルモード: {this.Settings.RuleProfileMode}"));
         }
     }
 
@@ -79,7 +76,7 @@ internal class FinalRankingDataFileWriter
     /// <returns></returns>
     internal string GetSchemaName()
     {
-        switch (this.RuleProfileMode)
+        switch (this.Settings.RuleProfileMode)
         {
             case RuleProfileMode.Standard:
                 return "standardFinalRanking";
@@ -91,7 +88,7 @@ internal class FinalRankingDataFileWriter
                 return "standardFinalRanking";
 
             default:
-                throw (new InvalidOperationException($"未対応のルールプロファイルモード: {this.RuleProfileMode}"));
+                throw (new InvalidOperationException($"未対応のルールプロファイルモード: {this.Settings.RuleProfileMode}"));
         }
     }
 
