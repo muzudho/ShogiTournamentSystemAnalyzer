@@ -176,7 +176,7 @@ internal static partial class SimulationTournamentFrameworkMode
         CalculationResult finalRankingCalculation,
         IReadOnlyList<ResultRow> finalRankingRows)
     {
-        FinalRankingDataFileWriter finalRankingDataFileWriter = new(new FinalRankingDataFileWriter.FinalRankingWriterSettings(RuleProfileMode.TournamentFramework));
+        FinalRankingDataFileWriter finalRankingDataFileWriter = new(new FinalRankingDataFileWriterSettings(RuleProfileMode.TournamentFramework));
 
         var defaultOutputCsvPath = ReportOutputPathBuilder.BuildFinalRankingDefaultOutputPath($"tournament_framework_aggregate_final_ranking_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
         var requestedOutputPath = string.IsNullOrWhiteSpace(context.OutputPath)

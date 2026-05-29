@@ -49,7 +49,7 @@ internal class FinalStageSimulationMainline
 
     protected override void WriteSimulationOutputs(AbstractSimulationContext context, SimulationMainlineExecutionResult executionResult)
     {
-        FinalRankingDataFileWriter finalRankingDataFileWriter = new(new FinalRankingDataFileWriter.FinalRankingWriterSettings(RuleProfileMode.FinalStage));
+        FinalRankingDataFileWriter finalRankingDataFileWriter = new(new FinalRankingDataFileWriterSettings(RuleProfileMode.FinalStage));
 
         var finalStageContext = (FinalStageModeSimulationContext)context;
         if (executionResult is SimulationMainlineExecutionResult<ResultRow> standardExecutionResult)

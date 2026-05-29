@@ -6,7 +6,6 @@ namespace ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.FinalRanking;
 using ShogiTournamentSystemAnalyzer.Application.DataDefinitions;
 using ShogiTournamentSystemAnalyzer.Domain.FinalRanking;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
-using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.Shared;
 using System.Globalization;
@@ -16,15 +15,12 @@ using System.Globalization;
 /// </summary>
 internal class FinalRankingDataFileWriter
 {
-    internal sealed record class FinalRankingWriterSettings(RuleProfileMode RuleProfileMode);
-
-
     // ========================================
     // 生成
     // ========================================
 
 
-    public FinalRankingDataFileWriter(FinalRankingWriterSettings settings)
+    public FinalRankingDataFileWriter(FinalRankingDataFileWriterSettings settings)
     {
         this.Settings = settings;
     }
@@ -35,33 +31,22 @@ internal class FinalRankingDataFileWriter
     // ========================================
 
 
-    #region ［大会ルール］の種類
+    #region ［最終順位という境界］の設定
 
     /// <summary>
-    /// ［大会ルール］の種類
+    /// ［最終順位という境界］の設定
     /// </summary>
-    internal FinalRankingWriterSettings Settings { get; init; }
+    internal FinalRankingDataFileWriterSettings Settings { get; init; }
 
     /// <summary>
+    /// ［最終順位テーブルタイプ・ファイルの名前］取得
+    /// 
     /// TODO: 例えば、入力画面で［RuleProfileMode］を選ばせるんじゃなくて、［{大会ルール設定ファイル名}.json］を選択させるようにして、そこからルールプロファイルモードを決定するようにしたらいいんじゃないか（＾▽＾）？　どう思う（＾～＾）？
     /// </summary>
     /// <returns></returns>
     internal string GetFinalRankingTableTypeFileName()
     {
-        switch (this.Settings.RuleProfileMode)
-        {
-            case RuleProfileMode.Standard:
-                return "FinalRankingStandardTableType.json";
-
-            case RuleProfileMode.FinalStage:
-                return "FinalRankingFinalStageTableType.json";
-
-            case RuleProfileMode.TournamentFramework:
-                return "FinalRankingStandardTableType.json";
-
-            default:
-                throw(new InvalidOperationException($"未対応のルールプロファイルモード: {this.Settings.RuleProfileMode}"));
-        }
+        return this.Settings.GetFinalRankingTableTypeFileName();
     }
 
     #endregion
@@ -76,20 +61,7 @@ internal class FinalRankingDataFileWriter
     /// <returns></returns>
     internal string GetSchemaName()
     {
-        switch (this.Settings.RuleProfileMode)
-        {
-            case RuleProfileMode.Standard:
-                return "standardFinalRanking";
-
-            case RuleProfileMode.FinalStage:
-                return "finalStageFinalRanking";
-
-            case RuleProfileMode.TournamentFramework:
-                return "standardFinalRanking";
-
-            default:
-                throw (new InvalidOperationException($"未対応のルールプロファイルモード: {this.Settings.RuleProfileMode}"));
-        }
+        return this.Settings.GetSchemaName();
     }
 
     #endregion
