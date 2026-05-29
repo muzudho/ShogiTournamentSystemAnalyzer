@@ -72,7 +72,7 @@ internal class FinalRankingMarkdownFileWriter
         // TODO: ここの分岐も、将来的には、外部の DSL ファイルに出したいぜ（＾～＾）一般化したいけど、けっこう違うなあ（＾～＾）
         return resultRows switch
         {
-            IReadOnlyList<ResultRow> standardRows => CreateFinalRankingMarkdownReport(
+            IReadOnlyList<StandardResultRow> standardRows => CreateFinalRankingMarkdownReport(
                 outputMarkdownPath: outputMarkdownPath,
                 outputCsvPath: outputCsvPath,
                 mode: mode,
@@ -163,7 +163,7 @@ internal class FinalRankingMarkdownFileWriter
     /// </summary>
     /// <param name="resultRows"></param>
     /// <returns></returns>
-    static IEnumerable<string>[] BuildStandardPrimarySections(IReadOnlyList<ResultRow> resultRows)
+    static IEnumerable<string>[] BuildStandardPrimarySections(IReadOnlyList<StandardResultRow> resultRows)
     {
         var topChampionshipRows = SelectTopRows(resultRows, row => row.ChampionshipProbability, row => row.AveragePlace, takeCount: 8);
         var hasBestChampionshipRow = TrySelectBestRow(resultRows, row => row.ChampionshipProbability, row => row.AveragePlace, out var bestChampionshipRow);
@@ -207,7 +207,7 @@ internal class FinalRankingMarkdownFileWriter
     /// </summary>
     /// <param name="resultRows"></param>
     /// <returns></returns>
-    static IEnumerable<string> BuildStandardPrimaryTableRows(IReadOnlyList<ResultRow> resultRows)
+    static IEnumerable<string> BuildStandardPrimaryTableRows(IReadOnlyList<StandardResultRow> resultRows)
     {
         var topChampionshipRows = SelectTopRows(resultRows, row => row.ChampionshipProbability, row => row.AveragePlace, takeCount: 8);
         return BuildMarkdownTableRows(topChampionshipRows, row =>
@@ -219,7 +219,7 @@ internal class FinalRankingMarkdownFileWriter
     /// </summary>
     /// <param name="resultRows"></param>
     /// <returns></returns>
-    static FinalRankingMarkdownChartSpec[] BuildStandardCharts(IReadOnlyList<ResultRow> resultRows)
+    static FinalRankingMarkdownChartSpec[] BuildStandardCharts(IReadOnlyList<StandardResultRow> resultRows)
     {
         var topChampionshipRows = SelectTopRows(resultRows, row => row.ChampionshipProbability, row => row.AveragePlace, takeCount: 8);
         if (topChampionshipRows.Length == 0) return [];

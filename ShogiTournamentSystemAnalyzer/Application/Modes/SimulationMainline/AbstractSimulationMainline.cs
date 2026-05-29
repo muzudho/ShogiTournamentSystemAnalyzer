@@ -98,7 +98,7 @@ internal abstract class AbstractSimulationMainline
         return StandardCalculationEngine.CalculateBySimulation(context.Players, context.Matches, context.FirstPlayerWinRateRating, simulationCount, context.TournamentRuleSetMode);
     }
 
-    protected static IReadOnlyList<ResultRow> BuildStandardResultRows(AbstractSimulationContext context, CalculationResult result)
+    protected static IReadOnlyList<StandardResultRow> BuildStandardResultRows(AbstractSimulationContext context, CalculationResult result)
     {
         return RankingResultRowBuilder.BuildResultRows(context.Players, context.Matches, result, context.FirstPlayerWinRatePercent);
     }

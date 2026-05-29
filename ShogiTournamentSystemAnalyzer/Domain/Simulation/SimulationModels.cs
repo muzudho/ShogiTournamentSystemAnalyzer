@@ -99,7 +99,7 @@ readonly record struct SimulationResultRowCommonData(
 /// <param name="AveragePlace"></param>
 /// <param name="PlaceProbabilities"></param>
 /// <param name="PlaceCounts"></param>
-readonly record struct ResultRow(
+readonly record struct StandardResultRow(
     SimulationResultRowCommonData CommonData,
     double ChampionshipProbability,     // ［標準版］優勝確率
     double AveragePlace)                // ［標準版］平均順位

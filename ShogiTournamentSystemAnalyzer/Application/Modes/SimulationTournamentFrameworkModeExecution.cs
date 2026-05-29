@@ -174,7 +174,7 @@ internal static partial class SimulationTournamentFrameworkMode
         IReadOnlyList<PlayerEntry> players,
         IReadOnlyList<RepresentativeExecutionRankRow> representativeExecutionRankRows,
         CalculationResult finalRankingCalculation,
-        IReadOnlyList<ResultRow> finalRankingRows)
+        IReadOnlyList<StandardResultRow> finalRankingRows)
     {
         var settings = new FinalRankingDataFileWriterSettings(RuleProfileMode.TournamentFramework);
         FinalRankingMarkdownFileWriter finalRankingDataFileWriter = new(settings);

@@ -61,7 +61,7 @@ internal static class TournamentQualityEvaluationSingleRunExecutor
                 : StandardCalculationEngine.CalculateExactly(input.Players, input.Matches, firstPlayerWinRateRating, ruleDefinition.TournamentRuleSetMode);
     }
 
-    static IReadOnlyList<ResultRow> BuildFinalRankingRows(
+    static IReadOnlyList<StandardResultRow> BuildFinalRankingRows(
         TournamentQualityEvaluationInput input,
         CalculationResult tournamentFinalState,
         double firstPlayerWinRatePercent)

@@ -191,7 +191,7 @@ internal static class ConsoleResultPrinter
             + row.SecondPlayerCount.ToString(CultureInfo.InvariantCulture).PadLeft(8);
     }
 
-    internal static void PrintResult(int playerCount, CalculationResult result, double firstPlayerWinRatePercent, IReadOnlyList<ResultRow> resultRows)
+    internal static void PrintResult(int playerCount, CalculationResult result, double firstPlayerWinRatePercent, IReadOnlyList<StandardResultRow> resultRows)
     {
         PrintSimulationResultSummary(result, firstPlayerWinRatePercent);
 

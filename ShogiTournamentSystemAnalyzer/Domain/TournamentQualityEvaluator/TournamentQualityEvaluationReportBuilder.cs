@@ -9,7 +9,7 @@ using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
 internal static class TournamentQualityEvaluationReportBuilder
 {
     internal static List<TournamentQualityReportPlayerRow> BuildTournamentQualityReportPlayerRows(
-        IReadOnlyList<ResultRow> resultRows,
+        IReadOnlyList<StandardResultRow> resultRows,
         IReadOnlyDictionary<string, FinalStageGroup>? groupMap,
         IReadOnlyList<Player> additionalApexPlayers,
         AdditionalApexPlacementMode placementMode,

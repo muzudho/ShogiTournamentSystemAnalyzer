@@ -29,13 +29,13 @@ internal class StandardSimulationMainline
         var standardContext = (StandardModeSimulationContext)context;
         var tournamentFinalState = ExecuteTournamentFinalState(standardContext);
         var finalRankingRows = BuildStandardResultRows(standardContext, tournamentFinalState);
-        return new SimulationMainlineExecutionResult<ResultRow>(tournamentFinalState, finalRankingRows);
+        return new SimulationMainlineExecutionResult<StandardResultRow>(tournamentFinalState, finalRankingRows);
     }
 
     protected override void PrintSimulationResult(AbstractSimulationContext context, SimulationMainlineExecutionResult executionResult)
     {
         var standardContext = (StandardModeSimulationContext)context;
-        var standardExecutionResult = (SimulationMainlineExecutionResult<ResultRow>)executionResult;
+        var standardExecutionResult = (SimulationMainlineExecutionResult<StandardResultRow>)executionResult;
         ConsoleResultPrinter.PrintResult(
             standardContext.Players.Count,
             standardExecutionResult.Result,
@@ -46,7 +46,7 @@ internal class StandardSimulationMainline
     protected override void WriteSimulationOutputs(AbstractSimulationContext context, SimulationMainlineExecutionResult executionResult)
     {
         var standardContext = (StandardModeSimulationContext)context;
-        var standardExecutionResult = (SimulationMainlineExecutionResult<ResultRow>)executionResult;
+        var standardExecutionResult = (SimulationMainlineExecutionResult<StandardResultRow>)executionResult;
         WriteFinalRankingOutputsForStandardMode(standardContext, standardExecutionResult.Result, standardExecutionResult.ResultRows);
     }
 
@@ -68,7 +68,7 @@ internal class StandardSimulationMainline
         PrintCommonSimulationContext(context, "総対局数");
     }
 
-    static void WriteFinalRankingOutputsForStandardMode(StandardModeSimulationContext context, CalculationResult tournamentFinalState, IReadOnlyList<ResultRow> finalRankingRows)
+    static void WriteFinalRankingOutputsForStandardMode(StandardModeSimulationContext context, CalculationResult tournamentFinalState, IReadOnlyList<StandardResultRow> finalRankingRows)
     {
         var (outputCsvPath, outputMarkdownPath) = ResolveFinalRankingOutputPaths($"standard_final_ranking_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
 

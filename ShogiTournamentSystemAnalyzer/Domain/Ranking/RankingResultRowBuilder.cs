@@ -8,7 +8,7 @@ using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
 
 internal static class RankingResultRowBuilder
 {
-    internal static List<ResultRow> BuildResultRows(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, CalculationResult result, double firstPlayerWinRatePercent)
+    internal static List<StandardResultRow> BuildResultRows(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, CalculationResult result, double firstPlayerWinRatePercent)
     {
         var firstPlayerWinRateRating = SimulationRatingMath.ConvertFirstPlayerWinRatePercentToRating(firstPlayerWinRatePercent);
         var firstPlayerCounts = new int[players.Count];
@@ -33,14 +33,14 @@ internal static class RankingResultRowBuilder
             opponentRatings[match.SecondPlayer].Add(players[match.FirstPlayer].Rating);
         }
 
-        var rows = new List<ResultRow>(players.Count);
+        var rows = new List<StandardResultRow>(players.Count);
         for (var playerIndex = 0; playerIndex < players.Count; playerIndex++)
         {
             var expectedPlace = Enumerable.Range(0, players.Count)
                 .Sum(place => (place + 1) * result.PlaceProbabilities[playerIndex, place]);
             var commonData = CreateCommonData(playerIndex);
 
-            rows.Add(new ResultRow(
+            rows.Add(new StandardResultRow(
                 commonData,
                 result.PlaceProbabilities[playerIndex, 0],
                 expectedPlace));

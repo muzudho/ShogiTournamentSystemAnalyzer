@@ -37,7 +37,7 @@ internal class FinalStageSimulationMainline
     protected override void PrintSimulationResult(AbstractSimulationContext context, SimulationMainlineExecutionResult executionResult)
     {
         var finalStageContext = (FinalStageModeSimulationContext)context;
-        if (executionResult is SimulationMainlineExecutionResult<ResultRow> standardExecutionResult)
+        if (executionResult is SimulationMainlineExecutionResult<StandardResultRow> standardExecutionResult)
         {
             ConsoleResultPrinter.PrintResult(finalStageContext.Players.Count, standardExecutionResult.Result, finalStageContext.FirstPlayerWinRatePercent, standardExecutionResult.ResultRows);
             return;
@@ -52,7 +52,7 @@ internal class FinalStageSimulationMainline
         FinalRankingMarkdownFileWriter finalRankingDataFileWriter = new(new FinalRankingDataFileWriterSettings(RuleProfileMode.FinalStage));
 
         var finalStageContext = (FinalStageModeSimulationContext)context;
-        if (executionResult is SimulationMainlineExecutionResult<ResultRow> standardExecutionResult)
+        if (executionResult is SimulationMainlineExecutionResult<StandardResultRow> standardExecutionResult)
         {
             WriteFinalRankingOutputsForFinalStageMode(finalRankingDataFileWriter, finalStageContext, standardExecutionResult);
             return;
@@ -74,7 +74,7 @@ internal class FinalStageSimulationMainline
         {
             var result = ExecuteStandardMainline();
             var standardResultRows = BuildStandardResultRows(context, result);
-            return new SimulationMainlineExecutionResult<ResultRow>(result, standardResultRows);
+            return new SimulationMainlineExecutionResult<StandardResultRow>(result, standardResultRows);
         }
 
         var finalStageResult = FinalStageSimulationExecutor.Execute(context);
@@ -128,7 +128,7 @@ internal class FinalStageSimulationMainline
     static void WriteFinalRankingOutputsForFinalStageMode(
         FinalRankingMarkdownFileWriter finalRankingDataFileWriter,
         FinalStageModeSimulationContext context,
-        SimulationMainlineExecutionResult<ResultRow> executionResult)
+        SimulationMainlineExecutionResult<StandardResultRow> executionResult)
     {
         var (outputCsvPath, outputMarkdownPath, referenceMatchesCsvPath) = PrepareFinalStageOutputPaths(context);
 
