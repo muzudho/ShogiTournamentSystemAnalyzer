@@ -73,7 +73,7 @@ internal class StandardSimulationMainline
         var (outputCsvPath, outputMarkdownPath) = ResolveFinalRankingOutputPaths($"standard_final_ranking_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
 
         FinalRankingDataFileWriter finalRankingDataFileWriter = new(RuleProfileMode.Standard);
-        WriteStandardFinalRankingOutputs(
+        WriteFinalRankingOutputs(
             finalRankingDataFileWriter,
             outputCsvPath,
             outputMarkdownPath,

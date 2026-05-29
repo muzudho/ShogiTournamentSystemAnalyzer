@@ -92,6 +92,101 @@ internal class FinalRankingDataFileWriter
 
 
     // ========================================
+    // 窓口メソッド
+    // ========================================
+
+
+    /// <summary>
+    /// ［最終順位という境界］のCSV形式データを作成する。
+    /// </summary>
+    /// <typeparam name="TRow"></typeparam>
+    /// <param name="outputCsvPath"></param>
+    /// <param name="mode"></param>
+    /// <param name="firstPlayerWinRatePercent"></param>
+    /// <param name="resultRows"></param>
+    /// <param name="overviewNote"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+
+    internal IEnumerable<string> CreateResultCsvCore<TRow>(
+        string outputCsvPath,
+        string mode,
+        double firstPlayerWinRatePercent,
+        IReadOnlyList<TRow> resultRows,
+        string? overviewNote = null)
+        where TRow : ISimulationResultRow
+    {
+        return resultRows switch
+        {
+            IReadOnlyList<ResultRow> standardRows => CreateStandardResultCsvCore(
+                this,
+                outputCsvPath,
+                mode,
+                firstPlayerWinRatePercent,
+                standardRows,
+                overviewNote),
+            IReadOnlyList<FinalStageResultRow> finalStageRows => CreateFinalStageResultCsvCore(
+                this,
+                outputCsvPath,
+                mode,
+                firstPlayerWinRatePercent,
+                finalStageRows,
+                overviewNote),
+            _ => throw new InvalidOperationException($"未対応の結果行型: {typeof(TRow).FullName}")
+        };
+    }
+
+    /// <summary>
+    /// ［最終順位という境界］のMarkdown形式データを作成する。
+    /// </summary>
+    /// <typeparam name="TRow"></typeparam>
+    /// <param name="outputMarkdownPath"></param>
+    /// <param name="outputCsvPath"></param>
+    /// <param name="mode"></param>
+    /// <param name="firstPlayerWinRatePercent"></param>
+    /// <param name="resultRows"></param>
+    /// <param name="overviewNote"></param>
+    /// <param name="representativeRankingMarkdownPath"></param>
+    /// <param name="referenceMatchesCsvPath"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    internal IEnumerable<string> CreateResultMarkdownCore<TRow>(
+        string outputMarkdownPath,
+        string outputCsvPath,
+        string mode,
+        double firstPlayerWinRatePercent,
+        IReadOnlyList<TRow> resultRows,
+        string? overviewNote = null,
+        string? representativeRankingMarkdownPath = null,
+        string? referenceMatchesCsvPath = null)
+        where TRow : ISimulationResultRow
+    {
+        return resultRows switch
+        {
+            IReadOnlyList<ResultRow> standardRows => CreateStandardResultMarkdownCore(
+                outputMarkdownPath,
+                outputCsvPath,
+                mode,
+                firstPlayerWinRatePercent,
+                standardRows,
+                overviewNote,
+                representativeRankingMarkdownPath,
+                referenceMatchesCsvPath),
+            IReadOnlyList<FinalStageResultRow> finalStageRows => CreateFinalStageResultMarkdownCore(
+                outputMarkdownPath,
+                outputCsvPath,
+                mode,
+                firstPlayerWinRatePercent,
+                finalStageRows,
+                overviewNote,
+                representativeRankingMarkdownPath,
+                referenceMatchesCsvPath),
+            _ => throw new InvalidOperationException($"未対応の結果行型: {typeof(TRow).FullName}")
+        };
+    }
+
+
+    // ========================================
     // その他
     // ========================================
 

@@ -13,8 +13,15 @@ using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.FinalRanking;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.Shared;
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 
+/// <summary>
+/// ［シミュレーション域］の主線
+/// </summary>
 internal abstract class AbstractSimulationMainline
 {
+    /// <summary>
+    /// 実行
+    /// </summary>
+    /// <param name="context"></param>
     public void Run(AbstractSimulationContext context)
     {
         Console.WriteLine($"順位ルール: {TournamentRuleSetRule.GetLabel(context.TournamentRuleSetMode)}\n");
@@ -143,21 +150,15 @@ internal abstract class AbstractSimulationMainline
             createMarkdownLines: () => createMarkdownLines(outputMarkdownPath, outputCsvPath, result.Mode, firstPlayerWinRatePercent, resultRows));
     }
 
-    /// <summary>
-    /// TODO: `WriteFinalStageFinalRankingOutputs()` と統合できないか（＾～＾）？
-    /// </summary>
-    /// <param name="outputCsvPath"></param>
-    /// <param name="outputMarkdownPath"></param>
-    /// <param name="result"></param>
-    /// <param name="firstPlayerWinRatePercent"></param>
-    /// <param name="resultRows"></param>
-    protected static void WriteStandardFinalRankingOutputs(
+    protected static void WriteFinalRankingOutputs<TRow>(
         FinalRankingDataFileWriter finalRankingDataFileWriter,
         string outputCsvPath,
         string outputMarkdownPath,
         CalculationResult result,
         double firstPlayerWinRatePercent,
-        IReadOnlyList<ResultRow> resultRows)
+        IReadOnlyList<TRow> resultRows,
+        string? referenceMatchesCsvPath = null)
+        where TRow : ISimulationResultRow
     {
         WriteFinalRankingOutputs(
             outputCsvPath,
@@ -165,52 +166,12 @@ internal abstract class AbstractSimulationMainline
             result,
             firstPlayerWinRatePercent,
             resultRows,
-            createCsvLines: (outputCsvPath, mode, firstPlayerWinRatePercent, resultRows) => finalRankingDataFileWriter.CreateStandardResultCsvCore(
-                finalRankingDataFileWriter,
+            createCsvLines: (outputCsvPath, mode, firstPlayerWinRatePercent, resultRows) => finalRankingDataFileWriter.CreateResultCsvCore(
                 outputCsvPath,
                 mode,
                 firstPlayerWinRatePercent,
                 resultRows),
-            createMarkdownLines: (outputMarkdownPath, outputCsvPath, mode, firstPlayerWinRatePercent, resultRows) => finalRankingDataFileWriter.CreateStandardResultMarkdownCore(
-                outputMarkdownPath,
-                outputCsvPath,
-                mode,
-                firstPlayerWinRatePercent,
-                resultRows));
-    }
-
-    /// <summary>
-    /// TODO: `WriteStandardFinalRankingOutputs()` と統合できないか（＾～＾）？
-    /// </summary>
-    /// <param name="outputCsvPath"></param>
-    /// <param name="outputMarkdownPath"></param>
-    /// <param name="result"></param>
-    /// <param name="firstPlayerWinRatePercent"></param>
-    /// <param name="resultRows"></param>
-    /// <param name="referenceMatchesCsvPath"></param>
-    protected static void WriteFinalStageFinalRankingOutputs(
-        FinalRankingDataFileWriter finalRankingDataFileWriter,
-        string outputCsvPath,
-        string outputMarkdownPath,
-        CalculationResult result,
-        double firstPlayerWinRatePercent,
-        IReadOnlyList<FinalStageResultRow> resultRows,
-        string? referenceMatchesCsvPath // これが違いかあ（＾～＾）
-        )
-    {
-        WriteFinalRankingOutputs(
-            outputCsvPath,
-            outputMarkdownPath,
-            result,
-            firstPlayerWinRatePercent,
-            resultRows,
-            createCsvLines: (outputCsvPath, mode, firstPlayerWinRatePercent, resultRows) => finalRankingDataFileWriter.CreateFinalStageResultCsvCore(
-                finalRankingDataFileWriter,
-                outputCsvPath,
-                mode,
-                firstPlayerWinRatePercent,
-                resultRows),
-            createMarkdownLines: (outputMarkdownPath, outputCsvPath, mode, firstPlayerWinRatePercent, resultRows) => finalRankingDataFileWriter.CreateFinalStageResultMarkdownCore(
+            createMarkdownLines: (outputMarkdownPath, outputCsvPath, mode, firstPlayerWinRatePercent, resultRows) => finalRankingDataFileWriter.CreateResultMarkdownCore(
                 outputMarkdownPath,
                 outputCsvPath,
                 mode,
