@@ -31,7 +31,11 @@ enum AnalysisFlowMode
 }
 
 /// <summary>
+///     <pre>
 /// ［大会ルール］の種類
+/// 
+///     - TODO: 最終的には、DSL / ルール設定ファイルへ外出ししたい（＾～＾）
+///     </pre>
 /// </summary>
 enum RuleProfileMode
 {
