@@ -69,7 +69,7 @@ internal class FinalRankingMarkdownFileWriter
         string? referenceMatchesCsvPath = null)
         where TRow : ISimulationResultRow
     {
-        // TODO: ここの分岐も、将来的には、外部の DSL ファイルに出したいぜ（＾～＾）
+        // TODO: ここの分岐も、将来的には、外部の DSL ファイルに出したいぜ（＾～＾）一般化したいけど、けっこう違うなあ（＾～＾）
         return resultRows switch
         {
             IReadOnlyList<ResultRow> standardRows => CreateFinalRankingMarkdownReport(
@@ -78,11 +78,11 @@ internal class FinalRankingMarkdownFileWriter
                 mode: mode,
                 firstPlayerWinRatePercent: firstPlayerWinRatePercent,
                 playerCount: standardRows.Count,
-                editionLabel: "標準版",
-                primarySections: BuildStandardPrimarySections(standardRows),
-                primaryTableRows: BuildStandardPrimaryTableRows(standardRows),
-                trailingSections: [],
-                charts: BuildStandardCharts(standardRows),
+                editionLabel: "標準版",                                            // ◆ ここ（＾～＾）
+                primarySections: BuildStandardPrimarySections(standardRows),        // ◆ ここ（＾～＾）
+                primaryTableRows: BuildStandardPrimaryTableRows(standardRows),      // ◆ ここ（＾～＾）
+                trailingSections: [],                                               // ◆ ここ（＾～＾）
+                charts: BuildStandardCharts(standardRows),                          // ◆ ここ（＾～＾）
                 overviewNote: overviewNote,
                 representativeRankingMarkdownPath: representativeRankingMarkdownPath,
                 referenceMatchesCsvPath: referenceMatchesCsvPath),
@@ -92,11 +92,11 @@ internal class FinalRankingMarkdownFileWriter
                 mode: mode,
                 firstPlayerWinRatePercent: firstPlayerWinRatePercent,
                 playerCount: finalStageRows.Count,
-                editionLabel: "本戦版",
-                primarySections: BuildFinalStagePrimarySections(finalStageRows),
-                primaryTableRows: BuildFinalStagePrimaryTableRows(finalStageRows),
-                trailingSections: BuildFinalStageTrailingSections(finalStageRows),
-                charts: BuildFinalStageCharts(finalStageRows),
+                editionLabel: "本戦版",                                            // ◆ ここ（＾～＾）
+                primarySections: BuildFinalStagePrimarySections(finalStageRows),    // ◆ ここ（＾～＾）
+                primaryTableRows: BuildFinalStagePrimaryTableRows(finalStageRows),  // ◆ ここ（＾～＾）
+                trailingSections: BuildFinalStageTrailingSections(finalStageRows),  // ◆ ここ（＾～＾）
+                charts: BuildFinalStageCharts(finalStageRows),                      // ◆ ここ（＾～＾）
                 overviewNote: overviewNote,
                 representativeRankingMarkdownPath: representativeRankingMarkdownPath,
                 referenceMatchesCsvPath: referenceMatchesCsvPath),
@@ -158,6 +158,11 @@ internal class FinalRankingMarkdownFileWriter
         return rows.Select(formatter);
     }
 
+    /// <summary>
+    /// TODO: ［標準ルール］用なんで、切り出したいぜ（＾～＾）
+    /// </summary>
+    /// <param name="resultRows"></param>
+    /// <returns></returns>
     static IEnumerable<string>[] BuildStandardPrimarySections(IReadOnlyList<ResultRow> resultRows)
     {
         var topChampionshipRows = SelectTopRows(resultRows, row => row.ChampionshipProbability, row => row.AveragePlace, takeCount: 8);
@@ -197,6 +202,11 @@ internal class FinalRankingMarkdownFileWriter
         ];
     }
 
+    /// <summary>
+    /// TODO: ［標準ルール］用なんで、切り出したいぜ（＾～＾）
+    /// </summary>
+    /// <param name="resultRows"></param>
+    /// <returns></returns>
     static IEnumerable<string> BuildStandardPrimaryTableRows(IReadOnlyList<ResultRow> resultRows)
     {
         var topChampionshipRows = SelectTopRows(resultRows, row => row.ChampionshipProbability, row => row.AveragePlace, takeCount: 8);
@@ -204,6 +214,11 @@ internal class FinalRankingMarkdownFileWriter
             $"| {row.Name} | {SimulationRatingMath.FormatRating(row.OriginalRating)} | {SimulationRatingMath.FormatRating(row.EffectiveRating)} | {SimulationRatingMath.FormatSignedRating(row.RatingDelta)} | {(row.ChampionshipProbability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {row.AveragePlace.ToString("F3", CultureInfo.InvariantCulture)} |");
     }
 
+    /// <summary>
+    /// TODO: ［標準ルール］用なんで、切り出したいぜ（＾～＾）
+    /// </summary>
+    /// <param name="resultRows"></param>
+    /// <returns></returns>
     static FinalRankingMarkdownChartSpec[] BuildStandardCharts(IReadOnlyList<ResultRow> resultRows)
     {
         var topChampionshipRows = SelectTopRows(resultRows, row => row.ChampionshipProbability, row => row.AveragePlace, takeCount: 8);
@@ -226,6 +241,11 @@ internal class FinalRankingMarkdownFileWriter
         ];
     }
 
+    /// <summary>
+    /// TODO: ［本戦ルール］用なんで、切り出したいぜ（＾～＾）
+    /// </summary>
+    /// <param name="resultRows"></param>
+    /// <returns></returns>
     static IEnumerable<string>[] BuildFinalStagePrimarySections(IReadOnlyList<FinalStageResultRow> resultRows)
     {
         var apexRows = SelectTopRowsByGroup(resultRows, row => string.Equals(row.Group, "Apex", StringComparison.OrdinalIgnoreCase), row => row.GroupPlace1Probability, row => row.GroupPlaceAverage, takeCount: 4);
@@ -265,6 +285,11 @@ internal class FinalRankingMarkdownFileWriter
         ];
     }
 
+    /// <summary>
+    /// TODO: ［本戦ルール］用なんで、切り出したいぜ（＾～＾）
+    /// </summary>
+    /// <param name="resultRows"></param>
+    /// <returns></returns>
     static IEnumerable<string> BuildFinalStagePrimaryTableRows(IReadOnlyList<FinalStageResultRow> resultRows)
     {
         var topRows = SelectTopRows(resultRows, row => row.OverallPlace1Probability, row => row.OverallPlaceAverage, takeCount: 8);
@@ -272,6 +297,11 @@ internal class FinalRankingMarkdownFileWriter
             $"| {row.Name} | {row.Group} | {SimulationRatingMath.FormatRating(row.OriginalRating)} | {SimulationRatingMath.FormatRating(row.EffectiveRating)} | {SimulationRatingMath.FormatSignedRating(row.RatingDelta)} | {(row.GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {(row.OverallPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {row.OverallPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} |");
     }
 
+    /// <summary>
+    /// TODO: ［本戦ルール］用なんで、切り出したいぜ（＾～＾）
+    /// </summary>
+    /// <param name="resultRows"></param>
+    /// <returns></returns>
     static IEnumerable<string>[] BuildFinalStageTrailingSections(IReadOnlyList<FinalStageResultRow> resultRows)
     {
         var sections = new List<IEnumerable<string>>();
@@ -305,6 +335,11 @@ internal class FinalRankingMarkdownFileWriter
         return sections.ToArray();
     }
 
+    /// <summary>
+    /// TODO: ［本戦ルール］用なんで、切り出したいぜ（＾～＾）
+    /// </summary>
+    /// <param name="resultRows"></param>
+    /// <returns></returns>
     static FinalRankingMarkdownChartSpec[] BuildFinalStageCharts(IReadOnlyList<FinalStageResultRow> resultRows)
     {
         var topRows = SelectTopRows(resultRows, row => row.OverallPlace1Probability, row => row.OverallPlaceAverage, takeCount: 8);
