@@ -176,7 +176,8 @@ internal static partial class SimulationTournamentFrameworkMode
         CalculationResult finalRankingCalculation,
         IReadOnlyList<ResultRow> finalRankingRows)
     {
-        FinalRankingDataFileWriter finalRankingDataFileWriter = new(new FinalRankingDataFileWriterSettings(RuleProfileMode.TournamentFramework));
+        var settings = new FinalRankingDataFileWriterSettings(RuleProfileMode.TournamentFramework);
+        FinalRankingDataFileWriter finalRankingDataFileWriter = new(settings);
 
         var defaultOutputCsvPath = ReportOutputPathBuilder.BuildFinalRankingDefaultOutputPath($"tournament_framework_aggregate_final_ranking_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
         var requestedOutputPath = string.IsNullOrWhiteSpace(context.OutputPath)
@@ -185,7 +186,7 @@ internal static partial class SimulationTournamentFrameworkMode
         var outputCsvPath = CsvOutputHelpers.ResolveOutputCsvPath(requestedOutputPath);
         WriterHelper.WriteText(
             outputPath: outputCsvPath,
-            getLines: () => finalRankingDataFileWriter.CreateResultCsvLines(
+            getLines: () => new FinalRankingCsvFileWriter(settings).CreateResultCsvLines(
                 mode: finalRankingCalculation.Mode,
                 firstPlayerWinRatePercent: tournamentRuleData.FirstPlayerWinRatePercent ?? context.FirstPlayerWinRatePercent,
                 resultRows: finalRankingRows,
