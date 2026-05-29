@@ -185,11 +185,11 @@ internal static partial class SimulationTournamentFrameworkMode
         var outputCsvPath = CsvOutputHelpers.ResolveOutputCsvPath(requestedOutputPath);
         WriterHelper.WriteText(
             outputPath: outputCsvPath,
-            getLines: () => finalRankingDataFileWriter.CreateStandardResultCsvCore(
-                outputCsvPath,
-                finalRankingCalculation.Mode,
-                tournamentRuleData.FirstPlayerWinRatePercent ?? context.FirstPlayerWinRatePercent,
-                finalRankingRows,
+            getLines: () => finalRankingDataFileWriter.CreateResultCsvCore(
+                outputCsvPath: outputCsvPath,
+                mode: finalRankingCalculation.Mode,
+                firstPlayerWinRatePercent: tournamentRuleData.FirstPlayerWinRatePercent ?? context.FirstPlayerWinRatePercent,
+                resultRows: finalRankingRows,
                 overviewNote: "この順位表は複数回試行の aggregate 結果です。大会最終状態CSVとは 1 対 1 には対応しません。"));
 
         var outputMarkdownPath = CsvOutputHelpers.ChangeOutputExtension(outputCsvPath, ".md");
@@ -200,7 +200,7 @@ internal static partial class SimulationTournamentFrameworkMode
 
         WriterHelper.WriteText(
             outputPath: outputMarkdownPath,
-            getLines: () => finalRankingDataFileWriter.CreateStandardResultMarkdownCore(
+            getLines: () => finalRankingDataFileWriter.CreateResultMarkdownCore(
                 outputMarkdownPath: outputMarkdownPath,
                 outputCsvPath: outputCsvPath,
                 mode: finalRankingCalculation.Mode,

@@ -51,6 +51,9 @@ internal class FinalRankingDataFileWriter
             case RuleProfileMode.FinalStage:
                 return "FinalRankingFinalStageTableType.json";
 
+            case RuleProfileMode.TournamentFramework:
+                return "FinalRankingStandardTableType.json";
+
             default:
                 throw(new InvalidOperationException($"未対応のルールプロファイルモード: {this.RuleProfileMode}"));
         }
@@ -73,6 +76,9 @@ internal class FinalRankingDataFileWriter
 
             case RuleProfileMode.FinalStage:
                 return "finalStageFinalRanking";
+
+            case RuleProfileMode.TournamentFramework:
+                return "standardFinalRanking";
 
             //case RuleProfileMode.TournamentFramework:
             //    return "";
