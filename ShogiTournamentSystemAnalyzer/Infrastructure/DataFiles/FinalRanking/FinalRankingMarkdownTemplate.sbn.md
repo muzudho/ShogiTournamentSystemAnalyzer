@@ -16,6 +16,13 @@
 - 注記: {{ overview_note }}
 {{~ end ~}}
 
+## 上位候補一覧
+{{ primary_table_header }}
+{{ primary_table_header_separator }}
+{{~ for row in primary_table_rows ~}}
+{{ row }}
+{{~ end ~}}
+
 ## 注目ポイント
 {{~ for line in attention_points ~}}
 - {{ line }}
@@ -24,13 +31,6 @@
 ## 自動コメント
 {{~ for line in auto_comments ~}}
 - {{ line }}
-{{~ end ~}}
-
-## 上位候補一覧
-{{ primary_table_header }}
-{{ primary_table_header_separator }}
-{{~ for row in primary_table_rows ~}}
-{{ row }}
 {{~ end ~}}
 
 {{~ for section in trailing_sections ~}}
@@ -51,10 +51,10 @@
 {{~ end ~}}
 ```mermaid
 xychart-beta
-	title "{{ chart.title }}"
-	x-axis [{{~ for category in chart.categories ~}}{{~ if !for.first ~}}, {{ end ~}}{{ category }}{{~ end ~}}]
-	y-axis "{{ chart.y_axis_label }}" {{ chart.y_axis_range }}
-	bar [{{~ for value in chart.values ~}}{{~ if !for.first ~}}, {{ end ~}}{{ value }}{{~ end ~}}]
+    title "{{ chart.title }}"
+    x-axis [{{~ for category in chart.categories ~}}{{~ if !for.first ~}}, {{ end ~}}{{ category }}{{~ end ~}}]
+    y-axis "{{ chart.y_axis_label }}" {{ chart.y_axis_range }}
+    bar [{{~ for value in chart.values ~}}{{~ if !for.first ~}}, {{ end ~}}{{ value }}{{~ end ~}}]
 ```
 {{~ end ~}}
 {{~ end ~}}
