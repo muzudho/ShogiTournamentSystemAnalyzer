@@ -61,7 +61,7 @@ internal class FinalRankingDataFileWriter
     /// ［最終順位という境界］のCSV形式データを作成する。
     /// </summary>
     /// <typeparam name="TRow"></typeparam>
-    /// <param name="outputCsvPath">TODO: この引数、使ってるのかだぜ（＾～＾）？</param>
+    /// <param name="outputCsvPath">インターフェースを合わせるためのダミー</param>
     /// <param name="mode"></param>
     /// <param name="firstPlayerWinRatePercent"></param>
     /// <param name="resultRows"></param>
@@ -78,6 +78,34 @@ internal class FinalRankingDataFileWriter
     {
         _ = outputCsvPath;
         return BuildFinalRankingResultCsv(mode, firstPlayerWinRatePercent, resultRows, overviewNote);
+    }
+
+    IEnumerable<string> BuildFinalRankingResultCsv<TRow>(
+        string mode,
+        double firstPlayerWinRatePercent,
+        IReadOnlyList<TRow> resultRows,
+        string? overviewNote = null)
+        where TRow : ISimulationResultRow
+    {
+        var specificHeaderColumns = BuildFinalRankingSpecificHeaderColumns(GetFinalRankingFixedColumns(), resultRows, overviewNote);
+        var lines = new List<string>
+        {
+            string.Join(",", CsvSchemaCommonColumns.BuildHeaderColumns(specificHeaderColumns).Select(CsvOutputHelpers.EscapeCsv))
+        };
+
+        foreach (var row in resultRows)
+        {
+            var specificColumns = BuildFinalRankingSpecificColumns(mode, firstPlayerWinRatePercent, row, overviewNote);
+            var columns = CsvSchemaCommonColumns.BuildRowColumns(
+                boundaryName: "FinalRanking",
+                schemaName: this.Settings.GetSchemaName(),
+                rowType: "data",
+                specificColumns.ToArray());
+
+            lines.Add(string.Join(",", columns.Select(CsvOutputHelpers.EscapeCsv)));
+        }
+
+        return lines;
     }
 
     /// <summary>
@@ -158,34 +186,6 @@ internal class FinalRankingDataFileWriter
                 specificColumns.Add(row.PlaceCounts[place].ToString("F3", CultureInfo.InvariantCulture));
             }
         }
-    }
-
-    IEnumerable<string> BuildFinalRankingResultCsv<TRow>(
-        string mode,
-        double firstPlayerWinRatePercent,
-        IReadOnlyList<TRow> resultRows,
-        string? overviewNote = null)
-        where TRow : ISimulationResultRow
-    {
-        var specificHeaderColumns = BuildFinalRankingSpecificHeaderColumns(GetFinalRankingFixedColumns(), resultRows, overviewNote);
-        var lines = new List<string>
-        {
-            string.Join(",", CsvSchemaCommonColumns.BuildHeaderColumns(specificHeaderColumns).Select(CsvOutputHelpers.EscapeCsv))
-        };
-
-        foreach (var row in resultRows)
-        {
-            var specificColumns = BuildFinalRankingSpecificColumns(mode, firstPlayerWinRatePercent, row, overviewNote);
-            var columns = CsvSchemaCommonColumns.BuildRowColumns(
-                boundaryName: "FinalRanking",
-                schemaName: this.Settings.GetSchemaName(),
-                rowType: "data",
-                specificColumns.ToArray());
-
-            lines.Add(string.Join(",", columns.Select(CsvOutputHelpers.EscapeCsv)));
-        }
-
-        return lines;
     }
 
     #endregion
