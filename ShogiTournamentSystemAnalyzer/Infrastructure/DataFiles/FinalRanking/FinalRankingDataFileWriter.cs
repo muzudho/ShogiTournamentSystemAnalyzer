@@ -69,15 +69,12 @@ internal class FinalRankingDataFileWriter
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
     internal IEnumerable<string> CreateResultCsvLines<TRow>(
-        string outputCsvPath,
         string mode,
         double firstPlayerWinRatePercent,
         IReadOnlyList<TRow> resultRows,
         string? overviewNote = null)
         where TRow : ISimulationResultRow
     {
-        _ = outputCsvPath;
-
         var specificHeaderColumns = BuildFinalRankingSpecificHeaderColumns(GetFinalRankingFixedColumns(), resultRows, overviewNote);
         var lines = new List<string>
         {
