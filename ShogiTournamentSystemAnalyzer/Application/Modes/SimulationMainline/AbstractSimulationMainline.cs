@@ -166,7 +166,7 @@ internal abstract class AbstractSimulationMainline
             result,
             firstPlayerWinRatePercent,
             resultRows,
-            createCsvLines: (outputCsvPath, mode, firstPlayerWinRatePercent, resultRows) => finalRankingDataFileWriter.CreateResultCsvCore(
+            createCsvLines: (outputCsvPath, mode, firstPlayerWinRatePercent, resultRows) => finalRankingDataFileWriter.CreateResultCsvLines(
                 outputCsvPath,
                 mode,
                 firstPlayerWinRatePercent,

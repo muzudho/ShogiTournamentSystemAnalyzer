@@ -68,7 +68,7 @@ internal class FinalRankingDataFileWriter
     /// <param name="overviewNote"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    internal IEnumerable<string> CreateResultCsvCore<TRow>(
+    internal IEnumerable<string> CreateResultCsvLines<TRow>(
         string outputCsvPath,
         string mode,
         double firstPlayerWinRatePercent,
