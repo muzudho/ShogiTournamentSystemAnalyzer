@@ -6,58 +6,55 @@
 - 計算モード: {{ mode }}
 - 同Elo対局時の先手勝率: {{ first_player_win_rate_percent }}%
 - 対象選手数: {{ player_count }}
-{{ if representative_ranking_markdown_link != null }}
+{{~ if representative_ranking_markdown_link != null ~}}
 - representative順位表: {{ representative_ranking_markdown_link }}
-{{ end }}
-{{ if reference_matches_csv_link != null }}
+{{~ end ~}}
+{{~ if reference_matches_csv_link != null ~}}
 - 参考対局CSV: {{ reference_matches_csv_link }}
-{{ end }}
-{{ if overview_note != null }}
+{{~ end ~}}
+{{~ if overview_note != null ~}}
 - 注記: {{ overview_note }}
-{{ end }}
+{{~ end ~}}
 
-{{ if primary_sections_text != null }}
-{{ for line in attention_points }}
+## 注目ポイント
+{{~ for line in attention_points ~}}
 - {{ line }}
-{{ end }}
+{{~ end ~}}
 
 ## 自動コメント
-{{ for line in auto_comments }}
+{{~ for line in auto_comments ~}}
 - {{ line }}
-{{ end }}
+{{~ end ~}}
 
 ## 上位候補一覧
 {{ primary_table_header }}
 {{ primary_table_header_separator }}
-{{ for row in primary_table_rows }}
+{{~ for row in primary_table_rows ~}}
 {{ row }}
-{{ end }}
-{{ end }}
+{{~ end ~}}
 
-{{ if trailing_sections != null }}
-{{ for section in trailing_sections }}
+{{~ for section in trailing_sections ~}}
 
 {{ section.title }}
 {{ section.table_header }}
-{{ for row in section.rows }}
+{{~ for row in section.rows ~}}
 {{ row }}
-{{ end }}
-{{ end }}
-{{ end }}
+{{~ end ~}}
+{{~ end ~}}
 
-{{ if charts != null and charts.size > 0 }}
+{{~ if charts.size > 0 ~}}
 
 ## Mermaid 図
-{{ for chart in charts }}
-{{ if !for.first }}
+{{~ for chart in charts ~}}
+{{~ if !for.first ~}}
 
-{{ end }}
+{{~ end ~}}
 ```mermaid
 xychart-beta
 	title "{{ chart.title }}"
-	x-axis [{{ chart.categories }}]
+	x-axis [{{~ for category in chart.categories ~}}{{~ if !for.first ~}}, {{ end ~}}{{ category }}{{~ end ~}}]
 	y-axis "{{ chart.y_axis_label }}" {{ chart.y_axis_range }}
-	bar [{{ chart.values }}]
+	bar [{{~ for value in chart.values ~}}{{~ if !for.first ~}}, {{ end ~}}{{ value }}{{~ end ~}}]
 ```
-{{ end }}
-{{ end }}
+{{~ end ~}}
+{{~ end ~}}
