@@ -14,4 +14,12 @@
     <Folder Include="Domain\Shared\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Scriban" Version="7.2.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Infrastructure\DataFiles\FinalRanking\FinalRankingMarkdownTemplate.sbn.md" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>

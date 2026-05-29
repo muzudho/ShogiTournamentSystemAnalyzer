@@ -8,6 +8,8 @@ using ShogiTournamentSystemAnalyzer.Domain.FinalRanking;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.Shared;
+using Scriban;
+using Scriban.Runtime;
 using System.Globalization;
 
 /// <summary>
@@ -69,39 +71,155 @@ internal class FinalRankingMarkdownFileWriter
         string? referenceMatchesCsvPath = null)
         where TRow : ISimulationResultRow
     {
-        // TODO: ここの分岐も、将来的には、外部の DSL ファイルに出したいぜ（＾～＾）一般化したいけど、けっこう違うなあ（＾～＾）
         return resultRows switch
         {
-            IReadOnlyList<StandardResultRow> standardRows => CreateFinalRankingMarkdownReport(
+            IReadOnlyList<StandardResultRow> standardRows => SplitMarkdownLines(RenderMarkdownTemplate(BuildMarkdownTemplateModel(
                 outputMarkdownPath: outputMarkdownPath,
                 outputCsvPath: outputCsvPath,
                 mode: mode,
                 firstPlayerWinRatePercent: firstPlayerWinRatePercent,
                 playerCount: standardRows.Count,
-                editionLabel: "標準版",                                            // ◆ ここ（＾～＾）
-                primarySections: BuildStandardPrimarySections(standardRows),        // ◆ ここ（＾～＾）
-                primaryTableRows: BuildStandardPrimaryTableRows(standardRows),      // ◆ ここ（＾～＾）
-                trailingSections: [],                                               // ◆ ここ（＾～＾）
-                charts: BuildStandardCharts(standardRows),                          // ◆ ここ（＾～＾）
+                editionLabel: "標準版",
+                primarySectionsText: BuildMarkdownSectionsText(BuildStandardPrimarySections(standardRows)),
+                primaryTableRowsText: BuildMarkdownLinesText(BuildStandardPrimaryTableRows(standardRows)),
+                trailingSectionsText: string.Empty,
+                chartsText: BuildMarkdownChartsText(BuildStandardCharts(standardRows)),
                 overviewNote: overviewNote,
                 representativeRankingMarkdownPath: representativeRankingMarkdownPath,
-                referenceMatchesCsvPath: referenceMatchesCsvPath),
-            IReadOnlyList<FinalStageResultRow> finalStageRows => CreateFinalRankingMarkdownReport(
+                referenceMatchesCsvPath: referenceMatchesCsvPath))),
+            IReadOnlyList<FinalStageResultRow> finalStageRows => SplitMarkdownLines(RenderMarkdownTemplate(BuildMarkdownTemplateModel(
                 outputMarkdownPath: outputMarkdownPath,
                 outputCsvPath: outputCsvPath,
                 mode: mode,
                 firstPlayerWinRatePercent: firstPlayerWinRatePercent,
                 playerCount: finalStageRows.Count,
-                editionLabel: "本戦版",                                            // ◆ ここ（＾～＾）
-                primarySections: BuildFinalStagePrimarySections(finalStageRows),    // ◆ ここ（＾～＾）
-                primaryTableRows: BuildFinalStagePrimaryTableRows(finalStageRows),  // ◆ ここ（＾～＾）
-                trailingSections: BuildFinalStageTrailingSections(finalStageRows),  // ◆ ここ（＾～＾）
-                charts: BuildFinalStageCharts(finalStageRows),                      // ◆ ここ（＾～＾）
+                editionLabel: "本戦版",
+                primarySectionsText: BuildMarkdownSectionsText(BuildFinalStagePrimarySections(finalStageRows)),
+                primaryTableRowsText: BuildMarkdownLinesText(BuildFinalStagePrimaryTableRows(finalStageRows)),
+                trailingSectionsText: BuildMarkdownSectionsText(BuildFinalStageTrailingSections(finalStageRows)),
+                chartsText: BuildMarkdownChartsText(BuildFinalStageCharts(finalStageRows)),
                 overviewNote: overviewNote,
                 representativeRankingMarkdownPath: representativeRankingMarkdownPath,
-                referenceMatchesCsvPath: referenceMatchesCsvPath),
+                referenceMatchesCsvPath: referenceMatchesCsvPath))),
             _ => throw new InvalidOperationException($"未対応の結果行型: {typeof(TRow).FullName}")
         };
+    }
+
+    static ScriptObject BuildMarkdownTemplateModel(
+        string outputMarkdownPath,
+        string outputCsvPath,
+        string mode,
+        double firstPlayerWinRatePercent,
+        int playerCount,
+        string editionLabel,
+        string primarySectionsText,
+        string primaryTableRowsText,
+        string trailingSectionsText,
+        string chartsText,
+        string? overviewNote,
+        string? representativeRankingMarkdownPath,
+        string? referenceMatchesCsvPath)
+    {
+        var model = new ScriptObject
+        {
+            ["output_csv_link"] = MarkdownOutputHelpers.BuildMarkdownFileLink(outputMarkdownPath, outputCsvPath),
+            ["edition_label"] = editionLabel,
+            ["mode"] = mode,
+            ["first_player_win_rate_percent"] = firstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture),
+            ["player_count"] = playerCount,
+            ["overview_note"] = overviewNote,
+            ["representative_ranking_markdown_link"] = string.IsNullOrWhiteSpace(representativeRankingMarkdownPath)
+                ? null
+                : MarkdownOutputHelpers.BuildMarkdownFileLink(outputMarkdownPath, representativeRankingMarkdownPath),
+            ["reference_matches_csv_link"] = string.IsNullOrWhiteSpace(referenceMatchesCsvPath)
+                ? null
+                : MarkdownOutputHelpers.BuildMarkdownFileLink(outputMarkdownPath, referenceMatchesCsvPath),
+            ["primary_sections_text"] = primarySectionsText,
+            ["primary_table_rows_text"] = primaryTableRowsText,
+            ["trailing_sections_text"] = trailingSectionsText,
+            ["charts_text"] = chartsText,
+        };
+
+        return model;
+    }
+
+    static string RenderMarkdownTemplate(ScriptObject model)
+    {
+        var templatePath = Path.Combine(AppContext.BaseDirectory, "Infrastructure", "DataFiles", "FinalRanking", "FinalRankingMarkdownTemplate.sbn.md");
+        var templateText = File.ReadAllText(templatePath);
+        var template = Template.Parse(templateText);
+        if (template.HasErrors)
+        {
+            throw new InvalidOperationException(string.Join(Environment.NewLine, template.Messages));
+        }
+
+        var context = new TemplateContext();
+        context.PushGlobal(model);
+        return template.Render(context);
+    }
+
+    static IEnumerable<string> SplitMarkdownLines(string markdownText)
+    {
+        using var reader = new StringReader(markdownText);
+        var lines = new List<string>();
+        while (reader.ReadLine() is { } line)
+        {
+            lines.Add(line);
+        }
+
+        return lines;
+    }
+
+    static string BuildMarkdownLinesText(IEnumerable<string> lines)
+    {
+        return string.Join(Environment.NewLine, lines);
+    }
+
+    static string BuildMarkdownSectionsText(IEnumerable<string>[] sections)
+    {
+        var lines = new List<string>();
+        foreach (var section in sections)
+        {
+            if (lines.Count > 0)
+            {
+                lines.Add(string.Empty);
+            }
+
+            lines.AddRange(section);
+        }
+
+        return string.Join(Environment.NewLine, lines);
+    }
+
+    static string BuildMarkdownChartsText(FinalRankingMarkdownChartSpec[] charts)
+    {
+        if (charts.Length == 0)
+        {
+            return string.Empty;
+        }
+
+        var lines = new List<string>
+        {
+            "## Mermaid 図"
+        };
+
+        for (var index = 0; index < charts.Length; index++)
+        {
+            if (index > 0)
+            {
+                lines.Add(string.Empty);
+            }
+
+            var chart = charts[index];
+            lines.AddRange(BuildMermaidXychartLines(
+                chart.Title,
+                chart.Categories,
+                chart.YAxisLabel,
+                chart.YAxisRange,
+                chart.Values));
+        }
+
+        return string.Join(Environment.NewLine, lines);
     }
 
     static TRow[] SelectTopRows<TRow>(
