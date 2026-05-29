@@ -30,7 +30,7 @@ internal class FinalRankingDataFileWriter
 
 
     // ========================================
-    // TODO: DSL にして外に出したいもの
+    // TODO: 将来的に DSL / ルール設定ファイルへ外出ししたいもの
     // ========================================
 
 
@@ -41,6 +41,10 @@ internal class FinalRankingDataFileWriter
     /// </summary>
     internal RuleProfileMode RuleProfileMode { get; init; }
 
+    /// <summary>
+    /// TODO: 例えば、入力画面で［RuleProfileMode］を選ばせるんじゃなくて、［{大会ルール設定ファイル名}.json］を選択させるようにして、そこからルールプロファイルモードを決定するようにしたらいいんじゃないか（＾▽＾）？　どう思う（＾～＾）？
+    /// </summary>
+    /// <returns></returns>
     internal string GetFinalRankingTableTypeFileName()
     {
         switch (this.RuleProfileMode)
@@ -65,6 +69,8 @@ internal class FinalRankingDataFileWriter
 
     /// <summary>
     /// ［スキーマ名］取得
+    /// 
+    /// TODO: ［{大会ルール設定ファイル名}.json］からスキーマ名を取得するようにしたらいいんじゃないか（＾▽＾）？　どう思う（＾～＾）？
     /// </summary>
     /// <returns></returns>
     internal string GetSchemaName()
@@ -79,9 +85,6 @@ internal class FinalRankingDataFileWriter
 
             case RuleProfileMode.TournamentFramework:
                 return "standardFinalRanking";
-
-            //case RuleProfileMode.TournamentFramework:
-            //    return "";
 
             default:
                 throw (new InvalidOperationException($"未対応のルールプロファイルモード: {this.RuleProfileMode}"));
@@ -123,7 +126,6 @@ internal class FinalRankingDataFileWriter
     /// <param name="overviewNote"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-
     internal IEnumerable<string> CreateResultCsvCore<TRow>(
         string outputCsvPath,
         string mode,
@@ -307,40 +309,75 @@ internal class FinalRankingDataFileWriter
         };
     }
 
+    static TRow[] SelectTopRows<TRow>(
+        IEnumerable<TRow> rows,
+        Func<TRow, double> primaryDescending,
+        Func<TRow, double> secondaryAscending,
+        int takeCount)
+        where TRow : ISimulationResultRow
+    {
+        return rows
+            .OrderByDescending(primaryDescending)
+            .ThenBy(secondaryAscending)
+            .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
+            .Take(takeCount)
+            .ToArray();
+    }
+
+    static bool TrySelectBestRow<TRow>(
+        IEnumerable<TRow> rows,
+        Func<TRow, double> primaryDescending,
+        Func<TRow, double> secondaryAscending,
+        out TRow bestRow)
+        where TRow : ISimulationResultRow
+    {
+        using var enumerator = rows
+            .OrderByDescending(primaryDescending)
+            .ThenBy(secondaryAscending)
+            .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
+            .GetEnumerator();
+
+        if (!enumerator.MoveNext())
+        {
+            bestRow = default!;
+            return false;
+        }
+
+        bestRow = enumerator.Current;
+        return true;
+    }
+
+    static TRow[] SelectTopRowsByGroup<TRow>(
+        IEnumerable<TRow> rows,
+        Func<TRow, bool> predicate,
+        Func<TRow, double> primaryDescending,
+        Func<TRow, double> secondaryAscending,
+        int takeCount)
+        where TRow : ISimulationResultRow
+    {
+        return SelectTopRows(rows.Where(predicate), primaryDescending, secondaryAscending, takeCount);
+    }
+
+    static IEnumerable<string> BuildMarkdownTableRows<TRow>(IEnumerable<TRow> rows, Func<TRow, string> formatter)
+    {
+        return rows.Select(formatter);
+    }
+
     static IEnumerable<string>[] BuildStandardPrimarySections(IReadOnlyList<ResultRow> resultRows)
     {
-        var topChampionshipRows = resultRows
-            .OrderByDescending(row => row.ChampionshipProbability)
-            .ThenBy(row => row.AveragePlace)
-            .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
-            .Take(8)
-            .ToArray();
-        var bestChampionshipRow = resultRows
-            .OrderByDescending(row => row.ChampionshipProbability)
-            .ThenBy(row => row.AveragePlace)
-            .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
-            .FirstOrDefault();
-        var bestAveragePlaceRow = resultRows
-            .OrderBy(row => row.AveragePlace)
-            .ThenByDescending(row => row.ChampionshipProbability)
-            .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
-            .FirstOrDefault();
-        var biggestBoostRow = resultRows
-            .OrderByDescending(row => row.RatingDelta)
-            .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
-            .FirstOrDefault();
-        var biggestDropRow = resultRows
-            .OrderBy(row => row.RatingDelta)
-            .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
-            .FirstOrDefault();
-        var bestChampionshipRowName = resultRows.Count > 0 ? bestChampionshipRow.Name : "該当なし";
-        var bestAveragePlaceRowName = resultRows.Count > 0 ? bestAveragePlaceRow.Name : "該当なし";
-        var biggestBoostRowName = resultRows.Count > 0 ? biggestBoostRow.Name : "該当なし";
-        var biggestDropRowName = resultRows.Count > 0 ? biggestDropRow.Name : "該当なし";
-        var bestChampionshipProbability = resultRows.Count > 0 ? bestChampionshipRow.ChampionshipProbability : 0;
-        var bestAveragePlace = resultRows.Count > 0 ? bestAveragePlaceRow.AveragePlace : 0;
-        var biggestBoost = resultRows.Count > 0 ? biggestBoostRow.RatingDelta : 0;
-        var biggestDrop = resultRows.Count > 0 ? biggestDropRow.RatingDelta : 0;
+        var topChampionshipRows = SelectTopRows(resultRows, row => row.ChampionshipProbability, row => row.AveragePlace, takeCount: 8);
+        var hasBestChampionshipRow = TrySelectBestRow(resultRows, row => row.ChampionshipProbability, row => row.AveragePlace, out var bestChampionshipRow);
+        var hasBestAveragePlaceRow = TrySelectBestRow(resultRows, row => -row.AveragePlace, row => -row.ChampionshipProbability, out var bestAveragePlaceRow);
+        var hasBiggestBoostRow = TrySelectBestRow(resultRows, row => row.RatingDelta, row => 0, out var biggestBoostRow);
+        var hasBiggestDropRow = TrySelectBestRow(resultRows, row => -row.RatingDelta, row => 0, out var biggestDropRow);
+        var bestChampionshipRowName = hasBestChampionshipRow ? bestChampionshipRow.Name : "該当なし";
+        var bestAveragePlaceRowName = hasBestAveragePlaceRow ? bestAveragePlaceRow.Name : "該当なし";
+        var biggestBoostRowName = hasBiggestBoostRow ? biggestBoostRow.Name : "該当なし";
+        var biggestDropRowName = hasBiggestDropRow ? biggestDropRow.Name : "該当なし";
+        var bestChampionshipProbability = hasBestChampionshipRow ? bestChampionshipRow.ChampionshipProbability : 0;
+        var bestAveragePlace = hasBestAveragePlaceRow ? bestAveragePlaceRow.AveragePlace : 0;
+        var biggestBoost = hasBiggestBoostRow ? biggestBoostRow.RatingDelta : 0;
+        var biggestDrop = hasBiggestDropRow ? biggestDropRow.RatingDelta : 0;
 
         return
         [
@@ -367,23 +404,14 @@ internal class FinalRankingDataFileWriter
 
     static IEnumerable<string> BuildStandardPrimaryTableRows(IReadOnlyList<ResultRow> resultRows)
     {
-        return resultRows
-            .OrderByDescending(row => row.ChampionshipProbability)
-            .ThenBy(row => row.AveragePlace)
-            .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
-            .Take(8)
-            .Select(row =>
-                $"| {row.Name} | {SimulationRatingMath.FormatRating(row.OriginalRating)} | {SimulationRatingMath.FormatRating(row.EffectiveRating)} | {SimulationRatingMath.FormatSignedRating(row.RatingDelta)} | {(row.ChampionshipProbability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {row.AveragePlace.ToString("F3", CultureInfo.InvariantCulture)} |");
+        var topChampionshipRows = SelectTopRows(resultRows, row => row.ChampionshipProbability, row => row.AveragePlace, takeCount: 8);
+        return BuildMarkdownTableRows(topChampionshipRows, row =>
+            $"| {row.Name} | {SimulationRatingMath.FormatRating(row.OriginalRating)} | {SimulationRatingMath.FormatRating(row.EffectiveRating)} | {SimulationRatingMath.FormatSignedRating(row.RatingDelta)} | {(row.ChampionshipProbability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {row.AveragePlace.ToString("F3", CultureInfo.InvariantCulture)} |");
     }
 
     static FinalRankingMarkdownChartSpec[] BuildStandardCharts(IReadOnlyList<ResultRow> resultRows)
     {
-        var topChampionshipRows = resultRows
-            .OrderByDescending(row => row.ChampionshipProbability)
-            .ThenBy(row => row.AveragePlace)
-            .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
-            .Take(8)
-            .ToArray();
+        var topChampionshipRows = SelectTopRows(resultRows, row => row.ChampionshipProbability, row => row.AveragePlace, takeCount: 8);
         if (topChampionshipRows.Length == 0) return [];
 
         return
@@ -405,35 +433,19 @@ internal class FinalRankingDataFileWriter
 
     static IEnumerable<string>[] BuildFinalStagePrimarySections(IReadOnlyList<FinalStageResultRow> resultRows)
     {
-        var apexRows = resultRows
-            .Where(row => string.Equals(row.Group, "Apex", StringComparison.OrdinalIgnoreCase))
-            .OrderByDescending(row => row.GroupPlace1Probability)
-            .ThenBy(row => row.GroupPlaceAverage)
-            .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
-            .Take(4)
-            .ToArray();
-        var innovRows = resultRows
-            .Where(row => string.Equals(row.Group, "Innov", StringComparison.OrdinalIgnoreCase))
-            .OrderByDescending(row => row.GroupPlace1Probability)
-            .ThenBy(row => row.GroupPlaceAverage)
-            .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
-            .Take(4)
-            .ToArray();
-        var bestOverallRow = resultRows
-            .OrderByDescending(row => row.OverallPlace1Probability)
-            .ThenBy(row => row.OverallPlaceAverage)
-            .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
-            .FirstOrDefault();
-        var bestApexRow = apexRows.FirstOrDefault();
-        var bestInnovRow = innovRows.FirstOrDefault();
-        var bestOverallRowName = resultRows.Count > 0 ? bestOverallRow.Name : "該当なし";
-        var bestApexRowName = apexRows.Length > 0 ? bestApexRow.Name : "該当なし";
-        var bestInnovRowName = innovRows.Length > 0 ? bestInnovRow.Name : "該当なし";
-        var bestOverallProbability = resultRows.Count > 0 ? bestOverallRow.OverallPlace1Probability : 0;
-        var bestApexProbability = apexRows.Length > 0 ? bestApexRow.GroupPlace1Probability : 0;
-        var bestInnovProbability = innovRows.Length > 0 ? bestInnovRow.GroupPlace1Probability : 0;
-        var bestApexAverage = apexRows.Length > 0 ? bestApexRow.GroupPlaceAverage : 0;
-        var bestInnovAverage = innovRows.Length > 0 ? bestInnovRow.GroupPlaceAverage : 0;
+        var apexRows = SelectTopRowsByGroup(resultRows, row => string.Equals(row.Group, "Apex", StringComparison.OrdinalIgnoreCase), row => row.GroupPlace1Probability, row => row.GroupPlaceAverage, takeCount: 4);
+        var innovRows = SelectTopRowsByGroup(resultRows, row => string.Equals(row.Group, "Innov", StringComparison.OrdinalIgnoreCase), row => row.GroupPlace1Probability, row => row.GroupPlaceAverage, takeCount: 4);
+        var hasBestOverallRow = TrySelectBestRow(resultRows, row => row.OverallPlace1Probability, row => row.OverallPlaceAverage, out var bestOverallRow);
+        var hasBestApexRow = TrySelectBestRow(apexRows, row => row.GroupPlace1Probability, row => row.GroupPlaceAverage, out var bestApexRow);
+        var hasBestInnovRow = TrySelectBestRow(innovRows, row => row.GroupPlace1Probability, row => row.GroupPlaceAverage, out var bestInnovRow);
+        var bestOverallRowName = hasBestOverallRow ? bestOverallRow.Name : "該当なし";
+        var bestApexRowName = hasBestApexRow ? bestApexRow.Name : "該当なし";
+        var bestInnovRowName = hasBestInnovRow ? bestInnovRow.Name : "該当なし";
+        var bestOverallProbability = hasBestOverallRow ? bestOverallRow.OverallPlace1Probability : 0;
+        var bestApexProbability = hasBestApexRow ? bestApexRow.GroupPlace1Probability : 0;
+        var bestInnovProbability = hasBestInnovRow ? bestInnovRow.GroupPlace1Probability : 0;
+        var bestApexAverage = hasBestApexRow ? bestApexRow.GroupPlaceAverage : 0;
+        var bestInnovAverage = hasBestInnovRow ? bestInnovRow.GroupPlaceAverage : 0;
 
         return
         [
@@ -460,32 +472,16 @@ internal class FinalRankingDataFileWriter
 
     static IEnumerable<string> BuildFinalStagePrimaryTableRows(IReadOnlyList<FinalStageResultRow> resultRows)
     {
-        return resultRows
-            .OrderByDescending(row => row.OverallPlace1Probability)
-            .ThenBy(row => row.OverallPlaceAverage)
-            .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
-            .Take(8)
-            .Select(row =>
-                $"| {row.Name} | {row.Group} | {SimulationRatingMath.FormatRating(row.OriginalRating)} | {SimulationRatingMath.FormatRating(row.EffectiveRating)} | {SimulationRatingMath.FormatSignedRating(row.RatingDelta)} | {(row.GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {(row.OverallPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {row.OverallPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} |");
+        var topRows = SelectTopRows(resultRows, row => row.OverallPlace1Probability, row => row.OverallPlaceAverage, takeCount: 8);
+        return BuildMarkdownTableRows(topRows, row =>
+            $"| {row.Name} | {row.Group} | {SimulationRatingMath.FormatRating(row.OriginalRating)} | {SimulationRatingMath.FormatRating(row.EffectiveRating)} | {SimulationRatingMath.FormatSignedRating(row.RatingDelta)} | {(row.GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {(row.OverallPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {row.OverallPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} |");
     }
 
     static IEnumerable<string>[] BuildFinalStageTrailingSections(IReadOnlyList<FinalStageResultRow> resultRows)
     {
         var sections = new List<IEnumerable<string>>();
-        var apexRows = resultRows
-            .Where(row => string.Equals(row.Group, "Apex", StringComparison.OrdinalIgnoreCase))
-            .OrderByDescending(row => row.GroupPlace1Probability)
-            .ThenBy(row => row.GroupPlaceAverage)
-            .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
-            .Take(4)
-            .ToArray();
-        var innovRows = resultRows
-            .Where(row => string.Equals(row.Group, "Innov", StringComparison.OrdinalIgnoreCase))
-            .OrderByDescending(row => row.GroupPlace1Probability)
-            .ThenBy(row => row.GroupPlaceAverage)
-            .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
-            .Take(4)
-            .ToArray();
+        var apexRows = SelectTopRowsByGroup(resultRows, row => string.Equals(row.Group, "Apex", StringComparison.OrdinalIgnoreCase), row => row.GroupPlace1Probability, row => row.GroupPlaceAverage, takeCount: 4);
+        var innovRows = SelectTopRowsByGroup(resultRows, row => string.Equals(row.Group, "Innov", StringComparison.OrdinalIgnoreCase), row => row.GroupPlace1Probability, row => row.GroupPlaceAverage, takeCount: 4);
 
         if (apexRows.Length > 0)
         {
@@ -495,7 +491,7 @@ internal class FinalRankingDataFileWriter
                 "| 選手 | 元Elo | 実効Elo | グループ1位確率 | グループ平均順位 | 総合平均順位 |",
                 "| --- | ---: | ---: | ---: | ---: | ---: |"
             ]);
-            sections.Add(apexRows.Select(row =>
+            sections.Add(BuildMarkdownTableRows(apexRows, row =>
                 $"| {row.Name} | {SimulationRatingMath.FormatRating(row.OriginalRating)} | {SimulationRatingMath.FormatRating(row.EffectiveRating)} | {(row.GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {row.GroupPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} | {row.OverallPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} |"));
         }
 
@@ -507,7 +503,7 @@ internal class FinalRankingDataFileWriter
                 "| 選手 | 元Elo | 実効Elo | グループ1位確率 | グループ平均順位 | 総合平均順位 |",
                 "| --- | ---: | ---: | ---: | ---: | ---: |"
             ]);
-            sections.Add(innovRows.Select(row =>
+            sections.Add(BuildMarkdownTableRows(innovRows, row =>
                 $"| {row.Name} | {SimulationRatingMath.FormatRating(row.OriginalRating)} | {SimulationRatingMath.FormatRating(row.EffectiveRating)} | {(row.GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {row.GroupPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} | {row.OverallPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} |"));
         }
 
@@ -516,12 +512,7 @@ internal class FinalRankingDataFileWriter
 
     static FinalRankingMarkdownChartSpec[] BuildFinalStageCharts(IReadOnlyList<FinalStageResultRow> resultRows)
     {
-        var topRows = resultRows
-            .OrderByDescending(row => row.OverallPlace1Probability)
-            .ThenBy(row => row.OverallPlaceAverage)
-            .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
-            .Take(8)
-            .ToArray();
+        var topRows = SelectTopRows(resultRows, row => row.OverallPlace1Probability, row => row.OverallPlaceAverage, takeCount: 8);
         if (topRows.Length == 0) return [];
 
         return
@@ -685,6 +676,23 @@ internal class FinalRankingDataFileWriter
         string YAxisLabel,
         string YAxisRange,
         IEnumerable<string> Values);
+
+    static FinalRankingMarkdownChartSpec[] BuildChartSpecs<TRow>(
+        IReadOnlyList<TRow> rows,
+        params (string Title, string YAxisLabel, string YAxisRange, Func<TRow, string> ValueSelector)[] chartDefinitions)
+        where TRow : ISimulationResultRow
+    {
+        if (rows.Count == 0) return [];
+
+        return chartDefinitions
+            .Select(chart => new FinalRankingMarkdownChartSpec(
+                chart.Title,
+                rows.Select(row => row.Name),
+                chart.YAxisLabel,
+                chart.YAxisRange,
+                rows.Select(chart.ValueSelector)))
+            .ToArray();
+    }
 
     static void AddMarkdownChartsSection(List<string> lines, params FinalRankingMarkdownChartSpec[] charts)
     {
