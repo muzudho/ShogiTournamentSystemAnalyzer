@@ -254,6 +254,16 @@ internal static partial class SimulationTournamentFrameworkMode
         Console.WriteLine($"representative大会最終状態Markdownを出力しました: {tournamentMatchRecordsMarkdownPath}");
     }
 
+    /// <summary>
+    /// ［大会フレームワーク］モード計算
+    /// </summary>
+    /// <param name="engine"></param>
+    /// <param name="initialState"></param>
+    /// <param name="players"></param>
+    /// <param name="tournamentRuleSetMode"></param>
+    /// <param name="firstPlayerWinRateRating"></param>
+    /// <param name="requestedSimulationCount"></param>
+    /// <returns></returns>
     static TournamentFrameworkSimulationAggregate ExecuteTournamentFrameworkModeCalculation(
         TournamentEngine engine,
         TournamentState initialState,
@@ -307,6 +317,15 @@ internal static partial class SimulationTournamentFrameworkMode
             representativeExecutionResult);
     }
 
+    /// <summary>
+    /// 厳密な？［大会フレームワーク］を計算
+    /// </summary>
+    /// <param name="engine"></param>
+    /// <param name="initialState"></param>
+    /// <param name="players"></param>
+    /// <param name="tournamentRuleSetMode"></param>
+    /// <param name="firstPlayerWinRateRating"></param>
+    /// <returns></returns>
     static TournamentFrameworkSimulationAggregate CalculateTournamentFrameworkExactly(
         TournamentEngine engine,
         TournamentState initialState,
@@ -385,6 +404,15 @@ internal static partial class SimulationTournamentFrameworkMode
             representativeExecutionResult);
     }
 
+    /// <summary>
+    /// ［大会フレームワーク］の位置確率？を累計
+    /// </summary>
+    /// <param name="players"></param>
+    /// <param name="playerIndexById"></param>
+    /// <param name="matchRecords"></param>
+    /// <param name="placeProbabilities"></param>
+    /// <param name="tournamentRuleSetMode"></param>
+    /// <param name="weight"></param>
     static void AccumulateTournamentFrameworkPlaceProbabilities(
         IReadOnlyList<PlayerEntry> players,
         IReadOnlyDictionary<int, int> playerIndexById,
@@ -402,6 +430,14 @@ internal static partial class SimulationTournamentFrameworkMode
         AccumulateTournamentFrameworkNeutralPlaces(players, playerIndexById, matchRecords, placeProbabilities, weight);
     }
 
+    /// <summary>
+    /// ［大会フレームワーク］の自然な位置？を累計
+    /// </summary>
+    /// <param name="players"></param>
+    /// <param name="playerIndexById"></param>
+    /// <param name="matchRecords"></param>
+    /// <param name="placeProbabilities"></param>
+    /// <param name="weight"></param>
     static void AccumulateTournamentFrameworkNeutralPlaces(
         IReadOnlyList<PlayerEntry> players,
         IReadOnlyDictionary<int, int> playerIndexById,
@@ -441,6 +477,16 @@ internal static partial class SimulationTournamentFrameworkMode
         }
     }
 
+    /// <summary>
+    /// ［大会フレームワーク］のツイル式の位置を累計
+    /// </summary>
+    /// <param name="players"></param>
+    /// <param name="playerIndexById"></param>
+    /// <param name="matchRecords"></param>
+    /// <param name="placeProbabilities"></param>
+    /// <param name="tournamentRuleSetMode"></param>
+    /// <param name="weight"></param>
+    /// <exception cref="OperationCanceledException"></exception>
     static void AccumulateTournamentFrameworkTwillPlaces(
         IReadOnlyList<PlayerEntry> players,
         IReadOnlyDictionary<int, int> playerIndexById,
@@ -476,6 +522,12 @@ internal static partial class SimulationTournamentFrameworkMode
         TwillTournamentRule.AccumulatePlaceProbabilitiesWithCommonOpponentWeight(standardMatches, blackWins, weight, placeProbabilities);
     }
 
+    /// <summary>
+    /// 順位の行を組立
+    /// </summary>
+    /// <param name="players"></param>
+    /// <param name="ranking"></param>
+    /// <returns></returns>
     static List<RepresentativeExecutionRankRow> BuildRepresentativeExecutionRankRows(
         IReadOnlyList<PlayerEntry> players,
         IReadOnlyList<PlayerRankRow> ranking)
@@ -509,6 +561,12 @@ internal static partial class SimulationTournamentFrameworkMode
             .ToList();
     }
 
+    /// <summary>
+    /// ［プレイヤーＩｄ］毎のポイントの組立
+    /// </summary>
+    /// <param name="players"></param>
+    /// <param name="matchRecords"></param>
+    /// <returns></returns>
     static Dictionary<int, int> BuildTournamentFrameworkPointsByPlayerId(
         IReadOnlyList<PlayerEntry> players,
         IReadOnlyList<TournamentMatchRecord> matchRecords)
@@ -532,6 +590,11 @@ internal static partial class SimulationTournamentFrameworkMode
         return pointsByPlayerId;
     }
 
+    /// <summary>
+    /// 計算結果を組立
+    /// </summary>
+    /// <param name="aggregateResult"></param>
+    /// <returns></returns>
     static CalculationResult BuildTournamentFrameworkCalculationResult(TournamentFrameworkSimulationAggregate aggregateResult)
     {
         var ruleSetModeLabel = aggregateResult.TournamentRuleSetMode switch
@@ -558,6 +621,17 @@ internal static partial class SimulationTournamentFrameworkMode
         return new CalculationResult(aggregateResult.PlaceProbabilities, modeLabel, aggregateResult.CompletedSimulationCount);
     }
 
+    /// <summary>
+    /// 集計
+    /// </summary>
+    /// <param name="PlaceProbabilities"></param>
+    /// <param name="RequestedSimulationCount"></param>
+    /// <param name="CompletedSimulationCount"></param>
+    /// <param name="CompletedNaturallyCount"></param>
+    /// <param name="AverageTickCount"></param>
+    /// <param name="IsExactCalculation"></param>
+    /// <param name="TournamentRuleSetMode"></param>
+    /// <param name="RepresentativeExecutionResult"></param>
     sealed record class TournamentFrameworkSimulationAggregate(
         double[,] PlaceProbabilities,
         int RequestedSimulationCount,
@@ -568,6 +642,10 @@ internal static partial class SimulationTournamentFrameworkMode
         TournamentRuleSetMode TournamentRuleSetMode,
         TournamentFrameworkExecutionResult RepresentativeExecutionResult);
 
+    /// <summary>
+    /// 標準ルールの何か。
+    /// </summary>
+    /// <param name="firstPlayerWinRateRating"></param>
     sealed class StandardLikeMatchResultResolver(double firstPlayerWinRateRating) : IMatchResultResolver
     {
         readonly double _firstPlayerWinRateRating = firstPlayerWinRateRating;
