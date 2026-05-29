@@ -179,6 +179,7 @@ internal class FinalRankingMarkdownFileWriter
         var biggestBoost = hasBiggestBoostRow ? biggestBoostRow.RatingDelta : 0;
         var biggestDrop = hasBiggestDropRow ? biggestDropRow.RatingDelta : 0;
 
+        // TODO: 行じゃなくて、テキスト・テンプレートにできないか（＾～＾）？ DSL と相性が良さそう（＾～＾）
         return
         [
             [
