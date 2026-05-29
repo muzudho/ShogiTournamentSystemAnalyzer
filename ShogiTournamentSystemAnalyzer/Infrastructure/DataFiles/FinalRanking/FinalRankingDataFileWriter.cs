@@ -30,11 +30,11 @@ internal class FinalRankingDataFileWriter
 
 
     // ========================================
-    // 窓口データメンバー
+    // TODO: DSL にして外に出したいもの
     // ========================================
 
 
-    #region ［大会ルール］の種類（ TODO: ここをDSLに外出ししたい ）
+    #region ［大会ルール］の種類
 
     /// <summary>
     /// ［大会ルール］の種類
@@ -56,6 +56,14 @@ internal class FinalRankingDataFileWriter
         }
     }
 
+    #endregion
+
+    #region ［スキーマ名］
+
+    /// <summary>
+    /// ［スキーマ名］取得
+    /// </summary>
+    /// <returns></returns>
     internal string GetSchemaName()
     {
         switch (this.RuleProfileMode)
@@ -92,9 +100,11 @@ internal class FinalRankingDataFileWriter
 
 
     // ========================================
-    // 窓口メソッド
+    // 構成
     // ========================================
 
+
+    #region ［最終順位という境界］のCSV形式データ
 
     /// <summary>
     /// ［最終順位という境界］のCSV形式データを作成する。
@@ -132,233 +142,6 @@ internal class FinalRankingDataFileWriter
                 overviewNote),
             _ => throw new InvalidOperationException($"未対応の結果行型: {typeof(TRow).FullName}")
         };
-    }
-
-    /// <summary>
-    /// ［最終順位という境界］のMarkdown形式データを作成する。
-    /// </summary>
-    /// <typeparam name="TRow"></typeparam>
-    /// <param name="outputMarkdownPath"></param>
-    /// <param name="outputCsvPath"></param>
-    /// <param name="mode"></param>
-    /// <param name="firstPlayerWinRatePercent"></param>
-    /// <param name="resultRows"></param>
-    /// <param name="overviewNote"></param>
-    /// <param name="representativeRankingMarkdownPath"></param>
-    /// <param name="referenceMatchesCsvPath"></param>
-    /// <returns></returns>
-    /// <exception cref="InvalidOperationException"></exception>
-    internal IEnumerable<string> CreateResultMarkdownCore<TRow>(
-        string outputMarkdownPath,
-        string outputCsvPath,
-        string mode,
-        double firstPlayerWinRatePercent,
-        IReadOnlyList<TRow> resultRows,
-        string? overviewNote = null,
-        string? representativeRankingMarkdownPath = null,
-        string? referenceMatchesCsvPath = null)
-        where TRow : ISimulationResultRow
-    {
-        return resultRows switch
-        {
-            IReadOnlyList<ResultRow> standardRows => CreateStandardResultMarkdownCore(
-                outputMarkdownPath,
-                outputCsvPath,
-                mode,
-                firstPlayerWinRatePercent,
-                standardRows,
-                overviewNote,
-                representativeRankingMarkdownPath,
-                referenceMatchesCsvPath),
-            IReadOnlyList<FinalStageResultRow> finalStageRows => CreateFinalStageResultMarkdownCore(
-                outputMarkdownPath,
-                outputCsvPath,
-                mode,
-                firstPlayerWinRatePercent,
-                finalStageRows,
-                overviewNote,
-                representativeRankingMarkdownPath,
-                referenceMatchesCsvPath),
-            _ => throw new InvalidOperationException($"未対応の結果行型: {typeof(TRow).FullName}")
-        };
-    }
-
-
-    // ========================================
-    // その他
-    // ========================================
-
-
-    const string RepresentativeExecutionRankTableTypeFileName = "RepresentativeExecutionRankTableType.json";
-
-    static IReadOnlyList<string>? representativeExecutionRankFixedColumns;
-
-
-    protected static IReadOnlyList<string> GetRepresentativeExecutionRankFixedColumns()
-    {
-        return representativeExecutionRankFixedColumns ??= LoadFixedColumns(RepresentativeExecutionRankTableTypeFileName);
-    }
-
-    static IReadOnlyList<string> LoadFixedColumns(string fileName)
-    {
-        return TableTypeDefinitionReader.Load(fileName)
-            .Data
-            .Select(column => column.Name)
-            .ToArray();
-    }
-
-    /// <summary>
-    /// ［本戦用］
-    /// </summary>
-    /// <param name="outputMarkdownPath"></param>
-    /// <param name="outputCsvPath"></param>
-    /// <param name="mode"></param>
-    /// <param name="firstPlayerWinRatePercent"></param>
-    /// <param name="playerCount"></param>
-    /// <param name="editionLabel"></param>
-    /// <param name="overviewNote"></param>
-    /// <param name="representativeRankingMarkdownPath"></param>
-    /// <param name="referenceMatchesCsvPath"></param>
-    /// <returns></returns>
-    protected static List<string> BuildFinalRankingMarkdownOverviewLines(
-        string outputMarkdownPath,
-        string outputCsvPath,
-        string mode,
-        double firstPlayerWinRatePercent,
-        int playerCount,
-        string editionLabel,
-        string? overviewNote = null,
-        string? representativeRankingMarkdownPath = null,
-        string? referenceMatchesCsvPath = null)
-    {
-        var lines = new List<string>
-        {
-            "## 概要",
-            $"- 結果CSV: {MarkdownOutputHelpers.BuildMarkdownFileLink(outputMarkdownPath, outputCsvPath)}",
-            $"- 版: {editionLabel}",
-            $"- 計算モード: {mode}",
-            $"- 同Elo対局時の先手勝率: {firstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture)}%",
-            $"- 対象選手数: {playerCount}"
-        };
-
-        if (!string.IsNullOrWhiteSpace(representativeRankingMarkdownPath))
-        {
-            lines.Add($"- representative順位表: {MarkdownOutputHelpers.BuildMarkdownFileLink(outputMarkdownPath, representativeRankingMarkdownPath)}");
-        }
-
-        if (!string.IsNullOrWhiteSpace(referenceMatchesCsvPath))
-        {
-            lines.Add($"- 参考対局CSV: {MarkdownOutputHelpers.BuildMarkdownFileLink(outputMarkdownPath, referenceMatchesCsvPath)}");
-        }
-
-        if (!string.IsNullOrWhiteSpace(overviewNote))
-        {
-            lines.Add($"- 注記: {overviewNote}");
-        }
-
-        return lines;
-    }
-
-    internal static IEnumerable<string> CreateRepresentativeExecutionRankCsv(
-        TournamentRuleSetMode tournamentRuleSetMode,
-        IReadOnlyList<RepresentativeExecutionRankRow> rows,
-        string? overviewNote = null)
-    {
-        var specificHeaderColumns = GetRepresentativeExecutionRankFixedColumns().ToList();
-        if (string.IsNullOrWhiteSpace(overviewNote)) specificHeaderColumns.Remove("note");
-
-        var lines = new List<string>
-        {
-            string.Join(",", CsvSchemaCommonColumns.BuildHeaderColumns(specificHeaderColumns).Select(CsvOutputHelpers.EscapeCsv))
-        };
-
-        foreach (var row in rows)
-        {
-            var specificColumns = new List<string>
-            {
-                TournamentRuleSetRule.GetLabel(tournamentRuleSetMode),
-                row.Name,
-                row.Points.ToString(CultureInfo.InvariantCulture),
-                row.RankLabel,
-                row.AveragePlace.ToString("F3", CultureInfo.InvariantCulture),
-                (row.FirstPlaceProbability * 100).ToString("F2", CultureInfo.InvariantCulture)
-            };
-
-            if (!string.IsNullOrWhiteSpace(overviewNote))
-            {
-                specificColumns.Add(overviewNote);
-            }
-
-            var columns = CsvSchemaCommonColumns.BuildRowColumns(
-                boundaryName: "FinalRanking",
-                schemaName: "representativeExecutionRank",
-                rowType: "data",
-                specificColumns.ToArray());
-
-            lines.Add(string.Join(",", columns.Select(CsvOutputHelpers.EscapeCsv)));
-        }
-
-        return lines;
-    }
-
-    internal static IEnumerable<string> CreateRepresentativeExecutionRankMarkdown(
-        string outputMarkdownPath,
-        string outputCsvPath,
-        TournamentRuleSetMode tournamentRuleSetMode,
-        IReadOnlyList<RepresentativeExecutionRankRow> rows,
-        string? overviewNote = null,
-        string? representativeMatchRecordsMarkdownPath = null)
-    {
-        var bestRow = rows
-            .OrderBy(row => row.AveragePlace)
-            .ThenByDescending(row => row.Points)
-            .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
-            .FirstOrDefault();
-
-        var lines = new List<string>
-        {
-            "# representative順位表",
-            string.Empty,
-            "## 概要",
-            $"- 結果CSV: {MarkdownOutputHelpers.BuildMarkdownFileLink(outputMarkdownPath, outputCsvPath)}",
-            $"- 順位ルール: {TournamentRuleSetRule.GetLabel(tournamentRuleSetMode)}",
-            $"- 対象選手数: {rows.Count}"
-        };
-
-        if (!string.IsNullOrWhiteSpace(representativeMatchRecordsMarkdownPath))
-        {
-            lines.Add($"- representative大会最終状態: {MarkdownOutputHelpers.BuildMarkdownFileLink(outputMarkdownPath, representativeMatchRecordsMarkdownPath)}");
-        }
-
-        if (!string.IsNullOrWhiteSpace(overviewNote))
-        {
-            lines.Add($"- 注記: {overviewNote}");
-        }
-
-        if (rows.Count > 0)
-        {
-            lines.AddRange(new[]
-            {
-                string.Empty,
-                "## 注目ポイント",
-                $"- representative 1位帯の先頭表示: **{bestRow.Name}**",
-                $"- 勝点: **{bestRow.Points.ToString(CultureInfo.InvariantCulture)}**",
-                $"- 順位帯: **{bestRow.RankLabel}**"
-            });
-        }
-
-        lines.AddRange(new[]
-        {
-            string.Empty,
-            "## 一覧表",
-            "| 対局者 | 勝点 | 順位帯 | 平均順位 | 1位確率 |",
-            "| --- | ---: | ---: | ---: | ---: |"
-        });
-
-        lines.AddRange(rows.Select(row =>
-            $"| {row.Name} | {row.Points.ToString(CultureInfo.InvariantCulture)} | {row.RankLabel} | {row.AveragePlace.ToString("F3", CultureInfo.InvariantCulture)} | {(row.FirstPlaceProbability * 100).ToString("F2", CultureInfo.InvariantCulture)}% |"));
-
-        return lines;
     }
 
     /// <summary>
@@ -469,6 +252,111 @@ internal class FinalRankingDataFileWriter
         return lines;
     }
 
+    #endregion
+
+    #region ［最終順位という境界］のMarkdown形式データ
+
+    /// <summary>
+    /// ［最終順位という境界］のMarkdown形式データを作成する。
+    /// </summary>
+    /// <typeparam name="TRow"></typeparam>
+    /// <param name="outputMarkdownPath"></param>
+    /// <param name="outputCsvPath"></param>
+    /// <param name="mode"></param>
+    /// <param name="firstPlayerWinRatePercent"></param>
+    /// <param name="resultRows"></param>
+    /// <param name="overviewNote"></param>
+    /// <param name="representativeRankingMarkdownPath"></param>
+    /// <param name="referenceMatchesCsvPath"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    internal IEnumerable<string> CreateResultMarkdownCore<TRow>(
+        string outputMarkdownPath,
+        string outputCsvPath,
+        string mode,
+        double firstPlayerWinRatePercent,
+        IReadOnlyList<TRow> resultRows,
+        string? overviewNote = null,
+        string? representativeRankingMarkdownPath = null,
+        string? referenceMatchesCsvPath = null)
+        where TRow : ISimulationResultRow
+    {
+        return resultRows switch
+        {
+            IReadOnlyList<ResultRow> standardRows => CreateStandardResultMarkdownCore(
+                outputMarkdownPath,
+                outputCsvPath,
+                mode,
+                firstPlayerWinRatePercent,
+                standardRows,
+                overviewNote,
+                representativeRankingMarkdownPath,
+                referenceMatchesCsvPath),
+            IReadOnlyList<FinalStageResultRow> finalStageRows => CreateFinalStageResultMarkdownCore(
+                outputMarkdownPath,
+                outputCsvPath,
+                mode,
+                firstPlayerWinRatePercent,
+                finalStageRows,
+                overviewNote,
+                representativeRankingMarkdownPath,
+                referenceMatchesCsvPath),
+            _ => throw new InvalidOperationException($"未対応の結果行型: {typeof(TRow).FullName}")
+        };
+    }
+
+    /// <summary>
+    /// ［最終順位という境界］のマークダウンの［概要］セクション各行を組立
+    /// </summary>
+    /// <param name="outputMarkdownPath"></param>
+    /// <param name="outputCsvPath"></param>
+    /// <param name="mode"></param>
+    /// <param name="firstPlayerWinRatePercent"></param>
+    /// <param name="playerCount"></param>
+    /// <param name="editionLabel"></param>
+    /// <param name="overviewNote"></param>
+    /// <param name="representativeRankingMarkdownPath"></param>
+    /// <param name="referenceMatchesCsvPath"></param>
+    /// <returns></returns>
+    protected static List<string> BuildFinalRankingMarkdownOverviewLines(
+        string outputMarkdownPath,
+        string outputCsvPath,
+        string mode,
+        double firstPlayerWinRatePercent,
+        int playerCount,
+        string editionLabel,
+        string? overviewNote = null,
+        string? representativeRankingMarkdownPath = null,
+        string? referenceMatchesCsvPath = null)
+    {
+        var lines = new List<string>
+        {
+            "## 概要",
+            $"- 結果CSV: {MarkdownOutputHelpers.BuildMarkdownFileLink(outputMarkdownPath, outputCsvPath)}",
+            $"- 版: {editionLabel}",
+            $"- 計算モード: {mode}",
+            $"- 同Elo対局時の先手勝率: {firstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture)}%",
+            $"- 対象選手数: {playerCount}"
+        };
+
+        if (!string.IsNullOrWhiteSpace(representativeRankingMarkdownPath))
+        {
+            lines.Add($"- representative順位表: {MarkdownOutputHelpers.BuildMarkdownFileLink(outputMarkdownPath, representativeRankingMarkdownPath)}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(referenceMatchesCsvPath))
+        {
+            lines.Add($"- 参考対局CSV: {MarkdownOutputHelpers.BuildMarkdownFileLink(outputMarkdownPath, referenceMatchesCsvPath)}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(overviewNote))
+        {
+            lines.Add($"- 注記: {overviewNote}");
+        }
+
+        return lines;
+    }
+
     /// <summary>
     /// ［最終順位という境界］のマークダウン各行作成
     /// </summary>
@@ -554,6 +442,145 @@ internal class FinalRankingDataFileWriter
             "```"
         ];
     }
+
+    #endregion
+
+    #region ［順位］の［表型］
+
+    const string RepresentativeExecutionRankTableTypeFileName = "RepresentativeExecutionRankTableType.json";
+
+    static IReadOnlyList<string>? representativeExecutionRankFixedColumns;
+
+    protected static IReadOnlyList<string> GetRepresentativeExecutionRankFixedColumns()
+    {
+        return representativeExecutionRankFixedColumns ??= LoadFixedColumns(RepresentativeExecutionRankTableTypeFileName);
+    }
+
+    internal static IEnumerable<string> CreateRepresentativeExecutionRankCsv(
+        TournamentRuleSetMode tournamentRuleSetMode,
+        IReadOnlyList<RepresentativeExecutionRankRow> rows,
+        string? overviewNote = null)
+    {
+        var specificHeaderColumns = GetRepresentativeExecutionRankFixedColumns().ToList();
+        if (string.IsNullOrWhiteSpace(overviewNote)) specificHeaderColumns.Remove("note");
+
+        var lines = new List<string>
+        {
+            string.Join(",", CsvSchemaCommonColumns.BuildHeaderColumns(specificHeaderColumns).Select(CsvOutputHelpers.EscapeCsv))
+        };
+
+        foreach (var row in rows)
+        {
+            var specificColumns = new List<string>
+            {
+                TournamentRuleSetRule.GetLabel(tournamentRuleSetMode),
+                row.Name,
+                row.Points.ToString(CultureInfo.InvariantCulture),
+                row.RankLabel,
+                row.AveragePlace.ToString("F3", CultureInfo.InvariantCulture),
+                (row.FirstPlaceProbability * 100).ToString("F2", CultureInfo.InvariantCulture)
+            };
+
+            if (!string.IsNullOrWhiteSpace(overviewNote))
+            {
+                specificColumns.Add(overviewNote);
+            }
+
+            var columns = CsvSchemaCommonColumns.BuildRowColumns(
+                boundaryName: "FinalRanking",
+                schemaName: "representativeExecutionRank",
+                rowType: "data",
+                specificColumns.ToArray());
+
+            lines.Add(string.Join(",", columns.Select(CsvOutputHelpers.EscapeCsv)));
+        }
+
+        return lines;
+    }
+
+    internal static IEnumerable<string> CreateRepresentativeExecutionRankMarkdown(
+        string outputMarkdownPath,
+        string outputCsvPath,
+        TournamentRuleSetMode tournamentRuleSetMode,
+        IReadOnlyList<RepresentativeExecutionRankRow> rows,
+        string? overviewNote = null,
+        string? representativeMatchRecordsMarkdownPath = null)
+    {
+        var bestRow = rows
+            .OrderBy(row => row.AveragePlace)
+            .ThenByDescending(row => row.Points)
+            .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
+            .FirstOrDefault();
+
+        var lines = new List<string>
+        {
+            "# representative順位表",
+            string.Empty,
+            "## 概要",
+            $"- 結果CSV: {MarkdownOutputHelpers.BuildMarkdownFileLink(outputMarkdownPath, outputCsvPath)}",
+            $"- 順位ルール: {TournamentRuleSetRule.GetLabel(tournamentRuleSetMode)}",
+            $"- 対象選手数: {rows.Count}"
+        };
+
+        if (!string.IsNullOrWhiteSpace(representativeMatchRecordsMarkdownPath))
+        {
+            lines.Add($"- representative大会最終状態: {MarkdownOutputHelpers.BuildMarkdownFileLink(outputMarkdownPath, representativeMatchRecordsMarkdownPath)}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(overviewNote))
+        {
+            lines.Add($"- 注記: {overviewNote}");
+        }
+
+        if (rows.Count > 0)
+        {
+            lines.AddRange(new[]
+            {
+                string.Empty,
+                "## 注目ポイント",
+                $"- representative 1位帯の先頭表示: **{bestRow.Name}**",
+                $"- 勝点: **{bestRow.Points.ToString(CultureInfo.InvariantCulture)}**",
+                $"- 順位帯: **{bestRow.RankLabel}**"
+            });
+        }
+
+        lines.AddRange(new[]
+        {
+            string.Empty,
+            "## 一覧表",
+            "| 対局者 | 勝点 | 順位帯 | 平均順位 | 1位確率 |",
+            "| --- | ---: | ---: | ---: | ---: |"
+        });
+
+        lines.AddRange(rows.Select(row =>
+            $"| {row.Name} | {row.Points.ToString(CultureInfo.InvariantCulture)} | {row.RankLabel} | {row.AveragePlace.ToString("F3", CultureInfo.InvariantCulture)} | {(row.FirstPlaceProbability * 100).ToString("F2", CultureInfo.InvariantCulture)}% |"));
+
+        return lines;
+    }
+
+    #endregion
+
+    #region ［固定列一覧］
+
+    /// <summary>
+    /// ［固定列一覧］読込
+    /// </summary>
+    /// <param name="fileName"></param>
+    /// <returns></returns>
+    static IReadOnlyList<string> LoadFixedColumns(string fileName)
+    {
+        return TableTypeDefinitionReader.Load(fileName)
+            .Data
+            .Select(column => column.Name)
+            .ToArray();
+    }
+
+    #endregion
+
+
+    // ========================================
+    // TODO: ［標準ルール版］と［本戦ルール版］の統合を進めてほしいものや、その他
+    // ========================================
 
     #region ［結果CSV］
 
