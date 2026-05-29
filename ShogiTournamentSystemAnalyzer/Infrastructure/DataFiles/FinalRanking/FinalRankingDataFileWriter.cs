@@ -34,7 +34,7 @@ internal class FinalRankingDataFileWriter
     // ========================================
 
 
-    #region ［大会ルール］の種類
+    #region ［大会ルール］の種類（ TODO: ここをDSLに外出ししたい ）
 
     /// <summary>
     /// ［大会ルール］の種類
@@ -53,6 +53,24 @@ internal class FinalRankingDataFileWriter
 
             default:
                 throw(new InvalidOperationException($"未対応のルールプロファイルモード: {this.RuleProfileMode}"));
+        }
+    }
+
+    internal string GetSchemaName()
+    {
+        switch (this.RuleProfileMode)
+        {
+            case RuleProfileMode.Standard:
+                return "standardFinalRanking";
+
+            case RuleProfileMode.FinalStage:
+                return "finalStageFinalRanking";
+
+            //case RuleProfileMode.TournamentFramework:
+            //    return "";
+
+            default:
+                throw (new InvalidOperationException($"未対応のルールプロファイルモード: {this.RuleProfileMode}"));
         }
     }
 
@@ -79,8 +97,6 @@ internal class FinalRankingDataFileWriter
 
 
     const string RepresentativeExecutionRankTableTypeFileName = "RepresentativeExecutionRankTableType.json";
-
-    protected static string EscapeCsv(string value) => CsvOutputHelpers.EscapeCsv(value);
 
     static IReadOnlyList<string>? representativeExecutionRankFixedColumns;
 
@@ -160,7 +176,7 @@ internal class FinalRankingDataFileWriter
 
         var lines = new List<string>
         {
-            string.Join(",", CsvSchemaCommonColumns.BuildHeaderColumns(specificHeaderColumns).Select(EscapeCsv))
+            string.Join(",", CsvSchemaCommonColumns.BuildHeaderColumns(specificHeaderColumns).Select(CsvOutputHelpers.EscapeCsv))
         };
 
         foreach (var row in rows)
@@ -186,7 +202,7 @@ internal class FinalRankingDataFileWriter
                 rowType: "data",
                 specificColumns.ToArray());
 
-            lines.Add(string.Join(",", columns.Select(EscapeCsv)));
+            lines.Add(string.Join(",", columns.Select(CsvOutputHelpers.EscapeCsv)));
         }
 
         return lines;
@@ -266,6 +282,7 @@ internal class FinalRankingDataFileWriter
     /// <param name="overviewNote">TODO: これ［本戦］に無いの（＾～＾）？</param>
     /// <returns></returns>
     internal IEnumerable<string> CreateStandardResultCsvCore(
+        FinalRankingDataFileWriter finalRankingDataFileWriter,
         string outputCsvPath,
         string mode,
         double firstPlayerWinRatePercent,
@@ -291,7 +308,7 @@ internal class FinalRankingDataFileWriter
 
         var lines = new List<string>
         {
-            string.Join(",", CsvSchemaCommonColumns.BuildHeaderColumns(specificHeaderColumns).Select(EscapeCsv))
+            string.Join(",", CsvSchemaCommonColumns.BuildHeaderColumns(specificHeaderColumns).Select(CsvOutputHelpers.EscapeCsv))
         };
 
         foreach (var row in resultRows)
@@ -328,11 +345,11 @@ internal class FinalRankingDataFileWriter
 
             var columns = CsvSchemaCommonColumns.BuildRowColumns(
                 boundaryName: "FinalRanking",
-                schemaName: "standardFinalRanking",     // TODO: これは引数で渡したい（＾～＾）
+                schemaName: finalRankingDataFileWriter.GetSchemaName(),
                 rowType: "data",
                 specificColumns.ToArray());
 
-            lines.Add(string.Join(",", columns.Select(EscapeCsv)));
+            lines.Add(string.Join(",", columns.Select(CsvOutputHelpers.EscapeCsv)));
         }
 
         return lines;
@@ -349,6 +366,7 @@ internal class FinalRankingDataFileWriter
     /// <param name="resultRows"></param>
     /// <returns></returns>
     internal IEnumerable<string> CreateFinalStageResultCsvCore(
+        FinalRankingDataFileWriter finalRankingDataFileWriter,
         string outputCsvPath,
         string mode,
         double firstPlayerWinRatePercent,
@@ -372,7 +390,7 @@ internal class FinalRankingDataFileWriter
 
         var lines = new List<string>
         {
-            string.Join(",", CsvSchemaCommonColumns.BuildHeaderColumns(specificHeaderColumns).Select(EscapeCsv))
+            string.Join(",", CsvSchemaCommonColumns.BuildHeaderColumns(specificHeaderColumns).Select(CsvOutputHelpers.EscapeCsv))
         };
 
         foreach (var row in resultRows)
@@ -412,11 +430,11 @@ internal class FinalRankingDataFileWriter
 
             var columns = CsvSchemaCommonColumns.BuildRowColumns(
                 boundaryName: "FinalRanking",
-                schemaName: "finalStageFinalRanking",   // TODO: これは引数で渡したい（＾～＾）
+                schemaName: finalRankingDataFileWriter.GetSchemaName(),
                 rowType: "data",
                 specificColumns.ToArray());
 
-            lines.Add(string.Join(",", columns.Select(EscapeCsv)));
+            lines.Add(string.Join(",", columns.Select(CsvOutputHelpers.EscapeCsv)));
         }
 
         return lines;

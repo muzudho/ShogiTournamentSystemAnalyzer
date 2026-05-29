@@ -166,6 +166,7 @@ internal abstract class AbstractSimulationMainline
             firstPlayerWinRatePercent,
             resultRows,
             createCsvLines: (outputCsvPath, mode, firstPlayerWinRatePercent, resultRows) => finalRankingDataFileWriter.CreateStandardResultCsvCore(   // TODO: ヘルパー関数じゃなくて、インスタンスのメソッドにできないのかだぜ（＾～＾）？
+                finalRankingDataFileWriter,
                 outputCsvPath,
                 mode,
                 firstPlayerWinRatePercent,
@@ -204,6 +205,7 @@ internal abstract class AbstractSimulationMainline
             firstPlayerWinRatePercent,
             resultRows,
             createCsvLines: (outputCsvPath, mode, firstPlayerWinRatePercent, resultRows) => finalRankingDataFileWriter.CreateFinalStageResultCsvCore(   // TODO: ヘルパー関数じゃなくて、インスタンスのメソッドにできないのかだぜ（＾～＾）？
+                finalRankingDataFileWriter,
                 outputCsvPath,
                 mode,
                 firstPlayerWinRatePercent,
