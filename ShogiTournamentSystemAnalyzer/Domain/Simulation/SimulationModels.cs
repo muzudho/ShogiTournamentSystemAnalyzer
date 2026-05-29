@@ -3,6 +3,8 @@
  */
 namespace ShogiTournamentSystemAnalyzer.Domain.Simulation;
 
+using System.Globalization;
+
 /// <summary>
 /// ［選手］だ。
 /// </summary>
@@ -44,6 +46,12 @@ internal interface ISimulationResultRow
     double? SecondPlayerWinRate { get; }
     double[] PlaceProbabilities { get; }
     double[]? PlaceCounts { get; }
+
+    /// <summary>
+    /// ［最終順位という境界］のCSV形式データの指定列を取得
+    /// </summary>
+    /// <returns></returns>
+    IReadOnlyList<string> GetFinalRankingCsvSpecificColumns();
 }
 
 /// <summary>
@@ -79,7 +87,29 @@ readonly record struct ResultRow(
     double AveragePlace,                // ［標準版］平均順位
     double[] PlaceProbabilities,
     double[]? PlaceCounts)
-    : ISimulationResultRow;
+    : ISimulationResultRow
+{
+    /// <summary>
+    /// ［最終順位という境界］のCSV形式データの指定列を取得
+    /// </summary>
+    /// <returns></returns>
+    public IReadOnlyList<string> GetFinalRankingCsvSpecificColumns()
+    {
+        return
+        [
+            Name,
+            SimulationRatingMath.FormatRating(OriginalRating),
+            SimulationRatingMath.FormatRating(EffectiveRating),
+            SimulationRatingMath.FormatSignedRating(RatingDelta),
+            FirstPlayerCount.ToString(CultureInfo.InvariantCulture),
+            SecondPlayerCount.ToString(CultureInfo.InvariantCulture),
+            SimulationRatingMath.FormatOptionalPercentValue(FirstPlayerWinRate),
+            SimulationRatingMath.FormatOptionalPercentValue(SecondPlayerWinRate),
+            (ChampionshipProbability * 100).ToString("F2", CultureInfo.InvariantCulture),
+            AveragePlace.ToString("F3", CultureInfo.InvariantCulture)
+        ];
+    }
+}
 
 /// <summary>
 ///     <pre>
@@ -120,7 +150,32 @@ readonly record struct FinalStageResultRow(
     double OverallPlaceAverage,         // ［本戦版］全体の平均順位
     double[] PlaceProbabilities,
     double[]? PlaceCounts)
-    : ISimulationResultRow;
+    : ISimulationResultRow
+{
+    /// <summary>
+    /// ［最終順位という境界］のCSV形式データの指定列を取得
+    /// </summary>
+    /// <returns></returns>
+    public IReadOnlyList<string> GetFinalRankingCsvSpecificColumns()
+    {
+        return
+        [
+            Name,
+            Group,
+            SimulationRatingMath.FormatRating(OriginalRating),
+            SimulationRatingMath.FormatRating(EffectiveRating),
+            SimulationRatingMath.FormatSignedRating(RatingDelta),
+            FirstPlayerCount.ToString(CultureInfo.InvariantCulture),
+            SecondPlayerCount.ToString(CultureInfo.InvariantCulture),
+            SimulationRatingMath.FormatOptionalPercentValue(FirstPlayerWinRate),
+            SimulationRatingMath.FormatOptionalPercentValue(SecondPlayerWinRate),
+            (GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture),
+            GroupPlaceAverage.ToString("F3", CultureInfo.InvariantCulture),
+            (OverallPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture),
+            OverallPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)
+        ];
+    }
+}
 
 
 /// <summary>

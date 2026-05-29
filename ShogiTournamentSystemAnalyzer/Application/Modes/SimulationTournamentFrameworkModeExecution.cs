@@ -186,7 +186,6 @@ internal static partial class SimulationTournamentFrameworkMode
         WriterHelper.WriteText(
             outputPath: outputCsvPath,
             getLines: () => finalRankingDataFileWriter.CreateStandardResultCsvCore(
-                finalRankingDataFileWriter,
                 outputCsvPath,
                 finalRankingCalculation.Mode,
                 tournamentRuleData.FirstPlayerWinRatePercent ?? context.FirstPlayerWinRatePercent,
@@ -202,11 +201,11 @@ internal static partial class SimulationTournamentFrameworkMode
         WriterHelper.WriteText(
             outputPath: outputMarkdownPath,
             getLines: () => finalRankingDataFileWriter.CreateStandardResultMarkdownCore(
-                outputMarkdownPath,
-                outputCsvPath,
-                finalRankingCalculation.Mode,
-                tournamentRuleData.FirstPlayerWinRatePercent ?? context.FirstPlayerWinRatePercent,
-                finalRankingRows,
+                outputMarkdownPath: outputMarkdownPath,
+                outputCsvPath: outputCsvPath,
+                mode: finalRankingCalculation.Mode,
+                firstPlayerWinRatePercent: tournamentRuleData.FirstPlayerWinRatePercent ?? context.FirstPlayerWinRatePercent,
+                resultRows: finalRankingRows,
                 overviewNote: "この順位表は複数回試行の aggregate 結果です。下記の大会最終状態テーブルとは 1 対 1 には対応しません。",
                 representativeRankingMarkdownPath: representativeRankingMarkdownPath));
 
