@@ -27,7 +27,7 @@ internal class FinalRankingDataFileWriter
 
 
     // ========================================
-    // TODO: 将来的に DSL / ルール設定ファイルへ外出ししたいもの
+    // 構成
     // ========================================
 
 
@@ -37,32 +37,6 @@ internal class FinalRankingDataFileWriter
     /// ［最終順位という境界］の設定
     /// </summary>
     internal FinalRankingDataFileWriterSettings Settings { get; init; }
-
-    /// <summary>
-    /// ［最終順位テーブルタイプ・ファイルの名前］取得
-    /// 
-    /// TODO: 例えば、入力画面で［RuleProfileMode］を選ばせるんじゃなくて、［{大会ルール設定ファイル名}.json］を選択させるようにして、そこからルールプロファイルモードを決定するようにしたらいいんじゃないか（＾▽＾）？　どう思う（＾～＾）？
-    /// </summary>
-    /// <returns></returns>
-    internal string GetFinalRankingTableTypeFileName()
-    {
-        return this.Settings.GetFinalRankingTableTypeFileName();
-    }
-
-    #endregion
-
-    #region ［スキーマ名］
-
-    /// <summary>
-    /// ［スキーマ名］取得
-    /// 
-    /// TODO: ［{大会ルール設定ファイル名}.json］からスキーマ名を取得するようにしたらいいんじゃないか（＾▽＾）？　どう思う（＾～＾）？
-    /// </summary>
-    /// <returns></returns>
-    internal string GetSchemaName()
-    {
-        return this.Settings.GetSchemaName();
-    }
 
     #endregion
 
@@ -74,16 +48,11 @@ internal class FinalRankingDataFileWriter
     /// <returns></returns>
     protected IReadOnlyList<string> GetFinalRankingFixedColumns()
     {
-        return finalRankingFixedColumns ??= LoadFixedColumns(this.GetFinalRankingTableTypeFileName());
+        return finalRankingFixedColumns ??= LoadFixedColumns(this.Settings.GetFinalRankingTableTypeFileName());
     }
     static IReadOnlyList<string>? finalRankingFixedColumns;
 
     #endregion
-
-
-    // ========================================
-    // 構成
-    // ========================================
 
 
     #region ［最終順位という境界］のCSV形式データ
@@ -209,7 +178,7 @@ internal class FinalRankingDataFileWriter
             var specificColumns = BuildFinalRankingSpecificColumns(mode, firstPlayerWinRatePercent, row, overviewNote);
             var columns = CsvSchemaCommonColumns.BuildRowColumns(
                 boundaryName: "FinalRanking",
-                schemaName: GetSchemaName(),
+                schemaName: this.Settings.GetSchemaName(),
                 rowType: "data",
                 specificColumns.ToArray());
 
