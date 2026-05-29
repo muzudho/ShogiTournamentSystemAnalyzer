@@ -55,6 +55,31 @@ internal interface ISimulationResultRow
 }
 
 /// <summary>
+/// ［シミュレーション］結果の行の共通データ
+/// </summary>
+/// <param name="Name"></param>
+/// <param name="OriginalRating"></param>
+/// <param name="EffectiveRating"></param>
+/// <param name="RatingDelta"></param>
+/// <param name="FirstPlayerCount"></param>
+/// <param name="SecondPlayerCount"></param>
+/// <param name="FirstPlayerWinRate"></param>
+/// <param name="SecondPlayerWinRate"></param>
+/// <param name="PlaceProbabilities"></param>
+/// <param name="PlaceCounts"></param>
+readonly record struct SimulationResultRowCommonData(
+    string Name,
+    double OriginalRating,
+    double EffectiveRating,
+    double RatingDelta,
+    int FirstPlayerCount,
+    int SecondPlayerCount,
+    double? FirstPlayerWinRate,
+    double? SecondPlayerWinRate,
+    double[] PlaceProbabilities,
+    double[]? PlaceCounts);
+
+/// <summary>
 ///     <pre>
 /// ［標準版］の結果の行
 /// 
@@ -75,20 +100,22 @@ internal interface ISimulationResultRow
 /// <param name="PlaceProbabilities"></param>
 /// <param name="PlaceCounts"></param>
 readonly record struct ResultRow(
-    string Name,
-    double OriginalRating,
-    double EffectiveRating,
-    double RatingDelta,
-    int FirstPlayerCount,
-    int SecondPlayerCount,
-    double? FirstPlayerWinRate,
-    double? SecondPlayerWinRate,
+    SimulationResultRowCommonData CommonData,
     double ChampionshipProbability,     // ［標準版］優勝確率
     double AveragePlace,                // ［標準版］平均順位
     double[] PlaceProbabilities,
     double[]? PlaceCounts)
     : ISimulationResultRow
 {
+    public string Name => CommonData.Name;
+    public double OriginalRating => CommonData.OriginalRating;
+    public double EffectiveRating => CommonData.EffectiveRating;
+    public double RatingDelta => CommonData.RatingDelta;
+    public int FirstPlayerCount => CommonData.FirstPlayerCount;
+    public int SecondPlayerCount => CommonData.SecondPlayerCount;
+    public double? FirstPlayerWinRate => CommonData.FirstPlayerWinRate;
+    public double? SecondPlayerWinRate => CommonData.SecondPlayerWinRate;
+
     /// <summary>
     /// ［最終順位という境界］のCSV形式データの指定列を取得
     /// </summary>
@@ -135,15 +162,8 @@ readonly record struct ResultRow(
 /// <param name="PlaceProbabilities"></param>
 /// <param name="PlaceCounts"></param>
 readonly record struct FinalStageResultRow(
-    string Name,
+    SimulationResultRowCommonData CommonData,
     string Group,   // ［本戦版］の行にはグループ列がある
-    double OriginalRating,
-    double EffectiveRating,
-    double RatingDelta,
-    int FirstPlayerCount,
-    int SecondPlayerCount,
-    double? FirstPlayerWinRate,
-    double? SecondPlayerWinRate,
     double GroupPlace1Probability,      // ［本戦版］グループ内1位の確率
     double GroupPlaceAverage,           // ［本戦版］グループ内の平均順位
     double OverallPlace1Probability,    // ［本戦版］全体で1位の確率
@@ -152,6 +172,15 @@ readonly record struct FinalStageResultRow(
     double[]? PlaceCounts)
     : ISimulationResultRow
 {
+    public string Name => CommonData.Name;
+    public double OriginalRating => CommonData.OriginalRating;
+    public double EffectiveRating => CommonData.EffectiveRating;
+    public double RatingDelta => CommonData.RatingDelta;
+    public int FirstPlayerCount => CommonData.FirstPlayerCount;
+    public int SecondPlayerCount => CommonData.SecondPlayerCount;
+    public double? FirstPlayerWinRate => CommonData.FirstPlayerWinRate;
+    public double? SecondPlayerWinRate => CommonData.SecondPlayerWinRate;
+
     /// <summary>
     /// ［最終順位という境界］のCSV形式データの指定列を取得
     /// </summary>

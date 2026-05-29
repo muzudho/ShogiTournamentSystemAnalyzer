@@ -134,13 +134,13 @@ internal class FinalRankingDataFileWriter
     {
         return resultRows switch
         {
-            IReadOnlyList<ResultRow> standardRows => CreateStandardResultCsvCore(
+            IReadOnlyList<ResultRow> standardRows => CreateResultCsvForStandardRows(
                 outputCsvPath,
                 mode,
                 firstPlayerWinRatePercent,
                 standardRows,
                 overviewNote),
-            IReadOnlyList<FinalStageResultRow> finalStageRows => CreateFinalStageResultCsvCore(
+            IReadOnlyList<FinalStageResultRow> finalStageRows => CreateResultCsvForFinalStageRows(
                 outputCsvPath,
                 mode,
                 firstPlayerWinRatePercent,
@@ -289,7 +289,7 @@ internal class FinalRankingDataFileWriter
     {
         return resultRows switch
         {
-            IReadOnlyList<ResultRow> standardRows => CreateStandardResultMarkdownCore(
+            IReadOnlyList<ResultRow> standardRows => CreateResultMarkdownForStandardRows(
                 outputMarkdownPath,
                 outputCsvPath,
                 mode,
@@ -298,7 +298,7 @@ internal class FinalRankingDataFileWriter
                 overviewNote,
                 representativeRankingMarkdownPath,
                 referenceMatchesCsvPath),
-            IReadOnlyList<FinalStageResultRow> finalStageRows => CreateFinalStageResultMarkdownCore(
+            IReadOnlyList<FinalStageResultRow> finalStageRows => CreateResultMarkdownForFinalStageRows(
                 outputMarkdownPath,
                 outputCsvPath,
                 mode,
@@ -601,7 +601,7 @@ internal class FinalRankingDataFileWriter
     /// <param name="resultRows"></param>
     /// <param name="overviewNote">TODO: これ［本戦］に無いの（＾～＾）？</param>
     /// <returns></returns>
-    internal IEnumerable<string> CreateStandardResultCsvCore(
+    IEnumerable<string> CreateResultCsvForStandardRows(
         string outputCsvPath,
         string mode,
         double firstPlayerWinRatePercent,
@@ -622,7 +622,7 @@ internal class FinalRankingDataFileWriter
     /// <param name="firstPlayerWinRatePercent"></param>
     /// <param name="resultRows"></param>
     /// <returns></returns>
-    internal IEnumerable<string> CreateFinalStageResultCsvCore(
+    IEnumerable<string> CreateResultCsvForFinalStageRows(
         string outputCsvPath,
         string mode,
         double firstPlayerWinRatePercent,
@@ -640,7 +640,7 @@ internal class FinalRankingDataFileWriter
     /// <summary>
     /// これは［標準版］。
     /// 
-    /// TODO: おー、メソッドのシグニチャが揃ってきたな（＾▽＾） `CreateFinalStageResultMarkdownCore` メソッドと統合できる感じかだぜ（＾▽＾）？
+    /// TODO: おー、メソッドのシグニチャが揃ってきたな（＾▽＾） `CreateFinalStageResultMarkdownCore` メソッドと統合してほしいが、内容見ると、固有な感じかだぜ（＾～＾）？　メソッドを統合して、中でif分岐する感じかだぜ（＾～＾）？
     /// </summary>
     /// <param name="outputMarkdownPath"></param>
     /// <param name="outputCsvPath"></param>
@@ -651,7 +651,7 @@ internal class FinalRankingDataFileWriter
     /// <param name="representativeRankingMarkdownPath"></param>
     /// <param name="referenceMatchesCsvPath"></param>
     /// <returns></returns>
-    internal IEnumerable<string> CreateStandardResultMarkdownCore(
+    IEnumerable<string> CreateResultMarkdownForStandardRows(
         string outputMarkdownPath,
         string outputCsvPath,
         string mode,
@@ -663,26 +663,31 @@ internal class FinalRankingDataFileWriter
     {
         _ = referenceMatchesCsvPath;
 
+        // ［上位候補］の行？
         var topChampionshipRows = resultRows
             .OrderByDescending(row => row.ChampionshipProbability)
             .ThenBy(row => row.AveragePlace)
             .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
             .Take(8)
             .ToArray();
+        // ［優勝確率が最も高い選手］の行？
         var bestChampionshipRow = resultRows
             .OrderByDescending(row => row.ChampionshipProbability)
             .ThenBy(row => row.AveragePlace)
             .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
             .FirstOrDefault();
+        // ［平均順位が最も良い選手］の行？
         var bestAveragePlaceRow = resultRows
             .OrderBy(row => row.AveragePlace)
             .ThenByDescending(row => row.ChampionshipProbability)
             .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
             .FirstOrDefault();
+        // ［Elo差分が最もプラスな選手］の行？
         var biggestBoostRow = resultRows
             .OrderByDescending(row => row.RatingDelta)
             .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
             .FirstOrDefault();
+        // ［Elo差分が最もマイナスな選手］の行？
         var biggestDropRow = resultRows
             .OrderBy(row => row.RatingDelta)
             .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
@@ -753,7 +758,7 @@ internal class FinalRankingDataFileWriter
     /// <summary>
     /// これは［本戦版］。
     /// 
-    /// TODO: おー、メソッドのシグニチャが揃ってきたな（＾▽＾） `CreateResultMarkdownCore` メソッドと統合できる感じかだぜ（＾▽＾）？
+    /// TODO: おー、メソッドのシグニチャが揃ってきたな（＾▽＾） `CreateResultMarkdownCore` メソッドと統合してほしいが、内容見ると、固有な感じかだぜ（＾～＾）？　メソッドを統合して、中でif分岐する感じかだぜ（＾～＾）？
     /// </summary>
     /// <param name="outputMarkdownPath"></param>
     /// <param name="outputCsvPath"></param>
@@ -762,7 +767,7 @@ internal class FinalRankingDataFileWriter
     /// <param name="resultRows"></param>
     /// <param name="referenceMatchesCsvPath">参考対局CSVファイルへのパス</param>
     /// <returns></returns>
-    internal IEnumerable<string> CreateFinalStageResultMarkdownCore(
+    IEnumerable<string> CreateResultMarkdownForFinalStageRows(
         string outputMarkdownPath,
         string outputCsvPath,
         string mode,
@@ -772,6 +777,7 @@ internal class FinalRankingDataFileWriter
         string? representativeRankingMarkdownPath = null,
         string? referenceMatchesCsvPath = null)
     {
+        // ［上位候補］の行？
         var topRows = resultRows
             .OrderByDescending(row => row.OverallPlace1Probability)
             .ThenBy(row => row.OverallPlaceAverage)
@@ -891,6 +897,8 @@ internal class FinalRankingDataFileWriter
 
     #endregion
 
+    #region ［数値の言語化］
+
     protected static string BuildTop1Comment(double top1Probability)
     {
         var percent = top1Probability * 100;
@@ -945,4 +953,7 @@ internal class FinalRankingDataFileWriter
             _ => "Innov 側の先頭感もかなり強いです。",
         };
     }
+
+    #endregion
+
 }

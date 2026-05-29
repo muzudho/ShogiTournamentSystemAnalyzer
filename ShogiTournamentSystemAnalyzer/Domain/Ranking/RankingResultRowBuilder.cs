@@ -38,6 +38,20 @@ internal static class RankingResultRowBuilder
         {
             var expectedPlace = Enumerable.Range(0, players.Count)
                 .Sum(place => (place + 1) * result.PlaceProbabilities[playerIndex, place]);
+            var commonData = CreateCommonData(playerIndex);
+
+            rows.Add(new ResultRow(
+                commonData,
+                result.PlaceProbabilities[playerIndex, 0],
+                expectedPlace,
+                commonData.PlaceProbabilities,
+                commonData.PlaceCounts));
+        }
+
+        return rows;
+
+        SimulationResultRowCommonData CreateCommonData(int playerIndex)
+        {
             var firstPlayerWinRate = firstPlayerCounts[playerIndex] == 0
                 ? (double?)null
                 : firstPlayerWinProbabilitySums[playerIndex] / firstPlayerCounts[playerIndex];
@@ -56,7 +70,7 @@ internal static class RankingResultRowBuilder
                 ? placeProbabilities.Select(value => value * result.SimulationCount.Value).ToArray()
                 : null;
 
-            rows.Add(new ResultRow(
+            return new SimulationResultRowCommonData(
                 players[playerIndex].Name,
                 players[playerIndex].Rating,
                 effectiveRating,
@@ -65,13 +79,9 @@ internal static class RankingResultRowBuilder
                 secondPlayerCounts[playerIndex],
                 firstPlayerWinRate,
                 secondPlayerWinRate,
-                result.PlaceProbabilities[playerIndex, 0],
-                expectedPlace,
                 placeProbabilities,
-                placeCounts));
+                placeCounts);
         }
-
-        return rows;
     }
 
     internal static List<FinalStageResultRow> BuildFinalStageResultRows(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, CalculationResult result, double firstPlayerWinRatePercent, IReadOnlyDictionary<string, FinalStageGroup> groupMap, int additionalApexCount)
@@ -90,15 +100,8 @@ internal static class RankingResultRowBuilder
                     .Sum(offset => (offset + 1) * row.PlaceProbabilities[groupStartIndex + offset]);
 
                 return new FinalStageResultRow(
-                    row.Name,
+                    row.CommonData,
                     group.ToString(),
-                    row.OriginalRating,
-                    row.EffectiveRating,
-                    row.RatingDelta,
-                    row.FirstPlayerCount,
-                    row.SecondPlayerCount,
-                    row.FirstPlayerWinRate,
-                    row.SecondPlayerWinRate,
                     row.PlaceProbabilities[groupStartIndex],
                     groupPlaceAverage,
                     row.PlaceProbabilities[0],
