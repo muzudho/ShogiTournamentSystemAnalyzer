@@ -9,7 +9,6 @@ using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.Shared;
 using Scriban;
-using Scriban.Runtime;
 using System.Globalization;
 
 /// <summary>
@@ -73,77 +72,29 @@ internal class FinalRankingMarkdownFileWriter
     {
         return resultRows switch
         {
-            IReadOnlyList<StandardResultRow> standardRows => SplitMarkdownLines(RenderMarkdownTemplate(BuildMarkdownTemplateModel(
-                outputMarkdownPath: outputMarkdownPath,
-                outputCsvPath: outputCsvPath,
-                mode: mode,
-                firstPlayerWinRatePercent: firstPlayerWinRatePercent,
-                playerCount: standardRows.Count,
-                editionLabel: "標準版",
-                primarySectionsText: BuildMarkdownSectionsText(BuildStandardPrimarySections(standardRows)),
-                primaryTableRowsText: BuildMarkdownLinesText(BuildStandardPrimaryTableRows(standardRows)),
-                trailingSectionsText: string.Empty,
-                chartsText: BuildMarkdownChartsText(BuildStandardCharts(standardRows)),
-                overviewNote: overviewNote,
-                representativeRankingMarkdownPath: representativeRankingMarkdownPath,
-                referenceMatchesCsvPath: referenceMatchesCsvPath))),
-            IReadOnlyList<FinalStageResultRow> finalStageRows => SplitMarkdownLines(RenderMarkdownTemplate(BuildMarkdownTemplateModel(
-                outputMarkdownPath: outputMarkdownPath,
-                outputCsvPath: outputCsvPath,
-                mode: mode,
-                firstPlayerWinRatePercent: firstPlayerWinRatePercent,
-                playerCount: finalStageRows.Count,
-                editionLabel: "本戦版",
-                primarySectionsText: BuildMarkdownSectionsText(BuildFinalStagePrimarySections(finalStageRows)),
-                primaryTableRowsText: BuildMarkdownLinesText(BuildFinalStagePrimaryTableRows(finalStageRows)),
-                trailingSectionsText: BuildMarkdownSectionsText(BuildFinalStageTrailingSections(finalStageRows)),
-                chartsText: BuildMarkdownChartsText(BuildFinalStageCharts(finalStageRows)),
-                overviewNote: overviewNote,
-                representativeRankingMarkdownPath: representativeRankingMarkdownPath,
-                referenceMatchesCsvPath: referenceMatchesCsvPath))),
+            IReadOnlyList<StandardResultRow> standardRows => SplitMarkdownLines(RenderMarkdownTemplate(BuildStandardMarkdownTemplateModel(
+                outputMarkdownPath,
+                outputCsvPath,
+                mode,
+                firstPlayerWinRatePercent,
+                standardRows,
+                overviewNote,
+                representativeRankingMarkdownPath,
+                referenceMatchesCsvPath))),
+            IReadOnlyList<FinalStageResultRow> finalStageRows => SplitMarkdownLines(RenderMarkdownTemplate(BuildFinalStageMarkdownTemplateModel(
+                outputMarkdownPath,
+                outputCsvPath,
+                mode,
+                firstPlayerWinRatePercent,
+                finalStageRows,
+                overviewNote,
+                representativeRankingMarkdownPath,
+                referenceMatchesCsvPath))),
             _ => throw new InvalidOperationException($"未対応の結果行型: {typeof(TRow).FullName}")
         };
     }
 
-    static ScriptObject BuildMarkdownTemplateModel(
-        string outputMarkdownPath,
-        string outputCsvPath,
-        string mode,
-        double firstPlayerWinRatePercent,
-        int playerCount,
-        string editionLabel,
-        string primarySectionsText,
-        string primaryTableRowsText,
-        string trailingSectionsText,
-        string chartsText,
-        string? overviewNote,
-        string? representativeRankingMarkdownPath,
-        string? referenceMatchesCsvPath)
-    {
-        var model = new ScriptObject
-        {
-            ["output_csv_link"] = MarkdownOutputHelpers.BuildMarkdownFileLink(outputMarkdownPath, outputCsvPath),
-            ["edition_label"] = editionLabel,
-            ["mode"] = mode,
-            ["first_player_win_rate_percent"] = firstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture),
-            ["player_count"] = playerCount,
-            ["overview_note"] = overviewNote,
-            ["representative_ranking_markdown_link"] = string.IsNullOrWhiteSpace(representativeRankingMarkdownPath)
-                ? null
-                : MarkdownOutputHelpers.BuildMarkdownFileLink(outputMarkdownPath, representativeRankingMarkdownPath),
-            ["reference_matches_csv_link"] = string.IsNullOrWhiteSpace(referenceMatchesCsvPath)
-                ? null
-                : MarkdownOutputHelpers.BuildMarkdownFileLink(outputMarkdownPath, referenceMatchesCsvPath),
-            ["primary_sections_text"] = primarySectionsText,
-            ["primary_table_rows_text"] = primaryTableRowsText,
-            ["trailing_sections_text"] = trailingSectionsText,
-            ["charts_text"] = chartsText,
-        };
-
-        return model;
-    }
-
-    static string RenderMarkdownTemplate(ScriptObject model)
+    static string RenderMarkdownTemplate(MarkdownTemplateModel model)
     {
         var templatePath = Path.Combine(AppContext.BaseDirectory, "Infrastructure", "DataFiles", "FinalRanking", "FinalRankingMarkdownTemplate.sbn.md");
         var templateText = File.ReadAllText(templatePath);
@@ -153,9 +104,7 @@ internal class FinalRankingMarkdownFileWriter
             throw new InvalidOperationException(string.Join(Environment.NewLine, template.Messages));
         }
 
-        var context = new TemplateContext();
-        context.PushGlobal(model);
-        return template.Render(context);
+        return template.Render(model);
     }
 
     static IEnumerable<string> SplitMarkdownLines(string markdownText)
@@ -170,56 +119,153 @@ internal class FinalRankingMarkdownFileWriter
         return lines;
     }
 
-    static string BuildMarkdownLinesText(IEnumerable<string> lines)
+    static IEnumerable<string> BuildStandardAttentionPoints(IReadOnlyList<StandardResultRow> resultRows)
     {
-        return string.Join(Environment.NewLine, lines);
+        var hasBestChampionshipRow = TrySelectBestRow(resultRows, row => row.ChampionshipProbability, row => row.AveragePlace, out var bestChampionshipRow);
+        var hasBestAveragePlaceRow = TrySelectBestRow(resultRows, row => -row.AveragePlace, row => -row.ChampionshipProbability, out var bestAveragePlaceRow);
+        var hasBiggestBoostRow = TrySelectBestRow(resultRows, row => row.RatingDelta, row => 0, out var biggestBoostRow);
+        var hasBiggestDropRow = TrySelectBestRow(resultRows, row => -row.RatingDelta, row => 0, out var biggestDropRow);
+
+        return
+        [
+            $"優勝確率が最も高い選手: **{(hasBestChampionshipRow ? bestChampionshipRow.Name : "該当なし")}**（{((hasBestChampionshipRow ? bestChampionshipRow.ChampionshipProbability : 0) * 100).ToString("F2", CultureInfo.InvariantCulture)}%）",
+            $"平均順位が最も良い選手: **{(hasBestAveragePlaceRow ? bestAveragePlaceRow.Name : "該当なし")}**（{(hasBestAveragePlaceRow ? bestAveragePlaceRow.AveragePlace : 0).ToString("F3", CultureInfo.InvariantCulture)}）",
+            $"実効Elo差分が最も大きくプラスの選手: **{(hasBiggestBoostRow ? biggestBoostRow.Name : "該当なし")}**（{SimulationRatingMath.FormatSignedRating(hasBiggestBoostRow ? biggestBoostRow.RatingDelta : 0)}）",
+            $"実効Elo差分が最も大きくマイナスの選手: **{(hasBiggestDropRow ? biggestDropRow.Name : "該当なし")}**（{SimulationRatingMath.FormatSignedRating(hasBiggestDropRow ? biggestDropRow.RatingDelta : 0)}）"
+        ];
     }
 
-    static string BuildMarkdownSectionsText(IEnumerable<string>[] sections)
+    static IEnumerable<string> BuildStandardAutoComments(IReadOnlyList<StandardResultRow> resultRows)
     {
-        var lines = new List<string>();
-        foreach (var section in sections)
-        {
-            if (lines.Count > 0)
-            {
-                lines.Add(string.Empty);
-            }
+        var hasBestChampionshipRow = TrySelectBestRow(resultRows, row => row.ChampionshipProbability, row => row.AveragePlace, out var bestChampionshipRow);
+        var hasBestAveragePlaceRow = TrySelectBestRow(resultRows, row => -row.AveragePlace, row => -row.ChampionshipProbability, out var bestAveragePlaceRow);
+        var hasBiggestBoostRow = TrySelectBestRow(resultRows, row => row.RatingDelta, row => 0, out var biggestBoostRow);
+        var hasBiggestDropRow = TrySelectBestRow(resultRows, row => -row.RatingDelta, row => 0, out var biggestDropRow);
 
-            lines.AddRange(section);
-        }
-
-        return string.Join(Environment.NewLine, lines);
+        return
+        [
+            $"優勝候補の強さ: {BuildTop1Comment(hasBestChampionshipRow ? bestChampionshipRow.ChampionshipProbability : 0)}",
+            $"先頭の平均順位: {BuildAveragePlaceComment(hasBestAveragePlaceRow ? bestAveragePlaceRow.AveragePlace : 0)}",
+            $"実効Eloの押し上げ: {BuildRatingDeltaComment(hasBiggestBoostRow ? biggestBoostRow.RatingDelta : 0, hasBiggestDropRow ? biggestDropRow.RatingDelta : 0)}"
+        ];
     }
 
-    static string BuildMarkdownChartsText(FinalRankingMarkdownChartSpec[] charts)
+    static IEnumerable<string> BuildStandardPrimaryTableRows(IReadOnlyList<StandardResultRow> resultRows)
     {
-        if (charts.Length == 0)
+        var topChampionshipRows = SelectTopRows(resultRows, row => row.ChampionshipProbability, row => row.AveragePlace, takeCount: 8);
+        return BuildMarkdownTableRows(topChampionshipRows, row =>
+            $"| {row.Name} | {SimulationRatingMath.FormatRating(row.OriginalRating)} | {SimulationRatingMath.FormatRating(row.EffectiveRating)} | {SimulationRatingMath.FormatSignedRating(row.RatingDelta)} | {(row.ChampionshipProbability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {row.AveragePlace.ToString("F3", CultureInfo.InvariantCulture)} |").ToArray();
+    }
+
+    static FinalRankingMarkdownChartSpec[] BuildStandardCharts(IReadOnlyList<StandardResultRow> resultRows)
+    {
+        var topChampionshipRows = SelectTopRows(resultRows, row => row.ChampionshipProbability, row => row.AveragePlace, takeCount: 8);
+        if (topChampionshipRows.Length == 0) return [];
+
+        return
+        [
+            new(
+                "上位候補の優勝確率",
+                topChampionshipRows.Select(row => row.Name),
+                "優勝確率(%)",
+                "0 --> 100",
+                topChampionshipRows.Select(row => (row.ChampionshipProbability * 100).ToString("F2", CultureInfo.InvariantCulture))),
+            new(
+                "上位候補の平均順位",
+                topChampionshipRows.Select(row => row.Name),
+                "平均順位",
+                "1 --> " + Math.Max(2, resultRows.Count).ToString(CultureInfo.InvariantCulture),
+                topChampionshipRows.Select(row => row.AveragePlace.ToString("F3", CultureInfo.InvariantCulture)))
+        ];
+    }
+
+    static IEnumerable<string> BuildFinalStageAttentionPoints(IReadOnlyList<FinalStageResultRow> resultRows)
+    {
+        var hasBestOverallRow = TrySelectBestRow(resultRows, row => row.OverallPlace1Probability, row => row.OverallPlaceAverage, out var bestOverallRow);
+        var apexRows = SelectTopRowsByGroup(resultRows, row => string.Equals(row.Group, "Apex", StringComparison.OrdinalIgnoreCase), row => row.GroupPlace1Probability, row => row.GroupPlaceAverage, takeCount: 4);
+        var innovRows = SelectTopRowsByGroup(resultRows, row => string.Equals(row.Group, "Innov", StringComparison.OrdinalIgnoreCase), row => row.GroupPlace1Probability, row => row.GroupPlaceAverage, takeCount: 4);
+        var hasBestApexRow = TrySelectBestRow(apexRows, row => row.GroupPlace1Probability, row => row.GroupPlaceAverage, out var bestApexRow);
+        var hasBestInnovRow = TrySelectBestRow(innovRows, row => row.GroupPlace1Probability, row => row.GroupPlaceAverage, out var bestInnovRow);
+
+        return
+        [
+            $"総合1位確率が最も高い選手: **{(hasBestOverallRow ? bestOverallRow.Name : "該当なし")}**（{((hasBestOverallRow ? bestOverallRow.OverallPlace1Probability : 0) * 100).ToString("F2", CultureInfo.InvariantCulture)}%）",
+            $"Apex で最も有力な選手: **{(hasBestApexRow ? bestApexRow.Name : "該当なし")}**（グループ1位確率 {((hasBestApexRow ? bestApexRow.GroupPlace1Probability : 0) * 100).ToString("F2", CultureInfo.InvariantCulture)}%）",
+            $"Innov で最も有力な選手: **{(hasBestInnovRow ? bestInnovRow.Name : "該当なし")}**（グループ1位確率 {((hasBestInnovRow ? bestInnovRow.GroupPlace1Probability : 0) * 100).ToString("F2", CultureInfo.InvariantCulture)}%）"
+        ];
+    }
+
+    static IEnumerable<string> BuildFinalStageAutoComments(IReadOnlyList<FinalStageResultRow> resultRows)
+    {
+        var hasBestOverallRow = TrySelectBestRow(resultRows, row => row.OverallPlace1Probability, row => row.OverallPlaceAverage, out var bestOverallRow);
+        var apexRows = SelectTopRowsByGroup(resultRows, row => string.Equals(row.Group, "Apex", StringComparison.OrdinalIgnoreCase), row => row.GroupPlace1Probability, row => row.GroupPlaceAverage, takeCount: 4);
+        var innovRows = SelectTopRowsByGroup(resultRows, row => string.Equals(row.Group, "Innov", StringComparison.OrdinalIgnoreCase), row => row.GroupPlace1Probability, row => row.GroupPlaceAverage, takeCount: 4);
+        var hasBestApexRow = TrySelectBestRow(apexRows, row => row.GroupPlace1Probability, row => row.GroupPlaceAverage, out var bestApexRow);
+        var hasBestInnovRow = TrySelectBestRow(innovRows, row => row.GroupPlace1Probability, row => row.GroupPlaceAverage, out var bestInnovRow);
+
+        return
+        [
+            $"総合1位候補の強さ: {BuildTop1Comment(hasBestOverallRow ? bestOverallRow.OverallPlace1Probability : 0)}",
+            $"Apex の先頭感: {BuildGroupLeadComment(hasBestApexRow ? bestApexRow.GroupPlace1Probability : 0, hasBestApexRow ? bestApexRow.GroupPlaceAverage : 0)}",
+            $"Innov の先頭感: {BuildGroupLeadComment(hasBestInnovRow ? bestInnovRow.GroupPlace1Probability : 0, hasBestInnovRow ? bestInnovRow.GroupPlaceAverage : 0)}",
+            $"Apex / Innov の先頭差: {BuildApexInnovGapComment(hasBestApexRow ? bestApexRow.GroupPlace1Probability : 0, hasBestInnovRow ? bestInnovRow.GroupPlace1Probability : 0)}"
+        ];
+    }
+
+    static IEnumerable<string> BuildFinalStagePrimaryTableRows(IReadOnlyList<FinalStageResultRow> resultRows)
+    {
+        var topRows = SelectTopRows(resultRows, row => row.OverallPlace1Probability, row => row.OverallPlaceAverage, takeCount: 8);
+        return BuildMarkdownTableRows(topRows, row =>
+            $"| {row.Name} | {row.Group} | {SimulationRatingMath.FormatRating(row.OriginalRating)} | {SimulationRatingMath.FormatRating(row.EffectiveRating)} | {SimulationRatingMath.FormatSignedRating(row.RatingDelta)} | {(row.GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {(row.OverallPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {row.OverallPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} |").ToArray();
+    }
+
+    static MarkdownTemplateSection[] BuildFinalStageTrailingSections(IReadOnlyList<FinalStageResultRow> resultRows)
+    {
+        var sections = new List<MarkdownTemplateSection>();
+        var apexRows = SelectTopRowsByGroup(resultRows, row => string.Equals(row.Group, "Apex", StringComparison.OrdinalIgnoreCase), row => row.GroupPlace1Probability, row => row.GroupPlaceAverage, takeCount: 4);
+        var innovRows = SelectTopRowsByGroup(resultRows, row => string.Equals(row.Group, "Innov", StringComparison.OrdinalIgnoreCase), row => row.GroupPlace1Probability, row => row.GroupPlaceAverage, takeCount: 4);
+
+        if (apexRows.Length > 0)
         {
-            return string.Empty;
+            sections.Add(new MarkdownTemplateSection(
+                "## Apex 注目候補",
+                "| 選手 | 元Elo | 実効Elo | グループ1位確率 | グループ平均順位 | 総合平均順位 |\n| --- | ---: | ---: | ---: | ---: | ---: |",
+                BuildMarkdownTableRows(apexRows, row =>
+                    $"| {row.Name} | {SimulationRatingMath.FormatRating(row.OriginalRating)} | {SimulationRatingMath.FormatRating(row.EffectiveRating)} | {(row.GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {row.GroupPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} | {row.OverallPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} |").ToArray()));
         }
 
-        var lines = new List<string>
+        if (innovRows.Length > 0)
         {
-            "## Mermaid 図"
-        };
-
-        for (var index = 0; index < charts.Length; index++)
-        {
-            if (index > 0)
-            {
-                lines.Add(string.Empty);
-            }
-
-            var chart = charts[index];
-            lines.AddRange(BuildMermaidXychartLines(
-                chart.Title,
-                chart.Categories,
-                chart.YAxisLabel,
-                chart.YAxisRange,
-                chart.Values));
+            sections.Add(new MarkdownTemplateSection(
+                "## Innov 注目候補",
+                "| 選手 | 元Elo | 実効Elo | グループ1位確率 | グループ平均順位 | 総合平均順位 |\n| --- | ---: | ---: | ---: | ---: | ---: |",
+                BuildMarkdownTableRows(innovRows, row =>
+                    $"| {row.Name} | {SimulationRatingMath.FormatRating(row.OriginalRating)} | {SimulationRatingMath.FormatRating(row.EffectiveRating)} | {(row.GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {row.GroupPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} | {row.OverallPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} |").ToArray()));
         }
 
-        return string.Join(Environment.NewLine, lines);
+        return sections.ToArray();
+    }
+
+    static FinalRankingMarkdownChartSpec[] BuildFinalStageCharts(IReadOnlyList<FinalStageResultRow> resultRows)
+    {
+        var topRows = SelectTopRows(resultRows, row => row.OverallPlace1Probability, row => row.OverallPlaceAverage, takeCount: 8);
+        if (topRows.Length == 0) return [];
+
+        return
+        [
+            new(
+                "上位候補の総合1位確率",
+                topRows.Select(row => row.Name),
+                "総合1位確率(%)",
+                "0 --> 100",
+                topRows.Select(row => (row.OverallPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture))),
+            new(
+                "上位候補のグループ1位確率",
+                topRows.Select(row => row.Name),
+                "グループ1位確率(%)",
+                "0 --> 100",
+                topRows.Select(row => (row.GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)))
+        ];
     }
 
     static TRow[] SelectTopRows<TRow>(
@@ -276,209 +322,188 @@ internal class FinalRankingMarkdownFileWriter
         return rows.Select(formatter);
     }
 
-    /// <summary>
-    /// TODO: ［標準ルール］用なんで、切り出したいぜ（＾～＾）
-    /// </summary>
-    /// <param name="resultRows"></param>
-    /// <returns></returns>
-    static IEnumerable<string>[] BuildStandardPrimarySections(IReadOnlyList<StandardResultRow> resultRows)
+    static string? BuildOptionalMarkdownLink(string markdownPath, string? targetPath)
+    {
+        return string.IsNullOrWhiteSpace(targetPath)
+            ? null
+            : MarkdownOutputHelpers.BuildMarkdownFileLink(markdownPath, targetPath);
+    }
+
+    sealed record class MarkdownTemplateModel
+    {
+        public string OutputCsvLink { get; init; } = string.Empty;
+        public string EditionLabel { get; init; } = string.Empty;
+        public string Mode { get; init; } = string.Empty;
+        public string FirstPlayerWinRatePercent { get; init; } = string.Empty;
+        public int PlayerCount { get; init; }
+        public string? OverviewNote { get; init; }
+        public string? RepresentativeRankingMarkdownLink { get; init; }
+        public string? ReferenceMatchesCsvLink { get; init; }
+        public IEnumerable<string> AttentionPoints { get; init; } = [];
+        public IEnumerable<string> AutoComments { get; init; } = [];
+        public string PrimaryTableHeader { get; init; } = string.Empty;
+        public string PrimaryTableHeaderSeparator { get; init; } = string.Empty;
+        public IEnumerable<string> PrimaryTableRows { get; init; } = [];
+        public IEnumerable<MarkdownTemplateSection> TrailingSections { get; init; } = [];
+        public IEnumerable<FinalRankingMarkdownChartSpec> Charts { get; init; } = [];
+    }
+
+    sealed record class MarkdownTemplateSection(string Title, string TableHeader, IEnumerable<string> Rows);
+
+    static MarkdownTemplateModel BuildMarkdownTemplateModel<TRow>(
+        string outputMarkdownPath,
+        string outputCsvPath,
+        string mode,
+        double firstPlayerWinRatePercent,
+        IReadOnlyList<TRow> resultRows,
+        string? overviewNote,
+        string? representativeRankingMarkdownPath,
+        string? referenceMatchesCsvPath)
+        where TRow : ISimulationResultRow
+    {
+        return resultRows switch
+        {
+            IReadOnlyList<StandardResultRow> standardRows => BuildStandardMarkdownTemplateModel(
+                outputMarkdownPath,
+                outputCsvPath,
+                mode,
+                firstPlayerWinRatePercent,
+                standardRows,
+                overviewNote,
+                representativeRankingMarkdownPath,
+                referenceMatchesCsvPath),
+            IReadOnlyList<FinalStageResultRow> finalStageRows => BuildFinalStageMarkdownTemplateModel(
+                outputMarkdownPath,
+                outputCsvPath,
+                mode,
+                firstPlayerWinRatePercent,
+                finalStageRows,
+                overviewNote,
+                representativeRankingMarkdownPath,
+                referenceMatchesCsvPath),
+            _ => throw new InvalidOperationException($"未対応の結果行型: {typeof(TRow).FullName}")
+        };
+    }
+
+    static MarkdownTemplateModel BuildStandardMarkdownTemplateModel(
+        string outputMarkdownPath,
+        string outputCsvPath,
+        string mode,
+        double firstPlayerWinRatePercent,
+        IReadOnlyList<StandardResultRow> resultRows,
+        string? overviewNote,
+        string? representativeRankingMarkdownPath,
+        string? referenceMatchesCsvPath)
     {
         var topChampionshipRows = SelectTopRows(resultRows, row => row.ChampionshipProbability, row => row.AveragePlace, takeCount: 8);
         var hasBestChampionshipRow = TrySelectBestRow(resultRows, row => row.ChampionshipProbability, row => row.AveragePlace, out var bestChampionshipRow);
         var hasBestAveragePlaceRow = TrySelectBestRow(resultRows, row => -row.AveragePlace, row => -row.ChampionshipProbability, out var bestAveragePlaceRow);
         var hasBiggestBoostRow = TrySelectBestRow(resultRows, row => row.RatingDelta, row => 0, out var biggestBoostRow);
         var hasBiggestDropRow = TrySelectBestRow(resultRows, row => -row.RatingDelta, row => 0, out var biggestDropRow);
-        var bestChampionshipRowName = hasBestChampionshipRow ? bestChampionshipRow.Name : "該当なし";
-        var bestAveragePlaceRowName = hasBestAveragePlaceRow ? bestAveragePlaceRow.Name : "該当なし";
-        var biggestBoostRowName = hasBiggestBoostRow ? biggestBoostRow.Name : "該当なし";
-        var biggestDropRowName = hasBiggestDropRow ? biggestDropRow.Name : "該当なし";
-        var bestChampionshipProbability = hasBestChampionshipRow ? bestChampionshipRow.ChampionshipProbability : 0;
-        var bestAveragePlace = hasBestAveragePlaceRow ? bestAveragePlaceRow.AveragePlace : 0;
-        var biggestBoost = hasBiggestBoostRow ? biggestBoostRow.RatingDelta : 0;
-        var biggestDrop = hasBiggestDropRow ? biggestDropRow.RatingDelta : 0;
 
-        // TODO: 行じゃなくて、テキスト・テンプレートにできないか（＾～＾）？ DSL と相性が良さそう（＾～＾）
-        return
-        [
+        return new MarkdownTemplateModel
+        {
+            OutputCsvLink = MarkdownOutputHelpers.BuildMarkdownFileLink(outputMarkdownPath, outputCsvPath),
+            EditionLabel = "標準版",
+            Mode = mode,
+            FirstPlayerWinRatePercent = firstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture),
+            PlayerCount = resultRows.Count,
+            OverviewNote = overviewNote,
+            RepresentativeRankingMarkdownLink = BuildOptionalMarkdownLink(outputMarkdownPath, representativeRankingMarkdownPath),
+            ReferenceMatchesCsvLink = BuildOptionalMarkdownLink(outputMarkdownPath, referenceMatchesCsvPath),
+            AttentionPoints =
             [
-                "## 注目ポイント",
-                $"- 優勝確率が最も高い選手: **{bestChampionshipRowName}**（{(bestChampionshipProbability * 100).ToString("F2", CultureInfo.InvariantCulture)}%）",
-                $"- 平均順位が最も良い選手: **{bestAveragePlaceRowName}**（{bestAveragePlace.ToString("F3", CultureInfo.InvariantCulture)}）",
-                $"- 実効Elo差分が最も大きくプラスの選手: **{biggestBoostRowName}**（{SimulationRatingMath.FormatSignedRating(biggestBoost)}）",
-                $"- 実効Elo差分が最も大きくマイナスの選手: **{biggestDropRowName}**（{SimulationRatingMath.FormatSignedRating(biggestDrop)}）"
+                $"優勝確率が最も高い選手: **{(hasBestChampionshipRow ? bestChampionshipRow.Name : "該当なし")}**（{((hasBestChampionshipRow ? bestChampionshipRow.ChampionshipProbability : 0) * 100).ToString("F2", CultureInfo.InvariantCulture)}%）",
+                $"平均順位が最も良い選手: **{(hasBestAveragePlaceRow ? bestAveragePlaceRow.Name : "該当なし")}**（{(hasBestAveragePlaceRow ? bestAveragePlaceRow.AveragePlace : 0).ToString("F3", CultureInfo.InvariantCulture)}）",
+                $"実効Elo差分が最も大きくプラスの選手: **{(hasBiggestBoostRow ? biggestBoostRow.Name : "該当なし")}**（{SimulationRatingMath.FormatSignedRating(hasBiggestBoostRow ? biggestBoostRow.RatingDelta : 0)}）",
+                $"実効Elo差分が最も大きくマイナスの選手: **{(hasBiggestDropRow ? biggestDropRow.Name : "該当なし")}**（{SimulationRatingMath.FormatSignedRating(hasBiggestDropRow ? biggestDropRow.RatingDelta : 0)}）"
             ],
+            AutoComments =
             [
-                "## 自動コメント",
-                $"- 優勝候補の強さ: {BuildTop1Comment(bestChampionshipProbability)}",
-                $"- 先頭の平均順位: {BuildAveragePlaceComment(bestAveragePlace)}",
-                $"- 実効Eloの押し上げ: {BuildRatingDeltaComment(biggestBoost, biggestDrop)}"
+                $"優勝候補の強さ: {BuildTop1Comment(hasBestChampionshipRow ? bestChampionshipRow.ChampionshipProbability : 0)}",
+                $"先頭の平均順位: {BuildAveragePlaceComment(hasBestAveragePlaceRow ? bestAveragePlaceRow.AveragePlace : 0)}",
+                $"実効Eloの押し上げ: {BuildRatingDeltaComment(hasBiggestBoostRow ? biggestBoostRow.RatingDelta : 0, hasBiggestDropRow ? biggestDropRow.RatingDelta : 0)}"
             ],
-            [
-                "## 上位候補一覧",
-                "| 選手 | 元Elo | 実効Elo | 差分 | 優勝確率 | 平均順位 |",
-                "| --- | ---: | ---: | ---: | ---: | ---: |"
-            ]
-        ];
+            PrimaryTableHeader = "| 選手 | 元Elo | 実効Elo | 差分 | 優勝確率 | 平均順位 |",
+            PrimaryTableHeaderSeparator = "| --- | ---: | ---: | ---: | ---: | ---: |",
+            PrimaryTableRows = BuildMarkdownTableRows(topChampionshipRows, row =>
+                $"| {row.Name} | {SimulationRatingMath.FormatRating(row.OriginalRating)} | {SimulationRatingMath.FormatRating(row.EffectiveRating)} | {SimulationRatingMath.FormatSignedRating(row.RatingDelta)} | {(row.ChampionshipProbability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {row.AveragePlace.ToString("F3", CultureInfo.InvariantCulture)} |"),
+            TrailingSections = [],
+            Charts = BuildChartSpecs(topChampionshipRows,
+                ("上位候補の優勝確率", "優勝確率(%)", "0 --> 100", row => (row.ChampionshipProbability * 100).ToString("F2", CultureInfo.InvariantCulture)),
+                ("上位候補の平均順位", "平均順位", "1 --> " + Math.Max(2, resultRows.Count).ToString(CultureInfo.InvariantCulture), row => row.AveragePlace.ToString("F3", CultureInfo.InvariantCulture)))
+        };
     }
 
-    /// <summary>
-    /// TODO: ［標準ルール］用なんで、切り出したいぜ（＾～＾）
-    /// </summary>
-    /// <param name="resultRows"></param>
-    /// <returns></returns>
-    static IEnumerable<string> BuildStandardPrimaryTableRows(IReadOnlyList<StandardResultRow> resultRows)
-    {
-        var topChampionshipRows = SelectTopRows(resultRows, row => row.ChampionshipProbability, row => row.AveragePlace, takeCount: 8);
-        return BuildMarkdownTableRows(topChampionshipRows, row =>
-            $"| {row.Name} | {SimulationRatingMath.FormatRating(row.OriginalRating)} | {SimulationRatingMath.FormatRating(row.EffectiveRating)} | {SimulationRatingMath.FormatSignedRating(row.RatingDelta)} | {(row.ChampionshipProbability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {row.AveragePlace.ToString("F3", CultureInfo.InvariantCulture)} |");
-    }
-
-    /// <summary>
-    /// TODO: ［標準ルール］用なんで、切り出したいぜ（＾～＾）
-    /// </summary>
-    /// <param name="resultRows"></param>
-    /// <returns></returns>
-    static FinalRankingMarkdownChartSpec[] BuildStandardCharts(IReadOnlyList<StandardResultRow> resultRows)
-    {
-        var topChampionshipRows = SelectTopRows(resultRows, row => row.ChampionshipProbability, row => row.AveragePlace, takeCount: 8);
-        if (topChampionshipRows.Length == 0) return [];
-
-        return
-        [
-            new(
-                "上位候補の優勝確率",
-                topChampionshipRows.Select(row => row.Name),
-                "優勝確率(%)",
-                "0 --> 100",
-                topChampionshipRows.Select(row => (row.ChampionshipProbability * 100).ToString("F2", CultureInfo.InvariantCulture))),
-            new(
-                "上位候補の平均順位",
-                topChampionshipRows.Select(row => row.Name),
-                "平均順位",
-                "1 --> " + Math.Max(2, resultRows.Count).ToString(CultureInfo.InvariantCulture),
-                topChampionshipRows.Select(row => row.AveragePlace.ToString("F3", CultureInfo.InvariantCulture)))
-        ];
-    }
-
-    /// <summary>
-    /// TODO: ［本戦ルール］用なんで、切り出したいぜ（＾～＾）
-    /// </summary>
-    /// <param name="resultRows"></param>
-    /// <returns></returns>
-    static IEnumerable<string>[] BuildFinalStagePrimarySections(IReadOnlyList<FinalStageResultRow> resultRows)
+    static MarkdownTemplateModel BuildFinalStageMarkdownTemplateModel(
+        string outputMarkdownPath,
+        string outputCsvPath,
+        string mode,
+        double firstPlayerWinRatePercent,
+        IReadOnlyList<FinalStageResultRow> resultRows,
+        string? overviewNote,
+        string? representativeRankingMarkdownPath,
+        string? referenceMatchesCsvPath)
     {
         var apexRows = SelectTopRowsByGroup(resultRows, row => string.Equals(row.Group, "Apex", StringComparison.OrdinalIgnoreCase), row => row.GroupPlace1Probability, row => row.GroupPlaceAverage, takeCount: 4);
         var innovRows = SelectTopRowsByGroup(resultRows, row => string.Equals(row.Group, "Innov", StringComparison.OrdinalIgnoreCase), row => row.GroupPlace1Probability, row => row.GroupPlaceAverage, takeCount: 4);
         var hasBestOverallRow = TrySelectBestRow(resultRows, row => row.OverallPlace1Probability, row => row.OverallPlaceAverage, out var bestOverallRow);
         var hasBestApexRow = TrySelectBestRow(apexRows, row => row.GroupPlace1Probability, row => row.GroupPlaceAverage, out var bestApexRow);
         var hasBestInnovRow = TrySelectBestRow(innovRows, row => row.GroupPlace1Probability, row => row.GroupPlaceAverage, out var bestInnovRow);
-        var bestOverallRowName = hasBestOverallRow ? bestOverallRow.Name : "該当なし";
-        var bestApexRowName = hasBestApexRow ? bestApexRow.Name : "該当なし";
-        var bestInnovRowName = hasBestInnovRow ? bestInnovRow.Name : "該当なし";
-        var bestOverallProbability = hasBestOverallRow ? bestOverallRow.OverallPlace1Probability : 0;
-        var bestApexProbability = hasBestApexRow ? bestApexRow.GroupPlace1Probability : 0;
-        var bestInnovProbability = hasBestInnovRow ? bestInnovRow.GroupPlace1Probability : 0;
-        var bestApexAverage = hasBestApexRow ? bestApexRow.GroupPlaceAverage : 0;
-        var bestInnovAverage = hasBestInnovRow ? bestInnovRow.GroupPlaceAverage : 0;
 
-        return
-        [
-            [
-                "## 注目ポイント",
-                $"- 総合1位確率が最も高い選手: **{bestOverallRowName}**（{(bestOverallProbability * 100).ToString("F2", CultureInfo.InvariantCulture)}%）",
-                $"- Apex で最も有力な選手: **{bestApexRowName}**（グループ1位確率 {(bestApexProbability * 100).ToString("F2", CultureInfo.InvariantCulture)}%）",
-                $"- Innov で最も有力な選手: **{bestInnovRowName}**（グループ1位確率 {(bestInnovProbability * 100).ToString("F2", CultureInfo.InvariantCulture)}%）"
-            ],
-            [
-                "## 自動コメント",
-                $"- 総合1位候補の強さ: {BuildTop1Comment(bestOverallProbability)}",
-                $"- Apex の先頭感: {BuildGroupLeadComment(bestApexProbability, bestApexAverage)}",
-                $"- Innov の先頭感: {BuildGroupLeadComment(bestInnovProbability, bestInnovAverage)}",
-                $"- Apex / Innov の先頭差: {BuildApexInnovGapComment(bestApexProbability, bestInnovProbability)}"
-            ],
-            [
-                "## 上位候補一覧",
-                "| 選手 | グループ | 元Elo | 実効Elo | 差分 | グループ1位確率 | 総合1位確率 | 総合平均順位 |",
-                "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |"
-            ]
-        ];
-    }
+        var primaryRows = SelectTopRows(resultRows, row => row.OverallPlace1Probability, row => row.OverallPlaceAverage, takeCount: 8);
 
-    /// <summary>
-    /// TODO: ［本戦ルール］用なんで、切り出したいぜ（＾～＾）
-    /// </summary>
-    /// <param name="resultRows"></param>
-    /// <returns></returns>
-    static IEnumerable<string> BuildFinalStagePrimaryTableRows(IReadOnlyList<FinalStageResultRow> resultRows)
-    {
-        var topRows = SelectTopRows(resultRows, row => row.OverallPlace1Probability, row => row.OverallPlaceAverage, takeCount: 8);
-        return BuildMarkdownTableRows(topRows, row =>
-            $"| {row.Name} | {row.Group} | {SimulationRatingMath.FormatRating(row.OriginalRating)} | {SimulationRatingMath.FormatRating(row.EffectiveRating)} | {SimulationRatingMath.FormatSignedRating(row.RatingDelta)} | {(row.GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {(row.OverallPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {row.OverallPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} |");
-    }
-
-    /// <summary>
-    /// TODO: ［本戦ルール］用なんで、切り出したいぜ（＾～＾）
-    /// </summary>
-    /// <param name="resultRows"></param>
-    /// <returns></returns>
-    static IEnumerable<string>[] BuildFinalStageTrailingSections(IReadOnlyList<FinalStageResultRow> resultRows)
-    {
-        var sections = new List<IEnumerable<string>>();
-        var apexRows = SelectTopRowsByGroup(resultRows, row => string.Equals(row.Group, "Apex", StringComparison.OrdinalIgnoreCase), row => row.GroupPlace1Probability, row => row.GroupPlaceAverage, takeCount: 4);
-        var innovRows = SelectTopRowsByGroup(resultRows, row => string.Equals(row.Group, "Innov", StringComparison.OrdinalIgnoreCase), row => row.GroupPlace1Probability, row => row.GroupPlaceAverage, takeCount: 4);
-
+        var trailingSections = new List<MarkdownTemplateSection>();
         if (apexRows.Length > 0)
         {
-            sections.Add(
-            [
-                "## Apex 注目候補",
-                "| 選手 | 元Elo | 実効Elo | グループ1位確率 | グループ平均順位 | 総合平均順位 |",
-                "| --- | ---: | ---: | ---: | ---: | ---: |"
-            ]);
-            sections.Add(BuildMarkdownTableRows(apexRows, row =>
-                $"| {row.Name} | {SimulationRatingMath.FormatRating(row.OriginalRating)} | {SimulationRatingMath.FormatRating(row.EffectiveRating)} | {(row.GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {row.GroupPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} | {row.OverallPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} |"));
+            trailingSections.Add(new MarkdownTemplateSection(
+                Title: "## Apex 注目候補",
+                TableHeader: "| 選手 | 元Elo | 実効Elo | グループ1位確率 | グループ平均順位 | 総合平均順位 |\n| --- | ---: | ---: | ---: | ---: | ---: |",
+                Rows: BuildMarkdownTableRows(apexRows, row =>
+                    $"| {row.Name} | {SimulationRatingMath.FormatRating(row.OriginalRating)} | {SimulationRatingMath.FormatRating(row.EffectiveRating)} | {(row.GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {row.GroupPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} | {row.OverallPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} |")));
         }
 
         if (innovRows.Length > 0)
         {
-            sections.Add(
-            [
-                "## Innov 注目候補",
-                "| 選手 | 元Elo | 実効Elo | グループ1位確率 | グループ平均順位 | 総合平均順位 |",
-                "| --- | ---: | ---: | ---: | ---: | ---: |"
-            ]);
-            sections.Add(BuildMarkdownTableRows(innovRows, row =>
-                $"| {row.Name} | {SimulationRatingMath.FormatRating(row.OriginalRating)} | {SimulationRatingMath.FormatRating(row.EffectiveRating)} | {(row.GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {row.GroupPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} | {row.OverallPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} |"));
+            trailingSections.Add(new MarkdownTemplateSection(
+                Title: "## Innov 注目候補",
+                TableHeader: "| 選手 | 元Elo | 実効Elo | グループ1位確率 | グループ平均順位 | 総合平均順位 |\n| --- | ---: | ---: | ---: | ---: | ---: |",
+                Rows: BuildMarkdownTableRows(innovRows, row =>
+                    $"| {row.Name} | {SimulationRatingMath.FormatRating(row.OriginalRating)} | {SimulationRatingMath.FormatRating(row.EffectiveRating)} | {(row.GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {row.GroupPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} | {row.OverallPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} |")));
         }
 
-        return sections.ToArray();
-    }
-
-    /// <summary>
-    /// TODO: ［本戦ルール］用なんで、切り出したいぜ（＾～＾）
-    /// </summary>
-    /// <param name="resultRows"></param>
-    /// <returns></returns>
-    static FinalRankingMarkdownChartSpec[] BuildFinalStageCharts(IReadOnlyList<FinalStageResultRow> resultRows)
-    {
-        var topRows = SelectTopRows(resultRows, row => row.OverallPlace1Probability, row => row.OverallPlaceAverage, takeCount: 8);
-        if (topRows.Length == 0) return [];
-
-        return
-        [
-            new(
-                "上位候補の総合1位確率",
-                topRows.Select(row => row.Name),
-                "総合1位確率(%)",
-                "0 --> 100",
-                topRows.Select(row => (row.OverallPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture))),
-            new(
-                "上位候補のグループ1位確率",
-                topRows.Select(row => row.Name),
-                "グループ1位確率(%)",
-                "0 --> 100",
-                topRows.Select(row => (row.GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)))
-        ];
+        return new MarkdownTemplateModel
+        {
+            OutputCsvLink = MarkdownOutputHelpers.BuildMarkdownFileLink(outputMarkdownPath, outputCsvPath),
+            EditionLabel = "本戦版",
+            Mode = mode,
+            FirstPlayerWinRatePercent = firstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture),
+            PlayerCount = resultRows.Count,
+            OverviewNote = overviewNote,
+            RepresentativeRankingMarkdownLink = BuildOptionalMarkdownLink(outputMarkdownPath, representativeRankingMarkdownPath),
+            ReferenceMatchesCsvLink = BuildOptionalMarkdownLink(outputMarkdownPath, referenceMatchesCsvPath),
+            AttentionPoints =
+            [
+                $"総合1位確率が最も高い選手: **{(hasBestOverallRow ? bestOverallRow.Name : "該当なし")}**（{((hasBestOverallRow ? bestOverallRow.OverallPlace1Probability : 0) * 100).ToString("F2", CultureInfo.InvariantCulture)}%）",
+                $"Apex で最も有力な選手: **{(hasBestApexRow ? bestApexRow.Name : "該当なし")}**（グループ1位確率 {((hasBestApexRow ? bestApexRow.GroupPlace1Probability : 0) * 100).ToString("F2", CultureInfo.InvariantCulture)}%）",
+                $"Innov で最も有力な選手: **{(hasBestInnovRow ? bestInnovRow.Name : "該当なし")}**（グループ1位確率 {((hasBestInnovRow ? bestInnovRow.GroupPlace1Probability : 0) * 100).ToString("F2", CultureInfo.InvariantCulture)}%）"
+            ],
+            AutoComments =
+            [
+                $"総合1位候補の強さ: {BuildTop1Comment(hasBestOverallRow ? bestOverallRow.OverallPlace1Probability : 0)}",
+                $"Apex の先頭感: {BuildGroupLeadComment(hasBestApexRow ? bestApexRow.GroupPlace1Probability : 0, hasBestApexRow ? bestApexRow.GroupPlaceAverage : 0)}",
+                $"Innov の先頭感: {BuildGroupLeadComment(hasBestInnovRow ? bestInnovRow.GroupPlace1Probability : 0, hasBestInnovRow ? bestInnovRow.GroupPlaceAverage : 0)}",
+                $"Apex / Innov の先頭差: {BuildApexInnovGapComment(hasBestApexRow ? bestApexRow.GroupPlace1Probability : 0, hasBestInnovRow ? bestInnovRow.GroupPlace1Probability : 0)}"
+            ],
+            PrimaryTableHeader = "| 選手 | グループ | 元Elo | 実効Elo | 差分 | グループ1位確率 | 総合1位確率 | 総合平均順位 |",
+            PrimaryTableHeaderSeparator = "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |",
+            PrimaryTableRows = BuildMarkdownTableRows(primaryRows, row =>
+                $"| {row.Name} | {row.Group} | {SimulationRatingMath.FormatRating(row.OriginalRating)} | {SimulationRatingMath.FormatRating(row.EffectiveRating)} | {SimulationRatingMath.FormatSignedRating(row.RatingDelta)} | {(row.GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {(row.OverallPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {row.OverallPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)} |"),
+            TrailingSections = trailingSections.ToArray(),
+            Charts = BuildChartSpecs(primaryRows,
+                ("上位候補の総合1位確率", "総合1位確率(%)", "0 --> 100", row => (row.OverallPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)),
+                ("上位候補のグループ1位確率", "グループ1位確率(%)", "0 --> 100", row => (row.GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)))
+        };
     }
 
     /// <summary>

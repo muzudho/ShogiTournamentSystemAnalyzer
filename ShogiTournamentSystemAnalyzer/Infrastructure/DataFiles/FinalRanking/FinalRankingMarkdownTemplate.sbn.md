@@ -17,17 +17,47 @@
 {{ end }}
 
 {{ if primary_sections_text != null }}
-{{ primary_sections_text }}
+{{ for line in attention_points }}
+- {{ line }}
 {{ end }}
 
-{{ if primary_table_rows_text != null }}
-{{ primary_table_rows_text }}
+## 自動コメント
+{{ for line in auto_comments }}
+- {{ line }}
 {{ end }}
 
-{{ if trailing_sections_text != null }}
-{{ trailing_sections_text }}
+## 上位候補一覧
+{{ primary_table_header }}
+{{ primary_table_header_separator }}
+{{ for row in primary_table_rows }}
+{{ row }}
+{{ end }}
 {{ end }}
 
-{{ if charts_text != null }}
-{{ charts_text }}
+{{ if trailing_sections != null }}
+{{ for section in trailing_sections }}
+
+{{ section.title }}
+{{ section.table_header }}
+{{ for row in section.rows }}
+{{ row }}
+{{ end }}
+{{ end }}
+{{ end }}
+
+{{ if charts != null and charts.size > 0 }}
+
+## Mermaid 図
+{{ for chart in charts }}
+{{ if !for.first }}
+
+{{ end }}
+```mermaid
+xychart-beta
+	title "{{ chart.title }}"
+	x-axis [{{ chart.categories }}]
+	y-axis "{{ chart.y_axis_label }}" {{ chart.y_axis_range }}
+	bar [{{ chart.values }}]
+```
+{{ end }}
 {{ end }}
