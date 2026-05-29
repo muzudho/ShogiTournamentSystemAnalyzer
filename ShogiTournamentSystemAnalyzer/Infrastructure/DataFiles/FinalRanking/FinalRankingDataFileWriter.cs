@@ -23,6 +23,10 @@ internal class FinalRankingDataFileWriter
     // ========================================
 
 
+    /// <summary>
+    /// TODO: ここでは ruleProfileMode というフラグ変数を受け取っているが、将来的には DSL ファイルの内容から組み立てたオブジェクトを受け取るようにするといいんじゃないか（＾～＾）？　どう思う（＾～＾）？
+    /// </summary>
+    /// <param name="ruleProfileMode"></param>
     public FinalRankingDataFileWriter(RuleProfileMode ruleProfileMode)
     {
         this.RuleProfileMode = ruleProfileMode;
@@ -119,7 +123,7 @@ internal class FinalRankingDataFileWriter
     /// ［最終順位という境界］のCSV形式データを作成する。
     /// </summary>
     /// <typeparam name="TRow"></typeparam>
-    /// <param name="outputCsvPath"></param>
+    /// <param name="outputCsvPath">TODO: この引数、使ってるのかだぜ（＾～＾）？</param>
     /// <param name="mode"></param>
     /// <param name="firstPlayerWinRatePercent"></param>
     /// <param name="resultRows"></param>
@@ -275,6 +279,7 @@ internal class FinalRankingDataFileWriter
         string? referenceMatchesCsvPath = null)
         where TRow : ISimulationResultRow
     {
+        // TODO: ここの分岐も、将来的には、外部の DSL ファイルに出したいぜ（＾～＾）
         return resultRows switch
         {
             IReadOnlyList<ResultRow> standardRows => CreateFinalRankingMarkdownReport(
