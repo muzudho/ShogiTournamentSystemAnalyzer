@@ -593,7 +593,7 @@ internal class FinalRankingDataFileWriter
     /// <summary>
     /// これは［標準版］。
     /// 
-    /// TODO: おー、メソッドのシグニチャが揃ってきたな（＾▽＾） `CreateFinalStageResultCsvCore` メソッドと統合できる感じかだぜ（＾▽＾）？
+    /// TODO: おー、メソッドのシグニチャが揃ってきたな（＾▽＾） `CreateResultCsvForFinalStageRows` メソッドと統合できる感じかだぜ（＾▽＾）？
     /// </summary>
     /// <param name="outputCsvPath"></param>
     /// <param name="mode"></param>
@@ -615,7 +615,7 @@ internal class FinalRankingDataFileWriter
     /// <summary>
     /// これは［本戦版］。
     /// 
-    /// TODO: おー、メソッドのシグニチャが揃ってきたな（＾▽＾） `CreateResultCsvCore` メソッドと統合できる感じかだぜ（＾▽＾）？
+    /// TODO: おー、メソッドのシグニチャが揃ってきたな（＾▽＾） `CreateResultCsvForStandardRows` メソッドと統合できる感じかだぜ（＾▽＾）？
     /// </summary>
     /// <param name="outputCsvPath"></param>
     /// <param name="mode"></param>

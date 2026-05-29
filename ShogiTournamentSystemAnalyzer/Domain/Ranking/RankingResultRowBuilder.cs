@@ -43,9 +43,7 @@ internal static class RankingResultRowBuilder
             rows.Add(new ResultRow(
                 commonData,
                 result.PlaceProbabilities[playerIndex, 0],
-                expectedPlace,
-                commonData.PlaceProbabilities,
-                commonData.PlaceCounts));
+                expectedPlace));
         }
 
         return rows;
@@ -105,9 +103,7 @@ internal static class RankingResultRowBuilder
                     row.PlaceProbabilities[groupStartIndex],
                     groupPlaceAverage,
                     row.PlaceProbabilities[0],
-                    row.AveragePlace,
-                    row.PlaceProbabilities,
-                    row.PlaceCounts);
+                    row.AveragePlace);
             })
             .ToList();
     }

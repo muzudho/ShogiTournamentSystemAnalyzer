@@ -102,9 +102,7 @@ readonly record struct SimulationResultRowCommonData(
 readonly record struct ResultRow(
     SimulationResultRowCommonData CommonData,
     double ChampionshipProbability,     // ［標準版］優勝確率
-    double AveragePlace,                // ［標準版］平均順位
-    double[] PlaceProbabilities,
-    double[]? PlaceCounts)
+    double AveragePlace)                // ［標準版］平均順位
     : ISimulationResultRow
 {
     public string Name => CommonData.Name;
@@ -115,6 +113,8 @@ readonly record struct ResultRow(
     public int SecondPlayerCount => CommonData.SecondPlayerCount;
     public double? FirstPlayerWinRate => CommonData.FirstPlayerWinRate;
     public double? SecondPlayerWinRate => CommonData.SecondPlayerWinRate;
+    public double[] PlaceProbabilities => CommonData.PlaceProbabilities;
+    public double[]? PlaceCounts => CommonData.PlaceCounts;
 
     /// <summary>
     /// ［最終順位という境界］のCSV形式データの指定列を取得
@@ -167,9 +167,7 @@ readonly record struct FinalStageResultRow(
     double GroupPlace1Probability,      // ［本戦版］グループ内1位の確率
     double GroupPlaceAverage,           // ［本戦版］グループ内の平均順位
     double OverallPlace1Probability,    // ［本戦版］全体で1位の確率
-    double OverallPlaceAverage,         // ［本戦版］全体の平均順位
-    double[] PlaceProbabilities,
-    double[]? PlaceCounts)
+    double OverallPlaceAverage)         // ［本戦版］全体の平均順位
     : ISimulationResultRow
 {
     public string Name => CommonData.Name;
@@ -180,6 +178,8 @@ readonly record struct FinalStageResultRow(
     public int SecondPlayerCount => CommonData.SecondPlayerCount;
     public double? FirstPlayerWinRate => CommonData.FirstPlayerWinRate;
     public double? SecondPlayerWinRate => CommonData.SecondPlayerWinRate;
+    public double[] PlaceProbabilities => CommonData.PlaceProbabilities;
+    public double[]? PlaceCounts => CommonData.PlaceCounts;
 
     /// <summary>
     /// ［最終順位という境界］のCSV形式データの指定列を取得
