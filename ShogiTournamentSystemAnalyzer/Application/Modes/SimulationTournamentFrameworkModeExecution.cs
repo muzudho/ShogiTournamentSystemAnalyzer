@@ -177,7 +177,7 @@ internal static partial class SimulationTournamentFrameworkMode
         IReadOnlyList<ResultRow> finalRankingRows)
     {
         var settings = new FinalRankingDataFileWriterSettings(RuleProfileMode.TournamentFramework);
-        FinalRankingDataFileWriter finalRankingDataFileWriter = new(settings);
+        FinalRankingMarkdownFileWriter finalRankingDataFileWriter = new(settings);
 
         var defaultOutputCsvPath = ReportOutputPathBuilder.BuildFinalRankingDefaultOutputPath($"tournament_framework_aggregate_final_ranking_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
         var requestedOutputPath = string.IsNullOrWhiteSpace(context.OutputPath)
@@ -211,14 +211,14 @@ internal static partial class SimulationTournamentFrameworkMode
 
         WriterHelper.WriteText(
             outputPath: representativeRankingCsvPath,
-            getLines: () => FinalRankingDataFileWriter.CreateRepresentativeExecutionRankCsv(
+            getLines: () => FinalRankingMarkdownFileWriter.CreateRepresentativeExecutionRankCsv(
                 rankingSettingsData.TournamentRuleSetMode,
                 representativeExecutionRankRows,
                 overviewNote: "この順位表は代表実行 1 件の順位です。aggregate 結果の順位表そのものではありません。"));
 
         WriterHelper.WriteText(
             outputPath: representativeRankingMarkdownPath,
-            getLines: () => FinalRankingDataFileWriter.CreateRepresentativeExecutionRankMarkdown(
+            getLines: () => FinalRankingMarkdownFileWriter.CreateRepresentativeExecutionRankMarkdown(
                 representativeRankingMarkdownPath,
                 representativeRankingCsvPath,
                 rankingSettingsData.TournamentRuleSetMode,

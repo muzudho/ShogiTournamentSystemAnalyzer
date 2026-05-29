@@ -11,9 +11,9 @@ using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.Shared;
 using System.Globalization;
 
 /// <summary>
-/// ［最終順位］境界のデータファイル書き出し処理
+/// ［最終順位］境界のMarkdown形式データファイル書き出し処理
 /// </summary>
-internal class FinalRankingDataFileWriter
+internal class FinalRankingMarkdownFileWriter
 {
 
 
@@ -22,7 +22,7 @@ internal class FinalRankingDataFileWriter
     // ========================================
 
 
-    public FinalRankingDataFileWriter(FinalRankingDataFileWriterSettings settings)
+    public FinalRankingMarkdownFileWriter(FinalRankingDataFileWriterSettings settings)
     {
         this.Settings = settings;
     }

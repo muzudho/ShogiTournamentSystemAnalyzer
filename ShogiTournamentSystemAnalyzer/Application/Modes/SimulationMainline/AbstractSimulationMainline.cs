@@ -151,7 +151,7 @@ internal abstract class AbstractSimulationMainline
     }
 
     protected static void WriteFinalRankingOutputs<TRow>(
-        FinalRankingDataFileWriter finalRankingDataFileWriter,
+        FinalRankingMarkdownFileWriter finalRankingDataFileWriter,
         string outputCsvPath,
         string outputMarkdownPath,
         CalculationResult result,
