@@ -77,16 +77,7 @@ internal class FinalRankingDataFileWriter
         where TRow : ISimulationResultRow
     {
         _ = outputCsvPath;
-        return BuildFinalRankingResultCsv(mode, firstPlayerWinRatePercent, resultRows, overviewNote);
-    }
 
-    IEnumerable<string> BuildFinalRankingResultCsv<TRow>(
-        string mode,
-        double firstPlayerWinRatePercent,
-        IReadOnlyList<TRow> resultRows,
-        string? overviewNote = null)
-        where TRow : ISimulationResultRow
-    {
         var specificHeaderColumns = BuildFinalRankingSpecificHeaderColumns(GetFinalRankingFixedColumns(), resultRows, overviewNote);
         var lines = new List<string>
         {
