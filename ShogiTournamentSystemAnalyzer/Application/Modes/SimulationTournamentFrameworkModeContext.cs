@@ -3,7 +3,7 @@
  */
 namespace ShogiTournamentSystemAnalyzer.Application.Modes;
 
-using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
+using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 
 internal readonly record struct TournamentFrameworkModeContext(
     string PlayersCsvPath,

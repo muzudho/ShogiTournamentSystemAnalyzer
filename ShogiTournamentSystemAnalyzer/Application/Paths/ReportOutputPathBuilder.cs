@@ -4,7 +4,7 @@
 namespace ShogiTournamentSystemAnalyzer.Application.Paths;
 
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
-using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
+using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 
 internal static class ReportOutputPathBuilder
 {

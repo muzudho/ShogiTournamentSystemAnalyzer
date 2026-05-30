@@ -1,7 +1,7 @@
 /*
  * ［大会ルールという境界］
  */
-namespace ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
+namespace ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 
 internal static class BoundaryRescueRule
 {

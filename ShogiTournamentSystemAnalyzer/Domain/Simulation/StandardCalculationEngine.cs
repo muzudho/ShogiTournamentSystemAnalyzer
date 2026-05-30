@@ -4,7 +4,7 @@
 namespace ShogiTournamentSystemAnalyzer.Domain.Simulation;
 
 using ShogiTournamentSystemAnalyzer.Application.Execution;
-using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
+using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 
 internal static class StandardCalculationEngine
 {

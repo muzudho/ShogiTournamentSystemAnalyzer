@@ -4,7 +4,7 @@
 namespace ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
-using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
+using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 using System;
 
 internal static class ConsoleRuleReaders

@@ -4,7 +4,7 @@
 namespace ShogiTournamentSystemAnalyzer.Application.Modes.SimulationContext;
 
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
-using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
+using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 
 internal sealed record class StandardModeSimulationContext(
     TournamentRuleSetMode TournamentRuleSetMode,

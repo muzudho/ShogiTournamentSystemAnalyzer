@@ -8,7 +8,7 @@ using ShogiTournamentSystemAnalyzer.Application.Modes.SimulationContext;
 using ShogiTournamentSystemAnalyzer.Application.Validation;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
-using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
+using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 
 internal static partial class SimulationModeInputReaders

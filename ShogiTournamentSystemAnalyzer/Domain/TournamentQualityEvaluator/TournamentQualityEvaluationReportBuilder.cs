@@ -4,7 +4,7 @@
 namespace ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
-using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
+using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 
 internal static class TournamentQualityEvaluationReportBuilder
 {

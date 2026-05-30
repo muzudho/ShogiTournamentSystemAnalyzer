@@ -3,7 +3,7 @@
  */
 namespace ShogiTournamentSystemAnalyzer.Application.TournamentFramework;
 
-using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
+using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 
 sealed record class TournamentFrameworkRuleSet(
     IPairingRule PairingRule,

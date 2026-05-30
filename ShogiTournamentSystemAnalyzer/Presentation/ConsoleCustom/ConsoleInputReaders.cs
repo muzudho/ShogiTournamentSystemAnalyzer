@@ -6,7 +6,7 @@ namespace ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 using ShogiTournamentSystemAnalyzer.Application.Execution;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
-using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
+using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 using ShogiTournamentSystemAnalyzer.Infrastructure.Parsing;
 using System;
 

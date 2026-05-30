@@ -8,7 +8,7 @@ using ShogiTournamentSystemAnalyzer.Application.Execution;
 using ShogiTournamentSystemAnalyzer.Application.Paths;
 using ShogiTournamentSystemAnalyzer.Domain.Ranking;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
-using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
+using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.FinalRanking;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.Shared;
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;

@@ -4,7 +4,7 @@
 namespace ShogiTournamentSystemAnalyzer.Application.Modes;
 
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
-using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
+using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 
 internal static class TournamentQualityEvaluationExecutor

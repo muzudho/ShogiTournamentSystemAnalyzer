@@ -4,7 +4,7 @@
 namespace ShogiTournamentSystemAnalyzer.Domain.Request.TournamentRule;
 
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
-using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
+using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 
 /// <summary>
 /// ［６大境界］のうち、［大会ルール］境界データだ。

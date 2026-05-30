@@ -3,7 +3,7 @@
  */
 namespace ShogiTournamentSystemAnalyzer.Domain.Request.RankingSettings;
 
-using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
+using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 
 /// <summary>
 /// ［６大境界］のうち、［順位付けの設定］境界データだ。

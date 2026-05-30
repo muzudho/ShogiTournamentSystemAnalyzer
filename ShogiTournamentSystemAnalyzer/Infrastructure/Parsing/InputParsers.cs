@@ -4,7 +4,7 @@
 namespace ShogiTournamentSystemAnalyzer.Infrastructure.Parsing;
 
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
-using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
+using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 using ShogiTournamentSystemAnalyzer.Infrastructure.CodingModels;
 using System.Globalization;
 using System.Text;

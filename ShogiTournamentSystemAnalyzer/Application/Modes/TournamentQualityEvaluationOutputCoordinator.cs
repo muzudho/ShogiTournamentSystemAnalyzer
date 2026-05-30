@@ -6,7 +6,7 @@ namespace ShogiTournamentSystemAnalyzer.Application.Modes;
 using ShogiTournamentSystemAnalyzer.Application.Paths;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityReport;
-using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
+using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.Shared;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.TournamentQualityReport;
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;

@@ -14,7 +14,7 @@ using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentFinalState;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.Request.TournamentRule;
-using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
+using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.FinalRanking;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.Shared;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.TournamentFinalState;

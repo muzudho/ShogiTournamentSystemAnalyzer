@@ -5,7 +5,7 @@ namespace ShogiTournamentSystemAnalyzer.Application.Modes.SimulationContext;
 
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
-using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
+using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 
 internal sealed record class FinalStageModeSimulationContext(
     TournamentRuleSetMode TournamentRuleSetMode,

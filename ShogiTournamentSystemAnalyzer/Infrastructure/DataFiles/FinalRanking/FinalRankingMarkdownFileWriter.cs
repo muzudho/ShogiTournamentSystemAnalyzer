@@ -6,7 +6,7 @@ namespace ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.FinalRanking;
 using ShogiTournamentSystemAnalyzer.Application.DataDefinitions;
 using ShogiTournamentSystemAnalyzer.Domain.FinalRanking;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
-using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
+using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.Shared;
 using Scriban;
 using System.Globalization;

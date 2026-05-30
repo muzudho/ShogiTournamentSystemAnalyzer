@@ -4,7 +4,7 @@
 namespace ShogiTournamentSystemAnalyzer.Application.Validation;
 
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
-using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
+using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 
 internal static class FinalStageValidators
 {
