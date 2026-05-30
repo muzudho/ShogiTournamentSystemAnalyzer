@@ -1,7 +1,7 @@
 /*
  * ［順位付けの設定という境界］
  */
-namespace ShogiTournamentSystemAnalyzer.Domain.RankingSettings;
+namespace ShogiTournamentSystemAnalyzer.Domain.Request.RankingSettings;
 
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
 

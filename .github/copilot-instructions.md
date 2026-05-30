@@ -47,6 +47,7 @@
 - Data フォルダー構成と連携させ、Data 配下でインターフェース定義と具体実装を整理する（既存の Data フォルダ方針と整合）。
 - このプロジェクトでは設計の骨格として『5大域』と『6大境界』を使う。6大境界の基準名は TournamentRule, PlayerList, RankingSettings, TournamentFinalState, FinalRanking, TournamentQualityReport とする。
 - このプロジェクトでは、［大会ルールという境界］［プレイヤー一覧という境界］［順位付けの設定という境界］を［依頼という境界］のサブレイヤーにまとめ、［依頼という境界］［大会最終状態という境界］［最終順位という境界］［大会品質レポートという境界］の４つを［４大境界］として扱う再編方針を好む。
+- ［依頼という境界］のサブフォルダーは `Domain/Request` 配下を使う。
 
 ### 実行・ベンチマーク
 - Start with a 1-trial smoke test before benchmarking with small trial counts (e.g., 10 and 100) to estimate runtime before launching a large sweep.

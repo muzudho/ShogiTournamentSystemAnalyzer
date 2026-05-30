@@ -6,13 +6,14 @@ namespace ShogiTournamentSystemAnalyzer.Application.Helpers;
 using ShogiTournamentSystemAnalyzer.Application.Modes;
 using ShogiTournamentSystemAnalyzer.Application.TournamentFramework;
 using ShogiTournamentSystemAnalyzer.Domain.FinalRanking;
-using ShogiTournamentSystemAnalyzer.Domain.PlayerList;
-using ShogiTournamentSystemAnalyzer.Domain.RankingSettings;
+using ShogiTournamentSystemAnalyzer.Domain.Request.PlayerList;
+using ShogiTournamentSystemAnalyzer.Domain.Request.RankingSettings;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentFinalState;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityReport;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
+using ShogiTournamentSystemAnalyzer.Domain.Request.TournamentRule;
 
 /// <summary>
 /// 境界データビルダー

@@ -1,7 +1,7 @@
 /*
  * ［大会ルールという境界］
  */
-namespace ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
+namespace ShogiTournamentSystemAnalyzer.Domain.Request.TournamentRule;
 
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRule;
