@@ -8,6 +8,7 @@ using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityReport;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.Shared;
+using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.Request.TournamentRule;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.TournamentQualityReport;
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 
@@ -93,9 +94,43 @@ internal static class TournamentQualityEvaluationOutputCoordinator
                 outputOptions.ReportGroupingOptions,
                 tournamentQualityReportData.Suggestion));
 
+        var requestInputLogPath = CsvOutputHelpers.ChangeOutputExtension(outputOptions.OutputCsvPath, ".stsa.txt");
+        WriterHelper.WriteText(
+            outputPath: requestInputLogPath,
+            getLines: () => RequestInputLogFileWriter.CreateRequestInputLogLines(new
+            {
+                analysis_flow_mode = "QualityEvaluation",
+                rule_profile_mode = "StandardOrFinalStage",
+                execution_mode = tournamentQualityReportData.CalculationMode.Contains("スイープ", StringComparison.Ordinal) ? "Sweep" : "Single",
+                tournament_rule_set_mode = (string?)null,
+                first_player_win_rate_percent = (double?)null,
+                simulation_count = (int?)null,
+                sweep_start_percent = (double?)null,
+                sweep_end_percent = (double?)null,
+                sweep_step_percent = (double?)null,
+                additional_apex_placement_mode = (string?)null,
+                boundary_rescue_mode = (string?)null,
+                variable_top8_mode = (string?)null,
+                quality_innov_expected_rank_offset_mode = (string?)null,
+                tournament_quality_evaluation_report_grouping = outputOptions.ReportGroupingOptions.IsEnabled ? outputOptions.ReportGroupingOptions.Outcome.ToString() : "Off",
+                tournament_quality_evaluation_report_outcome = outputOptions.ReportGroupingOptions.IsEnabled ? outputOptions.ReportGroupingOptions.Outcome.ToString() : (string?)null,
+                evaluation_memo = tournamentQualityReportData.CalculationMode,
+                players_csv = string.Empty,
+                group_map_csv = (string?)null,
+                additional_apex_players_csv = (string?)null,
+                matches_input = string.Empty,
+                reference_matches_input = (string?)null,
+                summary_output_path = outputOptions.OutputCsvPath,
+                sweep_output_path = (string?)null,
+                player_csv_path = outputOptions.PlayerCsvPath,
+                summary_markdown_path = summaryMarkdownPath,
+                sweep_markdown_path = (string?)null
+            }));
+
         Console.WriteLine($"品質評価サマリーCSVを出力しました: {outputOptions.OutputCsvPath}");
         Console.WriteLine($"品質評価選手別CSVを出力しました: {playerCsvPath}");
         Console.WriteLine($"品質評価サマリーMarkdownを出力しました: {summaryMarkdownPath}");
+        Console.WriteLine($"依頼ログSTSAを出力しました: {requestInputLogPath}");
     }
 
     internal static void WriteTournamentQualitySweepReportOutputs(

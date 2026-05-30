@@ -1,0 +1,89 @@
+#[Format] STSAInput/3
+
+#[Section] Meta
+AnalysisFlowMode={{ analysis_flow_mode }}
+RuleProfileMode={{ rule_profile_mode }}
+ExecutionMode={{ execution_mode }}
+TournamentRuleSetMode={{ tournament_rule_set_mode }}
+
+{{~ if first_player_win_rate_percent != null ~}}
+FirstPlayerWinRatePercent={{ first_player_win_rate_percent }}
+{{~ end ~}}
+{{~ if simulation_count != null ~}}
+SimulationCount={{ simulation_count }}
+{{~ end ~}}
+{{~ if sweep_start_percent != null ~}}
+SweepStartPercent={{ sweep_start_percent }}
+{{~ end ~}}
+{{~ if sweep_end_percent != null ~}}
+SweepEndPercent={{ sweep_end_percent }}
+{{~ end ~}}
+{{~ if sweep_step_percent != null ~}}
+SweepStepPercent={{ sweep_step_percent }}
+{{~ end ~}}
+{{~ if additional_apex_placement_mode != null ~}}
+AdditionalApexPlacementMode={{ additional_apex_placement_mode }}
+{{~ end ~}}
+{{~ if boundary_rescue_mode != null ~}}
+BoundaryRescueMode={{ boundary_rescue_mode }}
+{{~ end ~}}
+{{~ if variable_top8_mode != null ~}}
+VariableTop8Mode={{ variable_top8_mode }}
+{{~ end ~}}
+{{~ if quality_innov_expected_rank_offset_mode != null ~}}
+QualityInnovExpectedRankOffsetMode={{ quality_innov_expected_rank_offset_mode }}
+{{~ end ~}}
+{{~ if tournament_quality_evaluation_report_grouping != null ~}}
+TournamentQualityEvaluationReportGrouping={{ tournament_quality_evaluation_report_grouping }}
+{{~ end ~}}
+{{~ if tournament_quality_evaluation_report_outcome != null ~}}
+TournamentQualityEvaluationReportOutcome={{ tournament_quality_evaluation_report_outcome }}
+{{~ end ~}}
+{{~ if evaluation_memo != null ~}}
+EvaluationMemo={{ evaluation_memo }}
+{{~ end ~}}
+#[EndSection]
+
+#[Section] PlayersCsv
+{{ players_csv }}
+#[EndSection]
+
+{{~ if group_map_csv != null ~}}
+#[Section] GroupMapCsv
+{{ group_map_csv }}
+#[EndSection]
+
+{{~ end ~}}
+{{~ if additional_apex_players_csv != null ~}}
+#[Section] AdditionalApexPlayersCsv
+{{ additional_apex_players_csv }}
+#[EndSection]
+
+{{~ end ~}}
+#[Section] MatchesInput
+{{ matches_input }}
+#[EndSection]
+
+{{~ if reference_matches_input != null ~}}
+#[Section] ReferenceMatchesInput
+{{ reference_matches_input }}
+#[EndSection]
+
+{{~ end ~}}
+#[Section] Output
+{{~ if summary_output_path != null ~}}
+SummaryOutputPath={{ summary_output_path }}
+{{~ end ~}}
+{{~ if sweep_output_path != null ~}}
+SweepOutputPath={{ sweep_output_path }}
+{{~ end ~}}
+{{~ if player_csv_path != null ~}}
+PlayerCsvPath={{ player_csv_path }}
+{{~ end ~}}
+{{~ if summary_markdown_path != null ~}}
+SummaryMarkdownPath={{ summary_markdown_path }}
+{{~ end ~}}
+{{~ if sweep_markdown_path != null ~}}
+SweepMarkdownPath={{ sweep_markdown_path }}
+{{~ end ~}}
+#[EndSection]
