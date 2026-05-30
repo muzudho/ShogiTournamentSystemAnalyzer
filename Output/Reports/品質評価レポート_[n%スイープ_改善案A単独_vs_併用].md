@@ -1,4 +1,4 @@
-# 【品質評価レポート】n%スイープ 改善案A単独 vs 併用
+﻿# 【品質評価レポート】n%スイープ 改善案A単独 vs 併用
 
 ## 作成日
 2026-05-14
@@ -14,10 +14,10 @@
 
 ## 比較対象
 A. 改善案A単独
-- `docs\Reports\Good\[先手8x後手8_本戦不出場Apexあり]_[additional_on_boundary_off_50to90_by5]_quality_sweep.csv`
+- `Output\Reports\Good\[先手8x後手8_本戦不出場Apexあり]_[additional_on_boundary_off_50to90_by5]_quality_sweep.csv`
 
 B. 併用
-- `docs\Reports\Good\[先手8x後手8_本戦不出場Apexあり]_[additional_on_boundary_on_50to90_by5]_quality_sweep.csv`
+- `Output\Reports\Good\[先手8x後手8_本戦不出場Apexあり]_[additional_on_boundary_on_50to90_by5]_quality_sweep.csv`
 
 ## まず結論
 今回の比較では、

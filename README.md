@@ -218,7 +218,7 @@ TournamentFinalState -> FinalRanking -> TournamentQualityReport
 - [説明書の総合目次](./docs/Manuals/README.md)
 - [プロジェクトの考え方](./docs/Manuals/プロジェクトの考え方.md)
 - [docs フォルダー案内](./docs/README.md)
-- [Reports の案内](./docs/Reports/README.md)
+- [Reports の案内](./Output/Reports/README.md)
 
 ## 関連リンク
 

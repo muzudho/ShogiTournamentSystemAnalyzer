@@ -1,4 +1,4 @@
-# STSAInput/2 仕様ドラフト
+﻿# STSAInput/2 仕様ドラフト
 
 この文書は、実行用入力ファイルの次世代方式として検討している **`STSAInput/2`** の仕様ドラフトです。  
 現行の `#[Prompt]` / `#[Enter]` 方式をすぐ廃止するものではなく、**仕様変更に強い入力プロトコル**を目指す案として整理しています。
@@ -322,7 +322,7 @@ BoundaryRescueMode=On
 variable_top8Mode=On
 ExecutionMode=Single
 SimulationCount=20000
-OutputPath=docs/Reports
+OutputPath=Output/Reports
 #[EndSection]
 
 #[Section] PlayersCsv
@@ -362,7 +362,7 @@ ExecutionMode=Sweep
 SweepStartPercent=50
 SweepEndPercent=100
 SweepStepPercent=5
-OutputPath=docs/Reports
+OutputPath=Output/Reports
 #[EndSection]
 
 #[Section] PlayersCsv

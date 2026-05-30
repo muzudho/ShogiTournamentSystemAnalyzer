@@ -37,7 +37,7 @@
   - 大会ルールとゲームルールの違い
   - 選手 / Player という用語
   - プロジェクト全体の背景
-- [ツイル式トーナメント発表案](../Reports/ツイル式トーナメント発表案.md)
+- [ツイル式トーナメント発表案](../../Output/Reports/ツイル式トーナメント発表案.md)
   - ツイル式トーナメントを知らない人向けの発表用説明
   - むずでょの発想と GPT-5.4 の命名案を含む紹介文
 
@@ -66,7 +66,7 @@
   - `Good` / `Bad` の考え方
   - n% スイープ実験
   - レポート運用
-- [../Reports/README.md](../Reports/README.md)
+- [../../Output/Reports/README.md](../../Output/Reports/README.md)
   - 手書きの比較レポートや発表案を探したいとき
 
 ### CSV と出力を知る
@@ -87,7 +87,7 @@
 ## docs 配下の他フォルダー
 - [docs/実装計画](../実装計画/README.md)
   - 開発用の実装計画や改修メモ
-- [docs/Reports](../Reports/README.md)
+- [Output/Reports](../../Output/Reports/README.md)
 	- 手書きの比較レポート、総括、発表案
 - [docs/むずでょの案](../むずでょの案/)
   - ルール案や発想メモ

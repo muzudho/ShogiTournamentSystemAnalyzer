@@ -1,4 +1,4 @@
-# 【品質評価レポート】[トップ集団小さめ] 境界救済戦 Before / After
+﻿# 【品質評価レポート】[トップ集団小さめ] 境界救済戦 Before / After
 
 ## 作成日
 2026-05-13
@@ -12,12 +12,12 @@
 Before（Bad / Off）
 - 本戦不出場Apexの扱い: Off（現行案）
 - 境界救済戦: Off
-- 出力先: `docs\Reports\Bad\[トップ集団小さめ]_[additional_off_boundary_off]_quality_summary.csv`
+- 出力先: `Output\Reports\Bad\[トップ集団小さめ]_[additional_off_boundary_off]_quality_summary.csv`
 
 After（Good / On）
 - 本戦不出場Apexの扱い: Off（現行案）
 - 境界救済戦: On
-- 出力先: `docs\Reports\Good\[トップ集団小さめ]_[additional_off_boundary_on]_quality_summary.csv`
+- 出力先: `Output\Reports\Good\[トップ集団小さめ]_[additional_off_boundary_on]_quality_summary.csv`
 
 ## 比較表
 Before（Boundary Off）
