@@ -36,8 +36,8 @@ internal static partial class Program
             // このプログラムの説明を最初にするぜ（＾▽＾）！
             ProgramConsoleGuide.PrintProgramIntroduction();
 
-            // 入力方法を選ばせる（＾▽＾）！
-            InputSourceConfiguration.ConfigureInputSource(args);
+            // 要求ファイル指定の有無に応じて、入力導線を準備するぜ（＾▽＾）！
+            using var inputSource = InputSourceConfiguration.ConfigureInputSource(args);
 
             // 前提入力は TournamentRule / PlayerList / RankingSettings の３境界だぜ（＾▽＾）！
             // 主線は TournamentFinalState → FinalRanking → TournamentQualityReport に寄せていくぜ（＾▽＾）！
@@ -51,6 +51,9 @@ internal static partial class Program
 
             // 選択フロー
             AnalysisFlowDispatcher.Execute(flowMode, ruleProfileMode);
+
+            // 手動入力を記録していた場合は、分析後に要求ファイルを作成するぜ（＾▽＾）！
+            inputSource.CompleteRequestFileCreate();
         }
         catch (OperationCanceledException ex)
         {
