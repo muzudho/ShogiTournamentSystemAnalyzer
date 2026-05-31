@@ -1,5 +1,5 @@
 /*
- * ［アプリケーション　＞　入力　＞　STSAシミュレーションレガシー変換］
+ * ［アプリケーション　＞　実行　＞　要求ファイルチェック　＞　STSAシミュレーションレガシー変換］
  */
 namespace ShogiTournamentSystemAnalyzer.Application.Input;
 
