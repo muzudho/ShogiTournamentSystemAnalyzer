@@ -6,7 +6,9 @@ namespace ShogiTournamentSystemAnalyzer.Application;
 using ShogiTournamentSystemAnalyzer.Application.Analysis;
 using ShogiTournamentSystemAnalyzer.Application.Shared;
 
-
+/// <summary>
+/// ［入力セッション中にやること］という責務
+/// </summary>
 internal static class RequestSessionWorkflow
 {
     internal static void Run(RequestInputSession inputSource)

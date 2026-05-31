@@ -5,6 +5,9 @@ namespace ShogiTournamentSystemAnalyzer.Application.Analysis;
 
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 
+/// <summary>
+/// ［分析］という責務
+/// </summary>
 internal static class AnalysisWorkflow
 {
     internal static void Run()
