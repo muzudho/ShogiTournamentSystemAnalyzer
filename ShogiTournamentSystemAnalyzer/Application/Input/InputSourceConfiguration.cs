@@ -21,7 +21,11 @@ internal static class InputSourceConfiguration
         }
         if (!string.IsNullOrWhiteSpace(inputFilePath))
         {
-            if (RequestFileCheck.TryApply(inputFilePath, ApplyInputFile)) return RequestInputSession.FromRequestFile();
+            if (RequestFileCheck.TryRead(inputFilePath, ReadInputFile, out var checkedInputFile))
+            {
+                ApplyCheckedInputFile(checkedInputFile);
+                return RequestInputSession.FromRequestFile();
+            }
 
             Console.WriteLine("入力ファイルにエラーがあったため、手動入力へ切り替えます。\n");
             return ManualInput.Start();
@@ -49,7 +53,7 @@ internal static class InputSourceConfiguration
         return null;
     }
 
-    static void ApplyInputFile(string inputFilePath)
+    static RequestFileCheckResult ReadInputFile(string inputFilePath)
     {
         var fullPath = Path.GetFullPath(inputFilePath);
         if (!File.Exists(fullPath)) throw new OperationCanceledException($"入力ファイルが見つかりません: {fullPath}");
@@ -61,9 +65,15 @@ internal static class InputSourceConfiguration
                 ? ConvertStsaInput2ToLegacyInput(rawLines, fullPath)
                 : ConvertLegacyInputFileToFilteredInput(rawLines);
 
-        Console.SetIn(new StringReader(filteredInput));
-        Console.WriteLine($"入力ファイルを使います: {fullPath}\n");
+        return new RequestFileCheckResult(fullPath, filteredInput);
     }
+
+    static void ApplyCheckedInputFile(RequestFileCheckResult checkedInputFile)
+    {
+        Console.SetIn(new StringReader(checkedInputFile.FilteredInput));
+        Console.WriteLine($"入力ファイルを使います: {checkedInputFile.FullPath}\n");
+    }
+
 
     static bool IsStsaInput2(IReadOnlyList<string> rawLines)
     {
