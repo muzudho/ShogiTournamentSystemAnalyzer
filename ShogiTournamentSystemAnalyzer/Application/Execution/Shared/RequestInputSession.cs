@@ -1,5 +1,5 @@
 /*
- * ［アプリケーション　＞　入力　＞　入力セッション］
+ * ［アプリケーション　＞　実行　＞　共有　＞　入力セッション］
  */
 namespace ShogiTournamentSystemAnalyzer.Application.Input;
 

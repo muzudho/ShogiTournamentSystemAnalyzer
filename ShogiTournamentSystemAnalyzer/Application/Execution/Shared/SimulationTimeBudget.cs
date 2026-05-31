@@ -1,5 +1,5 @@
 /*
- * ［アプリケーション　＞　実行］
+ * ［アプリケーション　＞　実行　＞　共有　＞　実行時間予算］
  */
 namespace ShogiTournamentSystemAnalyzer.Application.Execution;
 
