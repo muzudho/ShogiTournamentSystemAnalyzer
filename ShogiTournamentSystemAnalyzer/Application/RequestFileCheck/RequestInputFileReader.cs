@@ -1,7 +1,7 @@
 /*
  * ［アプリケーション　＞　入力　＞　要求ファイル読み取り］
  */
-namespace ShogiTournamentSystemAnalyzer.Application.Input;
+namespace ShogiTournamentSystemAnalyzer.Application.RequestFileCheck;
 
 internal static class RequestInputFileReader
 {

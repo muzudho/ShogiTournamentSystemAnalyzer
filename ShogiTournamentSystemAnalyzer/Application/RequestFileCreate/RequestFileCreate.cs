@@ -1,7 +1,7 @@
 /*
  * ［アプリケーション　＞　実行　＞　要求ファイル作成］
  */
-namespace ShogiTournamentSystemAnalyzer.Application.Input;
+namespace ShogiTournamentSystemAnalyzer.Application.RequestFileCreate;
 
 using System.Text;
 

@@ -10,6 +10,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Application\Reporting\**" />
+    <EmbeddedResource Remove="Application\Reporting\**" />
+    <None Remove="Application\Reporting\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Infrastructure\DataFiles\Request\TournamentRule\RequestInputLogTemplate.sbn.txt" />
   </ItemGroup>
 
@@ -20,7 +26,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Application\Reporting\" />
     <Folder Include="Domain\Shared\" />
     <Folder Include="Domain\TournamentRuleCore\" />
   </ItemGroup>

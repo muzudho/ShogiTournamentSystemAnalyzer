@@ -1,6 +1,6 @@
 /*
  * ［アプリケーション　＞　実行　＞　要求ファイルチェック結果］
  */
-namespace ShogiTournamentSystemAnalyzer.Application.Input;
+namespace ShogiTournamentSystemAnalyzer.Application.RequestFileCheck;
 
 internal sealed record RequestFileCheckResult(string FullPath, string FilteredInput);

@@ -1,7 +1,7 @@
 /*
  * ［アプリケーション　＞　ユースケース　＞　シミュレーション域］
  */
-namespace ShogiTournamentSystemAnalyzer.Application.UseCases.Simulation;
+namespace ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.UseCases;
 
 /// <summary>
 /// ［シミュレーション域　＞　シナリオランナー］

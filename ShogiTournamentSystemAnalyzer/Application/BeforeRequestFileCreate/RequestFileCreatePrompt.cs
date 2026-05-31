@@ -1,7 +1,9 @@
 /*
  * ［アプリケーション　＞　実行　＞　要求ファイル作成前　＞　要求ファイル作成プロンプト］
  */
-namespace ShogiTournamentSystemAnalyzer.Application.Input;
+namespace ShogiTournamentSystemAnalyzer.Application.BeforeRequestFileCreate;
+
+using ShogiTournamentSystemAnalyzer.Application.RequestFileCreate;
 
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 

@@ -1,10 +1,12 @@
 /*
  * ［分析　＞　境界　＞　要求］
  */
-namespace ShogiTournamentSystemAnalyzer.Application.Helpers;
+namespace ShogiTournamentSystemAnalyzer.Application.Analysis.Boundaries;
 
-using ShogiTournamentSystemAnalyzer.Application.Modes;
-using ShogiTournamentSystemAnalyzer.Application.TournamentFramework;
+using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.Modes;
+
+using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.TournamentQualityEvaluator.Modes;
+using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.TournamentFramework;
 using ShogiTournamentSystemAnalyzer.Domain.Request.PlayerList;
 using ShogiTournamentSystemAnalyzer.Domain.Request.RankingSettings;
 using ShogiTournamentSystemAnalyzer.Domain.Request.TournamentRule;

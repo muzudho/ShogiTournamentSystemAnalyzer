@@ -1,7 +1,7 @@
 /*
  * ［アプリケーション　＞　実行　＞　要求ファイルチェック］
  */
-namespace ShogiTournamentSystemAnalyzer.Application.Input;
+namespace ShogiTournamentSystemAnalyzer.Application.RequestFileCheck;
 
 using System.Diagnostics.CodeAnalysis;
 

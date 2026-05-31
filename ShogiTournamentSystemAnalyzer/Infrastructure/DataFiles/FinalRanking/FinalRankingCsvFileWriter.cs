@@ -1,9 +1,9 @@
-﻿/*
+/*
  * ［インフラストラクチャー　＞　データファイル　＞　最終順位という境界］
  */
 namespace ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.FinalRanking;
 
-using ShogiTournamentSystemAnalyzer.Application.DataDefinitions;
+using ShogiTournamentSystemAnalyzer.Application.Analysis.Boundaries.FinalRanking.DataDefinitions;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.Shared;
 using System.Globalization;

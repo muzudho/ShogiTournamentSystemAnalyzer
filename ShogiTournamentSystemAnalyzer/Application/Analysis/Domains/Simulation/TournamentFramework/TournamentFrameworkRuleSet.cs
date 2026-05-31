@@ -1,7 +1,7 @@
 /*
  * ［アプリケーション　＞　大会フレームワーク］
  */
-namespace ShogiTournamentSystemAnalyzer.Application.TournamentFramework;
+namespace ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.TournamentFramework;
 
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 

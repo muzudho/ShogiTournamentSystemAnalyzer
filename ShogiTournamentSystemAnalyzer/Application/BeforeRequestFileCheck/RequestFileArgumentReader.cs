@@ -1,7 +1,7 @@
 /*
  * ［アプリケーション　＞　実行　＞　要求ファイルチェック前　＞　コマンドライン引数］
  */
-namespace ShogiTournamentSystemAnalyzer.Application.Input;
+namespace ShogiTournamentSystemAnalyzer.Application.BeforeRequestFileCheck;
 
 internal static class RequestFileArgumentReader
 {

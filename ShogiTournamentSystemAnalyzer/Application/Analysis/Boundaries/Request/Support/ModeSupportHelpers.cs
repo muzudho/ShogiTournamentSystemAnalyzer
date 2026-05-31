@@ -1,7 +1,7 @@
 /*
  * ［アプリケーション］のうち、モード共通補助
  */
-namespace ShogiTournamentSystemAnalyzer.Application.Helpers;
+namespace ShogiTournamentSystemAnalyzer.Application.Analysis.Boundaries.Request;
 
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;

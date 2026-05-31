@@ -1,9 +1,9 @@
 /*
  * ［分析　＞　境界　＞　大会最終状態］
  */
-namespace ShogiTournamentSystemAnalyzer.Application.Helpers;
+namespace ShogiTournamentSystemAnalyzer.Application.Analysis.Boundaries;
 
-using ShogiTournamentSystemAnalyzer.Application.TournamentFramework;
+using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.TournamentFramework;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentFinalState;
 
 /// <summary>

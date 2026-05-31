@@ -1,7 +1,7 @@
 /*
  * ［アプリケーション　＞　入力　＞　STSA入力セクションパーサー］
  */
-namespace ShogiTournamentSystemAnalyzer.Application.Input;
+namespace ShogiTournamentSystemAnalyzer.Application.RequestFileCheck;
 
 internal static class StsaInputSectionParser
 {

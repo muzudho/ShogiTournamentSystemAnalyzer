@@ -1,7 +1,7 @@
 /*
  * ［アプリケーション　＞　バリデーション］
  */
-namespace ShogiTournamentSystemAnalyzer.Application.Validation;
+namespace ShogiTournamentSystemAnalyzer.Application.Analysis.Boundaries.Request;
 
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;

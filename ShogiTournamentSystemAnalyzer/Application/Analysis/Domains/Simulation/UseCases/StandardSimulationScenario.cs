@@ -1,10 +1,12 @@
 /*
  * ［アプリケーション　＞　ユースケース　＞　シミュレーション域］
  */
-namespace ShogiTournamentSystemAnalyzer.Application.UseCases.Simulation;
+namespace ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.UseCases;
 
-using ShogiTournamentSystemAnalyzer.Application.Modes;
-using ShogiTournamentSystemAnalyzer.Application.Modes.SimulationMainline;
+using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.Modes;
+
+using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.TournamentQualityEvaluator.Modes;
+using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.SimulationMainline;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 

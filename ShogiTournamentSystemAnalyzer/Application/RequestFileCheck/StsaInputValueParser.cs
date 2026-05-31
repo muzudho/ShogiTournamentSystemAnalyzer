@@ -1,7 +1,7 @@
 /*
  * ［アプリケーション　＞　入力　＞　STSA入力値パーサー］
  */
-namespace ShogiTournamentSystemAnalyzer.Application.Input;
+namespace ShogiTournamentSystemAnalyzer.Application.RequestFileCheck;
 
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 

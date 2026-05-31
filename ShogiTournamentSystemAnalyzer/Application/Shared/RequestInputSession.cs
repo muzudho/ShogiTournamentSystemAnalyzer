@@ -1,7 +1,9 @@
 /*
  * ［アプリケーション　＞　実行　＞　共有　＞　入力セッション］
  */
-namespace ShogiTournamentSystemAnalyzer.Application.Input;
+namespace ShogiTournamentSystemAnalyzer.Application.Shared;
+
+using ShogiTournamentSystemAnalyzer.Application.AfterRequestFileCreate;
 
 internal sealed class RequestInputSession : IDisposable
 {

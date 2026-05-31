@@ -1,7 +1,7 @@
 /*
  * ［アプリケーション　＞　実行　＞　手動入力後　＞　手動入力記録］
  */
-namespace ShogiTournamentSystemAnalyzer.Application.Input;
+namespace ShogiTournamentSystemAnalyzer.Application.AfterManualInput;
 
 internal sealed class ManualInputRecordingTextReader : TextReader
 {

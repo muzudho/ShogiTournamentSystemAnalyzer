@@ -1,12 +1,11 @@
 /*
  * ［アプリケーション　＞　モード］
  */
-namespace ShogiTournamentSystemAnalyzer.Application.Modes;
+namespace ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.Modes;
 
 using ShogiTournamentSystemAnalyzer.Application;
-using ShogiTournamentSystemAnalyzer.Application.Helpers;
-using ShogiTournamentSystemAnalyzer.Application.Paths;
-using ShogiTournamentSystemAnalyzer.Application.TournamentFramework;
+using ShogiTournamentSystemAnalyzer.Application.Analysis.Boundaries;
+using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.TournamentFramework;
 using ShogiTournamentSystemAnalyzer.Domain.FinalRanking;
 using ShogiTournamentSystemAnalyzer.Domain.Ranking;
 using ShogiTournamentSystemAnalyzer.Domain.Request.RankingSettings;

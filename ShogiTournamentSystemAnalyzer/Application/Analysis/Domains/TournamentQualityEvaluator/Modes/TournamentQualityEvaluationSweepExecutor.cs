@@ -1,10 +1,10 @@
 /*
  * ［アプリケーション　＞　モード］
  */
-namespace ShogiTournamentSystemAnalyzer.Application.Modes;
+namespace ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.TournamentQualityEvaluator.Modes;
 
 using ShogiTournamentSystemAnalyzer.Application;
-using ShogiTournamentSystemAnalyzer.Application.Helpers;
+using ShogiTournamentSystemAnalyzer.Application.Analysis.Boundaries;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityReport;
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;

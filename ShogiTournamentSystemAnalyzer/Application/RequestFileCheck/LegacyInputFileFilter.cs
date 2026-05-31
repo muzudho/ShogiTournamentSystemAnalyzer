@@ -1,7 +1,7 @@
 /*
  * ［アプリケーション　＞　実行　＞　要求ファイルチェック　＞　レガシー入力ファイルフィルター］
  */
-namespace ShogiTournamentSystemAnalyzer.Application.Input;
+namespace ShogiTournamentSystemAnalyzer.Application.RequestFileCheck;
 
 internal static class LegacyInputFileFilter
 {

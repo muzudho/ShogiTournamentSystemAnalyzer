@@ -1,7 +1,11 @@
 /*
  * ［アプリケーション　＞　実行　＞　手動入力後　＞　手動入力記録セッション開始］
  */
-namespace ShogiTournamentSystemAnalyzer.Application.Input;
+namespace ShogiTournamentSystemAnalyzer.Application.AfterManualInput;
+
+using ShogiTournamentSystemAnalyzer.Application.Shared;
+
+using ShogiTournamentSystemAnalyzer.Application.AfterRequestFileCreate;
 
 internal static class ManualInputRecordingSessionStarter
 {

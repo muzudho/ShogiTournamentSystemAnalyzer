@@ -1,7 +1,15 @@
 /*
  * ［アプリケーション　＞　実行　＞　要求ファイルチェック前　＞　入力元設定］
  */
-namespace ShogiTournamentSystemAnalyzer.Application.Input;
+namespace ShogiTournamentSystemAnalyzer.Application.BeforeRequestFileCheck;
+
+using ShogiTournamentSystemAnalyzer.Application.Shared;
+
+using ShogiTournamentSystemAnalyzer.Application.RequestFileCheck;
+
+using ShogiTournamentSystemAnalyzer.Application.ManualInput;
+
+using ShogiTournamentSystemAnalyzer.Application.AfterRequestFileCheck;
 
 internal static class InputSourceConfiguration
 {

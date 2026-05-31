@@ -1,4 +1,4 @@
-﻿namespace ShogiTournamentSystemAnalyzer.Application.Modes.SimulationContext;
+namespace ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.SimulationContext;
 
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;

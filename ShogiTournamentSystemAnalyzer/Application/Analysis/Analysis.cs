@@ -1,7 +1,7 @@
 /*
  * ［アプリケーション　＞　実行　＞　分析］
  */
-namespace ShogiTournamentSystemAnalyzer.Application;
+namespace ShogiTournamentSystemAnalyzer.Application.Analysis;
 
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 

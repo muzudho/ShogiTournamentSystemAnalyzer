@@ -1,7 +1,7 @@
 /*
  * ［アプリケーション　＞　データ定義］
  */
-namespace ShogiTournamentSystemAnalyzer.Application.DataDefinitions;
+namespace ShogiTournamentSystemAnalyzer.Application.Analysis.Boundaries.FinalRanking.DataDefinitions;
 
 using System.Text.Json;
 

@@ -1,9 +1,9 @@
 /*
  * ［アプリケーション　＞　モード］
  */
-namespace ShogiTournamentSystemAnalyzer.Application.Modes;
+namespace ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.Modes;
 
-using ShogiTournamentSystemAnalyzer.Application.Paths;
+using ShogiTournamentSystemAnalyzer.Application.Analysis.Boundaries;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.Shared;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.TournamentFinalState;

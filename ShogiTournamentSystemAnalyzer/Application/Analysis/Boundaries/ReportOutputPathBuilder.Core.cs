@@ -1,7 +1,7 @@
 /*
  * ［分析　＞　境界　＞　出力パス共通］
  */
-namespace ShogiTournamentSystemAnalyzer.Application.Paths;
+namespace ShogiTournamentSystemAnalyzer.Application.Analysis.Boundaries;
 
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;

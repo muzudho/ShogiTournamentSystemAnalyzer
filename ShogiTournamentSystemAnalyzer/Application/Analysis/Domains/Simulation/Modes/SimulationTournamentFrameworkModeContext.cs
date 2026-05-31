@@ -1,7 +1,7 @@
 /*
  * ［アプリケーション　＞　モード］
  */
-namespace ShogiTournamentSystemAnalyzer.Application.Modes;
+namespace ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.Modes;
 
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 

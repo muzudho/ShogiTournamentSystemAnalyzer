@@ -1,7 +1,9 @@
 /*
  * ［アプリケーション　＞　実行　＞　要求ファイル作成後　＞　要求ファイル作成完了対象］
  */
-namespace ShogiTournamentSystemAnalyzer.Application.Input;
+namespace ShogiTournamentSystemAnalyzer.Application.AfterRequestFileCreate;
+
+using ShogiTournamentSystemAnalyzer.Application.AfterManualInput;
 
 /// <summary>
 /// 要求ファイル作成完了対象

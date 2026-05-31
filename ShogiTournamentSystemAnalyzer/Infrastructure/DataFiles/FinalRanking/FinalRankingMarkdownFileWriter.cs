@@ -3,7 +3,7 @@
  */
 namespace ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.FinalRanking;
 
-using ShogiTournamentSystemAnalyzer.Application.DataDefinitions;
+using ShogiTournamentSystemAnalyzer.Application.Analysis.Boundaries.FinalRanking.DataDefinitions;
 using ShogiTournamentSystemAnalyzer.Domain.FinalRanking;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;

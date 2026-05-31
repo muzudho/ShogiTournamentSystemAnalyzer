@@ -1,7 +1,13 @@
 /*
  * ［アプリケーション　＞　実行　＞　手動入力］
  */
-namespace ShogiTournamentSystemAnalyzer.Application.Input;
+namespace ShogiTournamentSystemAnalyzer.Application.ManualInput;
+
+using ShogiTournamentSystemAnalyzer.Application.Shared;
+
+using ShogiTournamentSystemAnalyzer.Application.BeforeRequestFileCreate;
+
+using ShogiTournamentSystemAnalyzer.Application.AfterManualInput;
 
 internal static class ManualInput
 {

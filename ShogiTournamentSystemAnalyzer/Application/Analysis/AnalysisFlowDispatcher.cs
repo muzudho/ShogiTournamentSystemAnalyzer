@@ -1,10 +1,12 @@
 /*
  * ［アプリケーション　＞　実行］
  */
-namespace ShogiTournamentSystemAnalyzer.Application;
+namespace ShogiTournamentSystemAnalyzer.Application.Analysis;
 
-using ShogiTournamentSystemAnalyzer.Application.Modes;
-using ShogiTournamentSystemAnalyzer.Application.UseCases.Simulation;
+using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.Modes;
+
+using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.TournamentQualityEvaluator.Modes;
+using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.UseCases;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 
 internal static class AnalysisFlowDispatcher

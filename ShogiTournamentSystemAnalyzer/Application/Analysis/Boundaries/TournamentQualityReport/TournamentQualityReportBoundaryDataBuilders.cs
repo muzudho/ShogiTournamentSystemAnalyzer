@@ -1,7 +1,7 @@
 /*
  * ［分析　＞　境界　＞　大会品質レポート］
  */
-namespace ShogiTournamentSystemAnalyzer.Application.Helpers;
+namespace ShogiTournamentSystemAnalyzer.Application.Analysis.Boundaries;
 
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityReport;

@@ -1,7 +1,9 @@
 /*
  * ［アプリケーション　＞　実行　＞　要求ファイルチェック後　＞　要求入力適用］
  */
-namespace ShogiTournamentSystemAnalyzer.Application.Input;
+namespace ShogiTournamentSystemAnalyzer.Application.AfterRequestFileCheck;
+
+using ShogiTournamentSystemAnalyzer.Application.RequestFileCheck;
 
 internal static class RequestInputApplier
 {

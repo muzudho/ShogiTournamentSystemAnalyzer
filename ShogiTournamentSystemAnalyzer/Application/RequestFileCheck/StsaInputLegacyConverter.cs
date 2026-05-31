@@ -1,11 +1,11 @@
 /*
  * ［アプリケーション　＞　実行　＞　要求ファイルチェック　＞　STSA入力レガシー変換］
  */
-namespace ShogiTournamentSystemAnalyzer.Application.Input;
+namespace ShogiTournamentSystemAnalyzer.Application.RequestFileCheck;
 
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
-using static ShogiTournamentSystemAnalyzer.Application.Input.StsaInputSectionParser;
-using static ShogiTournamentSystemAnalyzer.Application.Input.StsaInputValueParser;
+using static ShogiTournamentSystemAnalyzer.Application.RequestFileCheck.StsaInputSectionParser;
+using static ShogiTournamentSystemAnalyzer.Application.RequestFileCheck.StsaInputValueParser;
 
 internal static class StsaInputLegacyConverter
 {
