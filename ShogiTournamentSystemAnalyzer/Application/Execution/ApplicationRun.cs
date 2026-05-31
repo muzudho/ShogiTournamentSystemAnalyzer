@@ -4,17 +4,12 @@
 namespace ShogiTournamentSystemAnalyzer.Application.Execution;
 
 using ShogiTournamentSystemAnalyzer.Application.Input;
-using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 
 internal static class ApplicationRun
 {
     internal static void Run(IReadOnlyList<string> args)
     {
-        // プログラムの実行が長引いて、いくら待っても応答が返ってこない、なんてことを防ぐために、タイムアウトを設定するぜ（＾▽＾）！
-        SimulationTimeBudget.BeginApplicationBudget();
-
-        // このプログラムの説明を最初に表示するぜ（＾▽＾）！
-        ProgramConsoleGuide.PrintProgramIntroduction();
+        ApplicationStartup.Start();
 
         // ［依頼］が［要求ファイル］からか、［対話か］に応じて、入力導線を準備するぜ（＾▽＾）！
         using var inputSource = InputSourceConfiguration.ConfigureInputSource(args);
