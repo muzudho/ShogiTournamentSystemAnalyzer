@@ -1,4 +1,4 @@
-﻿/*
+/*
  * ［インフラストラクチャー　＞　コーディングモデル］
  */
 namespace ShogiTournamentSystemAnalyzer.Infrastructure.CodingModels;

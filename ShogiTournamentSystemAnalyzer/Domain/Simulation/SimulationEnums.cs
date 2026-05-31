@@ -1,4 +1,4 @@
-﻿/*
+/*
  * ［シミュレーション域］
  */
 namespace ShogiTournamentSystemAnalyzer.Domain.Simulation;
