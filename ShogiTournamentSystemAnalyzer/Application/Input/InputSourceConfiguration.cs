@@ -5,6 +5,11 @@ namespace ShogiTournamentSystemAnalyzer.Application.Input;
 
 internal static class InputSourceConfiguration
 {
+    /// <summary>
+    /// 入力元の種類を設定する
+    /// </summary>
+    /// <param name="args">コマンドライン引数</param>
+    /// <returns>設定された入力セッション</returns>
     internal static RequestInputSession ConfigureInputSource(IReadOnlyList<string> args)
     {
         var argumentResult = RequestFileArgumentReader.Read(args);
