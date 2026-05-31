@@ -1,5 +1,5 @@
 /*
- * ［アプリケーション　＞　入力　＞　手動入力］
+ * ［アプリケーション　＞　実行　＞　手動入力］
  */
 namespace ShogiTournamentSystemAnalyzer.Application.Input;
 
