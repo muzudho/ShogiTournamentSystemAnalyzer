@@ -185,7 +185,7 @@ internal class FinalRankingCsvFileWriter
             return columnName switch
             {
                 "calculationMode" => mode,
-                "firstPlayerWinRatePercent" when columnIndex == 1 => firstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture),
+                "sameEloFirstPlayerWinRatePercent" => firstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture),
                 "playerName" => commonData.Name,
                 "originalElo" => SimulationRatingMath.FormatRating(commonData.OriginalRating),
                 "effectiveElo" => SimulationRatingMath.FormatRating(commonData.EffectiveRating),

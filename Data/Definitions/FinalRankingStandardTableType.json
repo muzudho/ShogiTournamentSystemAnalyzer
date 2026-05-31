@@ -6,7 +6,7 @@
   },
   "Data": [
     { "Name": "calculationMode", "Type": "String", "IsRequired": true, "Comment": "計算モード" },
-    { "Name": "firstPlayerWinRatePercent", "Type": "Double", "IsRequired": true, "Comment": "同Elo対局時の先手勝率" },
+    { "Name": "sameEloFirstPlayerWinRatePercent", "Type": "Double", "IsRequired": true, "Comment": "同Elo対局時の先手勝率" },
     { "Name": "playerName", "Type": "String", "IsRequired": true, "Comment": "選手名" },
     { "Name": "originalElo", "Type": "Double", "IsRequired": true, "Comment": "元Elo" },
     { "Name": "effectiveElo", "Type": "Double", "IsRequired": true, "Comment": "実効Elo" },

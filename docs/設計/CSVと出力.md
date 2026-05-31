@@ -180,7 +180,7 @@ END
 - シミュレーション時は各順位の出現相当回数
 - 主なヘッダー名:
   - `calculationMode`
-	- `firstPlayerWinRatePercent`
+	- `sameEloFirstPlayerWinRatePercent`
   - `playerName`
   - `originalElo`
   - `effectiveElo`
@@ -334,4 +334,3 @@ END
 ## 関連資料
 - [入力ファイル仕様](./入力ファイル仕様.md)
 - [品質評価](./品質評価.md)
-
