@@ -1,5 +1,5 @@
 /*
- * ［アプリケーション　＞　入力］
+ * ［アプリケーション　＞　実行　＞　要求ファイルチェック前　＞　入力元設定］
  */
 namespace ShogiTournamentSystemAnalyzer.Application.Input;
 
