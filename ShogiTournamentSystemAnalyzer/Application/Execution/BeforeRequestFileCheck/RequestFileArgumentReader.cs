@@ -1,5 +1,5 @@
 /*
- * ［アプリケーション　＞　入力　＞　コマンドライン引数］
+ * ［アプリケーション　＞　実行　＞　要求ファイルチェック前　＞　コマンドライン引数］
  */
 namespace ShogiTournamentSystemAnalyzer.Application.Input;
 
