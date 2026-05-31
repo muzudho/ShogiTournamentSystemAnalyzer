@@ -1,15 +1,13 @@
 /*
- * ［プログラム　＞　オーケストレーション］
+ * ［プログラム　＞　エントリーポイント］
  */
 namespace ShogiTournamentSystemAnalyzer;
 
 using ShogiTournamentSystemAnalyzer.Application.Execution;
-using ShogiTournamentSystemAnalyzer.Application.Input;
-using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 using System.Text;
 
 /// <summary>
-/// ここがプログラムだぜ（＾▽＾）！
+/// ここがプログラムの入り口（エントリーポイント）だぜ（＾▽＾）！
 /// </summary>
 internal static partial class Program
 {
@@ -23,7 +21,7 @@ internal static partial class Program
     /// <summary>
     /// ここからプログラムが始まるぜ（＾▽＾）！
     /// </summary>
-    /// <param name="args"></param>
+    /// <param name="args">コマンドライン引数</param>
     private static void Main(string[] args)
     {
         // エンコーディングって大事だよな（＾▽＾）！　文字化けを防ぐぜ（＾▽＾）！
@@ -31,20 +29,7 @@ internal static partial class Program
 
         try
         {
-            // プログラムの実行が長引いて、いくら待っても応答が返ってこない、なんてことを防ぐために、タイムアウトを設定するぜ（＾▽＾）！
-            SimulationTimeBudget.BeginApplicationBudget();
-
-            // このプログラムの説明を最初に表示するぜ（＾▽＾）！
-            ProgramConsoleGuide.PrintProgramIntroduction();
-
-            // ［依頼］が［要求ファイル］からか、［対話か］に応じて、入力導線を準備するぜ（＾▽＾）！
-            using var inputSource = InputSourceConfiguration.ConfigureInputSource(args);
-
-            // ［依頼］を受け取って分析を始めるぜ（＾▽＾）！
-            Analysis.Run();
-
-            // 入力セッションの後片付けや完了処理を行うぜ（＾▽＾）！
-            inputSource.Complete();
+            ApplicationRun.Run(args);
         }
         catch (OperationCanceledException ex)
         {
@@ -53,4 +38,3 @@ internal static partial class Program
     }
 
 }
-
