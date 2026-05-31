@@ -1,7 +1,7 @@
 /*
  * ［アプリケーション　＞　実行　＞　要求ファイルチェック前　＞　アプリケーション起動準備］
  */
-namespace ShogiTournamentSystemAnalyzer.Application.Execution;
+namespace ShogiTournamentSystemAnalyzer.Application;
 
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 

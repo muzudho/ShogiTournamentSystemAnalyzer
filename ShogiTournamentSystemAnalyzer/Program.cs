@@ -3,7 +3,7 @@
  */
 namespace ShogiTournamentSystemAnalyzer;
 
-using ShogiTournamentSystemAnalyzer.Application.Execution;
+using ShogiTournamentSystemAnalyzer.Application;
 using System.Text;
 
 /// <summary>

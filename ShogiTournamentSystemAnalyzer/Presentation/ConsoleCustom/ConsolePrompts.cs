@@ -3,7 +3,7 @@
  */
 namespace ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 
-using ShogiTournamentSystemAnalyzer.Application.Execution;
+using ShogiTournamentSystemAnalyzer.Application;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using System;
 using System.Globalization;

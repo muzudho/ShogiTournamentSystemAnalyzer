@@ -1,7 +1,7 @@
 /*
  * ［アプリケーション　＞　実行　＞　アプリケーション実行］
  */
-namespace ShogiTournamentSystemAnalyzer.Application.Execution;
+namespace ShogiTournamentSystemAnalyzer.Application;
 
 internal static class ApplicationRun
 {

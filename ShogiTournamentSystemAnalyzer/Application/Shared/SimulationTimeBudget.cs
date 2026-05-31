@@ -1,7 +1,7 @@
 /*
  * ［アプリケーション　＞　実行　＞　共有　＞　実行時間予算］
  */
-namespace ShogiTournamentSystemAnalyzer.Application.Execution;
+namespace ShogiTournamentSystemAnalyzer.Application;
 
 /// <summary>
 /// シミュレーションの実行時間を管理するためのクラスです。

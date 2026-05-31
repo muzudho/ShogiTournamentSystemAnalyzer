@@ -1,10 +1,10 @@
-﻿/*
+/*
  * ［アプリケーション　＞　モード　＞　シミュレーション主線］
  */
 namespace ShogiTournamentSystemAnalyzer.Application.Modes.SimulationMainline;
 
 using ShogiTournamentSystemAnalyzer.Application.Modes.SimulationContext;
-using ShogiTournamentSystemAnalyzer.Application.Execution;
+using ShogiTournamentSystemAnalyzer.Application;
 using ShogiTournamentSystemAnalyzer.Application.Paths;
 using ShogiTournamentSystemAnalyzer.Domain.Ranking;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;

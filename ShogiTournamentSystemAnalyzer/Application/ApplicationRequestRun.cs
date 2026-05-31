@@ -1,7 +1,7 @@
 /*
  * ［アプリケーション　＞　実行　＞　依頼実行］
  */
-namespace ShogiTournamentSystemAnalyzer.Application.Execution;
+namespace ShogiTournamentSystemAnalyzer.Application;
 
 using ShogiTournamentSystemAnalyzer.Application.Input;
 

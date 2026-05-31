@@ -3,7 +3,7 @@
  */
 namespace ShogiTournamentSystemAnalyzer.Application.Modes.SimulationMainline;
 
-using ShogiTournamentSystemAnalyzer.Application.Execution;
+using ShogiTournamentSystemAnalyzer.Application;
 using ShogiTournamentSystemAnalyzer.Application.Modes.SimulationContext;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;

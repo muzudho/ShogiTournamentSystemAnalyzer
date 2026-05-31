@@ -3,7 +3,7 @@
  */
 namespace ShogiTournamentSystemAnalyzer.Application.Modes;
 
-using ShogiTournamentSystemAnalyzer.Application.Execution;
+using ShogiTournamentSystemAnalyzer.Application;
 using ShogiTournamentSystemAnalyzer.Application.Helpers;
 using ShogiTournamentSystemAnalyzer.Application.Paths;
 using ShogiTournamentSystemAnalyzer.Application.TournamentFramework;
