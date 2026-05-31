@@ -114,16 +114,16 @@ internal class FinalRankingCsvFileWriter
         /// <summary>
         /// ヘッダー行の各列
         /// </summary>
-        /// <typeparam name="TRow"></typeparam>
+        /// <typeparam name="THeaderRow"></typeparam>
         /// <param name="fixedColumns"></param>
         /// <param name="resultRows"></param>
         /// <param name="overviewNote"></param>
         /// <returns></returns>
-        static List<string> BuildFinalRankingSpecificHeaderColumns<TRow>(
+        static List<string> BuildFinalRankingSpecificHeaderColumns<THeaderRow>(
             IReadOnlyList<string> fixedColumns,
-            IReadOnlyList<TRow> resultRows,
+            IReadOnlyList<THeaderRow> resultRows,
             string? overviewNote)
-            where TRow : ISimulationResultRow
+            where THeaderRow : ISimulationResultRow
         {
             var specificHeaderColumns = fixedColumns.ToList();
             if (string.IsNullOrWhiteSpace(overviewNote)) specificHeaderColumns.Remove("note");

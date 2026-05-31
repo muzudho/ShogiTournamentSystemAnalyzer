@@ -10,6 +10,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Infrastructure\DataFiles\Request\TournamentRule\RequestInputLogTemplate.sbn.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Infrastructure\DataFiles\Request\TournamentRule\RequestInputLogTemplate.sbn.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="Application\Reporting\" />
     <Folder Include="Application\UseCases\Request\TournamentRule\" />
     <Folder Include="Domain\Shared\" />
