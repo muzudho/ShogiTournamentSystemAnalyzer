@@ -18,26 +18,19 @@ internal sealed class RequestInputSession : IDisposable
         this.completionTarget = completionTarget;
     }
 
-    internal static RequestInputSession FromRequestFile()
+    internal static RequestInputSession WithoutCompletion()
     {
         return new RequestInputSession(null, null);
     }
 
-    internal static RequestInputSession FromManualInputWithoutRequestFileCreate()
-    {
-        return new RequestInputSession(null, null);
-    }
-
-    internal static RequestInputSession FromManualInputWithRequestFileCreate(
+    internal static RequestInputSession WithRequestFileCreateCompletion(
         TextReader originalInput,
-        ManualInputRecordingTextReader recordingInput,
-        string requestFileCreatePath)
+        RequestFileCreateCompletionTarget completionTarget)
     {
-        var completionTarget = new RequestFileCreateCompletionTarget(requestFileCreatePath, recordingInput);
         return new RequestInputSession(originalInput, completionTarget);
     }
 
-    internal void CompleteRequestFileCreate()
+    internal void Complete()
     {
         if (completed || completionTarget is null) return;
 

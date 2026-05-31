@@ -12,7 +12,7 @@ internal static class ManualInput
         if (requestFileCreatePath is null)
         {
             Console.WriteLine();
-            return RequestInputSession.FromManualInputWithoutRequestFileCreate();
+            return RequestInputSession.WithoutCompletion();
         }
 
         return ManualInputRecordingSessionStarter.Start(requestFileCreatePath);

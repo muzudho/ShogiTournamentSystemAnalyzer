@@ -40,8 +40,8 @@ internal static partial class Program
             using var inputSource = InputSourceConfiguration.ConfigureInputSource(args);
             Analysis.Run();
 
-            // 手動入力を記録していた場合は、分析後に要求ファイルを作成するぜ（＾▽＾）！
-            inputSource.CompleteRequestFileCreate();
+            // 入力セッションの後片付けや完了処理を行うぜ（＾▽＾）！
+            inputSource.Complete();
         }
         catch (OperationCanceledException ex)
         {

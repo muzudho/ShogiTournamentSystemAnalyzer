@@ -27,7 +27,7 @@ internal static class InputSourceConfiguration
         if (RequestFileCheck.TryRead(inputFilePath, RequestInputFileReader.Read, out var checkedInputFile))
         {
             RequestInputApplier.Apply(checkedInputFile);
-            return RequestInputSession.FromRequestFile();
+            return RequestInputSession.WithoutCompletion();
         }
 
         Console.WriteLine("入力ファイルにエラーがあったため、手動入力へ切り替えます。\n");
