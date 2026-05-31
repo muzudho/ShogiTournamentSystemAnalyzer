@@ -4,6 +4,7 @@
 namespace ShogiTournamentSystemAnalyzer.Application.Analysis.Boundaries.FinalRanking.DataDefinitions;
 
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using ShogiTournamentSystemAnalyzer.Application.Shared;
 
 internal static class TableTypeDefinitionReader
@@ -11,6 +12,7 @@ internal static class TableTypeDefinitionReader
     static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNameCaseInsensitive = true,
+        Converters = { new JsonStringEnumConverter() },
     };
 
     internal static TableTypeDefinition Load(string fileName)

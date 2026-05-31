@@ -75,21 +75,52 @@ internal class FinalRankingCsvFileWriter
     /// ［最終順位という境界］のCSV形式データを作成する。
     /// </summary>
     /// <typeparam name="TRow"></typeparam>
-    /// <param name="outputCsvPath">インターフェースを合わせるためのダミー</param>
     /// <param name="mode"></param>
     /// <param name="firstPlayerWinRatePercent"></param>
     /// <param name="resultRows"></param>
     /// <param name="overviewNote"></param>
     /// <returns></returns>
-    /// <exception cref="InvalidOperationException"></exception>
     internal IEnumerable<string> CreateResultCsvLines<TRow>(
         string mode,
         double firstPlayerWinRatePercent,
         IReadOnlyList<TRow> resultRows,
         string? overviewNote = null)
-        where TRow : ISimulationResultRow
+        where TRow : ISimulationResultRow, IGeneralSimulationResultRowSource
     {
-        var specificHeaderColumns = BuildFinalRankingSpecificHeaderColumns(GetFinalRankingFixedColumns(), resultRows, overviewNote);
+        var generalResultRows = resultRows
+            .Select(row => row.ToGeneralResultRow())
+            .ToList();
+
+        return CreateGeneralResultCsvLines(
+            mode,
+            firstPlayerWinRatePercent,
+            generalResultRows,
+            overviewNote);
+    }
+
+    /// <summary>
+    /// ［最終順位という境界］のCSV形式データを、共通部分と自由形式部分に分けた行から作成する。
+    /// </summary>
+    /// <param name="mode"></param>
+    /// <param name="firstPlayerWinRatePercent"></param>
+    /// <param name="resultRows"></param>
+    /// <param name="overviewNote"></param>
+    /// <returns></returns>
+    internal IEnumerable<string> CreateGeneralResultCsvLines(
+        string mode,
+        double firstPlayerWinRatePercent,
+        IReadOnlyList<GeneralSimulationResultRow> resultRows,
+        string? overviewNote = null)
+    {
+        var fixedColumns = GetFinalRankingFixedColumns().ToList();
+        if (string.IsNullOrWhiteSpace(overviewNote)) fixedColumns.Remove("note");
+
+        var specificHeaderColumns = fixedColumns.ToList();
+        if (resultRows.Count > 0)
+        {
+            AppendPlaceHeaderColumns(specificHeaderColumns, resultRows[0]);
+        }
+
         var lines = new List<string>
         {
             string.Join(",", CsvSchemaCommonColumns.BuildHeaderColumns(specificHeaderColumns).Select(CsvOutputHelpers.EscapeCsv))
@@ -97,7 +128,7 @@ internal class FinalRankingCsvFileWriter
 
         foreach (var row in resultRows)
         {
-            var specificColumns = BuildFinalRankingSpecificColumns(mode, firstPlayerWinRatePercent, row, overviewNote);
+            var specificColumns = BuildGeneralFinalRankingSpecificColumns(fixedColumns, mode, firstPlayerWinRatePercent, row, overviewNote);
             var columns = CsvSchemaCommonColumns.BuildRowColumns(
                 boundaryName: "FinalRanking",
                 schemaName: this.Settings.GetSchemaName(),
@@ -109,92 +140,79 @@ internal class FinalRankingCsvFileWriter
 
         return lines;
 
-        // ローカル関数
-
-        /// <summary>
-        /// ヘッダー行の各列
-        /// </summary>
-        /// <typeparam name="THeaderRow"></typeparam>
-        /// <param name="fixedColumns"></param>
-        /// <param name="resultRows"></param>
-        /// <param name="overviewNote"></param>
-        /// <returns></returns>
-        static List<string> BuildFinalRankingSpecificHeaderColumns<THeaderRow>(
-            IReadOnlyList<string> fixedColumns,
-            IReadOnlyList<THeaderRow> resultRows,
-            string? overviewNote)
-            where THeaderRow : ISimulationResultRow
+        static void AppendPlaceHeaderColumns(List<string> specificHeaderColumns, GeneralSimulationResultRow row)
         {
-            var specificHeaderColumns = fixedColumns.ToList();
-            if (string.IsNullOrWhiteSpace(overviewNote)) specificHeaderColumns.Remove("note");
-
-            if (resultRows.Count > 0)
+            for (var place = 0; place < row.CommonData.PlaceProbabilities.Length; place++)
             {
-                AppendPlaceHeaderColumns(specificHeaderColumns, resultRows[0]);
-            }
-
-            return specificHeaderColumns;
-
-            // ローカル関数
-
-            static void AppendPlaceHeaderColumns(List<string> specificHeaderColumns, ISimulationResultRow row)
-            {
-                for (var place = 0; place < row.PlaceProbabilities.Length; place++)
+                specificHeaderColumns.Add($"place{place + 1}Percent");
+                if (row.CommonData.PlaceCounts is not null)
                 {
-                    specificHeaderColumns.Add($"place{place + 1}Percent");
-                    if (row.PlaceCounts is not null)
-                    {
-                        specificHeaderColumns.Add($"place{place + 1}Count");
-                    }
+                    specificHeaderColumns.Add($"place{place + 1}Count");
                 }
             }
         }
 
-        /// <summary>
-        /// データ行の各列
-        /// </summary>
-        /// <param name="mode"></param>
-        /// <param name="firstPlayerWinRatePercent"></param>
-        /// <param name="row"></param>
-        /// <param name="overviewNote"></param>
-        /// <returns></returns>
-        static List<string> BuildFinalRankingSpecificColumns(
+        static List<string> BuildGeneralFinalRankingSpecificColumns(
+            IReadOnlyList<string> fixedColumns,
             string mode,
             double firstPlayerWinRatePercent,
-            ISimulationResultRow row,
+            GeneralSimulationResultRow row,
             string? overviewNote)
         {
-            var specificColumns = new List<string>
-            {
-                mode,
-                firstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture)
-            };
+            var specificColumns = new List<string>(fixedColumns.Count + row.CommonData.PlaceProbabilities.Length);
+            var freeColumns = row.FreeColumns.ToDictionary(column => column.Key, StringComparer.Ordinal);
 
-            specificColumns.AddRange(row.GetFinalRankingCsvSpecificColumns());
-
-            if (!string.IsNullOrWhiteSpace(overviewNote))
+            for (var columnIndex = 0; columnIndex < fixedColumns.Count; columnIndex++)
             {
-                specificColumns.Add(overviewNote);
+                var columnName = fixedColumns[columnIndex];
+                specificColumns.Add(GetFixedColumnValue(columnIndex, columnName, mode, firstPlayerWinRatePercent, row, freeColumns, overviewNote));
             }
 
             AppendPlaceColumns(specificColumns, row);
             return specificColumns;
+        }
 
-            // ローカル関数
-
-            static void AppendPlaceColumns(List<string> specificColumns, ISimulationResultRow row)
+        static string GetFixedColumnValue(
+            int columnIndex,
+            string columnName,
+            string mode,
+            double firstPlayerWinRatePercent,
+            GeneralSimulationResultRow row,
+            IReadOnlyDictionary<string, SimulationResultFreeColumn> freeColumns,
+            string? overviewNote)
+        {
+            var commonData = row.CommonData;
+            return columnName switch
             {
-                for (var place = 0; place < row.PlaceProbabilities.Length; place++)
+                "calculationMode" => mode,
+                "firstPlayerWinRatePercent" when columnIndex == 1 => firstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture),
+                "playerName" => commonData.Name,
+                "originalElo" => SimulationRatingMath.FormatRating(commonData.OriginalRating),
+                "effectiveElo" => SimulationRatingMath.FormatRating(commonData.EffectiveRating),
+                "eloDelta" => SimulationRatingMath.FormatSignedRating(commonData.RatingDelta),
+                "firstPlayerCount" => commonData.FirstPlayerCount.ToString(CultureInfo.InvariantCulture),
+                "secondPlayerCount" => commonData.SecondPlayerCount.ToString(CultureInfo.InvariantCulture),
+                "firstPlayerWinRatePercent" => SimulationRatingMath.FormatOptionalPercentValue(commonData.FirstPlayerWinRate),
+                "secondPlayerWinRatePercent" => SimulationRatingMath.FormatOptionalPercentValue(commonData.SecondPlayerWinRate),
+                "note" => overviewNote ?? string.Empty,
+                _ when freeColumns.TryGetValue(columnName, out var freeColumn) => freeColumn.CsvValue,
+                _ => throw new InvalidOperationException($"最終順位CSVの列に対応する値がありません: {columnName}")
+            };
+        }
+
+        static void AppendPlaceColumns(List<string> specificColumns, GeneralSimulationResultRow row)
+        {
+            for (var place = 0; place < row.CommonData.PlaceProbabilities.Length; place++)
+            {
+                specificColumns.Add((row.CommonData.PlaceProbabilities[place] * 100).ToString("F2", CultureInfo.InvariantCulture));
+                if (row.CommonData.PlaceCounts is not null)
                 {
-                    specificColumns.Add((row.PlaceProbabilities[place] * 100).ToString("F2", CultureInfo.InvariantCulture));
-                    if (row.PlaceCounts is not null)
-                    {
-                        specificColumns.Add(row.PlaceCounts[place].ToString("F3", CultureInfo.InvariantCulture));
-                    }
+                    specificColumns.Add(row.CommonData.PlaceCounts[place].ToString("F3", CultureInfo.InvariantCulture));
                 }
             }
         }
     }
+
 
     #endregion
 

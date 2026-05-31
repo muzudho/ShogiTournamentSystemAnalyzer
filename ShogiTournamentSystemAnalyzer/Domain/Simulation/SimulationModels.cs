@@ -54,6 +54,11 @@ internal interface ISimulationResultRow
     IReadOnlyList<string> GetFinalRankingCsvSpecificColumns();
 }
 
+internal interface IGeneralSimulationResultRowSource
+{
+    GeneralSimulationResultRow ToGeneralResultRow();
+}
+
 /// <summary>
 /// ［シミュレーション］結果の行の共通データ
 /// </summary>
@@ -134,7 +139,7 @@ readonly record struct StandardResultRow(
     SimulationResultRowCommonData CommonData,
     double ChampionshipProbability,     // ［標準版］優勝確率
     double AveragePlace)                // ［標準版］平均順位
-    : ISimulationResultRow
+    : ISimulationResultRow, IGeneralSimulationResultRowSource
 {
     public string Name => CommonData.Name;
     public double OriginalRating => CommonData.OriginalRating;
@@ -217,7 +222,7 @@ readonly record struct FinalStageResultRow(
     double GroupPlaceAverage,           // ［本戦版］グループ内の平均順位
     double OverallPlace1Probability,    // ［本戦版］全体で1位の確率
     double OverallPlaceAverage)         // ［本戦版］全体の平均順位
-    : ISimulationResultRow
+    : ISimulationResultRow, IGeneralSimulationResultRowSource
 {
     public string Name => CommonData.Name;
     public double OriginalRating => CommonData.OriginalRating;
