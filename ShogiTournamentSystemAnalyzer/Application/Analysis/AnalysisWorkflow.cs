@@ -1,11 +1,11 @@
 /*
- * ［アプリケーション　＞　実行　＞　分析］
+ * ［アプリケーション　＞　分析　＞　分析ワークフロー］
  */
 namespace ShogiTournamentSystemAnalyzer.Application.Analysis;
 
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 
-internal static class Analysis
+internal static class AnalysisWorkflow
 {
     internal static void Run()
     {

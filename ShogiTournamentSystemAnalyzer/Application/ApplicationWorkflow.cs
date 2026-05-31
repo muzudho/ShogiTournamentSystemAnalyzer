@@ -1,13 +1,13 @@
 /*
- * ［アプリケーション　＞　実行　＞　アプリケーション実行］
+ * ［アプリケーション　＞　アプリケーション・ワークフロー］
  */
 namespace ShogiTournamentSystemAnalyzer.Application;
 
-internal static class ApplicationRun
+internal static class ApplicationWorkflow
 {
     internal static void Run(IReadOnlyList<string> args)
     {
         ApplicationStartup.Start();
-        ApplicationRequestRun.Run(args);
+        RequestWorkflow.Run(args);
     }
 }

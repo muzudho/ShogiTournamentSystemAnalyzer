@@ -29,7 +29,7 @@ internal static partial class Program
 
         try
         {
-            ApplicationRun.Run(args);
+            ApplicationWorkflow.Run(args);
         }
         catch (OperationCanceledException ex)
         {
