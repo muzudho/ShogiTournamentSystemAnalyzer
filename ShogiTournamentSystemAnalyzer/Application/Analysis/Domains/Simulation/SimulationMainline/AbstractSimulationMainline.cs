@@ -158,7 +158,7 @@ internal abstract class AbstractSimulationMainline
         double firstPlayerWinRatePercent,
         IReadOnlyList<TRow> resultRows,
         string? referenceMatchesCsvPath = null)
-        where TRow : ISimulationResultRow, IGeneralSimulationResultRowSource
+        where TRow : ISimulationResultRow
     {
         WriteFinalRankingOutputs(
             outputCsvPath,

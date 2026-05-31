@@ -47,15 +47,6 @@ internal interface ISimulationResultRow
     double[] PlaceProbabilities { get; }
     double[]? PlaceCounts { get; }
 
-    /// <summary>
-    /// ［最終順位という境界］のCSV形式データの指定列を取得
-    /// </summary>
-    /// <returns></returns>
-    IReadOnlyList<string> GetFinalRankingCsvSpecificColumns();
-}
-
-internal interface IGeneralSimulationResultRowSource
-{
     GeneralSimulationResultRow ToGeneralResultRow();
 }
 
@@ -139,7 +130,7 @@ readonly record struct StandardResultRow(
     SimulationResultRowCommonData CommonData,
     double ChampionshipProbability,     // ［標準版］優勝確率
     double AveragePlace)                // ［標準版］平均順位
-    : ISimulationResultRow, IGeneralSimulationResultRowSource
+    : ISimulationResultRow
 {
     public string Name => CommonData.Name;
     public double OriginalRating => CommonData.OriginalRating;
@@ -151,27 +142,6 @@ readonly record struct StandardResultRow(
     public double? SecondPlayerWinRate => CommonData.SecondPlayerWinRate;
     public double[] PlaceProbabilities => CommonData.PlaceProbabilities;
     public double[]? PlaceCounts => CommonData.PlaceCounts;
-
-    /// <summary>
-    /// ［最終順位という境界］のCSV形式データの指定列を取得
-    /// </summary>
-    /// <returns></returns>
-    public IReadOnlyList<string> GetFinalRankingCsvSpecificColumns()
-    {
-        return
-        [
-            Name,
-            SimulationRatingMath.FormatRating(OriginalRating),
-            SimulationRatingMath.FormatRating(EffectiveRating),
-            SimulationRatingMath.FormatSignedRating(RatingDelta),
-            FirstPlayerCount.ToString(CultureInfo.InvariantCulture),
-            SecondPlayerCount.ToString(CultureInfo.InvariantCulture),
-            SimulationRatingMath.FormatOptionalPercentValue(FirstPlayerWinRate),
-            SimulationRatingMath.FormatOptionalPercentValue(SecondPlayerWinRate),
-            (ChampionshipProbability * 100).ToString("F2", CultureInfo.InvariantCulture),
-            AveragePlace.ToString("F3", CultureInfo.InvariantCulture)
-        ];
-    }
 
     public GeneralSimulationResultRow ToGeneralResultRow()
     {
@@ -222,7 +192,7 @@ readonly record struct FinalStageResultRow(
     double GroupPlaceAverage,           // ［本戦版］グループ内の平均順位
     double OverallPlace1Probability,    // ［本戦版］全体で1位の確率
     double OverallPlaceAverage)         // ［本戦版］全体の平均順位
-    : ISimulationResultRow, IGeneralSimulationResultRowSource
+    : ISimulationResultRow
 {
     public string Name => CommonData.Name;
     public double OriginalRating => CommonData.OriginalRating;
@@ -234,30 +204,6 @@ readonly record struct FinalStageResultRow(
     public double? SecondPlayerWinRate => CommonData.SecondPlayerWinRate;
     public double[] PlaceProbabilities => CommonData.PlaceProbabilities;
     public double[]? PlaceCounts => CommonData.PlaceCounts;
-
-    /// <summary>
-    /// ［最終順位という境界］のCSV形式データの指定列を取得
-    /// </summary>
-    /// <returns></returns>
-    public IReadOnlyList<string> GetFinalRankingCsvSpecificColumns()
-    {
-        return
-        [
-            Name,
-            Group,
-            SimulationRatingMath.FormatRating(OriginalRating),
-            SimulationRatingMath.FormatRating(EffectiveRating),
-            SimulationRatingMath.FormatSignedRating(RatingDelta),
-            FirstPlayerCount.ToString(CultureInfo.InvariantCulture),
-            SecondPlayerCount.ToString(CultureInfo.InvariantCulture),
-            SimulationRatingMath.FormatOptionalPercentValue(FirstPlayerWinRate),
-            SimulationRatingMath.FormatOptionalPercentValue(SecondPlayerWinRate),
-            (GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture),
-            GroupPlaceAverage.ToString("F3", CultureInfo.InvariantCulture),
-            (OverallPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture),
-            OverallPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)
-        ];
-    }
 
     public GeneralSimulationResultRow ToGeneralResultRow()
     {

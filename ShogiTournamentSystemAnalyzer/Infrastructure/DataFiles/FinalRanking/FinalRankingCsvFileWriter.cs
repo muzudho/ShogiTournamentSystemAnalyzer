@@ -85,7 +85,7 @@ internal class FinalRankingCsvFileWriter
         double firstPlayerWinRatePercent,
         IReadOnlyList<TRow> resultRows,
         string? overviewNote = null)
-        where TRow : ISimulationResultRow, IGeneralSimulationResultRowSource
+        where TRow : ISimulationResultRow
     {
         var generalResultRows = resultRows
             .Select(row => row.ToGeneralResultRow())
