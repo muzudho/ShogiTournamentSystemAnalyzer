@@ -1,5 +1,5 @@
 /*
- * ［アプリケーション　＞　実行　＞　要求ファイルチェック　＞　要求入力形式判定］
+ * ［アプリケーション　＞　要求ファイルチェック　＞　要求入力形式判定］
  */
 namespace ShogiTournamentSystemAnalyzer.Application.RequestFileCheck;
 

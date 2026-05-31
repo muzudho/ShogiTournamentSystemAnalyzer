@@ -1,5 +1,5 @@
 /*
- * ［アプリケーション　＞　実行　＞　要求ファイルチェック前　＞　要求ファイル引数読み取り結果］
+ * ［アプリケーション　＞　要求ファイルチェック前　＞　要求ファイル引数読み取り結果］
  */
 namespace ShogiTournamentSystemAnalyzer.Application.BeforeRequestFileCheck;
 

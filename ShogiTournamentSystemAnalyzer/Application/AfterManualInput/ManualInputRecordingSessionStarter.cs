@@ -1,5 +1,5 @@
 /*
- * ［アプリケーション　＞　実行　＞　手動入力後　＞　手動入力記録セッション開始］
+ * ［アプリケーション　＞　手動入力後　＞　手動入力記録セッション開始］
  */
 namespace ShogiTournamentSystemAnalyzer.Application.AfterManualInput;
 

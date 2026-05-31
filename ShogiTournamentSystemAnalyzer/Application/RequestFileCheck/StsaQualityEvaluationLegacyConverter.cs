@@ -1,5 +1,5 @@
 /*
- * ［アプリケーション　＞　実行　＞　要求ファイルチェック　＞　STSA品質評価レガシー変換］
+ * ［アプリケーション　＞　要求ファイルチェック　＞　STSA品質評価レガシー変換］
  */
 namespace ShogiTournamentSystemAnalyzer.Application.RequestFileCheck;
 

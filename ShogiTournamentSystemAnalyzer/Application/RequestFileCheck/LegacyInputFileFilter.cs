@@ -1,5 +1,5 @@
 /*
- * ［アプリケーション　＞　実行　＞　要求ファイルチェック　＞　レガシー入力ファイルフィルター］
+ * ［アプリケーション　＞　要求ファイルチェック　＞　レガシー入力ファイルフィルター］
  */
 namespace ShogiTournamentSystemAnalyzer.Application.RequestFileCheck;
 

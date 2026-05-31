@@ -1,5 +1,5 @@
 /*
- * ［アプリケーション　＞　実行　＞　要求ファイルチェック結果］
+ * ［アプリケーション　＞　要求ファイルチェック結果］
  */
 namespace ShogiTournamentSystemAnalyzer.Application.RequestFileCheck;
 
