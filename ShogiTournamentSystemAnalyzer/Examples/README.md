@@ -17,4 +17,4 @@
 - `Data/Players`: 再利用する選手データ
 - `Data/Matches`: 再利用する対局表、参考対局表
 - `Data/FinalStage`: 本戦専用モードの補助データ
-- `Data/Inputs`: 実行用入力ファイル
+- `Inputs`: 実行用入力ファイル
