@@ -9,16 +9,7 @@ internal static class InputSourceConfiguration
 {
     internal static RequestInputSession ConfigureInputSource(IReadOnlyList<string> args)
     {
-        string? inputFilePath;
-        try
-        {
-            inputFilePath = TryGetInputFilePathFromArgs(args);
-        }
-        catch (OperationCanceledException ex)
-        {
-            Console.WriteLine($"要求ファイルチェック: エラー有り: {ex.Message}");
-            return ManualInput.Start();
-        }
+        var inputFilePath = RequestFileArgumentReader.TryGetInputFilePath(args);
         if (!string.IsNullOrWhiteSpace(inputFilePath))
         {
             if (RequestFileCheck.TryRead(inputFilePath, ReadInputFile, out var checkedInputFile))
@@ -32,25 +23,6 @@ internal static class InputSourceConfiguration
         }
 
         return ManualInput.Start();
-    }
-
-    static string? TryGetInputFilePathFromArgs(IReadOnlyList<string> args)
-    {
-        for (var index = 0; index < args.Count; index++)
-        {
-            var arg = args[index];
-            if (arg.Equals("--input-file", StringComparison.OrdinalIgnoreCase))
-            {
-                if (index + 1 >= args.Count) throw new OperationCanceledException("--input-file の後ろにファイルパスを指定してください。");
-
-                return args[index + 1];
-            }
-
-            const string inputFilePrefix = "--input-file=";
-            if (arg.StartsWith(inputFilePrefix, StringComparison.OrdinalIgnoreCase)) return arg[inputFilePrefix.Length..];
-        }
-
-        return null;
     }
 
     static RequestFileCheckResult ReadInputFile(string inputFilePath)
