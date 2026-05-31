@@ -1,63 +1,13 @@
 /*
- * ［アプリケーション　＞　パス］
+ * ［分析　＞　境界　＞　大会品質レポート　＞　出力パス］
  */
 namespace ShogiTournamentSystemAnalyzer.Application.Paths;
 
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 
-internal static class ReportOutputPathBuilder
+internal static partial class ReportOutputPathBuilder
 {
-    static string NormalizeSnakeCaseToken(string value)
-    {
-        return value
-            .Replace("+", "_plus_")
-            .Replace("-", "_")
-            .Replace(" ", "_")
-            .Replace("__", "_")
-            .ToLowerInvariant();
-    }
-
-    static string GetQualityRuleNameToken(TournamentRuleSetMode tournamentRuleSetMode)
-    {
-        return tournamentRuleSetMode switch
-        {
-            TournamentRuleSetMode.Twill => "twill",
-            TournamentRuleSetMode.TwillCommonOpponentWeighted => "twill_commonopp",
-            _ => "neutral",
-        };
-    }
-
-    static string GetQualityConditionToken(AdditionalApexPlacementMode placementMode, BoundaryRescueMode boundaryRescueMode)
-    {
-        return $"{NormalizeSnakeCaseToken(placementMode.ToString())}_{NormalizeSnakeCaseToken(boundaryRescueMode.ToString())}";
-    }
-
-    static string BuildTimestampedQualityFileName(string leadingContext, string artifactType)
-    {
-        return $"{leadingContext}_{artifactType}_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
-    }
-
-    static string BuildOutputFilePath(params string[] segments)
-    {
-        var fullSegments = new[] { Path.GetFullPath("."), "Output" }
-            .Concat(segments)
-            .ToArray();
-        var directoryPath = Path.Combine(fullSegments[..^1]);
-        Directory.CreateDirectory(directoryPath);
-        return Path.Combine(directoryPath, fullSegments[^1]);
-    }
-
-    internal static string BuildFinalRankingDefaultOutputPath(string fileName)
-    {
-        return BuildOutputFilePath("Ranking", "FinalRanking", fileName);
-    }
-
-    internal static string BuildTournamentFinalStateDefaultOutputPath(string fileName)
-    {
-        return BuildOutputFilePath("Simulation", "TournamentFinalState", fileName);
-    }
-
     internal static string BuildTournamentQualitySummaryDefaultOutputPath(string fileName, TournamentQualityEvaluationReportGroupingOptions options)
     {
         if (!options.IsEnabled) return BuildOutputFilePath("TournamentQualityEvaluator", "TournamentQualityReport", "Summary", fileName);
@@ -173,4 +123,3 @@ internal static class ReportOutputPathBuilder
         return BuildQualitySweepDefaultOutputPath(placementMode, boundaryRescueMode, options);
     }
 }
-
