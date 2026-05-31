@@ -142,7 +142,7 @@ C. ランタイム配置先の見直し
 14. 必要なら `Output` フォルダーを作る
    PowerShell で実行例:
 
-   New-Item -ItemType Directory -Force "E:\Projects\ShogiTournamentSystemAnalyzer\Output"
+   New-Item -ItemType Directory -Force "E:\Projects\Output"
 
 ----------------------------------------
 D. 開き直しと確認

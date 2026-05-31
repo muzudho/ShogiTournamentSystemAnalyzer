@@ -3,6 +3,7 @@
  */
 namespace ShogiTournamentSystemAnalyzer.Application.Analysis.Boundaries;
 
+using ShogiTournamentSystemAnalyzer.Application.Shared;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 
@@ -40,7 +41,7 @@ internal static partial class ReportOutputPathBuilder
 
     static string BuildOutputFilePath(params string[] segments)
     {
-        var fullSegments = new[] { Path.GetFullPath("."), "Output" }
+        var fullSegments = new[] { RepositoryPaths.OutputPath }
             .Concat(segments)
             .ToArray();
         var directoryPath = Path.Combine(fullSegments[..^1]);
@@ -48,3 +49,4 @@ internal static partial class ReportOutputPathBuilder
         return Path.Combine(directoryPath, fullSegments[^1]);
     }
 }
+

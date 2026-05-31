@@ -165,7 +165,7 @@ SimulationCount=20000
 TournamentQualityEvaluationReportGrouping=On
 TournamentQualityEvaluationReportOutcome=Good
 EvaluationMemo=Neutral の基準計測
-SummaryOutputPath=ShogiTournamentSystemAnalyzer\Output\TournamentQualityEvaluator\TournamentQualityReport\Summary\Good\quality_summary_[neutral].csv
+SummaryOutputPath=Output\TournamentQualityEvaluator\TournamentQualityReport\Summary\Good\quality_summary_[neutral].csv
 #[EndSection]
 
 #[Section] PlayersCsv
@@ -180,7 +180,7 @@ Alice,Bob
 #[EndSection]
 
 #[Section] Output
-SummaryOutputPath=ShogiTournamentSystemAnalyzer\Output\TournamentQualityEvaluator\TournamentQualityReport\Summary\Good\quality_summary_[neutral].csv
+SummaryOutputPath=Output\TournamentQualityEvaluator\TournamentQualityReport\Summary\Good\quality_summary_[neutral].csv
 #[EndSection]
 ```
 
@@ -203,7 +203,7 @@ QualityInnovExpectedRankOffsetMode=On
 TournamentQualityEvaluationReportGrouping=On
 TournamentQualityEvaluationReportOutcome=Bad
 EvaluationMemo=本戦ルール案A
-SweepOutputPath=ShogiTournamentSystemAnalyzer\Output\TournamentQualityEvaluator\TournamentQualityReport\Sweeps\Bad\quality_sweep_[final_stage_a].csv
+SweepOutputPath=Output\TournamentQualityEvaluator\TournamentQualityReport\Sweeps\Bad\quality_sweep_[final_stage_a].csv
 #[EndSection]
 
 #[Section] PlayersCsv
@@ -237,7 +237,7 @@ Alice,Carol
 #[EndSection]
 
 #[Section] Output
-SweepOutputPath=ShogiTournamentSystemAnalyzer\Output\TournamentQualityEvaluator\TournamentQualityReport\Sweeps\Bad\quality_sweep_[final_stage_a].csv
+SweepOutputPath=Output\TournamentQualityEvaluator\TournamentQualityReport\Sweeps\Bad\quality_sweep_[final_stage_a].csv
 #[EndSection]
 ```
 
@@ -270,3 +270,4 @@ SweepOutputPath=ShogiTournamentSystemAnalyzer\Output\TournamentQualityEvaluator\
 - [入力ファイル仕様](./入力ファイル仕様.md)
 - [STSAInput/2 仕様](./STSAInput2仕様.md)
 - [品質評価](./品質評価.md)
+

@@ -18,7 +18,7 @@ dotnet run --project .\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyz
 入力ファイルで流すときは次です。
 
 ```powershell
-dotnet run --project .\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyzer.csproj -- --input-file .\ShogiTournamentSystemAnalyzer\Data\Inputs\Bench\quality_input_[先手8x後手8].txt
+dotnet run --project .\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyzer.csproj -- --input-file .\Inputs\Bench\quality_input_[先手8x後手8].txt
 ```
 
 ### 2. 大会ルールの入力方法
@@ -46,13 +46,13 @@ dotnet run --project .\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyz
 既定の出力先は `Output` 配下に整理されています。
 
 - 順位表、通常結果、本戦結果
-  - `ShogiTournamentSystemAnalyzer/Output/Ranking/FinalRanking`
+  - `Output/Ranking/FinalRanking`
 - 大会最終状態、代表実行の対局記録
-  - `ShogiTournamentSystemAnalyzer/Output/Simulation/TournamentFinalState`
+  - `Output/Simulation/TournamentFinalState`
 - 品質評価レポート
-  - `ShogiTournamentSystemAnalyzer/Output/TournamentQualityEvaluator/TournamentQualityReport/Summary`
-  - `ShogiTournamentSystemAnalyzer/Output/TournamentQualityEvaluator/TournamentQualityReport/Players`
-  - `ShogiTournamentSystemAnalyzer/Output/TournamentQualityEvaluator/TournamentQualityReport/Sweeps`
+  - `Output/TournamentQualityEvaluator/TournamentQualityReport/Summary`
+  - `Output/TournamentQualityEvaluator/TournamentQualityReport/Players`
+  - `Output/TournamentQualityEvaluator/TournamentQualityReport/Sweeps`
 
 出力内容の読み方は [CSVと出力](./docs/Manuals/CSVと出力.md) を参照してください。
 
@@ -172,20 +172,20 @@ TournamentFinalState -> FinalRanking -> TournamentQualityReport
 
 ## 入力ファイルと見本の置き場
 
-- `ShogiTournamentSystemAnalyzer/Data/Inputs`
+- `Inputs`
   - `--input-file` で流す実行用入力ファイル
   - `Smoke`: 1 回や少数回の確認用
   - `Bench`: 単発評価や軽いベンチマーク用
   - `Sweeps`: n% スイープ実験用
 - `ShogiTournamentSystemAnalyzer/Examples`
   - 人が読むための見本、対局記号表、メモ
-- `ShogiTournamentSystemAnalyzer/Data/Players`
+- `Data/Players`
   - 再利用する選手データ
-- `ShogiTournamentSystemAnalyzer/Data/Matches`
+- `Data/Matches`
   - 再利用する対局表、参考対局表
-- `ShogiTournamentSystemAnalyzer/Data/FinalStage`
+- `Data/FinalStage`
   - 本戦専用モードの補助 CSV
-- `ShogiTournamentSystemAnalyzer/Data/RuleSets`
+- `Data/RuleSets`
   - 保存して再利用する大会ルール
 
 ## まずどの文書を見るか
@@ -227,3 +227,4 @@ TournamentFinalState -> FinalRanking -> TournamentQualityReport
 ## ライセンス
 
 - [MIT License](./LICENSE)
+

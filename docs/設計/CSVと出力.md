@@ -4,16 +4,16 @@
 
 <a id="boundary-tournament-rule"></a>
 ### TournamentRule（大会ルールデータ）
-- 保存して再利用する大会ルールは `ShogiTournamentSystemAnalyzer/Data/RuleSets` に置きます
+- 保存して再利用する大会ルールは `Data/RuleSets` に置きます
 - 入口:
   - [トーナメントルール](./トーナメントルール.md)
   - [入力ファイル仕様](./入力ファイル仕様.md)
-  - [Data/RuleSets README](../../ShogiTournamentSystemAnalyzer/Data/RuleSets/README.md)
+  - [Data/RuleSets README](../../Data/RuleSets/README.md)
 
 <a id="boundary-player-list"></a>
 ### PlayerList（プレイヤー一覧データ）
 - 選手 / Player 一覧の基本フォーマットは、この文書の [選手 / Player 一覧CSV](#選手--player-一覧csv) を見てください
-- 置き場と実例は [Data/Players README](../../ShogiTournamentSystemAnalyzer/Data/Players/README.md) を見てください
+- 置き場と実例は [Data/Players README](../../Data/Players/README.md) を見てください
 
 <a id="boundary-ranking-settings"></a>
 ### RankingSettings（順位付けの設定データ）
@@ -27,8 +27,8 @@
 ### TournamentResult（大会結果データ）
 - 対局結果入力の基本フォーマットは、この文書の [対局CSV](#対局csv) と [Round / First-Second / 対局記号表](#round--first-second--対局記号表) を見てください
 - 本戦補助データや再利用データの置き場:
-  - [Data/Matches README](../../ShogiTournamentSystemAnalyzer/Data/Matches/README.md)
-  - [Data/FinalStage README](../../ShogiTournamentSystemAnalyzer/Data/FinalStage/README.md)
+  - [Data/Matches README](../../Data/Matches/README.md)
+  - [Data/FinalStage README](../../Data/FinalStage/README.md)
 
 <a id="boundary-final-ranking"></a>
 ### FinalRanking（最終順位データ）
@@ -334,3 +334,4 @@ END
 ## 関連資料
 - [入力ファイル仕様](./入力ファイル仕様.md)
 - [品質評価](./品質評価.md)
+

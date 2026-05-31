@@ -4,14 +4,14 @@
 namespace ShogiTournamentSystemAnalyzer.Application.RequestFileCreate;
 
 using System.Text;
+using ShogiTournamentSystemAnalyzer.Application.Shared;
 
 internal static class RequestFileCreate
 {
     internal static string BuildDefaultPath()
     {
         return Path.Combine(
-            Path.GetFullPath("."),
-            "Output",
+            RepositoryPaths.OutputPath,
             "TournamentUser",
             "Request",
             "manual_input_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".txt");
@@ -47,3 +47,4 @@ internal static class RequestFileCreate
             || string.IsNullOrEmpty(Path.GetExtension(path));
     }
 }
+

@@ -1,0 +1,26 @@
+#[Format] STSAInput/2
+
+#[Section] Meta
+AnalysisFlowMode=Simulation
+RuleProfileMode=Standard
+TournamentRuleSetMode=Neutral
+FirstPlayerWinRatePercent=51
+OutputPath=Output\standard_compare_final_ranking_[旧Standard_最小].csv
+#[EndSection]
+
+#[Section] PlayersCsv
+name,elo
+Alice,1500
+Bob,1480
+Carol,1520
+Dave,1470
+#[EndSection]
+
+#[Section] MatchesInput
+first,second
+Alice,Bob
+Carol,Dave
+Alice,Carol
+Bob,Dave
+#[EndSection]
+

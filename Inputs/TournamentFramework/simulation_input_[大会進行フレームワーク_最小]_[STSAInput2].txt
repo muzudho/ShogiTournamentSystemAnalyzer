@@ -1,0 +1,23 @@
+#[Format] STSAInput/2
+
+#[Section] Meta
+AnalysisFlowMode=Simulation
+RuleProfileMode=TournamentFramework
+TournamentFrameworkMode=On
+FirstPlayerWinRatePercent=51
+RuleFilePath=Data\RuleSets\tournament_rule_[大会進行フレームワーク_最小].trule
+RandomSeed=12345
+OutputPath=Output\tournament_framework_aggregate_final_ranking_[大会進行フレームワーク_最小].csv
+#[EndSection]
+
+#[Section] Inputs
+PlayersCsvPath=Data\Players\players_[大会進行フレームワーク_最小].csv
+StagesCsvPath=Data\Stages\stages_[大会進行フレームワーク_最小].csv
+TournamentMatchRecordsCsvPath=Data\Matches\standard_tournament_final_state_[大会進行フレームワーク_最小].csv
+RuleFilePath=Data\RuleSets\tournament_rule_[大会進行フレームワーク_最小].trule
+#[EndSection]
+
+#[Section] Output
+OutputPath=Output\tournament_framework_aggregate_final_ranking_[大会進行フレームワーク_最小].csv
+#[EndSection]
+

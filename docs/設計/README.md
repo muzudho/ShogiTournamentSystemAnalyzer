@@ -54,7 +54,7 @@
 
 ### 実行用入力ファイルの書き方を知る
 - [入力ファイル仕様](./入力ファイル仕様.md)
-	- `Data/Inputs/Smoke` / `Bench` / `Sweeps` の役割
+	- `Inputs/Smoke` / `Bench` / `Sweeps` の役割
   - `#[Prompt]` と `#[Enter]` の使い方
   - `--input-file` の実行例
 - [STSAInput/2 仕様](./STSAInput2仕様.md)
@@ -94,3 +94,4 @@
 
 ## 関連入口
 - [トップ README](../../README.md)
+

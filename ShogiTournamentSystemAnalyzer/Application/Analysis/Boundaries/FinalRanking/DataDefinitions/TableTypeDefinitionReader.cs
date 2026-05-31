@@ -4,6 +4,7 @@
 namespace ShogiTournamentSystemAnalyzer.Application.Analysis.Boundaries.FinalRanking.DataDefinitions;
 
 using System.Text.Json;
+using ShogiTournamentSystemAnalyzer.Application.Shared;
 
 internal static class TableTypeDefinitionReader
 {
@@ -34,37 +35,9 @@ internal static class TableTypeDefinitionReader
 
     static string ResolveDefinitionFilePath(string fileName)
     {
-        foreach (var rootPath in EnumerateCandidateRoots())
-        {
-            var directPath = Path.Combine(rootPath, "Data", "Definitions", fileName);
-            if (File.Exists(directPath)) return directPath;
-
-            var nestedProjectPath = Path.Combine(rootPath, "ShogiTournamentSystemAnalyzer", "Data", "Definitions", fileName);
-            if (File.Exists(nestedProjectPath)) return nestedProjectPath;
-        }
+        var directPath = Path.Combine(RepositoryPaths.DataPath, "Definitions", fileName);
+        if (File.Exists(directPath)) return directPath;
 
         throw new FileNotFoundException($"テーブル定義JSONが見つかりません: {fileName}");
-    }
-
-    static IEnumerable<string> EnumerateCandidateRoots()
-    {
-        var visited = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        var currentDirectory = Path.GetFullPath(".");
-        var appBaseDirectory = Path.GetFullPath(AppContext.BaseDirectory);
-
-        foreach (var path in EnumerateSelfAndParents(currentDirectory).Concat(EnumerateSelfAndParents(appBaseDirectory)))
-        {
-            if (visited.Add(path)) yield return path;
-        }
-    }
-
-    static IEnumerable<string> EnumerateSelfAndParents(string startPath)
-    {
-        var current = startPath;
-        while (!string.IsNullOrWhiteSpace(current))
-        {
-            yield return current;
-            current = Path.GetDirectoryName(current);
-        }
     }
 }

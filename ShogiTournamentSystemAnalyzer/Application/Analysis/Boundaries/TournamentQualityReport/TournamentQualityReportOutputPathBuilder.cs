@@ -3,6 +3,7 @@
  */
 namespace ShogiTournamentSystemAnalyzer.Application.Analysis.Boundaries;
 
+using ShogiTournamentSystemAnalyzer.Application.Shared;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 
@@ -27,11 +28,10 @@ internal static partial class ReportOutputPathBuilder
     internal static string BuildTournamentQualityPlayersOutputPathFromSummary(string summaryOutputCsvPath)
     {
         var fullSummaryPath = Path.GetFullPath(summaryOutputCsvPath);
-        var fullRootPath = Path.GetFullPath(".");
-        var summaryDirectorySegment = Path.Combine(fullRootPath, "Output", "TournamentQualityEvaluator", "TournamentQualityReport", "Summary");
-        var playersDirectorySegment = Path.Combine(fullRootPath, "Output", "TournamentQualityEvaluator", "TournamentQualityReport", "Players");
+        var summaryDirectorySegment = Path.Combine(RepositoryPaths.OutputPath, "TournamentQualityEvaluator", "TournamentQualityReport", "Summary");
+        var playersDirectorySegment = Path.Combine(RepositoryPaths.OutputPath, "TournamentQualityEvaluator", "TournamentQualityReport", "Players");
 
-        var playerDirectoryPath = Path.GetDirectoryName(fullSummaryPath) ?? fullRootPath;
+        var playerDirectoryPath = Path.GetDirectoryName(fullSummaryPath) ?? RepositoryPaths.OutputPath;
         if (playerDirectoryPath.StartsWith(summaryDirectorySegment, StringComparison.OrdinalIgnoreCase))
         {
             playerDirectoryPath = playersDirectorySegment + playerDirectoryPath[summaryDirectorySegment.Length..];
@@ -123,3 +123,4 @@ internal static partial class ReportOutputPathBuilder
         return BuildQualitySweepDefaultOutputPath(placementMode, boundaryRescueMode, options);
     }
 }
+

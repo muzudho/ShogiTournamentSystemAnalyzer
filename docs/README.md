@@ -23,9 +23,9 @@ README は最初の入口、`docs` は詳細説明と作業メモの置き場と
 - 手書きの比較メモ、発表案、総括レポート
   - `Output/Reports`
 - アプリの実行で自動生成される CSV / Markdown
-  - `ShogiTournamentSystemAnalyzer/Output/...`
+  - `Output/...`
 - 実行用入力ファイル、再利用データ
-  - `ShogiTournamentSystemAnalyzer/Data/...`
+  - `Data/...`
 
 ## フォルダー一覧
 
@@ -53,10 +53,10 @@ README は最初の入口、`docs` は詳細説明と作業メモの置き場と
 - [Reports の案内](../Output/Reports/README.md)
 - [ツイル式トーナメント発表案](../Output/Reports/ツイル式トーナメント発表案.md)
 
-### [../ShogiTournamentSystemAnalyzer/Data](../ShogiTournamentSystemAnalyzer/Data/)
+### [../Data](../Data/)
 アプリで使う実行用入力、選手データ、再利用用ルールデータを置く場所です。
 
-### [../ShogiTournamentSystemAnalyzer/Output](../ShogiTournamentSystemAnalyzer/Output/)
+### [../Output](../Output/)
 アプリの実行で自動生成される出力を置く場所です。
 
 - `Ranking/FinalRanking`
@@ -75,3 +75,4 @@ README は最初の入口、`docs` は詳細説明と作業メモの置き場と
 - [Manuals の総合目次](./Manuals/README.md)
 - [実装ファイル案内](./Manuals/実装ファイル案内.md)
   - 「最初に読む順」「よくある修正例」「ミニ目次」から辿れます
+
