@@ -6,6 +6,7 @@ namespace ShogiTournamentSystemAnalyzer.Application.Input;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using static ShogiTournamentSystemAnalyzer.Application.Input.StsaInputSectionParser;
 using static ShogiTournamentSystemAnalyzer.Application.Input.StsaInputValueParser;
+using static ShogiTournamentSystemAnalyzer.Application.Input.LegacyInputLineBuilder;
 
 internal static class RequestInputFileReader
 {
@@ -285,26 +286,6 @@ internal static class RequestInputFileReader
 
         legacyLines.Add(outputPath);
         return string.Join(Environment.NewLine, legacyLines);
-    }
-
-    static void AppendDelimitedSection(List<string> destination, IReadOnlyList<string> lines)
-    {
-        foreach (var line in lines)
-        {
-            destination.Add(line);
-        }
-
-        destination.Add(string.Empty);
-    }
-
-    static void AppendEndTerminatedSection(List<string> destination, IReadOnlyList<string> lines)
-    {
-        foreach (var line in lines)
-        {
-            destination.Add(line);
-        }
-
-        destination.Add("END");
     }
 
 }
