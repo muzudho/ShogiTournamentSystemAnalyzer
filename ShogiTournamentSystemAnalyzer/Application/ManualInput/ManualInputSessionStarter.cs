@@ -11,8 +11,6 @@ internal static class ManualInputSessionStarter
 {
     internal static RequestInputSession Start()
     {
-        Console.WriteLine("■［手動入力］");
-
         var requestFileCreatePath = RequestFileCreatePrompt.ReadOutputPath();
         return requestFileCreatePath is null
             ? StartWithoutRecording()

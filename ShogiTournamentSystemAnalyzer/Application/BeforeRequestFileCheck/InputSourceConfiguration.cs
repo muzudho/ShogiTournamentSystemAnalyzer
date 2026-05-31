@@ -3,7 +3,7 @@
  */
 namespace ShogiTournamentSystemAnalyzer.Application.BeforeRequestFileCheck;
 
-using ShogiTournamentSystemAnalyzer.Application.ManualInput;
+using ShogiTournamentSystemAnalyzer.Application.BeforeManualInput;
 using ShogiTournamentSystemAnalyzer.Application.Shared;
 
 internal static class InputSourceConfiguration
@@ -18,18 +18,16 @@ internal static class InputSourceConfiguration
         var argumentResult = RequestFileArgumentReader.Read(args);
         if (argumentResult.HasError)
         {
-            Console.WriteLine($"要求ファイルチェック: エラー有り: {argumentResult.ErrorMessage}");
-            return ManualInputSessionStarter.Start();
+            return ManualInputSessionPreparation.StartForArgumentError(argumentResult.ErrorMessage!);
         }
 
-        if (!argumentResult.HasInputFile) return ManualInputSessionStarter.Start();
+        if (!argumentResult.HasInputFile) return ManualInputSessionPreparation.StartWithoutRequestFile();
 
         if (RequestFileInputSessionStarter.TryStart(argumentResult.InputFilePath!, out var inputSession))
         {
             return inputSession;
         }
 
-        Console.WriteLine("入力ファイルにエラーがあったため、手動入力へ切り替えます。\n");
-        return ManualInputSessionStarter.Start();
+        return ManualInputSessionPreparation.StartAfterRequestFileCheckError();
     }
 }
