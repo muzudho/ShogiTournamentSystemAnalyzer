@@ -4,15 +4,13 @@
 namespace ShogiTournamentSystemAnalyzer.Application;
 
 /// <summary>
-/// ［アプリケーション］という責務
+/// アプリケーション全体の最上位ワークフロー。
 /// </summary>
 internal static class ApplicationWorkflow
 {
     internal static void Run(IReadOnlyList<string> args)
     {
-        // 開始
         ApplicationStartup.Start();
-        // 要求の責務
         RequestWorkflow.Run(args);
     }
 }

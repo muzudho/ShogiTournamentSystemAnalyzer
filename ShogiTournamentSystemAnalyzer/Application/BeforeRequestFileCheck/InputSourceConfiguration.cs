@@ -1,5 +1,5 @@
 /*
- * ［アプリケーション　＞　実行　＞　要求ファイルチェック前　＞　入力元設定］
+ * ［アプリケーション　＞　要求ファイルチェック前　＞　入力セッション設定］
  */
 namespace ShogiTournamentSystemAnalyzer.Application.BeforeRequestFileCheck;
 
@@ -14,10 +14,10 @@ using ShogiTournamentSystemAnalyzer.Application.AfterRequestFileCheck;
 internal static class InputSourceConfiguration
 {
     /// <summary>
-    /// 入力元の種類を設定する
+    /// コマンドライン引数に応じて、要求ファイル入力または手動入力のセッションを準備する
     /// </summary>
     /// <param name="args">コマンドライン引数</param>
-    /// <returns>設定された入力セッション</returns>
+    /// <returns>準備された入力セッション</returns>
     internal static RequestInputSession ConfigureInputSource(IReadOnlyList<string> args)
     {
         var argumentResult = RequestFileArgumentReader.Read(args);
