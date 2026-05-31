@@ -1,4 +1,4 @@
-﻿/*
+/*
  * ［アプリケーション　＞　入力　＞　入力セッション］
  */
 namespace ShogiTournamentSystemAnalyzer.Application.Input;
@@ -44,7 +44,7 @@ internal sealed class RequestInputSession : IDisposable
         if (completed || recordingInput is null || string.IsNullOrWhiteSpace(requestFileCreatePath)) return;
 
         completed = true;
-        RequestFileCreate.Write(requestFileCreatePath, recordingInput.RecordedLines);
+        RequestFileCreateCompletion.Complete(requestFileCreatePath, recordingInput);
     }
 
     public void Dispose()

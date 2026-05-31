@@ -15,10 +15,6 @@ internal static class ManualInput
             return RequestInputSession.FromManualInputWithoutRequestFileCreate();
         }
 
-        var originalInput = Console.In;
-        var recordingInput = new ManualInputRecordingTextReader(originalInput);
-        Console.SetIn(recordingInput);
-        Console.WriteLine($"分析中の入力を記録し、分析後に要求ファイルを作成します: {requestFileCreatePath}\n");
-        return RequestInputSession.FromManualInputWithRequestFileCreate(originalInput, recordingInput, requestFileCreatePath);
+        return ManualInputRecordingSessionStarter.Start(requestFileCreatePath);
     }
 }
