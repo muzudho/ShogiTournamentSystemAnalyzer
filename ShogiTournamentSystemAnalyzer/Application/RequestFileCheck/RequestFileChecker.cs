@@ -1,11 +1,11 @@
 /*
- * ［アプリケーション　＞　実行　＞　要求ファイルチェック］
+ * ［アプリケーション　＞　要求ファイルチェック　＞　要求ファイル検査］
  */
 namespace ShogiTournamentSystemAnalyzer.Application.RequestFileCheck;
 
 using System.Diagnostics.CodeAnalysis;
 
-internal static class RequestFileCheck
+internal static class RequestFileChecker
 {
     internal static bool TryRead(
         string inputFilePath,
