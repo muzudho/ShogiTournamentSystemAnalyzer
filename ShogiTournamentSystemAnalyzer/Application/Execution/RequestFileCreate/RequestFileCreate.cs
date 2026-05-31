@@ -1,5 +1,5 @@
 /*
- * ［アプリケーション　＞　入力　＞　要求ファイル作成］
+ * ［アプリケーション　＞　実行　＞　要求ファイル作成］
  */
 namespace ShogiTournamentSystemAnalyzer.Application.Input;
 
