@@ -6,29 +6,26 @@ namespace ShogiTournamentSystemAnalyzer.Application.Input;
 internal sealed class RequestInputSession : IDisposable
 {
     readonly TextReader? originalInput;
-    readonly ManualInputRecordingTextReader? recordingInput;
-    readonly string? requestFileCreatePath;
+    readonly RequestFileCreateCompletionTarget? completionTarget;
     bool completed;
     bool disposed;
 
     RequestInputSession(
         TextReader? originalInput,
-        ManualInputRecordingTextReader? recordingInput,
-        string? requestFileCreatePath)
+        RequestFileCreateCompletionTarget? completionTarget)
     {
         this.originalInput = originalInput;
-        this.recordingInput = recordingInput;
-        this.requestFileCreatePath = requestFileCreatePath;
+        this.completionTarget = completionTarget;
     }
 
     internal static RequestInputSession FromRequestFile()
     {
-        return new RequestInputSession(null, null, null);
+        return new RequestInputSession(null, null);
     }
 
     internal static RequestInputSession FromManualInputWithoutRequestFileCreate()
     {
-        return new RequestInputSession(null, null, null);
+        return new RequestInputSession(null, null);
     }
 
     internal static RequestInputSession FromManualInputWithRequestFileCreate(
@@ -36,15 +33,16 @@ internal sealed class RequestInputSession : IDisposable
         ManualInputRecordingTextReader recordingInput,
         string requestFileCreatePath)
     {
-        return new RequestInputSession(originalInput, recordingInput, requestFileCreatePath);
+        var completionTarget = new RequestFileCreateCompletionTarget(requestFileCreatePath, recordingInput);
+        return new RequestInputSession(originalInput, completionTarget);
     }
 
     internal void CompleteRequestFileCreate()
     {
-        if (completed || recordingInput is null || string.IsNullOrWhiteSpace(requestFileCreatePath)) return;
+        if (completed || completionTarget is null) return;
 
         completed = true;
-        RequestFileCreateCompletion.Complete(requestFileCreatePath, recordingInput);
+        RequestFileCreateCompletion.Complete(completionTarget);
     }
 
     public void Dispose()

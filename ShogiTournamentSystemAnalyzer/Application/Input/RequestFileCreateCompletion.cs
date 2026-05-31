@@ -5,8 +5,8 @@ namespace ShogiTournamentSystemAnalyzer.Application.Input;
 
 internal static class RequestFileCreateCompletion
 {
-    internal static void Complete(string requestFileCreatePath, ManualInputRecordingTextReader recordingInput)
+    internal static void Complete(RequestFileCreateCompletionTarget target)
     {
-        RequestFileCreate.Write(requestFileCreatePath, recordingInput.RecordedLines);
+        RequestFileCreate.Write(target.RequestFileCreatePath, target.RecordingInput.RecordedLines);
     }
 }
