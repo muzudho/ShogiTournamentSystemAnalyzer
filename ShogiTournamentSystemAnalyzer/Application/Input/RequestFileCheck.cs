@@ -5,8 +5,6 @@ namespace ShogiTournamentSystemAnalyzer.Application.Input;
 
 using System.Diagnostics.CodeAnalysis;
 
-internal sealed record RequestFileCheckResult(string FullPath, string FilteredInput);
-
 internal static class RequestFileCheck
 {
     internal static bool TryRead(

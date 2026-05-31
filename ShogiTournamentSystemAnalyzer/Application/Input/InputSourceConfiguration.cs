@@ -12,7 +12,7 @@ internal static class InputSourceConfiguration
         {
             if (RequestFileCheck.TryRead(inputFilePath, RequestInputFileReader.Read, out var checkedInputFile))
             {
-                ApplyCheckedInputFile(checkedInputFile);
+                RequestInputApplier.Apply(checkedInputFile);
                 return RequestInputSession.FromRequestFile();
             }
 
@@ -22,12 +22,5 @@ internal static class InputSourceConfiguration
 
         return ManualInput.Start();
     }
-
-    static void ApplyCheckedInputFile(RequestFileCheckResult checkedInputFile)
-    {
-        Console.SetIn(new StringReader(checkedInputFile.FilteredInput));
-        Console.WriteLine($"入力ファイルを使います: {checkedInputFile.FullPath}\n");
-    }
-
 
 }
