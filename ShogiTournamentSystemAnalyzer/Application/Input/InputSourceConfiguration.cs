@@ -7,10 +7,16 @@ internal static class InputSourceConfiguration
 {
     internal static RequestInputSession ConfigureInputSource(IReadOnlyList<string> args)
     {
-        var inputFilePath = RequestFileArgumentReader.TryGetInputFilePath(args);
-        if (!string.IsNullOrWhiteSpace(inputFilePath))
+        var argumentResult = RequestFileArgumentReader.Read(args);
+        if (argumentResult.HasError)
         {
-            return TryStartFromRequestFile(inputFilePath);
+            Console.WriteLine($"要求ファイルチェック: エラー有り: {argumentResult.ErrorMessage}");
+            return ManualInput.Start();
+        }
+
+        if (argumentResult.HasInputFile)
+        {
+            return TryStartFromRequestFile(argumentResult.InputFilePath!);
         }
 
         return ManualInput.Start();

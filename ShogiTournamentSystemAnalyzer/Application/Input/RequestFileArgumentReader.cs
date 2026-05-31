@@ -1,24 +1,23 @@
-﻿/*
+/*
  * ［アプリケーション　＞　入力　＞　コマンドライン引数］
  */
 namespace ShogiTournamentSystemAnalyzer.Application.Input;
 
 internal static class RequestFileArgumentReader
 {
-    internal static string? TryGetInputFilePath(IReadOnlyList<string> args)
+    internal static RequestFileArgumentReadResult Read(IReadOnlyList<string> args)
     {
         try
         {
-            return TryGetInputFilePathCore(args);
+            return ReadCore(args);
         }
         catch (OperationCanceledException ex)
         {
-            Console.WriteLine($"要求ファイルチェック: エラー有り: {ex.Message}");
-            return null;
+            return RequestFileArgumentReadResult.FromError(ex.Message);
         }
     }
 
-    static string? TryGetInputFilePathCore(IReadOnlyList<string> args)
+    static RequestFileArgumentReadResult ReadCore(IReadOnlyList<string> args)
     {
         for (var index = 0; index < args.Count; index++)
         {
@@ -27,13 +26,13 @@ internal static class RequestFileArgumentReader
             {
                 if (index + 1 >= args.Count) throw new OperationCanceledException("--input-file の後ろにファイルパスを指定してください。");
 
-                return args[index + 1];
+                return RequestFileArgumentReadResult.FromInputFile(args[index + 1]);
             }
 
             const string inputFilePrefix = "--input-file=";
-            if (arg.StartsWith(inputFilePrefix, StringComparison.OrdinalIgnoreCase)) return arg[inputFilePrefix.Length..];
+            if (arg.StartsWith(inputFilePrefix, StringComparison.OrdinalIgnoreCase)) return RequestFileArgumentReadResult.FromInputFile(arg[inputFilePrefix.Length..]);
         }
 
-        return null;
+        return RequestFileArgumentReadResult.WithoutInputFile();
     }
 }
