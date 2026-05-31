@@ -4,12 +4,10 @@
 namespace ShogiTournamentSystemAnalyzer.Application.Input;
 
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
-using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
-using System.Text;
 
 internal static class InputSourceConfiguration
 {
-    internal static InputSourceConfigurationResult ConfigureInputSource(IReadOnlyList<string> args)
+    internal static RequestInputSession ConfigureInputSource(IReadOnlyList<string> args)
     {
         string? inputFilePath;
         try
@@ -19,116 +17,17 @@ internal static class InputSourceConfiguration
         catch (OperationCanceledException ex)
         {
             Console.WriteLine($"要求ファイルチェック: エラー有り: {ex.Message}");
-            return StartManualInput();
+            return ManualInput.Start();
         }
         if (!string.IsNullOrWhiteSpace(inputFilePath))
         {
-            if (TryRequestFileCheck(inputFilePath)) return InputSourceConfigurationResult.FromRequestFile();
+            if (RequestFileCheck.TryApply(inputFilePath, ApplyInputFile)) return RequestInputSession.FromRequestFile();
 
             Console.WriteLine("入力ファイルにエラーがあったため、手動入力へ切り替えます。\n");
-            return StartManualInput();
+            return ManualInput.Start();
         }
 
-        return StartManualInput();
-    }
-
-    static bool TryRequestFileCheck(string inputFilePath)
-    {
-        Console.WriteLine("■［要求ファイルチェック］");
-
-        try
-        {
-            ApplyInputFile(inputFilePath);
-            Console.WriteLine("要求ファイルチェック: エラー無し\n");
-            return true;
-        }
-        catch (OperationCanceledException ex)
-        {
-            Console.WriteLine($"要求ファイルチェック: エラー有り: {ex.Message}");
-            return false;
-        }
-        catch (Exception ex) when (ex is InvalidOperationException or IOException or UnauthorizedAccessException)
-        {
-            Console.WriteLine($"要求ファイルチェック: エラー有り: {ex.Message}");
-            return false;
-        }
-    }
-
-    static InputSourceConfigurationResult StartManualInput()
-    {
-        Console.WriteLine("■［手動入力］");
-        var requestFileCreatePath = ReadRequestFileCreatePath();
-        if (requestFileCreatePath is null)
-        {
-            Console.WriteLine();
-            return InputSourceConfigurationResult.FromManualInputWithoutRequestFileCreate();
-        }
-
-        var originalInput = Console.In;
-        var recordingInput = new RecordingTextReader(originalInput);
-        Console.SetIn(recordingInput);
-        Console.WriteLine($"分析中の入力を記録し、分析後に要求ファイルを作成します: {requestFileCreatePath}\n");
-        return InputSourceConfigurationResult.FromManualInputWithRequestFileCreate(originalInput, recordingInput, requestFileCreatePath);
-    }
-
-    static string? ReadRequestFileCreatePath()
-    {
-        Console.WriteLine("今回の入力を保存しておきますか？");
-        Console.WriteLine("1. いいえ");
-        Console.WriteLine("2. はい\n");
-
-        var attempt = 0;
-        while (true)
-        {
-            attempt++;
-            Console.Write("番号を入力してください [1]: ");
-            var input = Console.ReadLine()?.Trim();
-            if (input is null) throw new OperationCanceledException("要求ファイル作成の選択中に入力ストリームが終了しました。");
-
-            if (string.IsNullOrEmpty(input) || input == "1") return null;
-
-            if (input == "2")
-            {
-                var defaultPath = BuildDefaultRequestFileCreatePath();
-                var outputPath = ConsolePromptReaders.ReadTextWithDefault(
-                    $"要求ファイルの出力先パスまたはフォルダーパスを入力してください [{defaultPath}]: ",
-                    defaultPath);
-
-                return ResolveRequestFileCreatePath(outputPath);
-            }
-
-            if (attempt >= ConsolePromptReaders.InputRetryLimit) ConsolePromptReaders.ThrowInputRetryLimitExceeded("要求ファイル作成選択", "1 または 2 以外が入力されました");
-
-            Console.WriteLine("1 か 2 を入力してください。\n");
-        }
-    }
-
-    static string BuildDefaultRequestFileCreatePath()
-    {
-        return Path.Combine(
-            Path.GetFullPath("."),
-            "Output",
-            "TournamentUser",
-            "Request",
-            "manual_input_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".txt");
-    }
-
-    static string ResolveRequestFileCreatePath(string inputPath)
-    {
-        var fullPath = Path.GetFullPath(inputPath);
-        if (Directory.Exists(fullPath) || LooksLikeDirectoryPath(inputPath))
-        {
-            return Path.Combine(fullPath, "manual_input_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".txt");
-        }
-
-        return fullPath;
-    }
-
-    static bool LooksLikeDirectoryPath(string path)
-    {
-        return path.EndsWith(Path.DirectorySeparatorChar)
-            || path.EndsWith(Path.AltDirectorySeparatorChar)
-            || string.IsNullOrEmpty(Path.GetExtension(path));
+        return ManualInput.Start();
     }
 
     static string? TryGetInputFilePathFromArgs(IReadOnlyList<string> args)
@@ -611,91 +510,5 @@ internal static class InputSourceConfiguration
         throw new OperationCanceledException($"{formatName} の TournamentRuleSetMode の値が解釈できません: {value}");
     }
 
-    internal sealed class InputSourceConfigurationResult : IDisposable
-    {
-        readonly TextReader? originalInput;
-        readonly RecordingTextReader? recordingInput;
-        readonly string? requestFileCreatePath;
-        bool completed;
-        bool disposed;
-
-        InputSourceConfigurationResult(
-            TextReader? originalInput,
-            RecordingTextReader? recordingInput,
-            string? requestFileCreatePath)
-        {
-            this.originalInput = originalInput;
-            this.recordingInput = recordingInput;
-            this.requestFileCreatePath = requestFileCreatePath;
-        }
-
-        internal static InputSourceConfigurationResult FromRequestFile()
-        {
-            return new InputSourceConfigurationResult(null, null, null);
-        }
-
-        internal static InputSourceConfigurationResult FromManualInputWithoutRequestFileCreate()
-        {
-            return new InputSourceConfigurationResult(null, null, null);
-        }
-
-        internal static InputSourceConfigurationResult FromManualInputWithRequestFileCreate(
-            TextReader originalInput,
-            RecordingTextReader recordingInput,
-            string requestFileCreatePath)
-        {
-            return new InputSourceConfigurationResult(originalInput, recordingInput, requestFileCreatePath);
-        }
-
-        internal void CompleteRequestFileCreate()
-        {
-            if (completed || recordingInput is null || string.IsNullOrWhiteSpace(requestFileCreatePath)) return;
-
-            completed = true;
-            Console.WriteLine("■［要求ファイル作成］");
-            var directoryPath = Path.GetDirectoryName(requestFileCreatePath);
-            if (!string.IsNullOrWhiteSpace(directoryPath))
-            {
-                Directory.CreateDirectory(directoryPath);
-            }
-
-            File.WriteAllLines(requestFileCreatePath, recordingInput.RecordedLines, new UTF8Encoding(false));
-            Console.WriteLine($"要求ファイルを作成しました: {requestFileCreatePath}");
-        }
-
-        public void Dispose()
-        {
-            if (disposed) return;
-
-            disposed = true;
-            if (originalInput is not null)
-            {
-                Console.SetIn(originalInput);
-            }
-        }
-    }
-
-    internal sealed class RecordingTextReader : TextReader
-    {
-        readonly TextReader inner;
-        readonly List<string> recordedLines = [];
-
-        internal RecordingTextReader(TextReader inner)
-        {
-            this.inner = inner;
-        }
-
-        internal IReadOnlyList<string> RecordedLines => recordedLines;
-
-        public override string? ReadLine()
-        {
-            var line = inner.ReadLine();
-            if (line is not null)
-            {
-                recordedLines.Add(line);
-            }
-
-            return line;
-        }
-    }
 }
+
