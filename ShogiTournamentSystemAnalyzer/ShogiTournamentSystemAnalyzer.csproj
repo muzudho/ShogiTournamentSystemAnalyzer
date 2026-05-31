@@ -21,7 +21,6 @@
 
   <ItemGroup>
     <Folder Include="Application\Reporting\" />
-    <Folder Include="Application\UseCases\Request\TournamentRule\" />
     <Folder Include="Domain\Shared\" />
     <Folder Include="Domain\TournamentRuleCore\" />
   </ItemGroup>
