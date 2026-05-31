@@ -82,6 +82,13 @@ internal static class RankingResultRowBuilder
         }
     }
 
+    internal static List<GeneralSimulationResultRow> BuildGeneralResultRows(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, CalculationResult result, double firstPlayerWinRatePercent)
+    {
+        return BuildResultRows(players, matches, result, firstPlayerWinRatePercent)
+            .Select(row => row.ToGeneralResultRow())
+            .ToList();
+    }
+
     internal static List<FinalStageResultRow> BuildFinalStageResultRows(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, CalculationResult result, double firstPlayerWinRatePercent, IReadOnlyDictionary<string, FinalStageGroup> groupMap, int additionalApexCount)
     {
         var standardRows = BuildResultRows(players, matches, result, firstPlayerWinRatePercent);
@@ -105,6 +112,13 @@ internal static class RankingResultRowBuilder
                     row.PlaceProbabilities[0],
                     row.AveragePlace);
             })
+            .ToList();
+    }
+
+    internal static List<GeneralSimulationResultRow> BuildFinalStageGeneralResultRows(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, CalculationResult result, double firstPlayerWinRatePercent, IReadOnlyDictionary<string, FinalStageGroup> groupMap, int additionalApexCount)
+    {
+        return BuildFinalStageResultRows(players, matches, result, firstPlayerWinRatePercent, groupMap, additionalApexCount)
+            .Select(row => row.ToGeneralResultRow())
             .ToList();
     }
 }

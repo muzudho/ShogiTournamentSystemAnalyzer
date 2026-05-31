@@ -80,6 +80,37 @@ readonly record struct SimulationResultRowCommonData(
     double[]? PlaceCounts);
 
 /// <summary>
+/// ［シミュレーション］結果行の自由形式列だ。
+/// </summary>
+/// <param name="Key">列を識別するキー</param>
+/// <param name="CsvValue">CSV出力向けの値</param>
+/// <param name="DisplayValue">表示向けの値</param>
+readonly record struct SimulationResultFreeColumn(
+    string Key,
+    string CsvValue,
+    string DisplayValue);
+
+/// <summary>
+/// ［シミュレーション］結果行の意味付き数値だ。
+/// </summary>
+/// <param name="Key">値を識別するキー</param>
+/// <param name="Value">計算や注目点で使う値</param>
+readonly record struct SimulationResultMetric(
+    string Key,
+    double Value);
+
+/// <summary>
+/// ［シミュレーション］結果行を、共通部分と自由形式部分に分けた表現だ。
+/// </summary>
+/// <param name="CommonData">共通部分</param>
+/// <param name="FreeColumns">ルールやレポートごとに変わる自由形式列</param>
+/// <param name="Metrics">注目点やチャートなどで使う意味付き数値</param>
+readonly record struct GeneralSimulationResultRow(
+    SimulationResultRowCommonData CommonData,
+    IReadOnlyList<SimulationResultFreeColumn> FreeColumns,
+    IReadOnlyDictionary<string, SimulationResultMetric> Metrics);
+
+/// <summary>
 ///     <pre>
 /// ［標準版］の結果の行
 /// 
@@ -135,6 +166,24 @@ readonly record struct StandardResultRow(
             (ChampionshipProbability * 100).ToString("F2", CultureInfo.InvariantCulture),
             AveragePlace.ToString("F3", CultureInfo.InvariantCulture)
         ];
+    }
+
+    public GeneralSimulationResultRow ToGeneralResultRow()
+    {
+        var championshipProbabilityPercent = (ChampionshipProbability * 100).ToString("F2", CultureInfo.InvariantCulture);
+        var averagePlace = AveragePlace.ToString("F3", CultureInfo.InvariantCulture);
+
+        return new GeneralSimulationResultRow(
+            CommonData,
+            [
+                new SimulationResultFreeColumn("championshipProbabilityPercent", championshipProbabilityPercent, championshipProbabilityPercent),
+                new SimulationResultFreeColumn("averagePlace", averagePlace, averagePlace)
+            ],
+            new Dictionary<string, SimulationResultMetric>
+            {
+                ["championshipProbability"] = new("championshipProbability", ChampionshipProbability),
+                ["averagePlace"] = new("averagePlace", AveragePlace)
+            });
     }
 }
 
@@ -203,6 +252,31 @@ readonly record struct FinalStageResultRow(
             (OverallPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture),
             OverallPlaceAverage.ToString("F3", CultureInfo.InvariantCulture)
         ];
+    }
+
+    public GeneralSimulationResultRow ToGeneralResultRow()
+    {
+        var groupPlace1ProbabilityPercent = (GroupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture);
+        var groupPlaceAverage = GroupPlaceAverage.ToString("F3", CultureInfo.InvariantCulture);
+        var overallPlace1ProbabilityPercent = (OverallPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture);
+        var overallPlaceAverage = OverallPlaceAverage.ToString("F3", CultureInfo.InvariantCulture);
+
+        return new GeneralSimulationResultRow(
+            CommonData,
+            [
+                new SimulationResultFreeColumn("group", Group, Group),
+                new SimulationResultFreeColumn("groupPlace1ProbabilityPercent", groupPlace1ProbabilityPercent, groupPlace1ProbabilityPercent),
+                new SimulationResultFreeColumn("groupPlaceAverage", groupPlaceAverage, groupPlaceAverage),
+                new SimulationResultFreeColumn("overallPlace1ProbabilityPercent", overallPlace1ProbabilityPercent, overallPlace1ProbabilityPercent),
+                new SimulationResultFreeColumn("overallPlaceAverage", overallPlaceAverage, overallPlaceAverage)
+            ],
+            new Dictionary<string, SimulationResultMetric>
+            {
+                ["groupPlace1Probability"] = new("groupPlace1Probability", GroupPlace1Probability),
+                ["groupPlaceAverage"] = new("groupPlaceAverage", GroupPlaceAverage),
+                ["overallPlace1Probability"] = new("overallPlace1Probability", OverallPlace1Probability),
+                ["overallPlaceAverage"] = new("overallPlaceAverage", OverallPlaceAverage)
+            });
     }
 }
 
