@@ -4,8 +4,8 @@ using ShogiTournamentSystemAnalyzer.Domain.Request;
 
 internal class ManualInputWorkflow
 {
-    public static RequestModelProducer Run()
+    public static RequestModelFromManualProducer Run()
     {
-        return new RequestModelProducer();
+        return new RequestModelFromManualProducer();
     }
 }
