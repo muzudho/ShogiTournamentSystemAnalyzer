@@ -13,7 +13,7 @@ using ShogiTournamentSystemAnalyzer.Application.RequestFileCreate;
 /// </summary>
 internal static class ApplicationWorkflow
 {
-    internal static void Run(IReadOnlyList<string> args)
+    internal static ApplicationWorkflowResultModel Run(IReadOnlyList<string> args)
     {
         ApplicationStartup.Start();
         RequestWorkflow.Run(args);
@@ -28,21 +28,27 @@ internal static class ApplicationWorkflow
         //  │ "はい"                                           │
         //  │                                                  │
         //  ■［要求ファイルチェック］(`RequestFileCheck`)      │
-        RequestFileCheckWorkflow.Run();
+        var requestFileCheckNewVersionModel = RequestFileCheckWorkflow.Run();
         //  │                                                  │
         //  ◆"エラーが有ったか？"                              │
+        if (requestFileCheckNewVersionModel.HasError)
+        {
+            //  │                                                  │
+            //  ├──────────┐                            │
+            //  │                    │                            │
+            //  │                    │ "エラー有り"               │
+            //  │                    │                            │
+            //  │                    ↓                            │
+            //  │                     終了                         │
+            return new ApplicationWorkflowResultModel(hasError: true);
+        }
         //  │                                                  │
-        //  ├──────────┐                            │
-        //  │                    │                            │
-        //  │ "エラー無し"       │ "エラー有り"               │
-        //  │                    │                            │
-        //  │                    ↓                            │
-        //  │                     終了                         │
+        //  │  "エラー無し"                                    │
         //  │                                                  │
         //  │                                                  │ "いいえ"
         //  │                                                  │
         //  │                                                  ■［手動入力］（`ManualInput`）
-        ManualInputWorkflow.Run();
+        ManualInputWorkflow.Run(requestFileCheckNewVersionModel);
         //  │                                                  │
         //  │                                                  ↓
         //  │                                                  ◆s"今回の入力を保存しておきますか？"
@@ -66,5 +72,6 @@ internal static class ApplicationWorkflow
         //  │
         //  ↓
         //  終了
+        return new ApplicationWorkflowResultModel(hasError: false);
     }
 }

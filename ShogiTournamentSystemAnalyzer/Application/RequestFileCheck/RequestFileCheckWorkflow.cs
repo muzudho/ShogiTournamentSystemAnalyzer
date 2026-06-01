@@ -1,13 +1,9 @@
 namespace ShogiTournamentSystemAnalyzer.Application.RequestFileCheck;
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 internal class RequestFileCheckWorkflow
 {
-    public static void Run()
+    public static RequestFileCheckResultNewVersionModel Run()
     {
-
+        return new RequestFileCheckResultNewVersionModel();
     }
 }
