@@ -7,6 +7,7 @@ using ShogiTournamentSystemAnalyzer.Application.Analysis;
 using ShogiTournamentSystemAnalyzer.Application.ManualInput;
 using ShogiTournamentSystemAnalyzer.Application.RequestFileCheck;
 using ShogiTournamentSystemAnalyzer.Application.RequestFileCreate;
+using ShogiTournamentSystemAnalyzer.Domain.Request;
 
 /// <summary>
 /// アプリケーション全体の最上位ワークフロー。
@@ -18,60 +19,94 @@ internal static class ApplicationWorkflow
         ApplicationStartup.Start();
         RequestWorkflow.Run(args);
 
-        //  開始
-        //  │
-        //  ↓
-        //  ◆"コマンドライン引数で入力ファイルを指定したか？"
-        //  │
-        //  ├─────────────────────────┐
-        //  │                                                  │
-        //  │ "はい"                                           │
-        //  │                                                  │
-        //  ■［要求ファイルチェック］(`RequestFileCheck`)      │
-        var requestFileCheckNewVersionModel = RequestFileCheckWorkflow.Run();
-        //  │                                                  │
-        //  ◆"エラーが有ったか？"                              │
-        if (requestFileCheckNewVersionModel.HasError)
+        RequestModel? requestModel = null;
+
+        //          開始
+        //          │
+        //          ↓
+        //          ◆"コマンドライン引数で入力ファイルを指定したか？"
+        //          │
+        //          ├─────────────────────────┐
+        //          │                                                  │
+        //          │ "はい"                                           │
+        if (args.Count > 0)
         {
-            //  │                                                  │
-            //  ├──────────┐                            │
-            //  │                    │                            │
-            //  │                    │ "エラー有り"               │
-            //  │                    │                            │
-            //  │                    ↓                            │
-            //  │                     終了                         │
-            return new ApplicationWorkflowResultModel(hasError: true);
+            //      │                                                  │
+            //      │                                                  │
+            //      ■［要求ファイルチェック］(`RequestFileCheck`)      │
+            var requestModelProducer = RequestFileCheckWorkflow.Run(args);
+            //      │                                                  │
+            //      │                                                  │
+            //      ◆"エラーが有ったか？"                              │
+            //      │                                                  │
+            //      │                                                  │
+            //      ├──────────┐                            │
+            //      │                    │                            │
+            //      │                    │ "エラー有り"               │
+            if (requestModelProducer.HasError)
+            {
+                //  │                    │                            │
+                //  │                    ↓                            │
+                //  │                    ●終了                        │
+                return new ApplicationWorkflowResultModel(hasError: true);
+            }
+            //      │                                                  │
+            //      │                                                  │
+            //      │  "エラー無し"                                    │
+            requestModel = requestModelProducer.RequestModel;
         }
-        //  │                                                  │
-        //  │  "エラー無し"                                    │
-        //  │                                                  │
-        //  │                                                  │ "いいえ"
-        //  │                                                  │
-        //  │                                                  ■［手動入力］（`ManualInput`）
-        ManualInputWorkflow.Run(requestFileCheckNewVersionModel);
-        //  │                                                  │
-        //  │                                                  ↓
-        //  │                                                  ◆s"今回の入力を保存しておきますか？"
-        //  │                                                  │
-        //  │                                                  ├───────────────────────┐
-        //  │                                                  │                                              │
-        //  │                                                  │ "はい"                                       │
-        //  │                                                  │                                              │
-        //  │                                                  ■［要求ファイル作成］(`RequestFileCreate`)     │
-        RequestFileCreateWorkflow.Run();
-        //  │                                                  │                                              │
-        //  │                                                  │                                              │ "いいえ"
-        //  │                                                  │                                              │
-        //  │                                                  │←──────────────────────┘
-        //  │                                                  │
-        //  │←────────────────────────┘
-        //  │
-        //  ↓
-        //  ■［分析］(`Analysis`)
+        //          │                                                  │
+        //          │                                                  │
+        //          │                                                  │ "いいえ"
+        else
+        {
+            //      │                                                  │
+            //      │                                                  │
+            //      │                                                  ■［手動入力］（`ManualInput`）
+            var requestModelProducer = ManualInputWorkflow.Run();
+            //      │                                                  │
+            //      │                                                  │
+            //      │                                                  ◆"エラーが有ったか？"
+            //      │                                                  │
+            //      │                                                  ├──────────┐
+            //      │                                                  │                    │
+            //      │                                                  │                    │ "エラー有り"
+            if (requestModelProducer.HasError)
+            {
+                //  │                                                  │                    │
+                //  │                                                  │                    ↓
+                //  │                                                  │                    ●終了
+                return new ApplicationWorkflowResultModel(hasError: true);
+            }
+            //      │                                                  │
+            //      │                                                  │
+            //      │  "エラー無し"                                    │
+            requestModel = requestModelProducer.RequestModel;
+            //      │                                                  │
+            //      │                                                  ↓
+            //      │                                                  ◆"今回の入力を保存しておきますか？"
+            //      │                                                  │
+            //      │                                                  ├───────────────────────┐
+            //      │                                                  │                                              │
+            //      │                                                  │ "はい"                                       │
+            //      │                                                  │                                              │
+            //      │                                                  ■［要求ファイル作成］(`RequestFileCreate`)     │
+            RequestFileCreateWorkflow.Run();
+            //      │                                                  │                                              │
+            //      │                                                  │                                              │ "いいえ"
+            //      │                                                  │                                              │
+            //      │                                                  │←──────────────────────┘
+            //      │                                                  │
+            //      │←────────────────────────┘
+            //      │
+        }
+        //      │
+        //      ↓
+        //      ■［分析］(`Analysis`)
         AnalysisWorkflowNewVersion.Run();
-        //  │
-        //  ↓
-        //  終了
+        //      │
+        //      ↓
+        //      終了
         return new ApplicationWorkflowResultModel(hasError: false);
     }
 }

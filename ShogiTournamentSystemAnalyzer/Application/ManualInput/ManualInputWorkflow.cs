@@ -1,11 +1,11 @@
 namespace ShogiTournamentSystemAnalyzer.Application.ManualInput;
 
-using ShogiTournamentSystemAnalyzer.Application.RequestFileCheck;
+using ShogiTournamentSystemAnalyzer.Domain.Request;
 
 internal class ManualInputWorkflow
 {
-    public static void Run(RequestFileCheckResultNewVersionModel requestFileCheckNewVersionModel)
+    public static RequestModelProducer Run()
     {
-
+        return new RequestModelProducer();
     }
 }
