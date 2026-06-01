@@ -13,6 +13,8 @@ internal static class RequestWorkflow
     internal static void Run(IReadOnlyList<string> args)
     {
         using var inputSession = InputSourceConfiguration.ConfigureInputSource(args);
+        if (inputSession is null) return;
+
         RequestSessionWorkflow.Run(inputSession);
     }
 }

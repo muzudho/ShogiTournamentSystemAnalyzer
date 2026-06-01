@@ -12,13 +12,14 @@ internal static class InputSourceConfiguration
     /// コマンドライン引数に応じて、要求ファイル入力または手動入力のセッションを準備する
     /// </summary>
     /// <param name="args">コマンドライン引数</param>
-    /// <returns>準備された入力セッション</returns>
-    internal static RequestInputSession ConfigureInputSource(IReadOnlyList<string> args)
+    /// <returns>準備された入力セッション。要求ファイルチェックでエラーが有った場合は null。</returns>
+    internal static RequestInputSession? ConfigureInputSource(IReadOnlyList<string> args)
     {
         var argumentResult = RequestFileArgumentReader.Read(args);
         if (argumentResult.HasError)
         {
-            return ManualInputSessionPreparation.StartForArgumentError(argumentResult.ErrorMessage!);
+            Console.WriteLine($"要求ファイルチェック: エラー有り: {argumentResult.ErrorMessage!}");
+            return null;
         }
 
         if (!argumentResult.HasInputFile) return ManualInputSessionPreparation.StartWithoutRequestFile();
@@ -28,6 +29,6 @@ internal static class InputSourceConfiguration
             return inputSession;
         }
 
-        return ManualInputSessionPreparation.StartAfterRequestFileCheckError();
+        return null;
     }
 }
