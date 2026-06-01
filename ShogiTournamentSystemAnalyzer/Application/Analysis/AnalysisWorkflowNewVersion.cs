@@ -4,8 +4,7 @@ using ShogiTournamentSystemAnalyzer.Domain.Request;
 
 internal class AnalysisWorkflowNewVersion
 {
-    public static AnalysisResultModel Run(RequestModel requestModel)
+    public static void Run(RequestBoundary requestModel)
     {
-        return new AnalysisResultModel();
     }
 }

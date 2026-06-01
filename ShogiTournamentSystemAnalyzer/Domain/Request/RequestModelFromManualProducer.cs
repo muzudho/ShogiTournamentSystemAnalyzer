@@ -4,12 +4,15 @@ internal class RequestModelFromManualProducer
 {
     public RequestModelFromManualProducer()
     {
-        this.RequestModel = new RequestModel();
     }
 
     public bool HasError { get; set; }
 
     public bool ShallSave { get; set; }
 
-    public RequestModel RequestModel { get; private set; }
+    public void Produce(RequestBoundary requestBoundary)
+    {
+        // XXX: 適当な、値をセットする例。
+        requestBoundary.Banana = 456;
+    }
 }

@@ -16,10 +16,14 @@ internal static class ApplicationWorkflow
 {
     internal static ApplicationWorkflowResultModel Run(IReadOnlyList<string> args)
     {
+        // 現在の実装
         ApplicationStartup.Start();
         RequestWorkflow.Run(args);
 
-        RequestModel? requestModel = null;
+        // TODO: ここから下は、将来的な実装
+
+        // ［依頼という境界］
+        RequestBoundary requestBoundary = new();
 
         //          開始
         //          │
@@ -53,7 +57,7 @@ internal static class ApplicationWorkflow
             //      │                                                  ・
             //      │                                                  ・
             //      │  "エラー無し"                                    ・
-            requestModel = requestModelProducer.RequestModel;
+            requestModelProducer.Produce(requestBoundary);
         }
         //          ・                                                  │
         //          ・                                                  │
@@ -81,7 +85,7 @@ internal static class ApplicationWorkflow
             //      ・                                                  │
             //      ・                                                  │
             //      ・  "エラー無し"                                    │
-            requestModel = requestModelProducer.RequestModel;
+            requestModelProducer.Produce(requestBoundary);
             //      ・                                                  │
             //      ・                                                  ↓
             //      ・                                                  ◆"今回の入力を保存しておきますか？"
@@ -94,7 +98,7 @@ internal static class ApplicationWorkflow
                 //  ・                                                  │                                              ・
                 //  ・                                                  │                                              ・
                 //  ・                                                  ■［要求ファイル作成］(`RequestFileCreate`)     ・
-                RequestFileCreateWorkflow.Run(requestModel);
+                RequestFileCreateWorkflow.Run(requestBoundary);
             }
             //      ・                                                  ・                                              │ "いいえ"
             //      ・                                                  ・                                              │
@@ -106,7 +110,7 @@ internal static class ApplicationWorkflow
         //      │
         //      ↓
         //      ■［分析］(`Analysis`)
-        var analysisResultModel = AnalysisWorkflowNewVersion.Run(requestModel);
+        AnalysisWorkflowNewVersion.Run(requestBoundary);
         //      │
         //      ↓
         //      終了
