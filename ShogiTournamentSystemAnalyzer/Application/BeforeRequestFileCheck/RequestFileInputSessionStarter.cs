@@ -3,10 +3,10 @@
  */
 namespace ShogiTournamentSystemAnalyzer.Application.BeforeRequestFileCheck;
 
-using System.Diagnostics.CodeAnalysis;
-using ShogiTournamentSystemAnalyzer.Application.AfterRequestFileCheck;
 using ShogiTournamentSystemAnalyzer.Application.RequestFileCheck;
 using ShogiTournamentSystemAnalyzer.Application.Shared;
+using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles;
+using System.Diagnostics.CodeAnalysis;
 
 internal static class RequestFileInputSessionStarter
 {
@@ -19,7 +19,18 @@ internal static class RequestFileInputSessionStarter
 
         try
         {
-            result = RequestInputFileReader.Read(inputFilePath);
+            var fullPath = Path.GetFullPath(inputFilePath);
+
+            var rawLines = StsaFileIOHelper.ReadAllLines("入力ファイル", inputFilePath);
+
+            var filteredInput = RequestInputFormatDetector.IsStsaInput3(rawLines)
+                ? StsaInputLegacyConverter.ConvertStsaInput3ToLegacyInput(rawLines, fullPath)
+                : RequestInputFormatDetector.IsStsaInput2(rawLines)
+                    ? StsaInputLegacyConverter.ConvertStsaInput2ToLegacyInput(rawLines, fullPath)
+                    : LegacyInputFileFilter.ConvertToFilteredInput(rawLines);
+
+            result = new RequestFileCheckResult(fullPath, filteredInput);
+
             Console.WriteLine("要求ファイルチェック: エラー無し\n");
             isSuccess = true;
         }
@@ -38,7 +49,9 @@ internal static class RequestFileInputSessionStarter
 
         if (isSuccess)
         {
-            RequestInputApplier.Apply(result);
+            Console.SetIn(new StringReader(result.FilteredInput));
+            Console.WriteLine($"入力ファイルを使います: {result.FullPath}\n");
+
             inputSession = new RequestInputSession(null, null);
             return true;
         }
