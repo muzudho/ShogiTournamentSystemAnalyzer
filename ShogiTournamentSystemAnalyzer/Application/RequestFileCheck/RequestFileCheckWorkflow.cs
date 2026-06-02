@@ -24,6 +24,7 @@ internal class RequestFileCheckWorkflow
 
             var rawLines = StsaFileIOHelper.ReadAllLines("入力ファイル", inputFilePath);
 
+            // XXX: 何してる？
             filteredInput = RequestInputFormatDetector.IsStsaInput3(rawLines)
                 ? StsaInputLegacyConverter.ConvertStsaInput3ToLegacyInput(rawLines, fullPath)
                 : RequestInputFormatDetector.IsStsaInput2(rawLines)
@@ -31,6 +32,8 @@ internal class RequestFileCheckWorkflow
                     : LegacyInputFileFilter.ConvertToFilteredInput(rawLines);
 
             Console.WriteLine("要求ファイルチェック: エラー無し\n");
+
+            // XXX: 何してる？
             Console.SetIn(new StringReader(filteredInput));
             Console.WriteLine($"入力ファイルを使います: {fullPath}\n");
         }
