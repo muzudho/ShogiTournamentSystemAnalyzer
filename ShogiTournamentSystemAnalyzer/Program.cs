@@ -6,10 +6,12 @@ namespace ShogiTournamentSystemAnalyzer;
 using ShogiTournamentSystemAnalyzer.Application;
 using ShogiTournamentSystemAnalyzer.Application.AfterRequestFileCreate;
 using ShogiTournamentSystemAnalyzer.Application.Analysis;
+using ShogiTournamentSystemAnalyzer.Application.BeforeManualInput;
 using ShogiTournamentSystemAnalyzer.Application.BeforeRequestFileCheck;
 using ShogiTournamentSystemAnalyzer.Application.ManualInput;
 using ShogiTournamentSystemAnalyzer.Application.RequestFileCheck;
 using ShogiTournamentSystemAnalyzer.Application.RequestFileCreate;
+using ShogiTournamentSystemAnalyzer.Application.Shared;
 using ShogiTournamentSystemAnalyzer.Domain.Request;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles;
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
@@ -50,7 +52,26 @@ internal static partial class Program
             // このプログラムの説明を最初に表示するぜ（＾▽＾）！
             ProgramConsoleGuide.PrintProgramIntroduction();
 
-            using var inputSession = InputSourceConfiguration.ConfigureInputSource(args);
+            RequestInputSession? inputSession;
+
+            var argumentResult = RequestFileArgumentReader.Read(args);
+            if (argumentResult.HasError)
+            {
+                Console.WriteLine($"要求ファイルチェック: エラー有り: {argumentResult.ErrorMessage!}");
+                inputSession = null;
+            }
+            else if (!argumentResult.HasInputFile)
+            {
+                inputSession = ManualInputSessionPreparation.StartWithoutRequestFile();
+            }
+            else if (!RequestFileInputSessionStarter.TryStart(argumentResult.InputFilePath!, out inputSession))
+            {
+                inputSession = null;
+            }
+            else
+            {
+            }
+
             if (inputSession is null) return;
 
             if (inputSession.CompletionTarget != null)
