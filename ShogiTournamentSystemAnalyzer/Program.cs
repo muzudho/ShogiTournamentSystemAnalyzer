@@ -10,6 +10,7 @@ using ShogiTournamentSystemAnalyzer.Application.ManualInput;
 using ShogiTournamentSystemAnalyzer.Application.RequestFileCheck;
 using ShogiTournamentSystemAnalyzer.Application.RequestFileCreate;
 using ShogiTournamentSystemAnalyzer.Domain.Request;
+using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 using System.Text;
 
 /// <summary>
@@ -30,13 +31,20 @@ internal static partial class Program
     /// <param name="args">コマンドライン引数</param>
     private static void Main(string[] args)
     {
-        // エンコーディングって大事だよな（＾▽＾）！　文字化けを防ぐぜ（＾▽＾）！
-        Console.OutputEncoding = Encoding.UTF8;
-
         try
         {
+            // エンコーディングって大事だよな（＾▽＾）！　文字化けを防ぐぜ（＾▽＾）！
+            Console.OutputEncoding = Encoding.UTF8;
+
+            // ========================================
             // 現在の実装
-            ApplicationStartup.Start();
+            // ========================================
+
+            // プログラムの実行が長引いて、いくら待っても応答が返ってこない、なんてことを防ぐために、タイムアウトを設定するぜ（＾▽＾）！
+            SimulationTimeBudget.BeginApplicationBudget();
+
+            // このプログラムの説明を最初に表示するぜ（＾▽＾）！
+            ProgramConsoleGuide.PrintProgramIntroduction();
 
             using var inputSession = InputSourceConfiguration.ConfigureInputSource(args);
             if (inputSession is null) return;
