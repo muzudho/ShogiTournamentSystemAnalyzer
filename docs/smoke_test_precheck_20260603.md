@@ -181,3 +181,50 @@ Evidence:
 - For 64 matches, exact calculation explores an exponential outcome tree. This explains the 60 second timeout.
 
 This looks like a code/design bug, not just a bad input file: sweep mode has no way to pass a simulation count through the current STSA converter/execution option path.
+
+## Timeout Audit Before Fix
+
+Requested change: make sure simulations have timeout protection, and record places that look unprotected before fixing.
+
+Audit notes:
+
+- `StandardCalculationEngine.CalculateBySimulation` checks `SimulationTimeBudget.HasSimulationTimeRemaining()` at the simulation loop and `HasApplicationTimeRemaining()` inside the match loop.
+- `FinalStageCalculationEngine.CalculateFinalStageBySimulation` checks `SimulationTimeBudget.HasSimulationTimeRemaining()` at the simulation loop and `HasApplicationTimeRemaining()` inside the match loop.
+- `SimulationTournamentFrameworkModeExecution` simulation loop checks `SimulationTimeBudget.HasSimulationTimeRemaining()`.
+- Exact recursive paths check `HasApplicationTimeRemaining()`, but they are not protected by a separate simulation budget. This is acceptable for small exact calculations, but dangerous when a large match set accidentally falls into exact mode.
+- The current concrete bug is quality sweep execution: `TournamentQualityEvaluationExecution.cs` returns `SimulationCount=null` for all sweep runs, so large sweeps call exact calculation instead of timed simulation.
+- STSA sweep conversion currently does not append `SimulationCount` after sweep start/end/step. If the execution reader starts asking for a sweep simulation count, the converter must supply either the configured count or an empty line to accept the default.
+
+Planned fix:
+
+1. Add a shared helper in `TournamentQualityEvaluationExecution.cs` that chooses exact calculation only for `matches.Count <= 20`, otherwise reads a simulation count.
+2. Use that helper for both single-run and sweep execution options.
+3. In `StsaQualityEvaluationLegacyConverter.cs`, append optional `SimulationCount` for sweep mode; when absent, append an empty line so the runtime prompt takes the default without shifting later answers.
+4. Re-run Normal, FinalStage, and STSAInput2 Sweep smoke tests.
+
+## Fix Progress
+
+Applied code changes:
+
+- `TournamentQualityEvaluationExecution.cs` now reads a simulation count for sweep mode when match count is above the exact-calculation threshold.
+- `StsaQualityEvaluationLegacyConverter.cs` now appends `SimulationCount` after sweep start/end/step for both standard and final-stage STSA quality conversion. If `SimulationCount` is absent, it appends an empty line so the runtime prompt accepts the default and later prompt answers do not shift.
+- `dotnet build` passed with 0 warnings and 0 errors.
+
+Next verification: rerun the STSAInput2 sweep that previously timed out after 60 seconds.
+
+## Fix Verification
+
+Verification after the sweep simulation-count fix:
+
+- `dotnet build .\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyzer.csproj` succeeded with 0 warnings and 0 errors.
+- The STSAInput2 sweep that previously timed out after 60 seconds completed successfully in about 14.3 seconds.
+  - Input: `Inputs/Sweeps/quality_sweep_input_[先手8x後手8]_[Neutral_50to100]_[STSAInput2_draft].txt`
+  - It now prompts for simulation count in sweep mode and accepts the default from the inserted empty line.
+  - Output: `Output/TournamentQualityEvaluator/TournamentQualityReport/Sweeps/neutral_[先手8x後手8]_50to100_quality_sweep.csv`
+  - Output: `Output/TournamentQualityEvaluator/TournamentQualityReport/Sweeps/neutral_[先手8x後手8]_50to100_quality_sweep.md`
+- Normal STSAInput3 single smoke completed successfully after the change.
+- FinalStage STSAInput3 single smoke completed successfully after the change.
+
+Remaining note:
+
+- The old legacy prompt-script sweep smoke still has a stale prompt order and selects FinalStage unexpectedly. That is a test-input maintenance issue, separate from the timeout fix.

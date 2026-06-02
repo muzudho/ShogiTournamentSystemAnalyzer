@@ -24,43 +24,50 @@ internal static class TournamentQualityEvaluationExecutor
                 100.0);
             Console.WriteLine();
 
-            int? simulationCount = null;
-            if (!ruleDefinition.UsesFinalStageGrouping)
-            {
-                if (input.Matches.Count <= 20)
-                {
-                    Console.WriteLine($"{TournamentRuleSetRule.GetLabel(ruleDefinition.TournamentRuleSetMode)} の品質評価用厳密計算を行います。\n");
-                }
-                else
-                {
-                    const int defaultSimulationCount = 200_000;
-                    simulationCount = ConsolePromptReaders.ReadIntWithDefault(
-                        $"局数が多いため {TournamentRuleSetRule.GetLabel(ruleDefinition.TournamentRuleSetMode)} の品質評価用シミュレーションで近似します。試行回数を入力してください [{defaultSimulationCount}]: ",
-                        defaultSimulationCount,
-                        min: 1);
-
-                    Console.WriteLine();
-                }
-            }
-            else if (input.Matches.Count <= 20)
-            {
-                Console.WriteLine("品質評価用の厳密計算を行います。\n");
-            }
-            else
-            {
-                const int defaultSimulationCount = 200_000;
-                simulationCount = ConsolePromptReaders.ReadIntWithDefault(
-                    $"局数が多いため品質評価用シミュレーションで近似します。試行回数を入力してください [{defaultSimulationCount}]: ",
-                    defaultSimulationCount,
-                    min: 1);
-
-                Console.WriteLine();
-            }
+            var simulationCount = ReadSimulationCountIfNeeded(input, ruleDefinition);
 
             return new TournamentQualityEvaluationExecutionOptions(simulationCount, sweepOptions, firstPlayerWinRatePercent);
         }
 
-        return new TournamentQualityEvaluationExecutionOptions(null, sweepOptions, null);
+        return new TournamentQualityEvaluationExecutionOptions(ReadSimulationCountIfNeeded(input, ruleDefinition), sweepOptions, null);
+    }
+
+    static int? ReadSimulationCountIfNeeded(
+        TournamentQualityEvaluationInput input,
+        TournamentQualityEvaluationRuleDefinition ruleDefinition)
+    {
+        if (!ruleDefinition.UsesFinalStageGrouping)
+        {
+            if (input.Matches.Count <= 20)
+            {
+                Console.WriteLine($"{TournamentRuleSetRule.GetLabel(ruleDefinition.TournamentRuleSetMode)} の品質評価用厳密計算を行います。\n");
+                return null;
+            }
+
+            const int defaultSimulationCount = 200_000;
+            var simulationCount = ConsolePromptReaders.ReadIntWithDefault(
+                $"局数が多いため {TournamentRuleSetRule.GetLabel(ruleDefinition.TournamentRuleSetMode)} の品質評価用シミュレーションで近似します。試行回数を入力してください [{defaultSimulationCount}]: ",
+                defaultSimulationCount,
+                min: 1);
+
+            Console.WriteLine();
+            return simulationCount;
+        }
+
+        if (input.Matches.Count <= 20)
+        {
+            Console.WriteLine("品質評価用の厳密計算を行います。\n");
+            return null;
+        }
+
+        const int defaultFinalStageSimulationCount = 200_000;
+        var finalStageSimulationCount = ConsolePromptReaders.ReadIntWithDefault(
+            $"局数が多いため品質評価用シミュレーションで近似します。試行回数を入力してください [{defaultFinalStageSimulationCount}]: ",
+            defaultFinalStageSimulationCount,
+            min: 1);
+
+        Console.WriteLine();
+        return finalStageSimulationCount;
     }
 
     static TournamentQualitySweepOptions ReadTournamentQualitySweepOptions()
@@ -113,4 +120,3 @@ internal static class TournamentQualityEvaluationExecutor
         }
     }
 }
-

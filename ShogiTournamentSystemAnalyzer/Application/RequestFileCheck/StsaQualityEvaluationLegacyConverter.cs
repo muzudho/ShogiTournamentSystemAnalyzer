@@ -48,6 +48,7 @@ internal static class StsaQualityEvaluationLegacyConverter
             legacyLines.Add(GetRequiredMetaValue(meta, "SweepStartPercent", fullPath, formatName));
             legacyLines.Add(GetRequiredMetaValue(meta, "SweepEndPercent", fullPath, formatName));
             legacyLines.Add(GetRequiredMetaValue(meta, "SweepStepPercent", fullPath, formatName));
+            legacyLines.Add(GetOptionalMetaValue(meta, "SimulationCount") ?? string.Empty);
         }
 
         var output = sections.TryGetValue("Output", out var outputLines)
@@ -117,6 +118,7 @@ internal static class StsaQualityEvaluationLegacyConverter
             legacyLines.Add(GetRequiredMetaValue(meta, "SweepStartPercent", fullPath, formatName));
             legacyLines.Add(GetRequiredMetaValue(meta, "SweepEndPercent", fullPath, formatName));
             legacyLines.Add(GetRequiredMetaValue(meta, "SweepStepPercent", fullPath, formatName));
+            legacyLines.Add(GetOptionalMetaValue(meta, "SimulationCount") ?? string.Empty);
         }
 
         var output = sections.TryGetValue("Output", out var outputLines)
