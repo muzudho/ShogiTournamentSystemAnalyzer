@@ -88,3 +88,14 @@ Command completed successfully.
 - Output STSA log: `Output/TournamentQualityEvaluator/TournamentQualityReport/Summary/[先手8x後手8]_[Neutral_Single10_STSAInput3_smoke]_quality_summary.stsa.txt`
 
 No process termination or timeout happened in this run.
+
+## Tooling Note
+
+`apply_patch` failed twice in this workspace while trying to add memo files under `docs/`.
+
+Observed failures:
+
+- Add `docs/開発/SmokeTest事前調査メモ_20260603.md` failed with `writing outside of the project`.
+- Add `docs/smoke_test_precheck_20260603.md` also failed with `writing outside of the project`.
+
+The repository path was `E:\github.com\muzudho\ShogiTournamentSystemAnalyzer`, and PowerShell `Set-Content` / `Add-Content` worked for the same `docs/` location. For future turns in this workspace, if `apply_patch` rejects a valid in-repo path the same way, record the failure and use PowerShell file writing as the fallback.
