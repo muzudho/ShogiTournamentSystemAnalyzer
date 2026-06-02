@@ -8,7 +8,7 @@ using ShogiTournamentSystemAnalyzer.Domain.FinalRanking;
 using ShogiTournamentSystemAnalyzer.Domain.Request;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentFinalState;
 
-internal class AnalysisWorkflowNewVersion
+internal class AnalysisWorkflow
 {
     public static void Run(RequestBoundary requestBoundary)
     {
@@ -36,5 +36,10 @@ internal class AnalysisWorkflowNewVersion
         //　　｜
         //　　｜　［大会品質レポートという境界］  `TournamentQualityReport`
         //　　↓
+
+
+        // 本処理（選択フロー）
+        AnalysisFlowDispatcher.Execute(requestBoundary.AnalysisFlowMode, requestBoundary.RuleProfileMode);
+
     }
 }

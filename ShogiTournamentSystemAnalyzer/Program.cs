@@ -53,21 +53,6 @@ internal static partial class Program
             using var inputSession = InputSourceConfiguration.ConfigureInputSource(args);
             if (inputSession is null) return;
 
-            Console.WriteLine("■［分析］");
-
-            // 前提入力は TournamentRule / PlayerList / RankingSettings の３境界だぜ（＾▽＾）！
-            // 主線は TournamentFinalState → FinalRanking → TournamentQualityReport に寄せていくぜ（＾▽＾）！
-            var flowMode = ConsolePromptReaders.ReadAnalysisFlowMode();
-
-            // 対象［大会ルール］を選ばせるぜ（＾▽＾）！
-            var ruleProfileMode = ConsolePromptReaders.ReadRuleProfileMode(flowMode);
-
-            // メインライン選択のガイドを表示するぜ（＾▽＾）！
-            ProgramConsoleGuide.PrintSelectedMainline(flowMode, ruleProfileMode);
-
-            // 本処理（選択フロー）
-            AnalysisFlowDispatcher.Execute(flowMode, ruleProfileMode);
-
             if (inputSession.CompletionTarget != null)
             {
                 StsaFileIOHelper.Write(
@@ -77,6 +62,7 @@ internal static partial class Program
             }
 
 
+
             // ========================================
             // TODO: ここから下は、将来的な実装
             // ========================================
@@ -84,6 +70,7 @@ internal static partial class Program
 
             // ［依頼という境界］
             RequestBoundary requestBoundary = new();
+
 
             //          開始
             //          │
@@ -169,8 +156,24 @@ internal static partial class Program
             }
             //      │
             //      ↓
+
+            Console.WriteLine("■［分析の前に］");
+
+            // 前提入力は TournamentRule / PlayerList / RankingSettings の３境界だぜ（＾▽＾）！
+            // 主線は TournamentFinalState → FinalRanking → TournamentQualityReport に寄せていくぜ（＾▽＾）！
+            requestBoundary.AnalysisFlowMode = ConsolePromptReaders.ReadAnalysisFlowMode();
+
+            // 対象［大会ルール］を選ばせるぜ（＾▽＾）！
+            requestBoundary.RuleProfileMode = ConsolePromptReaders.ReadRuleProfileMode(requestBoundary.AnalysisFlowMode);
+
+            // メインライン選択のガイドを表示するぜ（＾▽＾）！
+            ProgramConsoleGuide.PrintSelectedMainline(requestBoundary.AnalysisFlowMode, requestBoundary.RuleProfileMode);
+
+            //      │
+            //      ↓
             //      ■［分析］(`Analysis`)
-            AnalysisWorkflowNewVersion.Run(requestBoundary);
+            Console.WriteLine("■［分析］");
+            AnalysisWorkflow.Run(requestBoundary);
             //      │
             //      ↓
             //      終了
