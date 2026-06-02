@@ -20,18 +20,6 @@ internal class RequestInputSession : IDisposable
         this.CompletionTarget = completionTarget;
     }
 
-    internal static RequestInputSession WithoutCompletion()
-    {
-        return new RequestInputSession(null, null);
-    }
-
-    internal static RequestInputSession WithRequestFileCreateCompletion(
-        TextReader originalInput,
-        RequestFileCreateCompletionTarget completionTarget)
-    {
-        return new RequestInputSession(originalInput, completionTarget);
-    }
-
     public void Dispose()
     {
         if (disposed) return;

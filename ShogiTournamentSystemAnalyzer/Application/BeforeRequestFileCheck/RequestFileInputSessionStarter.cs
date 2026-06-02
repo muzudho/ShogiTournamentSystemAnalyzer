@@ -12,9 +12,33 @@ internal static class RequestFileInputSessionStarter
 {
     internal static bool TryStart(string inputFilePath, [NotNullWhen(true)] out RequestInputSession? inputSession)
     {
-        if (RequestFileChecker.TryRead(inputFilePath, RequestInputFileReader.Read, out var checkedInputFile))
+        Console.WriteLine("■［要求ファイルチェック］");
+
+        RequestFileCheckResult? result;
+        bool isSuccess;
+
+        try
         {
-            RequestInputApplier.Apply(checkedInputFile);
+            result = RequestInputFileReader.Read(inputFilePath);
+            Console.WriteLine("要求ファイルチェック: エラー無し\n");
+            isSuccess = true;
+        }
+        catch (OperationCanceledException ex)
+        {
+            Console.WriteLine($"要求ファイルチェック: エラー有り: {ex.Message}");
+            result = null;
+            isSuccess = false;
+        }
+        catch (Exception ex) when (ex is InvalidOperationException or IOException or UnauthorizedAccessException)
+        {
+            Console.WriteLine($"要求ファイルチェック: エラー有り: {ex.Message}");
+            result = null;
+            isSuccess = false;
+        }
+
+        if (isSuccess)
+        {
+            RequestInputApplier.Apply(result);
             inputSession = new RequestInputSession(null, null);
             return true;
         }

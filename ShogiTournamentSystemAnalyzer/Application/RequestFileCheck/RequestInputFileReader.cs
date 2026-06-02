@@ -3,14 +3,16 @@
  */
 namespace ShogiTournamentSystemAnalyzer.Application.RequestFileCheck;
 
+using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles;
+
 internal static class RequestInputFileReader
 {
     internal static RequestFileCheckResult Read(string inputFilePath)
     {
         var fullPath = Path.GetFullPath(inputFilePath);
-        if (!File.Exists(fullPath)) throw new OperationCanceledException($"入力ファイルが見つかりません: {fullPath}");
 
-        var rawLines = File.ReadAllLines(fullPath);
+        var rawLines = StsaFileIOHelper.ReadAllLines("入力ファイル", inputFilePath);
+
         var filteredInput = RequestInputFormatDetector.IsStsaInput3(rawLines)
             ? StsaInputLegacyConverter.ConvertStsaInput3ToLegacyInput(rawLines, fullPath)
             : RequestInputFormatDetector.IsStsaInput2(rawLines)

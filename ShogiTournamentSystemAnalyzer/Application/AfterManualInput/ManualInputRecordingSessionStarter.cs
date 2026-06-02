@@ -17,6 +17,6 @@ internal static class ManualInputRecordingSessionStarter
 
         Console.SetIn(recordingInput);
         Console.WriteLine($"分析中の入力を記録し、分析後に要求ファイルを作成します: {requestFileCreatePath}\n");
-        return RequestInputSession.WithRequestFileCreateCompletion(originalInput, completionTarget);
+        return new RequestInputSession(originalInput, completionTarget);
     }
 }

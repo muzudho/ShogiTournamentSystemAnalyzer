@@ -27,4 +27,13 @@ internal static class StsaFileIOHelper
 
         Console.WriteLine($"{label}を作成しました: {outputPath}");
     }
+
+
+    internal static string[] ReadAllLines(string label, string inputFilePath)
+    {
+        var fullPath = Path.GetFullPath(inputFilePath);
+        if (!File.Exists(fullPath)) throw new OperationCanceledException($"{label}が見つかりません: {fullPath}");
+
+        return File.ReadAllLines(fullPath);
+    }
 }
