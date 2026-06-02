@@ -36,9 +36,11 @@ internal static partial class Program
             // エンコーディングって大事だよな（＾▽＾）！　文字化けを防ぐぜ（＾▽＾）！
             Console.OutputEncoding = Encoding.UTF8;
 
+
             // ========================================
             // 現在の実装
             // ========================================
+
 
             // プログラムの実行が長引いて、いくら待っても応答が返ってこない、なんてことを防ぐために、タイムアウトを設定するぜ（＾▽＾）！
             SimulationTimeBudget.BeginApplicationBudget();
@@ -49,9 +51,15 @@ internal static partial class Program
             using var inputSession = InputSourceConfiguration.ConfigureInputSource(args);
             if (inputSession is null) return;
 
-            RequestSessionWorkflow.Run(inputSession);
+            AnalysisWorkflow.Run();
+            inputSession.Complete();
 
+
+            // ========================================
             // TODO: ここから下は、将来的な実装
+            // ========================================
+
+
             // ［依頼という境界］
             RequestBoundary requestBoundary = new();
 
