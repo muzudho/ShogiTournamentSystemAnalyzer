@@ -8,7 +8,7 @@ using ShogiTournamentSystemAnalyzer.Application.AfterRequestFileCreate;
 internal sealed class RequestInputSession : IDisposable
 {
     readonly TextReader? originalInput;
-    readonly RequestFileCreateCompletionTarget? completionTarget;
+    internal readonly RequestFileCreateCompletionTarget? CompletionTarget;
     bool completed;
     bool disposed;
 
@@ -17,7 +17,7 @@ internal sealed class RequestInputSession : IDisposable
         RequestFileCreateCompletionTarget? completionTarget)
     {
         this.originalInput = originalInput;
-        this.completionTarget = completionTarget;
+        this.CompletionTarget = completionTarget;
     }
 
     internal static RequestInputSession WithoutCompletion()
@@ -30,14 +30,6 @@ internal sealed class RequestInputSession : IDisposable
         RequestFileCreateCompletionTarget completionTarget)
     {
         return new RequestInputSession(originalInput, completionTarget);
-    }
-
-    internal void Complete()
-    {
-        if (completed || completionTarget is null) return;
-
-        completed = true;
-        RequestFileCreateCompletion.Complete(completionTarget);
     }
 
     public void Dispose()

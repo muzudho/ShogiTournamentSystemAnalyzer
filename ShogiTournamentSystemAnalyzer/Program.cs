@@ -4,6 +4,7 @@
 namespace ShogiTournamentSystemAnalyzer;
 
 using ShogiTournamentSystemAnalyzer.Application;
+using ShogiTournamentSystemAnalyzer.Application.AfterRequestFileCreate;
 using ShogiTournamentSystemAnalyzer.Application.Analysis;
 using ShogiTournamentSystemAnalyzer.Application.BeforeRequestFileCheck;
 using ShogiTournamentSystemAnalyzer.Application.ManualInput;
@@ -51,8 +52,25 @@ internal static partial class Program
             using var inputSession = InputSourceConfiguration.ConfigureInputSource(args);
             if (inputSession is null) return;
 
-            AnalysisWorkflow.Run();
-            inputSession.Complete();
+            Console.WriteLine("■［分析］");
+
+            // 前提入力は TournamentRule / PlayerList / RankingSettings の３境界だぜ（＾▽＾）！
+            // 主線は TournamentFinalState → FinalRanking → TournamentQualityReport に寄せていくぜ（＾▽＾）！
+            var flowMode = ConsolePromptReaders.ReadAnalysisFlowMode();
+
+            // 対象［大会ルール］を選ばせるぜ（＾▽＾）！
+            var ruleProfileMode = ConsolePromptReaders.ReadRuleProfileMode(flowMode);
+
+            // メインライン選択のガイドを表示するぜ（＾▽＾）！
+            ProgramConsoleGuide.PrintSelectedMainline(flowMode, ruleProfileMode);
+
+            // 選択フロー
+            AnalysisFlowDispatcher.Execute(flowMode, ruleProfileMode);
+
+            if (inputSession.CompletionTarget != null)
+            {
+                RequestFileCreate.Write(inputSession.CompletionTarget.RequestFileCreatePath, inputSession.CompletionTarget.RecordingInput.RecordedLines);
+            }
 
 
             // ========================================
