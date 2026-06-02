@@ -5,29 +5,17 @@ namespace ShogiTournamentSystemAnalyzer.Application.Shared;
 
 using ShogiTournamentSystemAnalyzer.Application.AfterRequestFileCreate;
 
-internal class RequestInputSession : IDisposable
+internal class RequestInputSession
 {
-    readonly TextReader? originalInput;
-    internal readonly RequestFileCreateCompletionTarget? CompletionTarget;
-    bool completed;
-    bool disposed;
-
     internal RequestInputSession(
-        TextReader? originalInput,
+        string? requestFileInputText,
         RequestFileCreateCompletionTarget? completionTarget)
     {
-        this.originalInput = originalInput;
-        this.CompletionTarget = completionTarget;
+        RequestFileInputText = requestFileInputText;
+        CompletionTarget = completionTarget;
     }
 
-    public void Dispose()
-    {
-        if (disposed) return;
+    internal string? RequestFileInputText { get; }
 
-        disposed = true;
-        if (originalInput is not null)
-        {
-            Console.SetIn(originalInput);
-        }
-    }
+    internal RequestFileCreateCompletionTarget? CompletionTarget { get; }
 }

@@ -164,3 +164,24 @@ dotnet build .\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyzer.cspro
 
 - テキストファイルは Windows の改行、つまり CRLF を使う。
 - UTF-8 は BOM なしで保存する。
+
+## 2026-06-02 実装開始メモ
+
+- 目的: `Console.SetIn()` / `Console.In` 退避復元をコードから除去する。
+- 最初の実装方針: `Console.ReadLine()` 呼び出しを専用の入力口へ寄せ、要求ファイルモードでは読み取り済みテキストをその入力口へ渡す。
+- 注意: `Console.SetIn()` は使わない。要求ファイルは `StsaFileIOHelper.ReadAllLines(...)` で読む。
+## 2026-06-02 実装途中メモ 1
+
+- `Presentation/ConsoleCustom/ConsoleInput.cs` を追加した。
+- 既存の `Console.ReadLine()` 呼び出しは、手動入力の実読み取り口である `ConsoleInput.ReadLine()` へ寄せた。
+- `RequestFileCheckWorkflow` の `Console.SetIn(new StringReader(filteredInput))` は削除し、`RequestInputSession` に `filteredInput` を持たせる形へ変更した。
+- `ManualInputRecordingSessionStarter` の `Console.In` 退避と `Console.SetIn(recordingInput)` は削除した。
+- `RequestInputSession.Dispose()` の `Console.SetIn(originalInput)` は削除した。
+- `Program.cs` は、要求ファイルモードでは `ConsoleInput.UseText(inputSession.RequestFileInputText)` を呼び、手動入力記録の書き出しを分析後へ移した。
+
+## 2026-06-02 実装完了メモ
+
+- `rg -n "Console\.SetIn|Console\.In" ShogiTournamentSystemAnalyzer` でコード内の禁止対象が 0 件になった。
+- `Console.ReadLine()` は `Presentation/ConsoleCustom/ConsoleInput.cs` の手動入力実読み取り口にだけ残した。
+- `dotnet build .\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyzer.csproj` は警告 0 件、エラー 0 件で成功した。
+- 今回の計画メモは CRLF、UTF-8 BOM なしで保存した。

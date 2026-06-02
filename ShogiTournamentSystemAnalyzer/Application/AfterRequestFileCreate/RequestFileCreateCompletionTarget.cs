@@ -3,13 +3,11 @@
  */
 namespace ShogiTournamentSystemAnalyzer.Application.AfterRequestFileCreate;
 
-using ShogiTournamentSystemAnalyzer.Application.AfterManualInput;
-
 /// <summary>
 /// 要求ファイル作成完了対象
 /// </summary>
 /// <param name="RequestFileCreatePath">要求ファイル作成パス</param>
-/// <param name="RecordingInput">手動入力記録テキストリーダー</param>
+/// <param name="RecordedLines">記録した手動入力行</param>
 internal sealed record RequestFileCreateCompletionTarget(
     string RequestFileCreatePath,
-    ManualInputRecordingTextReader RecordingInput);
+    IReadOnlyList<string> RecordedLines);

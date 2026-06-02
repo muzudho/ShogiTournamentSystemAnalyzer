@@ -75,7 +75,7 @@ internal static class TournamentQualityEvaluationExecutor
         {
             attempt++;
             Console.Write("実行方法を入力してください [1]: ");
-            var input = Console.ReadLine()?.Trim();
+            var input = ConsoleInput.ReadLine()?.Trim();
             if (string.IsNullOrEmpty(input) || input == "1")
             {
                 Console.WriteLine();

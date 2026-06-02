@@ -16,7 +16,7 @@ internal class RequestFileCheckWorkflow
         bool isParseError = false;
 
         string fullPath;
-        string filteredInput;
+        string filteredInput = string.Empty;
 
         try
         {
@@ -32,9 +32,6 @@ internal class RequestFileCheckWorkflow
                     : LegacyInputFileFilter.ConvertToFilteredInput(rawLines);
 
             Console.WriteLine("要求ファイルチェック: エラー無し\n");
-
-            // XXX: 何してる？
-            Console.SetIn(new StringReader(filteredInput));
             Console.WriteLine($"入力ファイルを使います: {fullPath}\n");
         }
         catch (OperationCanceledException ex)
@@ -55,6 +52,8 @@ internal class RequestFileCheckWorkflow
             return new RequestFileCheckResultVer2(hasError: true, inputSession: null);
         }
 
-        return new RequestFileCheckResultVer2(hasError: false, inputSession: new RequestInputSession(null, null));
+        return new RequestFileCheckResultVer2(
+            hasError: false,
+            inputSession: new RequestInputSession(filteredInput, null));
     }
 }

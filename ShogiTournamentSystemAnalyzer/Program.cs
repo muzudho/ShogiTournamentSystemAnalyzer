@@ -43,6 +43,7 @@ internal static partial class Program
 
             // エンコーディングって大事だよな（＾▽＾）！　文字化けを防ぐぜ（＾▽＾）！
             Console.OutputEncoding = Encoding.UTF8;
+            ConsoleInput.UseConsole();
 
             // プログラムの実行が長引いて、いくら待っても応答が返ってこない、なんてことを防ぐために、タイムアウトを設定するぜ（＾▽＾）！
             SimulationTimeBudget.BeginApplicationBudget();
@@ -115,18 +116,16 @@ internal static partial class Program
                 }
             }
 
-            if (inputSession.CompletionTarget != null)
+            if (inputSession is null)
             {
-                // ［要求ファイル］を書き出します。
-                StsaFileIOHelper.Write(
-                    label: "要求ファイル",
-                    outputPath: inputSession.CompletionTarget.RequestFileCreatePath,
-                    lines: inputSession.CompletionTarget.RecordingInput.RecordedLines);
+                Console.WriteLine("●異常終了：　入力セッションを開始できませんでした。");
+                return;
             }
 
-
-
-
+            if (inputSession.RequestFileInputText is not null)
+            {
+                ConsoleInput.UseText(inputSession.RequestFileInputText);
+            }
 
 
 
@@ -201,6 +200,17 @@ internal static partial class Program
             //      ■［分析］(`Analysis`)
             Console.WriteLine("■［分析］");
             AnalysisWorkflow.Run(requestBoundary);
+
+            if (inputSession.CompletionTarget != null)
+            {
+                // ［要求ファイル］を書き出します。
+                StsaFileIOHelper.Write(
+                    label: "要求ファイル",
+                    outputPath: inputSession.CompletionTarget.RequestFileCreatePath,
+                    lines: inputSession.CompletionTarget.RecordedLines);
+                ConsoleInput.StopRecording();
+            }
+
             //      │
             //      ↓
             //      終了

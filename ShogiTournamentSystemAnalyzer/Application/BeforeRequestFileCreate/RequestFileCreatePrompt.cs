@@ -20,7 +20,7 @@ internal static class RequestFileCreatePrompt
         {
             attempt++;
             Console.Write("番号を入力してください [1]: ");
-            var input = Console.ReadLine()?.Trim();
+            var input = ConsoleInput.ReadLine()?.Trim();
             if (input is null) throw new OperationCanceledException("要求ファイル作成の選択中に入力ストリームが終了しました。");
 
             if (string.IsNullOrEmpty(input) || input == "1") return null;
