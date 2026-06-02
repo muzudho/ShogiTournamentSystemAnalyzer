@@ -5,14 +5,14 @@ namespace ShogiTournamentSystemAnalyzer.Application.Shared;
 
 using ShogiTournamentSystemAnalyzer.Application.AfterRequestFileCreate;
 
-internal sealed class RequestInputSession : IDisposable
+internal class RequestInputSession : IDisposable
 {
     readonly TextReader? originalInput;
     internal readonly RequestFileCreateCompletionTarget? CompletionTarget;
     bool completed;
     bool disposed;
 
-    RequestInputSession(
+    internal RequestInputSession(
         TextReader? originalInput,
         RequestFileCreateCompletionTarget? completionTarget)
     {

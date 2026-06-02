@@ -15,7 +15,7 @@ internal static class RequestFileInputSessionStarter
         if (RequestFileChecker.TryRead(inputFilePath, RequestInputFileReader.Read, out var checkedInputFile))
         {
             RequestInputApplier.Apply(checkedInputFile);
-            inputSession = RequestInputSession.WithoutCompletion();
+            inputSession = new RequestInputSession(null, null);
             return true;
         }
 

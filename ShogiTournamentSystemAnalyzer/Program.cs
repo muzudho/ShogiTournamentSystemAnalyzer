@@ -4,10 +4,10 @@
 namespace ShogiTournamentSystemAnalyzer;
 
 using ShogiTournamentSystemAnalyzer.Application;
-using ShogiTournamentSystemAnalyzer.Application.AfterRequestFileCreate;
+using ShogiTournamentSystemAnalyzer.Application.AfterManualInput;
 using ShogiTournamentSystemAnalyzer.Application.Analysis;
-using ShogiTournamentSystemAnalyzer.Application.BeforeManualInput;
 using ShogiTournamentSystemAnalyzer.Application.BeforeRequestFileCheck;
+using ShogiTournamentSystemAnalyzer.Application.BeforeRequestFileCreate;
 using ShogiTournamentSystemAnalyzer.Application.ManualInput;
 using ShogiTournamentSystemAnalyzer.Application.RequestFileCheck;
 using ShogiTournamentSystemAnalyzer.Application.RequestFileCreate;
@@ -37,14 +37,12 @@ internal static partial class Program
     {
         try
         {
+            //          ●開始
+            //          │
+            //          ↓
+
             // エンコーディングって大事だよな（＾▽＾）！　文字化けを防ぐぜ（＾▽＾）！
             Console.OutputEncoding = Encoding.UTF8;
-
-
-            // ========================================
-            // 現在の実装
-            // ========================================
-
 
             // プログラムの実行が長引いて、いくら待っても応答が返ってこない、なんてことを防ぐために、タイムアウトを設定するぜ（＾▽＾）！
             SimulationTimeBudget.BeginApplicationBudget();
@@ -52,61 +50,34 @@ internal static partial class Program
             // このプログラムの説明を最初に表示するぜ（＾▽＾）！
             ProgramConsoleGuide.PrintProgramIntroduction();
 
-            RequestInputSession? inputSession;
-
-            var argumentResult = RequestFileArgumentReader.Read(args);
-            if (argumentResult.HasError)
-            {
-                Console.WriteLine($"要求ファイルチェック: エラー有り: {argumentResult.ErrorMessage!}");
-                inputSession = null;
-            }
-            else if (!argumentResult.HasInputFile)
-            {
-                inputSession = ManualInputSessionPreparation.StartWithoutRequestFile();
-            }
-            else if (!RequestFileInputSessionStarter.TryStart(argumentResult.InputFilePath!, out inputSession))
-            {
-                inputSession = null;
-            }
-            else
-            {
-            }
-
-            if (inputSession is null) return;
-
-            if (inputSession.CompletionTarget != null)
-            {
-                StsaFileIOHelper.Write(
-                    label: "要求ファイル",
-                    outputPath: inputSession.CompletionTarget.RequestFileCreatePath,
-                    lines: inputSession.CompletionTarget.RecordingInput.RecordedLines);
-            }
-
-
-
-            // ========================================
-            // TODO: ここから下は、将来的な実装
-            // ========================================
-
-
             // ［依頼という境界］
             RequestBoundary requestBoundary = new();
 
+            RequestInputSession? inputSession;
 
-            //          開始
+            //          ◆"コマンドライン引数で入力ファイルを指定したか？"
+            var argumentResult = RequestFileArgumentReader.Read(args);
             //          │
             //          ↓
-            //          ◆"コマンドライン引数で入力ファイルを指定したか？"
+
+            // ［要求ファイル］確認中の異常の場合。
+            if (argumentResult.HasError)
+            {
+                Console.WriteLine($"●異常終了：　［要求ファイル］確認中。 {argumentResult.ErrorMessage!}");
+                return;
+            }
+
             //          │
             //          ├─────────────────────────┐
             //          │                                                  ・
             //          │ "はい"                                           ・
-            if (args.Length > 0)
+            // ［要求ファイル］が指定されていた場合。
+            if (argumentResult.HasInputFile)
             {
                 //      │                                                  ・
                 //      │                                                  ・
                 //      ■［要求ファイルチェック］(`RequestFileCheck`)      ・
-                var requestModelProducer = RequestFileCheckWorkflow.Run(args);
+                var requestFileCheckResultVer2 = RequestFileCheckWorkflow.Run(argumentResult);
                 //      │                                                  ・
                 //      │                                                  ・
                 //      ◆"エラーが有ったか？"                              ・
@@ -115,7 +86,7 @@ internal static partial class Program
                 //      ├──────────┐                            ・
                 //      ・                    │                            ・
                 //      ・                    │ "エラー有り"               ・
-                if (requestModelProducer.HasError)
+                if (requestFileCheckResultVer2.HasError)
                 {
                     //  ・                    │                            ・
                     //  ・                    ↓                            ・
@@ -125,7 +96,42 @@ internal static partial class Program
                 //      │                                                  ・
                 //      │                                                  ・
                 //      │  "エラー無し"                                    ・
-                requestModelProducer.Produce(requestBoundary);
+                inputSession = requestFileCheckResultVer2.InputSession;
+            }
+            // ［要求ファイル］が指定されていない場合。
+            else
+            {
+                Console.WriteLine("■［手動入力］");
+
+                var requestFileCreatePath = RequestFileCreatePrompt.ReadOutputPath();
+                if (requestFileCreatePath is null)
+                {
+                    Console.WriteLine();
+                    inputSession = new RequestInputSession(null, null);
+                }
+                else
+                {
+                    inputSession = ManualInputRecordingSessionStarter.Start(requestFileCreatePath);
+                }
+            }
+
+            if (inputSession.CompletionTarget != null)
+            {
+                // ［要求ファイル］を書き出します。
+                StsaFileIOHelper.Write(
+                    label: "要求ファイル",
+                    outputPath: inputSession.CompletionTarget.RequestFileCreatePath,
+                    lines: inputSession.CompletionTarget.RecordingInput.RecordedLines);
+            }
+
+
+
+
+
+
+
+            if (args.Length > 0)
+            {
             }
             //          ・                                                  │
             //          ・                                                  │
