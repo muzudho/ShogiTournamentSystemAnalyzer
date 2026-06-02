@@ -14,49 +14,39 @@ internal static class RequestFileInputSessionStarter
     {
         Console.WriteLine("■［要求ファイルチェック］");
 
-        RequestFileCheckResult? result;
-        bool isSuccess;
+        string fullPath;
+        string filteredInput;
 
         try
         {
-            var fullPath = Path.GetFullPath(inputFilePath);
+            fullPath = Path.GetFullPath(inputFilePath);
 
             var rawLines = StsaFileIOHelper.ReadAllLines("入力ファイル", inputFilePath);
 
-            var filteredInput = RequestInputFormatDetector.IsStsaInput3(rawLines)
+            filteredInput = RequestInputFormatDetector.IsStsaInput3(rawLines)
                 ? StsaInputLegacyConverter.ConvertStsaInput3ToLegacyInput(rawLines, fullPath)
                 : RequestInputFormatDetector.IsStsaInput2(rawLines)
                     ? StsaInputLegacyConverter.ConvertStsaInput2ToLegacyInput(rawLines, fullPath)
                     : LegacyInputFileFilter.ConvertToFilteredInput(rawLines);
 
-            result = new RequestFileCheckResult(fullPath, filteredInput);
-
             Console.WriteLine("要求ファイルチェック: エラー無し\n");
-            isSuccess = true;
-        }
-        catch (OperationCanceledException ex)
-        {
-            Console.WriteLine($"要求ファイルチェック: エラー有り: {ex.Message}");
-            result = null;
-            isSuccess = false;
-        }
-        catch (Exception ex) when (ex is InvalidOperationException or IOException or UnauthorizedAccessException)
-        {
-            Console.WriteLine($"要求ファイルチェック: エラー有り: {ex.Message}");
-            result = null;
-            isSuccess = false;
-        }
-
-        if (isSuccess)
-        {
-            Console.SetIn(new StringReader(result.FilteredInput));
-            Console.WriteLine($"入力ファイルを使います: {result.FullPath}\n");
+            Console.SetIn(new StringReader(filteredInput));
+            Console.WriteLine($"入力ファイルを使います: {fullPath}\n");
 
             inputSession = new RequestInputSession(null, null);
             return true;
         }
-
-        inputSession = null;
-        return false;
+        catch (OperationCanceledException ex)
+        {
+            Console.WriteLine($"要求ファイルチェック: エラー有り: {ex.Message}");
+            inputSession = null;
+            return false;
+        }
+        catch (Exception ex) when (ex is InvalidOperationException or IOException or UnauthorizedAccessException)
+        {
+            Console.WriteLine($"要求ファイルチェック: エラー有り: {ex.Message}");
+            inputSession = null;
+            return false;
+        }
     }
 }
