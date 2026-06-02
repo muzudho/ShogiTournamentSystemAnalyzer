@@ -1,8 +1,18 @@
-#[Prompt] 目的を入力してください [1]
-2
-#[Prompt] 対象ルールを入力してください [1]
-2
-#[Prompt] 選手一覧CSVを貼り付けてください。入力終了は #[Enter] です。
+# STSAInput/3 Twill sweep smoke example
+#[Format] STSAInput/3
+
+#[Section] Meta
+AnalysisFlowMode=QualityEvaluation
+RuleProfileMode=Standard
+TournamentRuleSetMode=Twill
+ExecutionMode=Sweep
+SweepStartPercent=50
+SweepEndPercent=100
+SweepStepPercent=10
+SimulationCount=10
+#[EndSection]
+
+#[Section] PlayersCsv
 name,elo
 "飛",5050
 "角",5030
@@ -20,12 +30,9 @@ name,elo
 "うさぎ",4790
 "いのしし",4770
 "ひよこ",4750
-#[Enter]
-#[Prompt] Apex / Innov の分け方を使いますか？
-2
-#[Prompt] 順位ルールを選んでください [1]
-2
-#[Prompt] 対局CSVまたは Round/First-Second/対局記号表を貼り付けてください。入力終了は END 行です。
+#[EndSection]
+
+#[Section] MatchesInput
 Round
  , A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P
 A, -, -, -, -, -, -, -, -, 8, 7, 6, 5, 4, 3, 2, 1
@@ -81,22 +88,12 @@ M, "ねこ"
 N, "うさぎ"
 O, "いのしし"
 P, "ひよこ"
-END
-#[Prompt] 参考対局CSVまたは Round/Black-White/対局記号表を貼り付けてください。空のまま END で省略できます。
-END
-#[Prompt] 品質評価の実行方法を入力してください [1]
-2
-#[Prompt] 開始する先手勝率(%)を入力してください [50]
-50
-#[Prompt] 終了する先手勝率(%)を入力してください [55]
-100
-#[Prompt] 刻み幅(%)を入力してください [1]
-10
-#[Prompt] シミュレーション試行回数を入力してください
-10
-#[Prompt] 実験レポートの Good / Bad 分離を使いますか？ [1]
-1
-#[Prompt] n%スイープ結果CSVの出力先パスまたはフォルダーパスを入力してください
-Output\\Reports\twill_[先手8x後手8]_50to100_smoke10_quality_sweep.csv
+#[EndSection]
 
+#[Section] ReferenceMatchesInput
+#[EndSection]
 
+#[Section] Output
+TournamentQualityEvaluationReportGrouping=Off
+SweepOutputPath=Output\Reports\twill_[先手8x後手8]_50to100_smoke10_quality_sweep.csv
+#[EndSection]

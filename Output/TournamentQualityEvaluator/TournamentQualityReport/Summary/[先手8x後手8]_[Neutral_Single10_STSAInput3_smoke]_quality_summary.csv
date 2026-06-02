@@ -1,10 +1,10 @@
 boundaryName,schemaName,rowType,metricName,metricValue,note
-TournamentQualityReport,summaryMetrics,metric,spearmanCorrelation,0.964706,Elo順位と期待総合順位の相関
-TournamentQualityReport,summaryMetrics,metric,meanAbsoluteRankError,1.218750,期待総合順位とElo順位のずれの絶対値平均
-TournamentQualityReport,summaryMetrics,metric,averageTop8Retention,6.948333,Elo上位8名が総合上位8位に残る人数の期待値
-TournamentQualityReport,summaryMetrics,metric,eloTop1OverallTop1Probability,18.333333,Elo1位が総合1位になる確率(%)
-TournamentQualityReport,summaryMetrics,metric,mostPenalizedPlayerDelta,2.550000,飛
-TournamentQualityReport,summaryMetrics,metric,mostAdvantagedPlayerDelta,-2.350000,いぬ
+TournamentQualityReport,summaryMetrics,metric,spearmanCorrelation,0.953643,Elo順位と期待総合順位の相関
+TournamentQualityReport,summaryMetrics,metric,meanAbsoluteRankError,1.262500,期待総合順位とElo順位のずれの絶対値平均
+TournamentQualityReport,summaryMetrics,metric,averageTop8Retention,7.263333,Elo上位8名が総合上位8位に残る人数の期待値
+TournamentQualityReport,summaryMetrics,metric,eloTop1OverallTop1Probability,35.000000,Elo1位が総合1位になる確率(%)
+TournamentQualityReport,summaryMetrics,metric,mostPenalizedPlayerDelta,1.800000,角
+TournamentQualityReport,summaryMetrics,metric,mostAdvantagedPlayerDelta,-3.550000,ひよこ
 nextCycleSuggestionTitle,,次回の品質評価提案
 nextCycleSuggestedSetting,,同Elo対局時の先手勝率(%) = 51.00
 nextCycleSuggestedSetting,,ピンポイント比較候補(%) = 52.00

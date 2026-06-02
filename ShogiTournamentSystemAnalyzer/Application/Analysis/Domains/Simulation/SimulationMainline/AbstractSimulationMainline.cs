@@ -84,6 +84,7 @@ internal abstract class AbstractSimulationMainline
         if (context.Matches.Count <= 20)
         {
             Console.WriteLine(exactCalculationMessage);
+            using var exactCalculationBudget = SimulationTimeBudget.BeginSimulationBudget();
             return StandardCalculationEngine.CalculateExactly(context.Players, context.Matches, context.FirstPlayerWinRateRating, context.TournamentRuleSetMode);
         }
 

@@ -14,6 +14,7 @@ internal class RequestFileCheckWorkflow
 
         string inputFilePath = argumentResult.InputFilePath!;
         bool isParseError = false;
+        string? parseErrorMessage = null;
 
         string fullPath;
         string filteredInput = string.Empty;
@@ -21,6 +22,10 @@ internal class RequestFileCheckWorkflow
         try
         {
             fullPath = Path.GetFullPath(inputFilePath);
+            if (IsLegacyInputPath(fullPath))
+            {
+                throw new OperationCanceledException($"Legacy 入力は実行対象外です。STSAInput/2 か STSAInput/3 へ更新してください: {fullPath}");
+            }
 
             var rawLines = StsaFileIOHelper.ReadAllLines("入力ファイル", inputFilePath);
 
@@ -37,23 +42,35 @@ internal class RequestFileCheckWorkflow
         catch (OperationCanceledException ex)
         {
             Console.WriteLine($"要求ファイルチェック: エラー有り: {ex.Message}");
+            parseErrorMessage = ex.Message;
             isParseError = true;
         }
         catch (Exception ex) when (ex is InvalidOperationException or IOException or UnauthorizedAccessException)
         {
             Console.WriteLine($"要求ファイルチェック: エラー有り: {ex.Message}");
+            parseErrorMessage = ex.Message;
             isParseError = true;
         }
 
         if (isParseError)
         {
             // ファイルは有ったが、内容のパースエラー等の場合。
-            Console.WriteLine($"●エラー終了：　［要求ファイル］パース中エラー。 {argumentResult.ErrorMessage!}");
+            Console.WriteLine($"●エラー終了：　［要求ファイル］パース中エラー。 {parseErrorMessage}");
             return new RequestFileCheckResultVer2(hasError: true, inputSession: null);
         }
 
         return new RequestFileCheckResultVer2(
             hasError: false,
             inputSession: new RequestInputSession(filteredInput, null));
+    }
+
+    static bool IsLegacyInputPath(string fullPath)
+    {
+        var legacyRoot = Path.GetFullPath(Path.Combine("Inputs", "Legacy"));
+        var relativePath = Path.GetRelativePath(legacyRoot, fullPath);
+        return relativePath != "."
+            && !relativePath.StartsWith(".." + Path.DirectorySeparatorChar, StringComparison.Ordinal)
+            && !relativePath.StartsWith(".." + Path.AltDirectorySeparatorChar, StringComparison.Ordinal)
+            && !Path.IsPathRooted(relativePath);
     }
 }

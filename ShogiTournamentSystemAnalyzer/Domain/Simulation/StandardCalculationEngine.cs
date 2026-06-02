@@ -18,7 +18,7 @@ internal static class StandardCalculationEngine
 
         void Explore(int matchIndex, double scenarioProbability)
         {
-            if (!SimulationTimeBudget.HasApplicationTimeRemaining()) return;
+            if (!SimulationTimeBudget.HasSimulationTimeRemaining()) return;
 
             if (matchIndex == matches.Count)
             {
@@ -103,7 +103,7 @@ internal static class StandardCalculationEngine
 
             for (var matchIndex = 0; matchIndex < matches.Count; matchIndex++)
             {
-                if (!SimulationTimeBudget.HasApplicationTimeRemaining())
+                if (!SimulationTimeBudget.HasSimulationTimeRemaining())
                 {
                     simulation = simulationCount;
                     break;
@@ -135,7 +135,7 @@ internal static class StandardCalculationEngine
                 }
             }
 
-            if (!SimulationTimeBudget.HasApplicationTimeRemaining()) break;
+            if (!SimulationTimeBudget.HasSimulationTimeRemaining()) break;
 
             if (tournamentRuleSetMode == TournamentRuleSetMode.Twill)
             {
@@ -200,4 +200,3 @@ internal static class StandardCalculationEngine
         }
     }
 }
-

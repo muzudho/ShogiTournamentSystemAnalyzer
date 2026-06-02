@@ -51,7 +51,7 @@ internal static class TournamentQualityEvaluationSingleRunExecutor
         double firstPlayerWinRatePercent)
     {
         var firstPlayerWinRateRating = SimulationRatingMath.ConvertFirstPlayerWinRatePercentToRating(firstPlayerWinRatePercent);
-        using var simulationBudget = executionOptions.SimulationCount.HasValue ? SimulationTimeBudget.BeginSimulationBudget() : default;
+        using var simulationBudget = SimulationTimeBudget.BeginSimulationBudget();
         return ruleDefinition.GroupingMode == FinalStageGroupingMode.On
             ? executionOptions.SimulationCount.HasValue
                 ? FinalStageCalculationEngine.CalculateFinalStageBySimulation(input.Players, input.Matches, ruleDefinition.GroupMap!, ruleDefinition.EffectiveAdditionalApexCount, ruleDefinition.BoundaryRescueMode, firstPlayerWinRateRating, executionOptions.SimulationCount.Value, ruleDefinition.PromotedInnovCount)

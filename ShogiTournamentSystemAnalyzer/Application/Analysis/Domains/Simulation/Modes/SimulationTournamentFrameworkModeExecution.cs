@@ -341,10 +341,11 @@ internal static partial class SimulationTournamentFrameworkMode
         var playerById = players.ToDictionary(player => player.PlayerId);
         var matches = initialState.MatchRecords.ToArray();
         var completedScenarioWeight = 0.0;
+        using var exactCalculationBudget = SimulationTimeBudget.BeginSimulationBudget();
 
         void Explore(int matchIndex, double scenarioProbability)
         {
-            if (!SimulationTimeBudget.HasApplicationTimeRemaining()) return;
+            if (!SimulationTimeBudget.HasSimulationTimeRemaining()) return;
 
             if (matchIndex == matches.Length)
             {

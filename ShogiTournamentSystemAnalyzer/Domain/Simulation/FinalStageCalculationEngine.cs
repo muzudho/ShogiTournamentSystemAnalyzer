@@ -18,7 +18,7 @@ internal static class FinalStageCalculationEngine
 
         void Explore(int matchIndex, double scenarioProbability)
         {
-            if (!SimulationTimeBudget.HasApplicationTimeRemaining()) return;
+            if (!SimulationTimeBudget.HasSimulationTimeRemaining()) return;
 
             if (matchIndex == matches.Count)
             {
@@ -63,7 +63,7 @@ internal static class FinalStageCalculationEngine
 
             foreach (var match in matches)
             {
-                if (!SimulationTimeBudget.HasApplicationTimeRemaining())
+                if (!SimulationTimeBudget.HasSimulationTimeRemaining())
                 {
                     simulation = simulationCount;
                     break;
@@ -80,7 +80,7 @@ internal static class FinalStageCalculationEngine
                 }
             }
 
-            if (!SimulationTimeBudget.HasApplicationTimeRemaining()) break;
+            if (!SimulationTimeBudget.HasSimulationTimeRemaining()) break;
 
             AccumulateFinalStagePlaceProbabilities(wins, players, apexPlayerIndexes, innovPlayerIndexes, additionalApexCount, boundaryRescueMode, firstPlayerWinRateRating, 1.0, placeProbabilities, promotedInnovCount);
             completedSimulationCount++;
@@ -304,4 +304,3 @@ internal static class FinalStageCalculationEngine
         }
     }
 }
-

@@ -1,0 +1,16 @@
+boundaryName,schemaName,rowType,firstPlayerWinRatePercent,spearmanCorrelation,meanAbsoluteRankError,averageTop8Retention,eloTop1OverallTop1ProbabilityPercent,mostPenalizedPlayer,mostPenalizedDelta,mostAdvantagedPlayer,mostAdvantagedDelta
+TournamentQualityReport,sweepReport,data,50.00,0.934511,1.456250,6.800000,25.000000,らいおん,2.500000,いのしし,-4.150000
+TournamentQualityReport,sweepReport,data,60.00,0.908824,1.806250,6.400000,20.000000,玉,3.350000,ひよこ,-3.450000
+TournamentQualityReport,sweepReport,data,70.00,0.802941,2.612500,5.100000,30.000000,角,4.300000,うさぎ,-4.150000
+TournamentQualityReport,sweepReport,data,80.00,-0.323529,5.575000,2.600000,10.000000,玉,8.250000,いのしし,-8.650000
+TournamentQualityReport,sweepReport,data,90.00,-0.555882,7.537500,0.900000,0.000000,飛,10.200000,いのしし,-9.900000
+TournamentQualityReport,sweepReport,data,100.00,-0.867722,8.000000,0.000000,0.000000,飛,11.500000,ひよこ,-11.500000
+nextCycleSuggestionTitle,,次回の n%スイープ提案
+nextCycleSuggestedSetting,,開始する先手勝率(%) = 80.00
+nextCycleSuggestedSetting,,終了する先手勝率(%) = 100.00
+nextCycleSuggestedSetting,,刻み幅(%) = 10.00
+nextCycleSuggestedSetting,,ベスト候補(%) = 50.00
+nextCycleSuggestedSetting,,近傍候補(%) = 50.00 / 55.00
+nextCycleSuggestedSetting,,再探索するなら範囲(%) = 50.00 ～ 60.00
+nextCycleSuggestedSetting,,"実測ベースの最良値 = Spearman 0.9345, 平均順位ずれ 1.456, Top8残留 6.800"
+nextCycleSuggestionReason,,今回の範囲は完走できました。実測で最も良かった 50.00% とその近傍を次の比較候補にできます。選手数 16 人・対局数 64 件なので、狭い範囲で再確認しやすいです。

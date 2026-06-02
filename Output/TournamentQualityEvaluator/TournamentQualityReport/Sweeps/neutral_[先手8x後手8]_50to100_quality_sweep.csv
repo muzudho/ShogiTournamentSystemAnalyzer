@@ -1,9 +1,9 @@
 boundaryName,schemaName,rowType,firstPlayerWinRatePercent,spearmanCorrelation,meanAbsoluteRankError,averageTop8Retention,eloTop1OverallTop1ProbabilityPercent,mostPenalizedPlayer,mostPenalizedDelta,mostAdvantagedPlayer,mostAdvantagedDelta
-TournamentQualityReport,sweepReport,data,50.00,1.000000,1.231458,7.043164,22.529463,飛,2.658268,ひよこ,-2.650268
-TournamentQualityReport,sweepReport,data,60.00,1.000000,1.511997,5.943363,21.982046,飛,3.210015,ひよこ,-3.202382
-TournamentQualityReport,sweepReport,data,70.00,0.732353,3.598590,4.294954,15.303329,飛,4.809095,ひよこ,-4.821972
-TournamentQualityReport,sweepReport,data,80.00,-0.505882,6.302902,2.222887,3.699407,飛,7.748425,ひよこ,-7.745950
-TournamentQualityReport,sweepReport,data,90.00,-0.505882,7.875565,0.381370,0.048751,飛,10.226773,ひよこ,-10.229965
+TournamentQualityReport,sweepReport,data,50.00,1.000000,1.230535,7.046619,22.482349,飛,2.663998,ひよこ,-2.649730
+TournamentQualityReport,sweepReport,data,60.00,1.000000,1.504452,5.950079,21.867909,飛,3.204120,ひよこ,-3.196537
+TournamentQualityReport,sweepReport,data,70.00,0.732353,3.600354,4.292222,15.330498,飛,4.811900,ひよこ,-4.804650
+TournamentQualityReport,sweepReport,data,80.00,-0.505882,6.305116,2.222486,3.587430,飛,7.765473,ひよこ,-7.770095
+TournamentQualityReport,sweepReport,data,90.00,-0.505882,7.875687,0.380232,0.056667,飛,10.228663,ひよこ,-10.231205
 TournamentQualityReport,sweepReport,data,100.00,-0.867722,8.000000,0.000000,0.000000,飛,11.500000,ひよこ,-11.500000
 nextCycleSuggestionTitle,,次回の n%スイープ提案
 nextCycleSuggestedSetting,,開始する先手勝率(%) = 53.00
@@ -12,6 +12,6 @@ nextCycleSuggestedSetting,,刻み幅(%) = 15.00
 nextCycleSuggestedSetting,,ベスト候補(%) = 50.00
 nextCycleSuggestedSetting,,近傍候補(%) = 50.00 / 57.50
 nextCycleSuggestedSetting,,再探索するなら範囲(%) = 50.00 ～ 65.00
-nextCycleSuggestedSetting,,"実測ベースの最良値 = Spearman 1.0000, 平均順位ずれ 1.231, Top8残留 7.043"
+nextCycleSuggestedSetting,,"実測ベースの最良値 = Spearman 1.0000, 平均順位ずれ 1.231, Top8残留 7.047"
 nextCycleSuggestedSetting,,軽量確認の目安 = 選手 16 人 / 対局 64 件なので、まず 1 点または 3 点だけ確認
 nextCycleSuggestionReason,,今回の範囲は完走できました。実測で最も良かった 50.00% とその近傍を次の比較候補にできます。選手数 16 人・対局数 64 件なので、狭い範囲で再確認しやすいです。

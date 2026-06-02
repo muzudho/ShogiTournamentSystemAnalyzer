@@ -228,3 +228,79 @@ Verification after the sweep simulation-count fix:
 Remaining note:
 
 - The old legacy prompt-script sweep smoke still has a stale prompt order and selects FinalStage unexpectedly. That is a test-input maintenance issue, separate from the timeout fix.
+
+## Continued Program Check
+
+Focus for the next pass:
+
+- Long-running exact-calculation paths that may be reached with too many matches.
+- Simulation loops that do not check `SimulationTimeBudget`.
+- Request-file conversion paths that may omit prompt answers and shift later inputs.
+- Legacy smoke/sweep inputs whose prompt order is stale.
+
+## Stale Smoke Input Fix Plan
+
+Found stale legacy prompt-script sweep inputs:
+
+- `Inputs/Smoke/quality_sweep_input_[先手8x後手8]_[Twill_50to100_smoke10].txt`
+- Related non-smoke files under `Inputs/Sweeps` and `Inputs/Bench` still use prompt-script order.
+
+Immediate fix target:
+
+- Convert the smoke10 file to STSAInput3 so it no longer depends on prompt order.
+- Preserve the original intent: Standard quality evaluation, Twill rule, sweep 50 to 100 by 10, `SimulationCount=10`.
+- Re-run this smoke after conversion.
+
+## Exact Calculation Timeout Follow-up
+
+Twill smoke10 after STSAInput3 conversion completed successfully in about 10 seconds.
+
+Additional timeout concern:
+
+- Exact calculation paths check `HasApplicationTimeRemaining()`, so they are bounded by the application-wide 3 minute budget.
+- However, exact calculation callers generally do not open a calculation-specific `SimulationTimeBudget.BeginSimulationBudget()` scope.
+- This means exact calculations are not consistently governed by the same calculation budget mechanism as simulation loops.
+
+Planned hardening:
+
+- Make exact recursive engines check `HasSimulationTimeRemaining()` instead of only `HasApplicationTimeRemaining()`.
+- Open `BeginSimulationBudget()` around exact calculation calls in simulation mainlines, quality evaluation runs, and tournament framework exact calculation.
+
+## Exact Calculation Timeout Hardening Applied
+
+Applied broader timeout hardening:
+
+- `StandardCalculationEngine` and `FinalStageCalculationEngine` now use `HasSimulationTimeRemaining()` for calculation-loop checks.
+- Standard simulation exact branch now opens `BeginSimulationBudget()` before exact calculation.
+- FinalStage simulation exact branch now opens `BeginSimulationBudget()` before exact calculation.
+- Quality evaluation single runs now open `BeginSimulationBudget()` for both exact and simulation paths.
+- Tournament framework exact calculation now opens `BeginSimulationBudget()` and its recursive exploration checks `HasSimulationTimeRemaining()`.
+
+Note: `TournamentQualityEvaluationSweepExecutor` still checks the application budget in its outer sweep loop, but each sweep point now has a calculation budget through `ExecuteRun`.
+
+## Continued Check Verification
+
+Verification after continued timeout hardening and smoke-input maintenance:
+
+- `dotnet build` succeeded with 0 warnings and 0 errors.
+- Normal STSAInput3 single smoke completed successfully.
+- FinalStage STSAInput3 single smoke completed successfully.
+- STSAInput2 Neutral sweep completed successfully.
+- Twill smoke10 was converted from stale prompt-script to STSAInput3 and completed successfully.
+
+Current conclusion:
+
+- The previously observed freeze class was caused by long-running exact calculations being reached unexpectedly.
+- Sweep execution now asks for or receives a simulation count for large match sets.
+- Exact calculations now participate in the same calculation-budget mechanism as simulation loops.
+- The remaining stale prompt-script files under `Inputs/Sweeps` and `Inputs/Bench` should be migrated gradually to STSAInput2/3 to avoid prompt-order drift.
+
+## STSAInput Version Organization
+
+Applied input-folder cleanup:
+
+- Moved old non-STSA request files from `Inputs/Bench` and `Inputs/Sweeps` into `Inputs/Legacy` while preserving their original subfolder layout.
+- Confirmed there are no non-STSA `.txt` request files left outside `Inputs/Legacy`.
+- Added `Inputs/Legacy/README.md` explaining that these files are reference-only and should be migrated to STSAInput/2 or STSAInput/3 before use.
+- Added a `RequestFileCheckWorkflow` guard that rejects `--input-file` paths under `Inputs/Legacy`.
+- Fixed request-file parse error reporting so the caught parse/rejection reason is printed in the final error line.

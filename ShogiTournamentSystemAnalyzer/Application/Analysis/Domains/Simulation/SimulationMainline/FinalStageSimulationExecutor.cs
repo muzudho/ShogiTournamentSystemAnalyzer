@@ -15,6 +15,7 @@ internal static class FinalStageSimulationExecutor
         if (context.Matches.Count <= 20)
         {
             Console.WriteLine("本戦専用の厳密計算を行います。\n");
+            using var exactCalculationBudget = SimulationTimeBudget.BeginSimulationBudget();
             return FinalStageCalculationEngine.CalculateFinalStageExactly(
                 context.Players,
                 context.Matches,
