@@ -5,6 +5,7 @@ namespace ShogiTournamentSystemAnalyzer;
 
 using ShogiTournamentSystemAnalyzer.Application;
 using ShogiTournamentSystemAnalyzer.Application.Analysis;
+using ShogiTournamentSystemAnalyzer.Application.BeforeRequestFileCheck;
 using ShogiTournamentSystemAnalyzer.Application.ManualInput;
 using ShogiTournamentSystemAnalyzer.Application.RequestFileCheck;
 using ShogiTournamentSystemAnalyzer.Application.RequestFileCreate;
@@ -34,15 +35,13 @@ internal static partial class Program
 
         try
         {
-            bool isFutureImplementation = false;
-
             // 現在の実装
-            if (isFutureImplementation)
-            {
-                ApplicationStartup.Start();
-                RequestWorkflow.Run(args);
-                return;
-            }
+            ApplicationStartup.Start();
+
+            using var inputSession = InputSourceConfiguration.ConfigureInputSource(args);
+            if (inputSession is null) return;
+
+            RequestSessionWorkflow.Run(inputSession);
 
             // TODO: ここから下は、将来的な実装
             // ［依頼という境界］
