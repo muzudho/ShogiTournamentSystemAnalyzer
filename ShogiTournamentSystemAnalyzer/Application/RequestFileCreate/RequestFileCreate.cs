@@ -3,8 +3,9 @@
  */
 namespace ShogiTournamentSystemAnalyzer.Application.RequestFileCreate;
 
-using System.Text;
 using ShogiTournamentSystemAnalyzer.Application.Shared;
+using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles;
+using System.Text;
 
 internal static class RequestFileCreate
 {
@@ -26,18 +27,6 @@ internal static class RequestFileCreate
         }
 
         return fullPath;
-    }
-
-    internal static void Write(string outputPath, IEnumerable<string> lines)
-    {
-        var directoryPath = Path.GetDirectoryName(outputPath);
-        if (!string.IsNullOrWhiteSpace(directoryPath))
-        {
-            Directory.CreateDirectory(directoryPath);
-        }
-
-        File.WriteAllLines(outputPath, lines, new UTF8Encoding(false));
-        Console.WriteLine($"要求ファイルを作成しました: {outputPath}");
     }
 
     static bool LooksLikeDirectoryPath(string path)

@@ -11,6 +11,7 @@ using ShogiTournamentSystemAnalyzer.Application.ManualInput;
 using ShogiTournamentSystemAnalyzer.Application.RequestFileCheck;
 using ShogiTournamentSystemAnalyzer.Application.RequestFileCreate;
 using ShogiTournamentSystemAnalyzer.Domain.Request;
+using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles;
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 using System.Text;
 
@@ -64,12 +65,15 @@ internal static partial class Program
             // メインライン選択のガイドを表示するぜ（＾▽＾）！
             ProgramConsoleGuide.PrintSelectedMainline(flowMode, ruleProfileMode);
 
-            // 選択フロー
+            // 本処理（選択フロー）
             AnalysisFlowDispatcher.Execute(flowMode, ruleProfileMode);
 
             if (inputSession.CompletionTarget != null)
             {
-                RequestFileCreate.Write(inputSession.CompletionTarget.RequestFileCreatePath, inputSession.CompletionTarget.RecordingInput.RecordedLines);
+                StsaFileIOHelper.Write(
+                    label: "要求ファイル",
+                    outputPath: inputSession.CompletionTarget.RequestFileCreatePath,
+                    lines: inputSession.CompletionTarget.RecordingInput.RecordedLines);
             }
 
 
