@@ -1,0 +1,4 @@
+interface:
+  display_name: "Docs Handoff"
+  short_description: "Keep docs README and handoff checkpoint conventions."
+  default_prompt: "Use the docs handoff conventions for this repository."
