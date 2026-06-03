@@ -39,17 +39,17 @@ $sourceSkillText = [string](Resolve-Path $sourceSkill)
 # ディレクトリーを作成するぜ（＾▽＾）　すでにあっても大丈夫だぜ（＾▽＾）
 New-Item -ItemType Directory -Force -Path $destinationRoot | Out-Null
 
-# コピー先の［スキル］フォルダーへアクセスできるかテストしてから、既存のファイルを削除か、退避等をする作業を始めるぜ（＾▽＾）
+# コピー先の［スキル］フォルダーが存在してるかテストしてから、既存のファイルを削除か、退避等をする作業を始めるぜ（＾▽＾）
 if (Test-Path -LiteralPath $destinationSkill) {
-    # コピー先にファイルが既存なら、デフォルトでは上書き禁止（＾～＾）
+    # コピー先に［スキル］フォルダーが既存なら、デフォルトでは上書き禁止（＾～＾）
     $canReplace = $false
 
-    # ［メタデータ・ファイル］の保存先にアクセスできるかテスト（＾～＾）
+    # ［メタデータ・ファイル］が存在してるかテスト（＾～＾）
     if (Test-Path -LiteralPath $metadataPath) {
         # ［メタデータ・ファイル］を読み取って、このスキルがこのリポジトリからコピーされたものか確認するぜ（＾～＾）
         $metadata = Get-Content -Raw -LiteralPath $metadataPath | ConvertFrom-Json
         if ($metadata.sourceRepository -eq $repoRootText -and $metadata.skillName -eq $SkillName) {
-            # このリポジトリーからコピーされた［スキル］ファイルなので、上書きしても大丈夫だぜ（＾▽＾）
+            # （メタデータ・ファイルの内容を信用して）このリポジトリーからコピーされた［スキル］ファイルと判断するぜ（＾▽＾）、上書きしようぜ（＾▽＾）
             $canReplace = $true
         }
     }
@@ -59,14 +59,14 @@ if (Test-Path -LiteralPath $destinationSkill) {
         throw "Refusing to overwrite existing skill without matching install metadata: $destinationSkill`nUse -Force to back it up and replace it explicitly."
     }
 
-    # 上書きする前に、その古いファイルは名前を変えてバックアップしておくぜ（＾～＾）　メタデータで同じリポジトリーのスキルと判別できておらず、強制上書きするケースならだぜ（＾～＾）
+    # 上書きする前に、その古い［スキル］フォルダーは名前を変えてバックアップしておくぜ（＾～＾）　メタデータで同じリポジトリーのスキルと判別できておらず、強制上書きするケースならだぜ（＾～＾）
     if ($Force -and -not $canReplace) {
         $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
         $backupPath = "$destinationSkill.backup_$timestamp"
         Move-Item -LiteralPath $destinationSkill -Destination $backupPath
         Write-Host "Backed up existing skill to: $backupPath"
     }
-    # 上書きできるんなら、古いファイルは消したろ（＾～＾）
+    # 上書きできるんなら、古い［スキル］フォルダーは消したろ（＾～＾）
     else {
         Remove-Item -LiteralPath $destinationSkill -Recurse -Force
     }
@@ -78,7 +78,10 @@ if (Test-Path -LiteralPath $destinationSkill) {
 #
 Copy-Item -LiteralPath $sourceSkill -Destination $destinationSkill -Recurse
 
-# 名前と値のリスト形式だぜ（＾▽＾）　あとで JSON 形式へ変換するぜ（＾▽＾）　内容は、スキル名とこのスクリプトを実行したリポジトリのルートパスだぜ（＾▽＾）　つまり、メタデータだぜ（＾▽＾）
+# 名前と値のリスト形式だぜ（＾▽＾）　あとで JSON 形式へ変換するぜ（＾▽＾）　内容は、［スキル名］、［このスクリプトを実行したリポジトリのルートパス］などだぜ（＾▽＾）　つまり、メタデータだぜ（＾▽＾）
+#
+#   - ［このリポジトリーからコピーされたスキルフォルダーかどうか］の判定に使うのは、［skillName］と［sourceRepository］だけだぜ（＾▽＾）他のフィールドは、あとで人間が見てわかるようにするためのものだぜ（＾▽＾）
+#
 $metadataObject = [ordered]@{
     skillName = $SkillName
     sourceRepository = $repoRootText
