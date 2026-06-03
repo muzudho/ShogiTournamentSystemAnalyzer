@@ -24,6 +24,14 @@ When organizing `docs`:
   - `docs/調査` for unresolved research.
   - `docs/運用` for repository and documentation operating rules.
 
+When writing human-facing operating documents:
+
+- Prefer "what the reader wants to do" over internal terminology as the entry point.
+- Keep README files as short maps or signposts. Move detailed procedures into separate focused documents.
+- Do not make readers consume broad operating rules just to run a specific tool.
+- Use plain labels that make sense before the reader knows project-specific terms such as "Codex skill".
+- When a term is unavoidable, explain it through the concrete action it enables.
+
 When creating reusable Codex skills for a repository:
 
 - Keep the repository-local source under a path like `docs/運用/skills/<skill-name>/SKILL.md`.
