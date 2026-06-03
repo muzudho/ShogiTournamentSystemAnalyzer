@@ -1,4 +1,4 @@
-# Manuals
+# 設計
 
 このフォルダーは、ShogiTournamentSystemAnalyzer の**利用者向け説明書**をまとめた場所です。  
 トップの `README.md` は入口を短く案内するための文書で、詳細説明はこのフォルダーに集めています。
@@ -85,13 +85,13 @@
 	- 「よくある修正例」や「ミニ目次」から逆引きでも探せる
 
 ## docs 配下の他フォルダー
-- [docs/実装計画](../実装計画/README.md)
+- [docs/開発](../開発/README.md)
   - 開発用の実装計画や改修メモ
 - [Output/Reports](../../Output/Reports/README.md)
 	- 手書きの比較レポート、総括、発表案
-- [docs/むずでょの案](../むずでょの案/)
+- [docs/企画](../企画/)
   - ルール案や発想メモ
 
 ## 関連入口
 - [トップ README](../../README.md)
-
+- [docs フォルダー案内](../README.md)

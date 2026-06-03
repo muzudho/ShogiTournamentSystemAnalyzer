@@ -1,78 +1,80 @@
 # docs
 
-このフォルダーは、ShogiTournamentSystemAnalyzer の文書置き場です。  
-README は最初の入口、`docs` は詳細説明と作業メモの置き場という役割で分けています。
+このフォルダーは、ShogiTournamentSystemAnalyzer の文書置き場です。
+
+トップの `README.md` は利用者向けの短い入口、`docs` は仕様・設計・企画・開発メモを探すための場所として使います。
 
 ## まずどこを見るか
 
-- 使い方を知りたい
-  - [Manuals](./Manuals/README.md)
+- 使い方や仕様を知りたい
+  - [設計](./設計/README.md)
 - 実装予定や改修メモを見たい
-  - [実装計画](./実装計画/README.md)
-- 手書きのレポートや発表案を見たい
-  - [Reports](../Output/Reports/README.md)
+  - [開発](./開発/README.md)
 - 発想メモや大会ルール案を見たい
-  - [むずでょの案](./むずでょの案/)
+  - [企画](./企画/)
+- 文書の置き方を確認したい
+  - [運用](./運用/README.md)
+- 短い現況メモを見たい
+  - [notes.md](./notes.md)
+- 手書きのレポートや発表案を見たい
+  - [Output/Reports](../Output/Reports/README.md)
 
 ## 置き場の考え方
 
-- 利用者向けの説明書
-  - `docs/Manuals`
-- 開発向けの実装計画、設計メモ
-  - `docs/実装計画`
-- 手書きの比較メモ、発表案、総括レポート
-  - `Output/Reports`
-- アプリの実行で自動生成される CSV / Markdown
-  - `Output/...`
-- 実行用入力ファイル、再利用データ
-  - `Data/...`
+- `docs/企画`
+  - 大会ルール案、原文、発想メモ、まだ実装へ落とす前の構想
+- `docs/設計`
+  - 利用者向け説明、仕様、設計として安定して参照したい文書
+- `docs/開発`
+  - 実装計画、改修メモ、障害調査、スモークテスト記録、復旧メモ
+- `docs/調査`
+  - まだ結論が固まっていない調査材料
+- `docs/運用`
+  - `docs` の使い方、ファイル配置、リポジトリ運用の取り決め
+- `Output/Reports`
+  - 手書きの比較メモ、発表案、総括レポート
+- `Output/...`
+  - アプリの実行で自動生成される CSV / Markdown
+- `Inputs` / `Data`
+  - 実行用入力ファイル、再利用データ
 
 ## フォルダー一覧
 
-### [Manuals](./Manuals/README.md)
-利用者向け説明書です。
+### [企画](./企画/)
 
-- [説明書の総合目次](./Manuals/README.md)
-- [トーナメントルール](./Manuals/トーナメントルール.md)
-- [モード別ガイド](./Manuals/モード別ガイド.md)
-- [入力ファイル仕様](./Manuals/入力ファイル仕様.md)
-- [品質評価](./Manuals/品質評価.md)
-- [CSVと出力](./Manuals/CSVと出力.md)
-- [プロジェクトの考え方](./Manuals/プロジェクトの考え方.md)
-- [実装ファイル案内](./Manuals/実装ファイル案内.md)
-  - 実装場所をミニ目次付きで逆引きしたいとき
-
-### [実装計画](./実装計画/README.md)
-開発用の実装計画、設計メモ、改修方針を置く場所です。
-
-- [実装計画の目次](./実装計画/README.md)
-
-### [Reports](../Output/Reports/README.md)
-手書きの実験レポート、比較メモ、発表案を置く場所です。
-
-- [Reports の案内](../Output/Reports/README.md)
-- [ツイル式トーナメント発表案](../Output/Reports/ツイル式トーナメント発表案.md)
-
-### [../Data](../Data/)
-アプリで使う実行用入力、選手データ、再利用用ルールデータを置く場所です。
-
-### [../Output](../Output/)
-アプリの実行で自動生成される出力を置く場所です。
-
-- `Ranking/FinalRanking`
-- `Simulation/TournamentFinalState`
-- `TournamentQualityEvaluator/TournamentQualityReport`
-
-### [むずでょの案](./むずでょの案/)
 大会ルール案、草案、発想メモを置く場所です。
 
+### [設計](./設計/README.md)
+
+使い方、入力仕様、出力仕様、設計説明を置く場所です。
+
+主な文書:
+
+- [モード別ガイド](./設計/モード別ガイド.md)
+- [入力ファイル仕様](./設計/入力ファイル仕様.md)
+- [STSAInput/2 仕様](./設計/STSAInput2仕様.md)
+- [STSAInput/3 仕様](./設計/STSAInput3仕様.md)
+- [ライフサイクル](./設計/ライフサイクル.md)
+- [実装ファイル案内](./設計/実装ファイル案内.md)
+
+### [開発](./開発/README.md)
+
+開発用の実装計画、改修方針、調査メモを置く場所です。
+
+### [調査](./調査/)
+
+結論を出す前の調査材料を置く場所です。
+
+### [運用](./運用/README.md)
+
+文書管理やリポジトリ運用の取り決めを置く場所です。
+
 ### [notes.md](./notes.md)
-補助メモです。
+
+プロジェクト全体の短い現況メモです。
 
 ## 関連入口
 
 - [トップ README](../README.md)
-- [Manuals の総合目次](./Manuals/README.md)
-- [実装ファイル案内](./Manuals/実装ファイル案内.md)
-  - 「最初に読む順」「よくある修正例」「ミニ目次」から辿れます
-
+- [docs 運用ルール](./運用/docs運用ルール.md)
+- [Reports の案内](../Output/Reports/README.md)
