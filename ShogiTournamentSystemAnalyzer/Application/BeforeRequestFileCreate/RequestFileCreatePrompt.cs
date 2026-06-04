@@ -9,7 +9,12 @@ using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 
 internal static class RequestFileCreatePrompt
 {
-    internal static string? ReadOutputPath()
+    /// <summary>
+    /// ［要求ファイル］の保存先パスをユーザーに入力してもらう。
+    /// </summary>
+    /// <returns></returns>
+    /// <exception cref="OperationCanceledException"></exception>
+    internal static string? InputRequestFilePath()
     {
         Console.WriteLine("今回の入力を保存しておきますか？");
         Console.WriteLine("1. いいえ");

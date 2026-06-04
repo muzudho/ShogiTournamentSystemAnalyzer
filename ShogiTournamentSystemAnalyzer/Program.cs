@@ -37,9 +37,7 @@ internal static partial class Program
     {
         try
         {
-            //          ●開始
-            //          │
-            //          ↓
+            #region ■［辺１］
 
             // エンコーディングって大事だよな（＾▽＾）！　文字化けを防ぐぜ（＾▽＾）！
             Console.OutputEncoding = Encoding.UTF8;
@@ -56,10 +54,11 @@ internal static partial class Program
 
             RequestInputSession? inputSession;
 
-            //          ◆"コマンドライン引数で入力ファイルを指定したか？"
+            #endregion
+
+            #region ◆［節１］コマンドライン引数で入力ファイルを指定したか？
+
             var argumentResult = RequestFileArgumentReader.Read(args);
-            //          │
-            //          ↓
 
             // ［要求ファイル］確認中の異常の場合。
             if (argumentResult.HasError)
@@ -68,43 +67,33 @@ internal static partial class Program
                 return;
             }
 
-            //          │
-            //          ├─────────────────────────┐
-            //          │                                                  ・
-            //          │ "はい"                                           ・
-            // ［要求ファイル］が指定されていた場合。
+            #endregion
+
+            // ■［辺２］はい、入力ファイル指定有り
             if (argumentResult.HasInputFile)
             {
-                //      │                                                  ・
-                //      │                                                  ・
-                //      ■［要求ファイルチェック］(`RequestFileCheck`)      ・
+                // ［要求ファイルチェック］(`RequestFileCheck`)
                 var requestFileCheckResultVer2 = RequestFileCheckWorkflow.Run(argumentResult);
-                //      │                                                  ・
-                //      │                                                  ・
-                //      ◆"エラーが有ったか？"                              ・
-                //      │                                                  ・
-                //      │                                                  ・
-                //      ├──────────┐                            ・
-                //      ・                    │                            ・
-                //      ・                    │ "エラー有り"               ・
+
+
+                // ◆［節２］エラーが有ったか？
                 if (requestFileCheckResultVer2.HasError)
                 {
-                    //  ・                    │                            ・
-                    //  ・                    ↓                            ・
-                    //  ・                    ●終了                        ・
+                    // ■［辺３］はい、エラー有り
+                    // ●終了
                     return;
                 }
-                //      │                                                  ・
-                //      │                                                  ・
-                //      │  "エラー無し"                                    ・
+
+                // ■［辺４］いいえ、エラー無し
                 inputSession = requestFileCheckResultVer2.InputSession;
             }
-            // ［要求ファイル］が指定されていない場合。
+            //  ■［辺５］いいえ、入力ファイル指定無し
             else
             {
+                // ［手動入力］（`ManualInput`）
                 Console.WriteLine("■［手動入力］");
 
-                var requestFileCreatePath = RequestFileCreatePrompt.ReadOutputPath();
+                var requestFileCreatePath = RequestFileCreatePrompt.InputRequestFilePath();
                 if (requestFileCreatePath is null)
                 {
                     Console.WriteLine();
