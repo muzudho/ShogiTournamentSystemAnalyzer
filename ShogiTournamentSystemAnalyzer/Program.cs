@@ -107,30 +107,9 @@ internal static partial class Program
                 // ■［辺７］いいえ、エラー無し
                 requestModelProducer.Produce(requestBoundary);
 
-                // ◆［節４］今回の入力を保存しておきますか？
-
-                //      ・                                                  │
-                //      ・                                                  ↓
-                //      ・                                                  ◆"今回の入力を保存しておきますか？"
-                //      ・                                                  │
-                //      ・                                                  ├───────────────────────┐
-                //      ・                                                  │                                              ・
-                //      ・                                                  │ "はい"                                       ・
-                if (true)
-                {
-                    //  ・                                                  │                                              ・
-                    //  ・                                                  │                                              ・
-                    //  ・                                                  ■［要求ファイル作成］(`RequestFileCreate`)     ・
-                    RequestFileCreateWorkflow.Run(requestBoundary);
-                }
-                //      ・                                                  ・                                              │ "いいえ"
-                //      ・                                                  ・                                              │
-                //      ・                                                  │←──────────────────────┘
-                //      ・                                                  │
-                //      │←────────────────────────┘
-                //      │
-
+                // 👇［節４］～［辺９］
                 var requestFileCreatePath = RequestFileCreatePrompt.InputRequestFilePath();
+
                 if (requestFileCreatePath is null)
                 {
                     Console.WriteLine();
@@ -153,10 +132,7 @@ internal static partial class Program
                 ConsoleInput.UseText(inputSession.RequestFileInputText);
             }
 
-
-
-            //      │
-            //      ↓
+            #region ■［辺１０］分析の前に
 
             Console.WriteLine("■［分析の前に］");
 
@@ -169,6 +145,8 @@ internal static partial class Program
 
             // メインライン選択のガイドを表示するぜ（＾▽＾）！
             ProgramConsoleGuide.PrintSelectedMainline(requestBoundary.AnalysisFlowMode, requestBoundary.RuleProfileMode);
+
+            #endregion
 
             //      │
             //      ↓
