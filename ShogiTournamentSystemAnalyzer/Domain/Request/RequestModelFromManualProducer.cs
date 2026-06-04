@@ -8,8 +8,6 @@ internal class RequestModelFromManualProducer
 
     public bool HasError { get; set; }
 
-    public bool ShallSave { get; set; }
-
     public void Produce(RequestBoundary requestBoundary)
     {
         // XXX: 適当な、値をセットする例。

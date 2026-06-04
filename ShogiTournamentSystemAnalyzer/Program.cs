@@ -90,8 +90,45 @@ internal static partial class Program
             //  ■［辺５］いいえ、入力ファイル指定無し
             else
             {
-                // ［手動入力］（`ManualInput`）
                 Console.WriteLine("■［手動入力］");
+
+                // ［手動入力］（`ManualInput`）
+                var requestModelProducer = new RequestModelFromManualProducer();
+
+                // ◆［節３］エラーが有ったか？
+
+                // ■［辺６］はい、エラー有り
+                if (requestModelProducer.HasError)
+                {
+                    // ●終了
+                    return;
+                }
+
+                // ■［辺７］いいえ、エラー無し
+                requestModelProducer.Produce(requestBoundary);
+
+                // ◆［節４］今回の入力を保存しておきますか？
+
+                //      ・                                                  │
+                //      ・                                                  ↓
+                //      ・                                                  ◆"今回の入力を保存しておきますか？"
+                //      ・                                                  │
+                //      ・                                                  ├───────────────────────┐
+                //      ・                                                  │                                              ・
+                //      ・                                                  │ "はい"                                       ・
+                if (true)
+                {
+                    //  ・                                                  │                                              ・
+                    //  ・                                                  │                                              ・
+                    //  ・                                                  ■［要求ファイル作成］(`RequestFileCreate`)     ・
+                    RequestFileCreateWorkflow.Run(requestBoundary);
+                }
+                //      ・                                                  ・                                              │ "いいえ"
+                //      ・                                                  ・                                              │
+                //      ・                                                  │←──────────────────────┘
+                //      ・                                                  │
+                //      │←────────────────────────┘
+                //      │
 
                 var requestFileCreatePath = RequestFileCreatePrompt.InputRequestFilePath();
                 if (requestFileCreatePath is null)
@@ -118,57 +155,6 @@ internal static partial class Program
 
 
 
-            if (args.Length > 0)
-            {
-            }
-            //          ・                                                  │
-            //          ・                                                  │
-            //          ・                                                  │ "いいえ"
-            else
-            {
-                //      ・                                                  │
-                //      ・                                                  │
-                //      ・                                                  ■［手動入力］（`ManualInput`）
-                var requestModelProducer = ManualInputWorkflow.Run();
-                //      ・                                                  │
-                //      ・                                                  │
-                //      ・                                                  ◆"エラーが有ったか？"
-                //      ・                                                  │
-                //      ・                                                  ├──────────┐
-                //      ・                                                  ・                    │
-                //      ・                                                  ・                    │ "エラー有り"
-                if (requestModelProducer.HasError)
-                {
-                    //  ・                                                  ・                    │
-                    //  ・                                                  ・                    ↓
-                    //  ・                                                  ・                    ●終了
-                    return;
-                }
-                //      ・                                                  │
-                //      ・                                                  │
-                //      ・  "エラー無し"                                    │
-                requestModelProducer.Produce(requestBoundary);
-                //      ・                                                  │
-                //      ・                                                  ↓
-                //      ・                                                  ◆"今回の入力を保存しておきますか？"
-                //      ・                                                  │
-                //      ・                                                  ├───────────────────────┐
-                //      ・                                                  │                                              ・
-                //      ・                                                  │ "はい"                                       ・
-                if (requestModelProducer.ShallSave)
-                {
-                    //  ・                                                  │                                              ・
-                    //  ・                                                  │                                              ・
-                    //  ・                                                  ■［要求ファイル作成］(`RequestFileCreate`)     ・
-                    RequestFileCreateWorkflow.Run(requestBoundary);
-                }
-                //      ・                                                  ・                                              │ "いいえ"
-                //      ・                                                  ・                                              │
-                //      ・                                                  │←──────────────────────┘
-                //      ・                                                  │
-                //      │←────────────────────────┘
-                //      │
-            }
             //      │
             //      ↓
 
