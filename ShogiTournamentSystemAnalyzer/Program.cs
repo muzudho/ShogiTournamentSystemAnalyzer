@@ -93,6 +93,9 @@ internal static partial class Program
                 Console.WriteLine("■［手動入力］");
 
                 // ［□手動入力（`ManualInput`）］
+                //
+                //  📍 TODO: ここで、大会ルールを入力するプログラムを作りたい。今は空っぽ。
+                //
                 var requestModelProducer = new RequestModelFromManualProducer();
 
                 // ［◆節３：エラーが有ったか？］
