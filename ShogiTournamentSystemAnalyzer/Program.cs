@@ -157,6 +157,7 @@ internal static partial class Program
             Console.WriteLine("■［分析］");
             AnalysisWorkflow.Run(requestBoundary);
 
+            // TODO: ［要求ファイル］の書き出しは、分析の前では（＾～＾）？
             if (inputSession.CompletionTarget != null)
             {
                 // ［要求ファイル］を書き出します。
