@@ -13,13 +13,10 @@ internal static class StsaQualityEvaluationLegacyConverter
         Dictionary<string, string> meta,
         Dictionary<string, List<string>> sections,
         string fullPath,
-        string formatName)
+        string formatName,
+        IReadOnlyList<string> promptPrefixLines)
     {
-        var legacyLines = new List<string>
-        {
-            "2",
-            "2"
-        };
+        var legacyLines = new List<string>(promptPrefixLines);
 
         AppendDelimitedSection(legacyLines, GetRequiredSectionLines(sections, "PlayersCsv", fullPath, formatName));
         AppendDelimitedSection(legacyLines, GetRequiredSectionLines(sections, "GroupMapCsv", fullPath, formatName));
@@ -88,13 +85,10 @@ internal static class StsaQualityEvaluationLegacyConverter
         Dictionary<string, string> meta,
         Dictionary<string, List<string>> sections,
         string fullPath,
-        string formatName)
+        string formatName,
+        IReadOnlyList<string> promptPrefixLines)
     {
-        var legacyLines = new List<string>
-        {
-            "2",
-            "1"
-        };
+        var legacyLines = new List<string>(promptPrefixLines);
 
         AppendDelimitedSection(legacyLines, GetRequiredSectionLines(sections, "PlayersCsv", fullPath, formatName));
         legacyLines.Add(ParseTournamentRuleSetSelection(GetRequiredMetaValue(meta, "TournamentRuleSetMode", fullPath, formatName), formatName));

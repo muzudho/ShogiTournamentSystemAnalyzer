@@ -49,7 +49,7 @@ internal static class TournamentQualityEvaluationOutputCoordinator
             $"\n品質評価サマリーCSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
             defaultOutputCsvPath));
         var playerCsvPath = ReportOutputPathBuilder.BuildTournamentQualityPlayersOutputPathFromSummary(outputCsvPath);
-        return new TournamentQualityEvaluationOutputOptions(reportGroupingOptions, outputCsvPath, playerCsvPath);
+        return new TournamentQualityEvaluationOutputOptions(reportGroupingOptions, outputCsvPath, playerCsvPath, ResolveRuleProfileMode(ruleDefinition));
     }
 
     internal static TournamentQualityEvaluationOutputOptions ReadTournamentQualitySweepReportOutputOptions(TournamentQualityEvaluationRuleDefinition ruleDefinition)
@@ -64,9 +64,14 @@ internal static class TournamentQualityEvaluationOutputCoordinator
         var outputCsvPath = CsvOutputHelpers.ResolveOutputCsvPath(ConsolePromptReaders.ReadTextWithDefault(
             $"\nn%スイープ結果CSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
             defaultOutputCsvPath));
-        return new TournamentQualityEvaluationOutputOptions(reportGroupingOptions, outputCsvPath);
+        return new TournamentQualityEvaluationOutputOptions(reportGroupingOptions, outputCsvPath, RuleProfileMode: ResolveRuleProfileMode(ruleDefinition));
     }
 
+
+    static RuleProfileMode ResolveRuleProfileMode(TournamentQualityEvaluationRuleDefinition ruleDefinition)
+    {
+        return ruleDefinition.UsesFinalStageGrouping ? RuleProfileMode.FinalStage : RuleProfileMode.Standard;
+    }
     internal static void WriteTournamentQualityReportOutputs(
         TournamentQualityReportData tournamentQualityReportData,
         TournamentQualityEvaluationOutputOptions outputOptions)
@@ -99,8 +104,8 @@ internal static class TournamentQualityEvaluationOutputCoordinator
             outputPath: requestInputLogPath,
             getLines: () => RequestInputLogFileWriter.CreateRequestInputLogLines(new
             {
-                analysis_flow_mode = "QualityEvaluation",
-                rule_profile_mode = "StandardOrFinalStage",
+                analysis_flow_steps = "QualityEvaluation",
+                rule_profile_mode = outputOptions.RuleProfileMode.ToString(),
                 execution_mode = tournamentQualityReportData.CalculationMode.Contains("スイープ", StringComparison.Ordinal) ? "Sweep" : "Single",
                 tournament_rule_set_mode = (string?)null,
                 first_player_win_rate_percent = (double?)null,
@@ -112,7 +117,7 @@ internal static class TournamentQualityEvaluationOutputCoordinator
                 boundary_rescue_mode = (string?)null,
                 variable_top8_mode = (string?)null,
                 quality_innov_expected_rank_offset_mode = (string?)null,
-                tournament_quality_evaluation_report_grouping = outputOptions.ReportGroupingOptions.IsEnabled ? outputOptions.ReportGroupingOptions.Outcome.ToString() : "Off",
+                tournament_quality_evaluation_report_grouping = outputOptions.ReportGroupingOptions.IsEnabled ? "On" : "Off",
                 tournament_quality_evaluation_report_outcome = outputOptions.ReportGroupingOptions.IsEnabled ? outputOptions.ReportGroupingOptions.Outcome.ToString() : (string?)null,
                 evaluation_memo = tournamentQualityReportData.CalculationMode,
                 players_csv = string.Empty,

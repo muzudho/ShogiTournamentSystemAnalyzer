@@ -4,6 +4,8 @@
 利用者向けの使い方や仕様説明は [docs/設計](../設計/README.md)、このフォルダーは実装予定・改修方針・調査メモを扱います。
 
 ## ファイル一覧
+- [step63-flow-sequentialization-plan.md](./step63-flow-sequentialization-plan.md)
+  - 分析フロー直列化、STSAInput/4、代表要求ファイルモダナイズの実装計画
 - [SmokeTest事前調査メモ_20260603.md](./SmokeTest事前調査メモ_20260603.md)
   - スモークテスト、フリーズ原因調査、タイムアウト対策、古い入力ファイル整理の記録
 - [ConsoleSetIn副作用除去実装計画_20260602.md](./ConsoleSetIn副作用除去実装計画_20260602.md)

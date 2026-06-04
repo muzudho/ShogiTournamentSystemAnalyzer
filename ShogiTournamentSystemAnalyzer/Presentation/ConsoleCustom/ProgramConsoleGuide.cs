@@ -16,7 +16,7 @@ internal static class ProgramConsoleGuide
         Console.WriteLine("主線: TournamentFinalState -> FinalRanking -> TournamentQualityReport\n");
     }
 
-    internal static void PrintSelectedMainline(AnalysisFlowMode flowMode, RuleProfileMode ruleProfileMode)
+    internal static void PrintSelectedMainline(AnalysisFlowSelection flowSelection, RuleProfileMode ruleProfileMode)
     {
         var profileLabel = ruleProfileMode switch
         {
@@ -27,13 +27,13 @@ internal static class ProgramConsoleGuide
             _ => ruleProfileMode.ToString(),
         };
 
-        var mainlineLabel = flowMode switch
+        var mainlineLabel = string.Join(" -> ", flowSelection.Steps.Select(step => step switch
         {
             AnalysisFlowMode.Simulation => "TournamentFinalState -> FinalRanking",
-            AnalysisFlowMode.QualityEvaluation => "TournamentFinalState -> FinalRanking -> TournamentQualityReport",
-            _ => "TournamentFinalState -> FinalRanking"
-        };
+            AnalysisFlowMode.QualityEvaluation => "TournamentQualityReport",
+            _ => step.ToString(),
+        }));
 
-        Console.WriteLine($"選択された主線: {profileLabel} / {mainlineLabel}\n");
+        Console.WriteLine($"選択された主線: {profileLabel} / {flowSelection.ToPromptLabel()} / {mainlineLabel}\n");
     }
 }

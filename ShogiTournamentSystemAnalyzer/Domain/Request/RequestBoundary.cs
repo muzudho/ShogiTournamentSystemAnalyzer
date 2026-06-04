@@ -21,7 +21,7 @@ internal class RequestBoundary
 
     public TournamentRuleBoundary TournamentRuleBoundary { get; set;} = new();
 
-    public AnalysisFlowMode AnalysisFlowMode { get; set; } = new();
+    public AnalysisFlowSelection AnalysisFlowSelection { get; set; } = AnalysisFlowSelection.FromSingle(AnalysisFlowMode.Simulation);
 
     public RuleProfileMode RuleProfileMode { get; set; } = new();
 }

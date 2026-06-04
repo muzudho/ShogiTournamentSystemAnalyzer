@@ -1,7 +1,7 @@
-#[Format] STSAInput/3
+#[Format] STSAInput/4
 
 #[Section] Meta
-AnalysisFlowMode={{ analysis_flow_mode }}
+AnalysisFlowSteps={{ analysis_flow_steps }}
 RuleProfileMode={{ rule_profile_mode }}
 ExecutionMode={{ execution_mode }}
 TournamentRuleSetMode={{ tournament_rule_set_mode }}

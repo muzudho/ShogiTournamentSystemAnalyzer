@@ -10,6 +10,11 @@ internal static class RequestInputFormatDetector
         return rawLines.Any(line => line.Trim().Equals("#[Format] STSAInput/2", StringComparison.OrdinalIgnoreCase));
     }
 
+    internal static bool IsStsaInput4(IReadOnlyList<string> rawLines)
+    {
+        return rawLines.Any(line => line.Trim().Equals("#[Format] STSAInput/4", StringComparison.OrdinalIgnoreCase));
+    }
+
     internal static bool IsStsaInput3(IReadOnlyList<string> rawLines)
     {
         return rawLines.Any(line => line.Trim().Equals("#[Format] STSAInput/3", StringComparison.OrdinalIgnoreCase));

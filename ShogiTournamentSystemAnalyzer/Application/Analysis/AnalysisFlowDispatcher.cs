@@ -4,14 +4,21 @@
 namespace ShogiTournamentSystemAnalyzer.Application.Analysis;
 
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.Modes;
-
-using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.TournamentQualityEvaluator.Modes;
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.UseCases;
+using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.TournamentQualityEvaluator.Modes;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 
 internal static class AnalysisFlowDispatcher
 {
-    internal static void Execute(AnalysisFlowMode flowMode, RuleProfileMode ruleProfileMode)
+    internal static void Execute(AnalysisFlowSelection flowSelection, RuleProfileMode ruleProfileMode)
+    {
+        foreach (var flowMode in flowSelection.Steps)
+        {
+            ExecuteSingle(flowMode, ruleProfileMode);
+        }
+    }
+
+    static void ExecuteSingle(AnalysisFlowMode flowMode, RuleProfileMode ruleProfileMode)
     {
         switch ((flowMode, ruleProfileMode))
         {

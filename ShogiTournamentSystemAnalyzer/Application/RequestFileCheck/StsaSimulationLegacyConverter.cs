@@ -12,7 +12,8 @@ internal static class StsaSimulationLegacyConverter
         Dictionary<string, string> meta,
         Dictionary<string, List<string>> sections,
         string fullPath,
-        string formatName)
+        string formatName,
+        IReadOnlyList<string> promptPrefixLines)
     {
         var inputs = sections.TryGetValue("Inputs", out var inputLines)
             ? ParseSectionKeyValues(inputLines, "Inputs", fullPath, formatName)
@@ -35,10 +36,8 @@ internal static class StsaSimulationLegacyConverter
             ?? GetOptionalMetaValue(meta, "OutputPath")
             ?? string.Empty;
 
-        var legacyLines = new List<string>
+        var legacyLines = new List<string>(promptPrefixLines)
         {
-            "1",
-            "3",
             firstPlayerWinRatePercent,
             tournamentRuleSetMode,
             playersCsvPath,
@@ -57,7 +56,8 @@ internal static class StsaSimulationLegacyConverter
         Dictionary<string, string> meta,
         Dictionary<string, List<string>> sections,
         string fullPath,
-        string formatName)
+        string formatName,
+        IReadOnlyList<string> promptPrefixLines)
     {
         var output = sections.TryGetValue("Output", out var outputLines)
             ? ParseSectionKeyValues(outputLines, "Output", fullPath, formatName)
@@ -66,10 +66,8 @@ internal static class StsaSimulationLegacyConverter
             ?? GetOptionalMetaValue(meta, "OutputPath")
             ?? string.Empty;
 
-        var legacyLines = new List<string>
+        var legacyLines = new List<string>(promptPrefixLines)
         {
-            "1",
-            "4",
             outputPath,
         };
 

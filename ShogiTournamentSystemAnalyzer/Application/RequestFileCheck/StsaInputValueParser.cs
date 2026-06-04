@@ -16,6 +16,17 @@ internal static class StsaInputValueParser
         throw new OperationCanceledException($"{formatName} の AnalysisFlowMode の値が解釈できません: {value}");
     }
 
+
+    internal static AnalysisFlowSelection ParseAnalysisFlowSteps(string value, string formatName)
+    {
+        var steps = value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Select(step => ParseAnalysisFlowMode(step, formatName))
+            .ToArray();
+
+        if (steps.Length == 0) throw new OperationCanceledException($"{formatName} の AnalysisFlowSteps が空です。");
+
+        return new AnalysisFlowSelection(steps);
+    }
     internal static RuleProfileMode ParseRuleProfileMode(string value, string formatName)
     {
         if (value.Equals("Empty", StringComparison.OrdinalIgnoreCase) || value == "4") return RuleProfileMode.Empty;

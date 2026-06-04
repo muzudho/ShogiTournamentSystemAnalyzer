@@ -1,0 +1,25 @@
+#[Format] STSAInput/4
+
+#[Section] Meta
+AnalysisFlowSteps=QualityEvaluation
+RuleProfileMode=StandardOrFinalStage
+ExecutionMode=Single
+TournamentRuleSetMode=
+
+TournamentQualityEvaluationReportGrouping=Off
+EvaluationMemo=本戦専用 シミュレーション (10回)
+#[EndSection]
+
+#[Section] PlayersCsv
+
+#[EndSection]
+
+#[Section] MatchesInput
+
+#[EndSection]
+
+#[Section] Output
+SummaryOutputPath=E:\github.com\muzudho\ShogiTournamentSystemAnalyzer\Output\TournamentQualityEvaluator\TournamentQualityReport\Summary\[トップ集団大きめ]_[FinalStage_Single10_STSAInput4_smoke]_quality_summary.csv
+PlayerCsvPath=E:\github.com\muzudho\ShogiTournamentSystemAnalyzer\Output\TournamentQualityEvaluator\TournamentQualityReport\Players\[トップ集団大きめ]_[FinalStage_Single10_STSAInput4_smoke]_quality_players.csv
+SummaryMarkdownPath=E:\github.com\muzudho\ShogiTournamentSystemAnalyzer\Output\TournamentQualityEvaluator\TournamentQualityReport\Summary\[トップ集団大きめ]_[FinalStage_Single10_STSAInput4_smoke]_quality_summary.md
+#[EndSection]

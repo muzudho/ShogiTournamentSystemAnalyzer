@@ -39,7 +39,7 @@ internal class AnalysisWorkflow
 
 
         // 本処理（選択フロー）
-        AnalysisFlowDispatcher.Execute(requestBoundary.AnalysisFlowMode, requestBoundary.RuleProfileMode);
+        AnalysisFlowDispatcher.Execute(requestBoundary.AnalysisFlowSelection, requestBoundary.RuleProfileMode);
 
     }
 }

@@ -54,6 +54,7 @@
 - [入力ファイル仕様](./設計/入力ファイル仕様.md)
 - [STSAInput/2 仕様](./設計/STSAInput2仕様.md)
 - [STSAInput/3 仕様](./設計/STSAInput3仕様.md)
+- [STSAInput/4 仕様](./設計/STSAInput4仕様.md)
 - [ライフサイクル](./設計/ライフサイクル.md)
 - [実装ファイル案内](./設計/実装ファイル案内.md)
 

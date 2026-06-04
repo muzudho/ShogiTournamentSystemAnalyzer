@@ -1,17 +1,24 @@
-# STSAInput/3 smoke example
-#[Format] STSAInput/3
+# STSAInput/4 smoke example
+#[Format] STSAInput/4
 
 #[Section] Meta
-AnalysisFlowMode=QualityEvaluation
-RuleProfileMode=Standard
-TournamentRuleSetMode=Neutral
+AnalysisFlowSteps=QualityEvaluation
+RuleProfileMode=FinalStage
+AdditionalApexPlacementMode=On
+BoundaryRescueMode=On
+VariableTop8Mode=On
+QualityInnovExpectedRankOffsetMode=On
 ExecutionMode=Single
-FirstPlayerWinRatePercent=51
 SimulationCount=10
+FirstPlayerWinRatePercent=51
+ExperimentalReportGrouping=Off
 #[EndSection]
 
 #[Section] PlayersCsv
 name,elo
+"圭",5110
+"杏",5090
+"と",5070
 "飛",5050
 "角",5030
 "玉",5010
@@ -20,14 +27,34 @@ name,elo
 "桂",4950
 "香",4930
 "歩",4910
-"きりん",4890
-"ぞう",4870
-"らいおん",4850
-"いぬ",4830
-"ねこ",4810
-"うさぎ",4790
-"いのしし",4770
-"ひよこ",4750
+"きりん",4870
+"ぞう",4850
+"らいおん",4830
+"いぬ",4810
+"ねこ",4790
+#[EndSection]
+
+#[Section] GroupMapCsv
+group,name
+Apex,"圭"
+Apex,"杏"
+Apex,"と"
+Apex,"飛"
+Apex,"角"
+Apex,"玉"
+Apex,"金"
+Apex,"銀"
+Innov,"桂"
+Innov,"香"
+Innov,"歩"
+Innov,"きりん"
+Innov,"ぞう"
+Innov,"らいおん"
+Innov,"いぬ"
+Innov,"ねこ"
+#[EndSection]
+
+#[Section] AdditionalApexPlayersCsv
 #[EndSection]
 
 #[Section] MatchesInput
@@ -50,7 +77,7 @@ N, 3, 4, 1, 2, 7, 8, 5, 6, -, -, -, -, -, -, -, -
 O, 2, 1, 4, 3, 6, 5, 8, 7, -, -, -, -, -, -, -, -
 P, 1, 2, 3, 4, 5, 6, 7, 8, -, -, -, -, -, -, -, -
 
-First/Second
+Black/White
  , A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P
 A, -, -, -, -, -, -, -, -, s, s, s, s, s, s, s, s
 B, -, -, -, -, -, -, -, -, s, s, s, s, s, s, s, s
@@ -69,23 +96,23 @@ N, f, f, f, f, f, f, f, f, -, -, -, -, -, -, -, -
 O, f, f, f, f, f, f, f, f, -, -, -, -, -, -, -, -
 P, f, f, f, f, f, f, f, f, -, -, -, -, -, -, -, -
 
-Players
-A, "飛"
-B, "角"
-C, "玉"
-D, "金"
-E, "銀"
-F, "桂"
-G, "香"
-H, "歩"
-I, "きりん"
-J, "ぞう"
-K, "らいおん"
-L, "いぬ"
-M, "ねこ"
-N, "うさぎ"
-O, "いのしし"
-P, "ひよこ"
+対局記号表
+A, "圭"
+B, "杏"
+C, "と"
+D, "飛"
+E, "角"
+F, "玉"
+G, "金"
+H, "銀"
+I, "桂"
+J, "香"
+K, "歩"
+L, "きりん"
+M, "ぞう"
+N, "らいおん"
+O, "いぬ"
+P, "ねこ"
 #[EndSection]
 
 #[Section] ReferenceMatchesInput
@@ -93,6 +120,6 @@ P, "ひよこ"
 
 #[Section] Output
 TournamentQualityEvaluationReportGrouping=Off
-SummaryOutputPath=Output\TournamentQualityEvaluator\TournamentQualityReport\Summary\[先手8x後手8]_[Neutral_Single10_STSAInput3_smoke]_quality_summary.csv
+SummaryOutputPath=Output\TournamentQualityEvaluator\TournamentQualityReport\Summary\[トップ集団大きめ]_[FinalStage_Single10_STSAInput4_smoke]_quality_summary.csv
 #[EndSection]
 

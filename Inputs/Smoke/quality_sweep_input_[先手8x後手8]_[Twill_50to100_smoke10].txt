@@ -1,8 +1,8 @@
-# STSAInput/3 Twill sweep smoke example
-#[Format] STSAInput/3
+# STSAInput/4 Twill sweep smoke example
+#[Format] STSAInput/4
 
 #[Section] Meta
-AnalysisFlowMode=QualityEvaluation
+AnalysisFlowSteps=QualityEvaluation
 RuleProfileMode=Standard
 TournamentRuleSetMode=Twill
 ExecutionMode=Sweep

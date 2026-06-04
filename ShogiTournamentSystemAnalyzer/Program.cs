@@ -141,13 +141,13 @@ internal static partial class Program
 
             // 前提入力は TournamentRule / PlayerList / RankingSettings の３境界だぜ（＾▽＾）！
             // 主線は TournamentFinalState → FinalRanking → TournamentQualityReport に寄せていくぜ（＾▽＾）！
-            requestBoundary.AnalysisFlowMode = ConsolePromptReaders.ReadAnalysisFlowMode();
+            requestBoundary.AnalysisFlowSelection = ConsolePromptReaders.ReadAnalysisFlowSelection();
 
             // 対象［大会ルール］を選ばせるぜ（＾▽＾）！
-            requestBoundary.RuleProfileMode = ConsolePromptReaders.ReadRuleProfileMode(requestBoundary.AnalysisFlowMode);
+            requestBoundary.RuleProfileMode = ConsolePromptReaders.ReadRuleProfileMode(requestBoundary.AnalysisFlowSelection);
 
             // メインライン選択のガイドを表示するぜ（＾▽＾）！
-            ProgramConsoleGuide.PrintSelectedMainline(requestBoundary.AnalysisFlowMode, requestBoundary.RuleProfileMode);
+            ProgramConsoleGuide.PrintSelectedMainline(requestBoundary.AnalysisFlowSelection, requestBoundary.RuleProfileMode);
 
             #endregion
 
