@@ -8,9 +8,7 @@ using ShogiTournamentSystemAnalyzer.Application.AfterManualInput;
 using ShogiTournamentSystemAnalyzer.Application.Analysis;
 using ShogiTournamentSystemAnalyzer.Application.BeforeRequestFileCheck;
 using ShogiTournamentSystemAnalyzer.Application.BeforeRequestFileCreate;
-using ShogiTournamentSystemAnalyzer.Application.ManualInput;
 using ShogiTournamentSystemAnalyzer.Application.RequestFileCheck;
-using ShogiTournamentSystemAnalyzer.Application.RequestFileCreate;
 using ShogiTournamentSystemAnalyzer.Application.Shared;
 using ShogiTournamentSystemAnalyzer.Domain.Request;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles;
@@ -37,7 +35,9 @@ internal static partial class Program
     {
         try
         {
-            #region ■［辺１］
+            // ［●開始］
+
+            #region ［■辺１］
 
             // エンコーディングって大事だよな（＾▽＾）！　文字化けを防ぐぜ（＾▽＾）！
             Console.OutputEncoding = Encoding.UTF8;
@@ -56,7 +56,7 @@ internal static partial class Program
 
             #endregion
 
-            #region ◆［節１］コマンドライン引数で入力ファイルを指定したか？
+            #region ［◆節１：コマンドライン引数で入力ファイルを指定したか？
 
             var argumentResult = RequestFileArgumentReader.Read(args);
 
@@ -69,42 +69,42 @@ internal static partial class Program
 
             #endregion
 
-            // ■［辺２］はい、入力ファイル指定有り
+            // ［■辺２：はい、入力ファイル指定有り］
             if (argumentResult.HasInputFile)
             {
-                // ［要求ファイルチェック］(`RequestFileCheck`)
+                // ［□要求ファイルチェック(`RequestFileCheck`)］
                 var requestFileCheckResultVer2 = RequestFileCheckWorkflow.Run(argumentResult);
 
 
-                // ◆［節２］エラーが有ったか？
+                // ［◆節２：エラーが有ったか？］
                 if (requestFileCheckResultVer2.HasError)
                 {
-                    // ■［辺３］はい、エラー有り
-                    // ●終了
+                    // ［■辺３：はい、エラー有り］
+                    // ［●終了１］
                     return;
                 }
 
-                // ■［辺４］いいえ、エラー無し
+                // ［■辺４：いいえ、エラー無し］
                 inputSession = requestFileCheckResultVer2.InputSession;
             }
-            //  ■［辺５］いいえ、入力ファイル指定無し
+            //  ［■辺５：いいえ、入力ファイル指定無し］
             else
             {
                 Console.WriteLine("■［手動入力］");
 
-                // ［手動入力］（`ManualInput`）
+                // ［□手動入力（`ManualInput`）］
                 var requestModelProducer = new RequestModelFromManualProducer();
 
-                // ◆［節３］エラーが有ったか？
+                // ［◆節３：エラーが有ったか？］
 
-                // ■［辺６］はい、エラー有り
+                // ［■辺６：はい、エラー有り］
                 if (requestModelProducer.HasError)
                 {
-                    // ●終了
+                    // ［●終了２］
                     return;
                 }
 
-                // ■［辺７］いいえ、エラー無し
+                // ［■辺７：いいえ、エラー無し］
                 requestModelProducer.Produce(requestBoundary);
 
                 // 👇［節４］～［辺９］
@@ -132,7 +132,7 @@ internal static partial class Program
                 ConsoleInput.UseText(inputSession.RequestFileInputText);
             }
 
-            #region ■［辺１０］分析の前に
+            #region ［■辺１０：分析の前に］
 
             Console.WriteLine("■［分析の前に］");
 
@@ -150,7 +150,7 @@ internal static partial class Program
 
             //      │
             //      ↓
-            //      ■［分析］(`Analysis`)
+            //      ［□分析(`Analysis`)］
             Console.WriteLine("■［分析］");
             AnalysisWorkflow.Run(requestBoundary);
 
@@ -166,7 +166,7 @@ internal static partial class Program
 
             //      │
             //      ↓
-            //      終了
+            // ［●終了］
             return;
         }
         catch (OperationCanceledException ex)
