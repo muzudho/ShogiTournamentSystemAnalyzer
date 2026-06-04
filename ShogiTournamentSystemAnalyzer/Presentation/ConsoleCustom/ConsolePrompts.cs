@@ -24,7 +24,7 @@ internal static class ConsolePromptReaders
     }
 
     /// <summary>
-    /// TODO: ［４大域］を選ばせるぜ（＾▽＾）
+    /// TODO: ［シミュレーション］か、［品質評価］のどちらかを選ばせるのではなく、フローで直列に並べたいぜ（＾～＾）
     /// </summary>
     /// <returns></returns>
     internal static AnalysisFlowMode ReadAnalysisFlowMode()
