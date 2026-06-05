@@ -1,14 +1,14 @@
 /*
- * ［アプリケーション　＞　要求ファイル作成　＞　要求ファイル］
+ * ［アプリケーション　＞　要求ファイル書出　＞　要求ファイルパス］
  */
-namespace ShogiTournamentSystemAnalyzer.Application.RequestFileCreate;
+namespace ShogiTournamentSystemAnalyzer.Application.RequestFileWrite;
 
 using ShogiTournamentSystemAnalyzer.Application.Shared;
 
 /// <summary>
-/// 要求ファイル
+/// 要求ファイルパス
 /// </summary>
-internal static class RequestFile
+internal static class RequestFilePath
 {
     internal static string BuildDefaultPath()
     {

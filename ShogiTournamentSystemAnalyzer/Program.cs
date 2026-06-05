@@ -10,7 +10,7 @@ using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation;
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Application.BeforeRequestFileCheck;
 using ShogiTournamentSystemAnalyzer.Application.RequestFileCheck;
-using ShogiTournamentSystemAnalyzer.Application.RequestFileCreate;
+using ShogiTournamentSystemAnalyzer.Application.RequestFileWrite;
 using ShogiTournamentSystemAnalyzer.Application.Shared;
 using ShogiTournamentSystemAnalyzer.Domain.FinalRanking;
 using ShogiTournamentSystemAnalyzer.Domain.Request;
@@ -176,12 +176,12 @@ internal static partial class Program
                     {
                         // ［□要求ファイル書出］
                         Console.WriteLine("■［要求ファイル書出］");
-                        var defaultPath = RequestFile.BuildDefaultPath();
+                        var defaultPath = RequestFilePath.BuildDefaultPath();
                         var outputPath = ConsolePromptReaders.ReadTextWithDefault(
                             $"要求ファイルの出力先パスまたはフォルダーパスを入力してください [{defaultPath}]: ",
                             defaultPath);
 
-                        return RequestFile.ResolveOutputPath(outputPath);
+                        return RequestFilePath.ResolveOutputPath(outputPath);
                     }
 
                     // ［■辺９：いいえ、書き出しません］
