@@ -22,7 +22,7 @@ internal static class ConsoleRuleReaders
         {
             attempt++;
             Console.Write("ルール番号を入力してください [1]: ");
-            var input = ConsoleInput.ReadLine()?.Trim();
+            var input = InputFromSomewhere.ReadLine()?.Trim();
             if (string.IsNullOrEmpty(input) || input == "1")
             {
                 Console.WriteLine();
@@ -58,7 +58,7 @@ internal static class ConsoleRuleReaders
         {
             attempt++;
             Console.Write("モード番号を入力してください [1]: ");
-            var input = ConsoleInput.ReadLine()?.Trim();
+            var input = InputFromSomewhere.ReadLine()?.Trim();
             if (string.IsNullOrEmpty(input) || input == "1")
             {
                 Console.WriteLine();
@@ -89,7 +89,7 @@ internal static class ConsoleRuleReaders
         {
             attempt++;
             Console.Write("モード番号を入力してください [1]: ");
-            var input = ConsoleInput.ReadLine()?.Trim();
+            var input = InputFromSomewhere.ReadLine()?.Trim();
             if (string.IsNullOrEmpty(input) || input == "1")
             {
                 Console.WriteLine();
@@ -120,7 +120,7 @@ internal static class ConsoleRuleReaders
         {
             attempt++;
             Console.Write("モード番号を入力してください [1]: ");
-            var input = ConsoleInput.ReadLine()?.Trim();
+            var input = InputFromSomewhere.ReadLine()?.Trim();
             if (string.IsNullOrEmpty(input) || input == "1")
             {
                 Console.WriteLine();
@@ -151,7 +151,7 @@ internal static class ConsoleRuleReaders
         {
             attempt++;
             Console.Write("モード番号を入力してください [1]: ");
-            var input = ConsoleInput.ReadLine()?.Trim();
+            var input = InputFromSomewhere.ReadLine()?.Trim();
             if (string.IsNullOrEmpty(input) || input == "1")
             {
                 Console.WriteLine();
@@ -182,7 +182,7 @@ internal static class ConsoleRuleReaders
         {
             attempt++;
             Console.Write("モード番号を入力してください [1]: ");
-            var input = ConsoleInput.ReadLine()?.Trim();
+            var input = InputFromSomewhere.ReadLine()?.Trim();
             if (string.IsNullOrEmpty(input) || input == "1")
             {
                 Console.WriteLine();

@@ -34,9 +34,9 @@ internal static class ApplicationWorkflow
         // ［□分析(`Analysis`)］
         RunAnalysisDomain(requestBoundary);
 
-        ConsoleInput.PauseRecording();
+        InputFromSomewhere.PauseRecording();
         WriteRequestFile(recordedLines, requestFilePath);
-        ConsoleInput.StopRecording();
+        InputFromSomewhere.StopRecording();
 
         //      │
         //      ↓
@@ -51,7 +51,7 @@ internal static class ApplicationWorkflow
     {
         // エンコーディングって大事だよな（＾▽＾）！　文字化けを防ぐぜ（＾▽＾）！
         Console.OutputEncoding = Encoding.UTF8;
-        ConsoleInput.UseConsole();
+        InputFromSomewhere.UseConsole();
 
         // プログラムの実行が長引いて、いくら待っても応答が返ってこない、なんてことを防ぐために、タイムアウトを設定するぜ（＾▽＾）！
         SimulationTimeBudget.BeginApplicationBudget();
@@ -122,7 +122,7 @@ internal static class ApplicationWorkflow
             //
 
             // 記録した手動入力行
-            recordedLines = ConsoleInput.StartRecording();
+            recordedLines = InputFromSomewhere.StartRecording();
 
             // TODO: これも入力に含めたいぜ（＾～＾）
             requestBoundary.AnalysisFlowSelection = ConsolePromptReaders.ReadAnalysisFlowSelection();
@@ -154,7 +154,7 @@ internal static class ApplicationWorkflow
                 {
                     attempt++;
                     Console.Write("番号を入力してください [1]: ");
-                    var input = ConsoleInput.ReadLine()?.Trim();
+                    var input = InputFromSomewhere.ReadLine()?.Trim();
                     if (input is null) throw new OperationCanceledException("要求ファイル書出中に入力ストリームが終了しました。");
 
                     // ［■辺８：はい、書き出します］
@@ -178,14 +178,14 @@ internal static class ApplicationWorkflow
                     Console.WriteLine("1 か 2 を入力してください。\n");
                 }
             }
-            ConsoleInput.PauseRecording();
+            InputFromSomewhere.PauseRecording();
             requestFilePath = InputRequestFilePath();
-            recordedLines = ConsoleInput.ResumeRecording(recordedLines);
+            recordedLines = InputFromSomewhere.ResumeRecording(recordedLines);
         }
 
         if (requestText is not null)
         {
-            ConsoleInput.UseText(requestText);
+            InputFromSomewhere.UseText(requestText);
         }
 
         return true;

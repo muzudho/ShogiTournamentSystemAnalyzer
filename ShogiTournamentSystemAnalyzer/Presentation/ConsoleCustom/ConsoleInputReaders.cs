@@ -24,7 +24,7 @@ internal static class ConsoleInputReaders
             var lines = new List<string>();
             while (true)
             {
-                var line = ConsoleInput.ReadLine();
+                var line = InputFromSomewhere.ReadLine();
                 if (line is null) throw new OperationCanceledException("参考対局入力中に入力ストリームが終了しました。");
 
                 if (line.Trim().Equals("END", StringComparison.OrdinalIgnoreCase)) break;
@@ -64,7 +64,7 @@ internal static class ConsoleInputReaders
             SimulationTimeBudget.ThrowIfApplicationTimeExpired("実験レポートの Good / Bad 分離");
             attempt++;
             Console.Write("モード番号を入力してください [1]: ");
-            var input = ConsoleInput.ReadLine()?.Trim();
+            var input = InputFromSomewhere.ReadLine()?.Trim();
             if (string.IsNullOrEmpty(input) || input == "1")
             {
                 Console.WriteLine();
@@ -89,7 +89,7 @@ internal static class ConsoleInputReaders
     {
         SimulationTimeBudget.ThrowIfApplicationTimeExpired("評価メモ入力");
         Console.Write("評価メモを1行で入力してください（省略可）: ");
-        var input = ConsoleInput.ReadLine();
+        var input = InputFromSomewhere.ReadLine();
         if (input is null) throw new OperationCanceledException("評価メモ入力中に入力ストリームが終了しました。");
 
         Console.WriteLine();
@@ -108,7 +108,7 @@ internal static class ConsoleInputReaders
             SimulationTimeBudget.ThrowIfApplicationTimeExpired("実験レポート評価");
             attempt++;
             Console.Write("評価番号を入力してください [1]: ");
-            var input = ConsoleInput.ReadLine()?.Trim();
+            var input = InputFromSomewhere.ReadLine()?.Trim();
             if (string.IsNullOrEmpty(input) || input == "1")
             {
                 Console.WriteLine();
@@ -140,7 +140,7 @@ internal static class ConsoleInputReaders
             var lines = new List<string>();
             while (true)
             {
-                var line = ConsoleInput.ReadLine();
+                var line = InputFromSomewhere.ReadLine();
                 if (string.IsNullOrWhiteSpace(line)) break;
 
                 lines.Add(line);
@@ -175,7 +175,7 @@ internal static class ConsoleInputReaders
             var lines = new List<string>();
             while (true)
             {
-                var line = ConsoleInput.ReadLine();
+                var line = InputFromSomewhere.ReadLine();
                 if (string.IsNullOrWhiteSpace(line)) break;
 
                 lines.Add(line);
@@ -204,7 +204,7 @@ internal static class ConsoleInputReaders
             var lines = new List<string>();
             while (true)
             {
-                var line = ConsoleInput.ReadLine();
+                var line = InputFromSomewhere.ReadLine();
                 if (line is null) throw new OperationCanceledException("選手一覧CSVの入力中に入力ストリームが終了しました。");
 
                 if (string.IsNullOrWhiteSpace(line)) break;
@@ -245,7 +245,7 @@ internal static class ConsoleInputReaders
             var lines = new List<string>();
             while (true)
             {
-                var line = ConsoleInput.ReadLine();
+                var line = InputFromSomewhere.ReadLine();
                 if (line is null) throw new OperationCanceledException("対局入力中に入力ストリームが終了しました。");
 
                 if (line.Trim().Equals("END", StringComparison.OrdinalIgnoreCase)) break;
@@ -280,7 +280,7 @@ internal static class ConsoleInputReaders
             SimulationTimeBudget.ThrowIfApplicationTimeExpired("ファイルパス入力");
             attempt++;
             Console.Write(prompt);
-            var input = ConsoleInput.ReadLine()?.Trim();
+            var input = InputFromSomewhere.ReadLine()?.Trim();
             if (!string.IsNullOrWhiteSpace(input))
             {
                 Console.WriteLine();
@@ -300,7 +300,7 @@ internal static class ConsoleInputReaders
     {
         SimulationTimeBudget.ThrowIfApplicationTimeExpired("ファイルパス入力");
         Console.Write(prompt);
-        var input = ConsoleInput.ReadLine()?.Trim();
+        var input = InputFromSomewhere.ReadLine()?.Trim();
         Console.WriteLine();
         return string.IsNullOrWhiteSpace(input) ? null : input;
     }
@@ -313,7 +313,7 @@ internal static class ConsoleInputReaders
             SimulationTimeBudget.ThrowIfApplicationTimeExpired("整数入力");
             attempt++;
             Console.Write(prompt);
-            var input = ConsoleInput.ReadLine()?.Trim();
+            var input = InputFromSomewhere.ReadLine()?.Trim();
             if (string.IsNullOrWhiteSpace(input))
             {
                 Console.WriteLine();

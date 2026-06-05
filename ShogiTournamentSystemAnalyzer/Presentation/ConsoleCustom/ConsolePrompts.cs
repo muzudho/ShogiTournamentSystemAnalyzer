@@ -49,7 +49,7 @@ internal static class ConsolePromptReaders
             SimulationTimeBudget.ThrowIfApplicationTimeExpired(targetLabel);
             attempt++;
             Console.Write($"番号を入力してください [{defaultNumber}]: ");
-            var input = ConsoleInput.ReadLine()?.Trim();
+            var input = InputFromSomewhere.ReadLine()?.Trim();
             if (string.IsNullOrEmpty(input))
             {
                 Console.WriteLine();
@@ -101,7 +101,7 @@ internal static class ConsolePromptReaders
             SimulationTimeBudget.ThrowIfApplicationTimeExpired("対象ルール選択");
             attempt++;
             Console.Write("番号を入力してください [1]: ");
-            var input = ConsoleInput.ReadLine()?.Trim();
+            var input = InputFromSomewhere.ReadLine()?.Trim();
             if (string.IsNullOrEmpty(input) || input == "1")
             {
                 Console.WriteLine();
@@ -143,7 +143,7 @@ internal static class ConsolePromptReaders
         }
 
         Console.Write(prompt);
-        var input = ConsoleInput.ReadLine()?.Trim();
+        var input = InputFromSomewhere.ReadLine()?.Trim();
         if (input is null) throw new OperationCanceledException("文字列入力中に入力ストリームが終了しました。");
 
         return string.IsNullOrEmpty(input) ? defaultValue : input;
@@ -156,7 +156,7 @@ internal static class ConsolePromptReaders
         {
             SimulationTimeBudget.ThrowIfApplicationTimeExpired("整数入力");
             Console.Write(prompt);
-            var input = ConsoleInput.ReadLine()?.Trim();
+            var input = InputFromSomewhere.ReadLine()?.Trim();
             if (input is null) throw new OperationCanceledException("整数入力中に入力ストリームが終了しました。");
 
             if (string.IsNullOrEmpty(input)) return defaultValue;
@@ -177,7 +177,7 @@ internal static class ConsolePromptReaders
         {
             SimulationTimeBudget.ThrowIfApplicationTimeExpired("数値入力");
             Console.Write(prompt);
-            var input = ConsoleInput.ReadLine()?.Trim();
+            var input = InputFromSomewhere.ReadLine()?.Trim();
             if (input is null) throw new OperationCanceledException("数値入力中に入力ストリームが終了しました。");
 
             if (string.IsNullOrEmpty(input)) return defaultValue;

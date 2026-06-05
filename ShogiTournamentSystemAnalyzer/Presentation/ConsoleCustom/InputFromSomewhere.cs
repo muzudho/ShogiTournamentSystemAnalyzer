@@ -3,19 +3,22 @@
  */
 namespace ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 
-internal static class ConsoleInput
+/// <summary>
+/// 入力元を、［コンソール］か［テキスト］か、切り替えるためのクラス。
+/// </summary>
+internal static class InputFromSomewhere
 {
-    static TextReader? inputReader;
+    static TextReader? textReader;
     static List<string>? recordedLines;
 
     internal static void UseConsole()
     {
-        inputReader = null;
+        textReader = null;
     }
 
     internal static void UseText(string inputText)
     {
-        inputReader = new StringReader(inputText);
+        textReader = new StringReader(inputText);
     }
 
     internal static IReadOnlyList<string> StartRecording()
@@ -42,9 +45,9 @@ internal static class ConsoleInput
 
     internal static string? ReadLine()
     {
-        var line = inputReader is null
+        var line = textReader is null
             ? Console.ReadLine()
-            : inputReader.ReadLine();
+            : textReader.ReadLine();
 
         if (line is not null)
         {
