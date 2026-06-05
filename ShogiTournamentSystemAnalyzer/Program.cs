@@ -4,14 +4,13 @@
 namespace ShogiTournamentSystemAnalyzer;
 
 using ShogiTournamentSystemAnalyzer.Application;
-using ShogiTournamentSystemAnalyzer.Application.RequestFileCreate;
 using ShogiTournamentSystemAnalyzer.Application.Analysis;
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Ranking;
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation;
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.TournamentQualityEvaluator;
-using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.TournamentUser;
 using ShogiTournamentSystemAnalyzer.Application.BeforeRequestFileCheck;
 using ShogiTournamentSystemAnalyzer.Application.RequestFileCheck;
+using ShogiTournamentSystemAnalyzer.Application.RequestFileCreate;
 using ShogiTournamentSystemAnalyzer.Application.Shared;
 using ShogiTournamentSystemAnalyzer.Domain.FinalRanking;
 using ShogiTournamentSystemAnalyzer.Domain.Request;
@@ -42,24 +41,25 @@ internal static partial class Program
         {
             // ［●開始］
 
-            #region ［■辺１］
-
-            // エンコーディングって大事だよな（＾▽＾）！　文字化けを防ぐぜ（＾▽＾）！
-            Console.OutputEncoding = Encoding.UTF8;
-            ConsoleInput.UseConsole();
-
-            // プログラムの実行が長引いて、いくら待っても応答が返ってこない、なんてことを防ぐために、タイムアウトを設定するぜ（＾▽＾）！
-            SimulationTimeBudget.BeginApplicationBudget();
-
-            // このプログラムの説明を最初に表示するぜ（＾▽＾）！
-            ProgramConsoleGuide.PrintProgramIntroduction();
+            // ［■辺１］
+            Opening();
 
             // ［依頼という境界］
             RequestBoundary requestBoundary = new();
 
             RequestInputSession? requestInputSession;
 
-            #endregion
+
+            // ========================================
+            // ［大会利用者域］（`TournamentUser`）
+            // ========================================
+
+            //　　｜
+            //　　｜　［大会ルールという境界］        `TournamentRule`
+            //　　｜　［プレイヤー一覧という境界］    `PlayerList`
+            //　　｜　［順位付けの設定という境界］    `RankingSettings`
+            //　　↓
+
 
             #region ［◆節１：コマンドライン引数で要求ファイルを指定したか？
 
@@ -213,13 +213,6 @@ internal static partial class Program
             //      ↓
             //      ［□分析(`Analysis`)］
             Console.WriteLine("■［分析］");
-            //［大会利用者域］                        `TournamentUser`
-            TournamentUserWorkflow.Run(requestBoundary);
-            //　　｜
-            //　　｜　［大会ルールという境界］        `TournamentRule`
-            //　　｜　［プレイヤー一覧という境界］    `PlayerList`
-            //　　｜　［順位付けの設定という境界］    `RankingSettings`
-            //　　↓
             TournamentFinalStateBoundary tournamentFinalStateBoundary = new();
             //［シミュレーション域］
             SimulationWorkflow.Run(requestBoundary, tournamentFinalStateBoundary);
@@ -253,4 +246,19 @@ internal static partial class Program
         }
     }
 
+    /// <summary>
+    /// ［開始］
+    /// </summary>
+    private static void Opening()
+    {
+        // エンコーディングって大事だよな（＾▽＾）！　文字化けを防ぐぜ（＾▽＾）！
+        Console.OutputEncoding = Encoding.UTF8;
+        ConsoleInput.UseConsole();
+
+        // プログラムの実行が長引いて、いくら待っても応答が返ってこない、なんてことを防ぐために、タイムアウトを設定するぜ（＾▽＾）！
+        SimulationTimeBudget.BeginApplicationBudget();
+
+        // このプログラムの説明を最初に表示するぜ（＾▽＾）！
+        ProgramConsoleGuide.PrintProgramIntroduction();
+    }
 }
