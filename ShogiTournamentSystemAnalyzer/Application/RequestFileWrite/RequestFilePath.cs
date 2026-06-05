@@ -15,7 +15,7 @@ internal static class RequestFilePath
         return Path.Combine(
             RepositoryPaths.OutputPath,
             "TournamentUser",
-            "ManualInputLog",
+            "Request",
             BuildFileName());
     }
 
@@ -32,7 +32,7 @@ internal static class RequestFilePath
 
     static string BuildFileName()
     {
-        return "manual_input_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".手入力ログ.txt";
+        return "request_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".txt";
     }
 
     static bool LooksLikeDirectoryPath(string path)
