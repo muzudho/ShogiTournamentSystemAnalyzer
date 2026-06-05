@@ -115,11 +115,11 @@ internal static partial class Program
         if (argumentResult.HasInputFile)
         {
             // ［□要求ファイルチェック(`RequestFileCheck`)］
-            var requestFileCheckResultVer2 = RequestFileCheckWorkflow.Run(argumentResult);
+            (bool isSuccessful, string inputText) = RequestFileCheckWorkflow.Run(argumentResult);
 
 
             // ［◆節２：エラーが有ったか？］
-            if (requestFileCheckResultVer2.HasError)
+            if (!isSuccessful)
             {
                 // ［■辺３：はい、エラー有り］
                 // ［●終了１］
@@ -128,7 +128,7 @@ internal static partial class Program
 
             // ［■辺４：いいえ、エラー無し］
             // 記録した手動入力行
-            recordedLines = requestFileCheckResultVer2.RecordedLines;
+            recordedLines = inputText.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
         }
         //  ［■辺５：いいえ、入力ファイル指定無し］
         else

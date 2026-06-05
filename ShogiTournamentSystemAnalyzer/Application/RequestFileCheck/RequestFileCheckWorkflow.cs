@@ -1,13 +1,12 @@
 namespace ShogiTournamentSystemAnalyzer.Application.RequestFileCheck;
 
 using ShogiTournamentSystemAnalyzer.Application.BeforeRequestFileCheck;
-using ShogiTournamentSystemAnalyzer.Application.Shared;
 using ShogiTournamentSystemAnalyzer.Domain.Request;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles;
 
 internal class RequestFileCheckWorkflow
 {
-    public static RequestFileCheckResultVer2 Run(RequestFileArgumentReadResult argumentResult)
+    public static (bool, string) Run(RequestFileArgumentReadResult argumentResult)
     {
         // パースする。
         Console.WriteLine("■［要求ファイルチェック］");
@@ -17,7 +16,7 @@ internal class RequestFileCheckWorkflow
         string? parseErrorMessage = null;
 
         string fullPath;
-        string filteredInput = string.Empty;
+        string inputText = string.Empty;
 
         try
         {
@@ -30,7 +29,7 @@ internal class RequestFileCheckWorkflow
             var rawLines = StsaFileIOHelper.ReadAllLines("入力ファイル", inputFilePath);
 
             // ファイルの形式を判定して、必要に応じてレガシー形式に変換する。
-            filteredInput = RequestInputFormatDetector.IsStsaInput4(rawLines)
+            inputText = RequestInputFormatDetector.IsStsaInput4(rawLines)
                 ? StsaInputLegacyConverter.ConvertStsaInput4ToLegacyInput(rawLines, fullPath)
                 : RequestInputFormatDetector.IsStsaInput3(rawLines)
                     ? StsaInputLegacyConverter.ConvertStsaInput3ToLegacyInput(rawLines, fullPath)
@@ -58,14 +57,10 @@ internal class RequestFileCheckWorkflow
         {
             // ファイルは有ったが、内容のパースエラー等の場合。
             Console.WriteLine($"●エラー終了：　［要求ファイル］パース中エラー。 {parseErrorMessage}");
-            return new RequestFileCheckResultVer2(
-                hasError: true,
-                recordedLines: Array.Empty<string>());
+            return (true, inputText);
         }
 
-        return new RequestFileCheckResultVer2(
-            hasError: false,
-            recordedLines: Array.Empty<string>());
+        return (false, inputText);
     }
 
     static bool IsLegacyInputPath(string fullPath)
