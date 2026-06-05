@@ -1,12 +1,12 @@
 namespace ShogiTournamentSystemAnalyzer.Application.RequestFileCheck;
 
 using ShogiTournamentSystemAnalyzer.Application.BeforeRequestFileCheck;
-using ShogiTournamentSystemAnalyzer.Domain.Request;
+using ShogiTournamentSystemAnalyzer.Application.RequestParsing;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles;
 
 internal class RequestFileCheckWorkflow
 {
-    public static (bool, string) Run(RequestFileArgumentReadResult argumentResult)
+    public static RequestFileCheckResult Run(RequestFileArgumentReadResult argumentResult)
     {
         // パースする。
         Console.WriteLine("■［要求ファイルチェック］");
@@ -16,7 +16,7 @@ internal class RequestFileCheckWorkflow
         string? parseErrorMessage = null;
 
         string fullPath;
-        string inputText = string.Empty;
+        RequestText? requestText = null;
 
         try
         {
@@ -27,15 +27,15 @@ internal class RequestFileCheckWorkflow
             }
 
             var rawLines = StsaFileIOHelper.ReadAllLines("入力ファイル", inputFilePath);
-
-            // ファイルの形式を判定して、必要に応じてレガシー形式に変換する。
-            inputText = RequestInputFormatDetector.IsStsaInput4(rawLines)
-                ? StsaInputLegacyConverter.ConvertStsaInput4ToLegacyInput(rawLines, fullPath)
+            var formatName = RequestInputFormatDetector.IsStsaInput4(rawLines)
+                ? "STSAInput/4"
                 : RequestInputFormatDetector.IsStsaInput3(rawLines)
-                    ? StsaInputLegacyConverter.ConvertStsaInput3ToLegacyInput(rawLines, fullPath)
+                    ? "STSAInput/3"
                     : RequestInputFormatDetector.IsStsaInput2(rawLines)
-                        ? StsaInputLegacyConverter.ConvertStsaInput2ToLegacyInput(rawLines, fullPath)
-                        : LegacyInputFileFilter.ConvertToFilteredInput(rawLines);
+                        ? "STSAInput/2"
+                        : "Legacy";
+            requestText = new RequestText(formatName, rawLines, fullPath);
+
 
             Console.WriteLine("要求ファイルチェック: エラー無し\n");
             Console.WriteLine($"入力ファイルを使います: {fullPath}\n");
@@ -57,10 +57,10 @@ internal class RequestFileCheckWorkflow
         {
             // ファイルは有ったが、内容のパースエラー等の場合。
             Console.WriteLine($"●エラー終了：　［要求ファイル］パース中エラー。 {parseErrorMessage}");
-            return (false, inputText);
+            return new RequestFileCheckResult(false, requestText);
         }
 
-        return (true, inputText);
+        return new RequestFileCheckResult(true, requestText);
     }
 
     static bool IsLegacyInputPath(string fullPath)

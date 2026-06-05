@@ -7,6 +7,7 @@ using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.Simu
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.FinalRanking;
+using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.Shared;
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 
 /// <summary>
@@ -19,6 +20,21 @@ using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 internal class StandardSimulationMainline
     : AbstractSimulationMainline
 {
+    string? outputPathOverride;
+
+    internal void Run(StandardModeSimulationContext context, string? outputPathOverride)
+    {
+        this.outputPathOverride = outputPathOverride;
+        try
+        {
+            Run(context);
+        }
+        finally
+        {
+            this.outputPathOverride = null;
+        }
+    }
+
     protected override void BeforeExecuteSimulationContext(AbstractSimulationContext context)
     {
         PrintStandardModeContext((StandardModeSimulationContext)context);
@@ -47,7 +63,7 @@ internal class StandardSimulationMainline
     {
         var standardContext = (StandardModeSimulationContext)context;
         var standardExecutionResult = (SimulationMainlineExecutionResult<StandardResultRow>)executionResult;
-        WriteFinalRankingOutputsForStandardMode(standardContext, standardExecutionResult.Result, standardExecutionResult.ResultRows);
+        WriteFinalRankingOutputsForStandardMode(standardContext, standardExecutionResult.Result, standardExecutionResult.ResultRows, outputPathOverride);
     }
 
     static CalculationResult ExecuteTournamentFinalState(StandardModeSimulationContext context)
@@ -68,9 +84,15 @@ internal class StandardSimulationMainline
         PrintCommonSimulationContext(context, "総対局数");
     }
 
-    static void WriteFinalRankingOutputsForStandardMode(StandardModeSimulationContext context, CalculationResult tournamentFinalState, IReadOnlyList<StandardResultRow> finalRankingRows)
+    static void WriteFinalRankingOutputsForStandardMode(
+        StandardModeSimulationContext context,
+        CalculationResult tournamentFinalState,
+        IReadOnlyList<StandardResultRow> finalRankingRows,
+        string? outputPathOverride)
     {
-        var (outputCsvPath, outputMarkdownPath) = ResolveFinalRankingOutputPaths($"standard_final_ranking_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
+        var (outputCsvPath, outputMarkdownPath) = string.IsNullOrWhiteSpace(outputPathOverride)
+            ? ResolveFinalRankingOutputPaths($"standard_final_ranking_{DateTime.Now:yyyyMMdd_HHmmss}.csv")
+            : ResolveFinalRankingOutputPathsFromOverride(outputPathOverride);
 
         FinalRankingMarkdownFileWriter finalRankingDataFileWriter = new(new FinalRankingDataFileWriterSettings(RuleProfileMode.Standard));
         WriteFinalRankingOutputs(
@@ -83,5 +105,11 @@ internal class StandardSimulationMainline
 
         PrintFinalRankingOutputCompleted(outputCsvPath, outputMarkdownPath);
     }
-}
 
+    static (string OutputCsvPath, string OutputMarkdownPath) ResolveFinalRankingOutputPathsFromOverride(string outputPath)
+    {
+        var outputCsvPath = CsvOutputHelpers.ResolveOutputCsvPath(outputPath);
+        var outputMarkdownPath = CsvOutputHelpers.ChangeOutputExtension(outputCsvPath, ".md");
+        return (outputCsvPath, outputMarkdownPath);
+    }
+}

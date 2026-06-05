@@ -4,6 +4,7 @@ using ShogiTournamentSystemAnalyzer.Application.Analysis;
 using ShogiTournamentSystemAnalyzer.Application.BeforeRequestFileCheck;
 using ShogiTournamentSystemAnalyzer.Application.RequestFileCheck;
 using ShogiTournamentSystemAnalyzer.Application.RequestFileWrite;
+using ShogiTournamentSystemAnalyzer.Application.RequestParsing;
 using ShogiTournamentSystemAnalyzer.Domain.Request;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles;
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
@@ -22,17 +23,19 @@ internal static class ApplicationWorkflow
         RequestBoundary requestBoundary = new();
         IReadOnlyList<string> recordedLines = Array.Empty<string>();
         string? requestFilePath = null;
+        AnalysisRequest? analysisRequest = null;
 
         // ［大会利用者域］（`TournamentUser`）
         bool isSuccessful = RunTournamentUserDomain(
             args,
             requestBoundary,
             ref recordedLines,
-            ref requestFilePath);
+            ref requestFilePath,
+            ref analysisRequest);
         if (!isSuccessful) return;  // エラー終了
 
         // ［□分析(`Analysis`)］
-        RunAnalysisDomain(requestBoundary);
+        RunAnalysisDomain(requestBoundary, analysisRequest);
 
         InputFromSomewhere.PauseRecording();
         WriteRequestFile(recordedLines, requestFilePath);
@@ -71,7 +74,8 @@ internal static class ApplicationWorkflow
         string[] args,
         RequestBoundary requestBoundary,
         ref IReadOnlyList<string> recordedLines,
-        ref string? requestFilePath)
+        ref string? requestFilePath,
+        ref AnalysisRequest? analysisRequest)
     {        //　　｜
         //　　｜　［大会ルールという境界］        `TournamentRule`
         //　　｜　［プレイヤー一覧という境界］    `PlayerList`
@@ -99,14 +103,28 @@ internal static class ApplicationWorkflow
         if (argumentResult.HasInputFile)
         {
             // ［□要求ファイルチェック(`RequestFileCheck`)］
-            (bool isSuccessful, requestText) = RequestFileCheckWorkflow.Run(argumentResult);
+            var requestFileCheckResult = RequestFileCheckWorkflow.Run(argumentResult);
 
             // ［◆節２：エラーが有ったか？］
-            if (!isSuccessful)
+            if (!requestFileCheckResult.IsSuccessful)
             {
                 // ［■辺３：はい、エラー有り］
                 // ［●終了１］
                 return false;
+            }
+
+            if (requestFileCheckResult.RequestText is not null
+                && StsaInput4RequestParser.TryParse(requestFileCheckResult.RequestText, out var parsedAnalysisRequest)
+                && parsedAnalysisRequest is not null)
+            {
+                requestText = null;
+                analysisRequest = parsedAnalysisRequest;
+                requestBoundary.AnalysisFlowSelection = parsedAnalysisRequest.FlowSelection;
+                requestBoundary.RuleProfileMode = parsedAnalysisRequest.RuleProfileMode;
+            }
+            else
+            {
+                if (!TryConvertToLegacyInputText(requestFileCheckResult.RequestText, out requestText)) return false;
             }
 
             // ［■辺４：いいえ、エラー無し］
@@ -193,6 +211,37 @@ internal static class ApplicationWorkflow
         return true;
     }
 
+    static bool TryConvertToLegacyInputText(RequestText? checkedRequestText, out string? requestText)
+    {
+        requestText = null;
+        if (checkedRequestText is null)
+        {
+            Console.WriteLine("●エラー終了：　［要求ファイル］パース中エラー。 要求テキストがありません。");
+            return false;
+        }
+
+        try
+        {
+            requestText = checkedRequestText.FormatName switch
+            {
+                "STSAInput/4" => StsaInputLegacyConverter.ConvertStsaInput4ToLegacyInput(checkedRequestText.Lines, checkedRequestText.SourcePath ?? "(要求テキスト)"),
+                "STSAInput/3" => StsaInputLegacyConverter.ConvertStsaInput3ToLegacyInput(checkedRequestText.Lines, checkedRequestText.SourcePath ?? "(要求テキスト)"),
+                "STSAInput/2" => StsaInputLegacyConverter.ConvertStsaInput2ToLegacyInput(checkedRequestText.Lines, checkedRequestText.SourcePath ?? "(要求テキスト)"),
+                _ => LegacyInputFileFilter.ConvertToFilteredInput(checkedRequestText.Lines),
+            };
+            return true;
+        }
+        catch (OperationCanceledException ex)
+        {
+            Console.WriteLine($"●エラー終了：　［要求ファイル］パース中エラー。 {ex.Message}");
+            return false;
+        }
+        catch (Exception ex) when (ex is InvalidOperationException or IOException or UnauthorizedAccessException)
+        {
+            Console.WriteLine($"●エラー終了：　［要求ファイル］パース中エラー。 {ex.Message}");
+            return false;
+        }
+    }
     /// <summary>
     /// ［要求ファイル］を書き出します。
     /// </summary>
@@ -213,7 +262,8 @@ internal static class ApplicationWorkflow
     /// ［分析］
     /// </summary>
     private static void RunAnalysisDomain(
-        RequestBoundary requestBoundary)
+        RequestBoundary requestBoundary,
+        AnalysisRequest? analysisRequest)
     {
         // メインライン選択のガイドを表示するぜ（＾▽＾）！
         ProgramConsoleGuide.PrintSelectedMainline(requestBoundary.AnalysisFlowSelection, requestBoundary.RuleProfileMode);
@@ -239,6 +289,12 @@ internal static class ApplicationWorkflow
 
 
         // 本処理（選択フロー）
+        if (analysisRequest is not null)
+        {
+            AnalysisRequestDispatcher.Execute(analysisRequest);
+            return;
+        }
+
         AnalysisFlowDispatcher.Execute(requestBoundary.AnalysisFlowSelection, requestBoundary.RuleProfileMode);
 
     }
