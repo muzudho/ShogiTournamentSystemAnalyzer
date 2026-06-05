@@ -9,7 +9,7 @@ using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles;
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 using System.Text;
 
-internal class ApplicationWorkflow
+internal static class ApplicationWorkflow
 {
     public static void Run(string[] args)
     {
