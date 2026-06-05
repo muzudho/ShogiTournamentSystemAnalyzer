@@ -5,6 +5,9 @@ namespace ShogiTournamentSystemAnalyzer.Application.BeforeRequestFileCheck;
 
 internal static class RequestFileArgumentReader
 {
+    private const string RequestFileOption = "--request-file";
+    private const string InputFileOption = "--input-file";
+
     internal static RequestFileArgumentReadResult Read(IReadOnlyList<string> args)
     {
         try
@@ -12,18 +15,22 @@ internal static class RequestFileArgumentReader
             for (var index = 0; index < args.Count; index++)
             {
                 var arg = args[index];
-                if (arg.Equals("--input-file", StringComparison.OrdinalIgnoreCase))
+                if (arg.Equals(RequestFileOption, StringComparison.OrdinalIgnoreCase)
+                    || arg.Equals(InputFileOption, StringComparison.OrdinalIgnoreCase))
                 {
-                    if (index + 1 >= args.Count) throw new OperationCanceledException("--input-file の後ろにファイルパスを指定してください。");
+                    if (index + 1 >= args.Count) throw new OperationCanceledException($"{RequestFileOption} の後ろにファイルパスを指定してください。");
 
-                    return RequestFileArgumentReadResult.FromInputFile(args[index + 1]);
+                    return RequestFileArgumentReadResult.FromRequestFile(args[index + 1]);
                 }
 
-                const string inputFilePrefix = "--input-file=";
-                if (arg.StartsWith(inputFilePrefix, StringComparison.OrdinalIgnoreCase)) return RequestFileArgumentReadResult.FromInputFile(arg[inputFilePrefix.Length..]);
+                const string requestFilePrefix = RequestFileOption + "=";
+                if (arg.StartsWith(requestFilePrefix, StringComparison.OrdinalIgnoreCase)) return RequestFileArgumentReadResult.FromRequestFile(arg[requestFilePrefix.Length..]);
+
+                const string inputFilePrefix = InputFileOption + "=";
+                if (arg.StartsWith(inputFilePrefix, StringComparison.OrdinalIgnoreCase)) return RequestFileArgumentReadResult.FromRequestFile(arg[inputFilePrefix.Length..]);
             }
 
-            return RequestFileArgumentReadResult.WithoutInputFile();
+            return RequestFileArgumentReadResult.WithoutRequestFile();
         }
         catch (OperationCanceledException ex)
         {

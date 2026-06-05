@@ -70,7 +70,7 @@ Save suspected failure points before running a smoke test that may terminate the
 ## Planned Command
 
 ```powershell
-dotnet run --project .\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyzer.csproj -- --input-file .\Inputs\Smoke\quality_input_[先手8x後手8]_[Neutral_Single10]_[STSAInput3_smoke].txt
+dotnet run --project .\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyzer.csproj -- --request-file .\Inputs\Smoke\quality_input_[先手8x後手8]_[Neutral_Single10]_[STSAInput3_smoke].txt
 ```
 
 Use a short Codex command timeout so a hang is captured instead of waiting indefinitely.
@@ -107,7 +107,7 @@ The repository path was `E:\github.com\muzudho\ShogiTournamentSystemAnalyzer`, a
 About to run FinalStage STSAInput3 smoke:
 
 ```powershell
-dotnet run --project .\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyzer.csproj -- --input-file ".\Inputs\Smoke\quality_input_[トップ集団大きめ]_[FinalStage_Single10]_[STSAInput3_smoke].txt"
+dotnet run --project .\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyzer.csproj -- --request-file ".\Inputs\Smoke\quality_input_[トップ集団大きめ]_[FinalStage_Single10]_[STSAInput3_smoke].txt"
 ```
 
 Expected risk: FinalStage rule path, grouping, boundary rescue, variable top8, and simulation-count prompt alignment.
@@ -129,7 +129,7 @@ FinalStage STSAInput3 smoke completed successfully.
 About to run legacy sweep smoke:
 
 ```powershell
-dotnet run --project .\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyzer.csproj -- --input-file ".\Inputs\Smoke\quality_sweep_input_[先手8x後手8]_[Twill_50to100_smoke10].request.txt"
+dotnet run --project .\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyzer.csproj -- --request-file ".\Inputs\Smoke\quality_sweep_input_[先手8x後手8]_[Twill_50to100_smoke10].request.txt"
 ```
 
 Expected risk: Sweep prompt alignment, Twill rule path, repeated single-run execution, sweep output path handling.
@@ -152,7 +152,7 @@ Next step: search for a current-format sweep input, preferably STSAInput2/3, bef
 Found a current-format sweep candidate and will run it next:
 
 ```powershell
-dotnet run --project .\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyzer.csproj -- --input-file ".\Inputs\Sweeps\quality_sweep_input_[先手8x後手8]_[Neutral_50to100]_[STSAInput2_draft].request.txt"
+dotnet run --project .\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyzer.csproj -- --request-file ".\Inputs\Sweeps\quality_sweep_input_[先手8x後手8]_[Neutral_50to100]_[STSAInput2_draft].request.txt"
 ```
 
 Reason: the previous smoke sweep file was a stale legacy prompt-script. This candidate declares `#[Format] STSAInput/2` and `ExecutionMode=Sweep`, so it should exercise the current request-file converter.
@@ -302,5 +302,5 @@ Applied input-folder cleanup:
 - Moved old non-STSA request files from `Inputs/Bench` and `Inputs/Sweeps` into `Inputs/Legacy` while preserving their original subfolder layout.
 - Confirmed there are no non-STSA `.txt` request files left outside `Inputs/Legacy`.
 - Added `Inputs/Legacy/README.md` explaining that these files are reference-only and should be migrated to STSAInput/2 or STSAInput/3 before use.
-- Added a `RequestFileCheckWorkflow` guard that rejects `--input-file` paths under `Inputs/Legacy`.
+- Added a `RequestFileCheckWorkflow` guard that rejects `--request-file` paths under `Inputs/Legacy`.
 - Fixed request-file parse error reporting so the caught parse/rejection reason is printed in the final error line.

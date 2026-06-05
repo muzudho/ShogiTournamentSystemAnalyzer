@@ -15,7 +15,7 @@
 - [大会進行フレームワークガイド](./大会進行フレームワークガイド.md)
   - 大会進行フレームワークだけをまとめて知りたいとき
 - [入力ファイル仕様](./入力ファイル仕様.md)
-  - `--input-file`、`#[Prompt]`、`#[Enter]` の書き方を知りたいとき
+  - `--request-file`、`#[Prompt]`、`#[Enter]` の書き方を知りたいとき
 - [STSAInput/2 仕様](./STSAInput2仕様.md)
   - 仕様変更に強い次世代の入力ファイル方式案を知りたいとき
 - [プロジェクトの考え方](./プロジェクトの考え方.md)
@@ -60,7 +60,7 @@
 - [入力ファイル仕様](./入力ファイル仕様.md)
 	- `Inputs/Smoke` / `Bench` / `Sweeps` の役割
   - `#[Prompt]` と `#[Enter]` の使い方
-  - `--input-file` の実行例
+  - `--request-file` の実行例
 - [STSAInput/2 仕様](./STSAInput2仕様.md)
   - `#[Format] STSAInput/2` と `#[Section]` を使う次世代方式案
 

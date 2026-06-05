@@ -104,7 +104,7 @@ internal static class ApplicationWorkflow
         string? requestText = null;
 
         // ［■辺２：はい、要求ファイル指定有り］
-        if (argumentResult.HasInputFile)
+        if (argumentResult.HasRequestFile)
         {
             // ［□要求ファイルチェック(`RequestFileCheck`)］
             var requestFileCheckResult = RequestFileCheckWorkflow.Run(argumentResult);

@@ -11,7 +11,7 @@ internal class RequestFileCheckWorkflow
         // パースする。
         Console.WriteLine("■［要求ファイルチェック］");
 
-        string inputFilePath = argumentResult.InputFilePath!;
+        string requestFilePath = argumentResult.RequestFilePath!;
         bool isParseError = false;
         string? parseErrorMessage = null;
 
@@ -20,13 +20,13 @@ internal class RequestFileCheckWorkflow
 
         try
         {
-            fullPath = Path.GetFullPath(inputFilePath);
+            fullPath = Path.GetFullPath(requestFilePath);
             if (IsLegacyInputPath(fullPath))
             {
                 throw new OperationCanceledException($"Legacy 入力は実行対象外です。STSAInput/2、STSAInput/3、STSAInput/4 へ更新してください: {fullPath}");
             }
 
-            var rawLines = StsaFileIOHelper.ReadAllLines("入力ファイル", inputFilePath);
+            var rawLines = StsaFileIOHelper.ReadAllLines("要求ファイル", requestFilePath);
             var formatName = RequestInputFormatDetector.IsStsaInput4(rawLines)
                 ? "STSAInput/4"
                 : RequestInputFormatDetector.IsStsaInput3(rawLines)
@@ -38,7 +38,7 @@ internal class RequestFileCheckWorkflow
 
 
             Console.WriteLine("要求ファイルチェック: エラー無し\n");
-            Console.WriteLine($"入力ファイルを使います: {fullPath}\n");
+            Console.WriteLine($"要求ファイルを使います: {fullPath}\n");
         }
         catch (OperationCanceledException ex)
         {

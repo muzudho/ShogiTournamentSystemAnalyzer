@@ -3,18 +3,18 @@
  */
 namespace ShogiTournamentSystemAnalyzer.Application.BeforeRequestFileCheck;
 
-internal sealed record RequestFileArgumentReadResult(string? InputFilePath, string? ErrorMessage)
+internal sealed record RequestFileArgumentReadResult(string? RequestFilePath, string? ErrorMessage)
 {
     internal bool HasError => !string.IsNullOrWhiteSpace(ErrorMessage);
 
-    internal bool HasInputFile => !string.IsNullOrWhiteSpace(InputFilePath);
+    internal bool HasRequestFile => !string.IsNullOrWhiteSpace(RequestFilePath);
 
-    internal static RequestFileArgumentReadResult FromInputFile(string inputFilePath)
+    internal static RequestFileArgumentReadResult FromRequestFile(string requestFilePath)
     {
-        return new RequestFileArgumentReadResult(inputFilePath, null);
+        return new RequestFileArgumentReadResult(requestFilePath, null);
     }
 
-    internal static RequestFileArgumentReadResult WithoutInputFile()
+    internal static RequestFileArgumentReadResult WithoutRequestFile()
     {
         return new RequestFileArgumentReadResult(null, null);
     }
