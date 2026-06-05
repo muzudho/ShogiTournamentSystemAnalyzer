@@ -1,21 +1,19 @@
 /*
- * ［アプリケーション　＞　要求ファイル作成］
+ * ［アプリケーション　＞　手動入力後　＞　手動入力録音ログ］
  */
-namespace ShogiTournamentSystemAnalyzer.Application.RequestFileCreate;
+namespace ShogiTournamentSystemAnalyzer.Application.AfterManualInput;
 
 using ShogiTournamentSystemAnalyzer.Application.Shared;
-using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles;
-using System.Text;
 
-internal static class RequestFileCreate
+internal static class ManualInputRecordingLog
 {
     internal static string BuildDefaultPath()
     {
         return Path.Combine(
             RepositoryPaths.OutputPath,
             "TournamentUser",
-            "Request",
-            "manual_input_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".txt");
+            "RecordingLog",
+            BuildFileName());
     }
 
     internal static string ResolveOutputPath(string inputPath)
@@ -23,10 +21,15 @@ internal static class RequestFileCreate
         var fullPath = Path.GetFullPath(inputPath);
         if (Directory.Exists(fullPath) || LooksLikeDirectoryPath(inputPath))
         {
-            return Path.Combine(fullPath, "manual_input_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".txt");
+            return Path.Combine(fullPath, BuildFileName());
         }
 
         return fullPath;
+    }
+
+    static string BuildFileName()
+    {
+        return "manual_input_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".録音ログ.txt";
     }
 
     static bool LooksLikeDirectoryPath(string path)
@@ -36,4 +39,3 @@ internal static class RequestFileCreate
             || string.IsNullOrEmpty(Path.GetExtension(path));
     }
 }
-

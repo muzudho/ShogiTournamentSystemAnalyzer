@@ -3,19 +3,19 @@
  */
 namespace ShogiTournamentSystemAnalyzer.Application.Shared;
 
-using ShogiTournamentSystemAnalyzer.Application.AfterRequestFileCreate;
+using ShogiTournamentSystemAnalyzer.Application.AfterManualInput;
 
 internal class RequestInputSession
 {
     internal RequestInputSession(
         string? requestFileInputText,
-        RequestFileCreateCompletionTarget? completionTarget)
+        ManualInputRecordingCompletionTarget? completionTarget)
     {
         RequestFileInputText = requestFileInputText;
-        CompletionTarget = completionTarget;
+        RecordingCompletionTarget = completionTarget;
     }
 
     internal string? RequestFileInputText { get; }
 
-    internal RequestFileCreateCompletionTarget? CompletionTarget { get; }
+    internal ManualInputRecordingCompletionTarget? RecordingCompletionTarget { get; }
 }

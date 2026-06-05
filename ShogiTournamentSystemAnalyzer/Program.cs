@@ -12,7 +12,6 @@ using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.TournamentQuali
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.TournamentUser;
 using ShogiTournamentSystemAnalyzer.Application.BeforeRequestFileCheck;
 using ShogiTournamentSystemAnalyzer.Application.RequestFileCheck;
-using ShogiTournamentSystemAnalyzer.Application.RequestFileCreate;
 using ShogiTournamentSystemAnalyzer.Application.Shared;
 using ShogiTournamentSystemAnalyzer.Domain.FinalRanking;
 using ShogiTournamentSystemAnalyzer.Domain.Request;
@@ -116,8 +115,8 @@ internal static partial class Program
                 // ［■辺７：いいえ、エラー無し］
                 requestModelProducer.Produce(requestBoundary);
 
-                //  ［要求ファイル］の保存先パスを尋ねるだけ（＾～＾） まだ保存はしない。
-                static string? InputRequestFilePath()
+                //  ［録音ログ］の保存先パスを尋ねるだけ（＾～＾） まだ保存はしない。
+                static string? InputRecordingLogPath()
                 {
                     // ［◆節４：今回の入力を保存しておきますか？］
                     Console.WriteLine("今回の入力を保存しておきますか？");
@@ -130,39 +129,39 @@ internal static partial class Program
                         attempt++;
                         Console.Write("番号を入力してください [1]: ");
                         var input = ConsoleInput.ReadLine()?.Trim();
-                        if (input is null) throw new OperationCanceledException("要求ファイル作成の選択中に入力ストリームが終了しました。");
+                        if (input is null) throw new OperationCanceledException("録音ログ作成の選択中に入力ストリームが終了しました。");
 
                         // ［■辺８：はい、保存します］
                         if (input == "2")
                         {
-                            // ［□要求ファイル作成(`RequestFileCreate`)］
-                            Console.WriteLine("■［要求ファイル作成］");
-                            var defaultPath = RequestFileCreate.BuildDefaultPath();
+                            // ［□録音ログ作成］
+                            Console.WriteLine("■［録音ログ作成］");
+                            var defaultPath = ManualInputRecordingLog.BuildDefaultPath();
                             var outputPath = ConsolePromptReaders.ReadTextWithDefault(
-                                $"要求ファイルの出力先パスまたはフォルダーパスを入力してください [{defaultPath}]: ",
+                                $"録音ログの出力先パスまたはフォルダーパスを入力してください [{defaultPath}]: ",
                                 defaultPath);
 
-                            return RequestFileCreate.ResolveOutputPath(outputPath);
+                            return ManualInputRecordingLog.ResolveOutputPath(outputPath);
                         }
 
                         // ［■辺９：いいえ、保存しません］
                         if (string.IsNullOrEmpty(input) || input == "1") return null;
 
-                        if (attempt >= ConsolePromptReaders.InputRetryLimit) ConsolePromptReaders.ThrowInputRetryLimitExceeded("要求ファイル作成選択", "1 または 2 以外が入力されました");
+                        if (attempt >= ConsolePromptReaders.InputRetryLimit) ConsolePromptReaders.ThrowInputRetryLimitExceeded("録音ログ作成選択", "1 または 2 以外が入力されました");
 
                         Console.WriteLine("1 か 2 を入力してください。\n");
                     }
                 }
-                var requestFileCreatePath = InputRequestFilePath();
+                var recordingLogPath = InputRecordingLogPath();
 
-                if (requestFileCreatePath is null)
+                if (recordingLogPath is null)
                 {
                     Console.WriteLine();
                     inputSession = new RequestInputSession(null, null);
                 }
                 else
                 {
-                    inputSession = ManualInputRecordingSessionStarter.Start(requestFileCreatePath);
+                    inputSession = ManualInputRecordingSessionStarter.Start(recordingLogPath);
                 }
             }
 
@@ -227,14 +226,14 @@ internal static partial class Program
             AnalysisFlowDispatcher.Execute(requestBoundary.AnalysisFlowSelection, requestBoundary.RuleProfileMode);
 
 
-            // TODO: ［要求ファイル］の書き出しは、［出力先パス］を尋ねた直後でよいのでは（＾～＾）？
-            if (inputSession.CompletionTarget != null)
+            // ［録音ログ］は、分析中の入力記録が揃ってから書き出す。
+            if (inputSession.RecordingCompletionTarget != null)
             {
-                // ［要求ファイル］を書き出します。
+                // ［録音ログ］を書き出します。
                 StsaFileIOHelper.Write(
-                    label: "要求ファイル",
-                    outputPath: inputSession.CompletionTarget.RequestFileCreatePath,
-                    lines: inputSession.CompletionTarget.RecordedLines);
+                    label: "録音ログ",
+                    outputPath: inputSession.RecordingCompletionTarget.RecordingLogPath,
+                    lines: inputSession.RecordingCompletionTarget.RecordedLines);
                 ConsoleInput.StopRecording();
             }
 
