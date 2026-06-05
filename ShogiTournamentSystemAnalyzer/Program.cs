@@ -5,16 +5,11 @@ namespace ShogiTournamentSystemAnalyzer;
 
 using ShogiTournamentSystemAnalyzer.Application;
 using ShogiTournamentSystemAnalyzer.Application.Analysis;
-using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Ranking;
-using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation;
-using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Application.BeforeRequestFileCheck;
 using ShogiTournamentSystemAnalyzer.Application.RequestFileCheck;
 using ShogiTournamentSystemAnalyzer.Application.RequestFileWrite;
 using ShogiTournamentSystemAnalyzer.Application.Shared;
-using ShogiTournamentSystemAnalyzer.Domain.FinalRanking;
 using ShogiTournamentSystemAnalyzer.Domain.Request;
-using ShogiTournamentSystemAnalyzer.Domain.TournamentFinalState;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles;
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 using System.Text;
@@ -254,20 +249,17 @@ internal static partial class Program
         //      ↓
         //      
         Console.WriteLine("■［分析］");
-        TournamentFinalStateBoundary tournamentFinalStateBoundary = new();
+        //TournamentFinalStateBoundary tournamentFinalStateBoundary = new();
         //［シミュレーション域］
-        SimulationWorkflow.Run(requestBoundary, tournamentFinalStateBoundary);
         //　　｜
         //　　｜　［大会最終状態という境界］      `TournamentFinalState`
         //　　↓
         //［順位付け域］
-        FinalRankingBoundary finalRankingBoundary = new();
-        RankingWorkflow.Run(tournamentFinalStateBoundary, finalRankingBoundary);
+        //FinalRankingBoundary finalRankingBoundary = new();
         //　　｜
         //　　｜　［最終順位という境界］          `FinalRanking`
         //　　↓
         //［大会品質評価フロー域］                `TournamentQualityEvaluator`
-        TournamentQualityEvaluatorWorkflow.Run(finalRankingBoundary);
         //　　｜
         //　　｜　［大会品質レポートという境界］  `TournamentQualityReport`
         //　　↓
