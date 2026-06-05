@@ -50,7 +50,8 @@ internal static partial class Program
             RequestInputSession? requestInputSession = null;
 
             // ［大会利用者域］（`TournamentUser`）
-            RunTournamentUserDomain(args, requestBoundary, ref requestInputSession);
+            bool isSuccessful = RunTournamentUserDomain(args, requestBoundary, ref requestInputSession);
+            if (!isSuccessful) return;  // エラー終了
 
             // ［□分析(`Analysis`)］
             RunAnalysisDomain(requestBoundary);
@@ -82,7 +83,15 @@ internal static partial class Program
         ProgramConsoleGuide.PrintProgramIntroduction();
     }
 
-    private static void RunTournamentUserDomain(
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="args"></param>
+    /// <param name="requestBoundary"></param>
+    /// <param name="requestInputSession"></param>
+    /// <returns>成功か</returns>
+    /// <exception cref="OperationCanceledException"></exception>
+    private static bool RunTournamentUserDomain(
         string[] args,
         RequestBoundary requestBoundary,
         ref RequestInputSession? requestInputSession)
@@ -102,7 +111,7 @@ internal static partial class Program
         if (argumentResult.HasError)
         {
             Console.WriteLine($"●異常終了：　［要求ファイル］確認中。 {argumentResult.ErrorMessage!}");
-            return;
+            return false;
         }
 
         #endregion
@@ -119,7 +128,7 @@ internal static partial class Program
             {
                 // ［■辺３：はい、エラー有り］
                 // ［●終了１］
-                return;
+                return false;
             }
 
             // ［■辺４：いいえ、エラー無し］
@@ -143,7 +152,7 @@ internal static partial class Program
             if (requestInputSession is null)
             {
                 Console.WriteLine("●異常終了：　入力セッションを開始できませんでした。");
-                return;
+                return false;
             }
 
             // 前提入力は TournamentRule / PlayerList / RankingSettings の３境界だぜ（＾▽＾）！
@@ -159,7 +168,7 @@ internal static partial class Program
             //if (false)
             //{
             //    // ［●終了２］
-            //    return;
+            //    return false;
             //}
 
             // ［■辺７：いいえ、エラー無し］
@@ -228,6 +237,8 @@ internal static partial class Program
             }
             WriteRequestFile(ref requestInputSession, requestFilePath);
         }
+
+        return true;
     }
 
     /// <summary>

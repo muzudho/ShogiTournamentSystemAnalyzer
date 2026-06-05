@@ -63,7 +63,7 @@ internal class RequestFileCheckWorkflow
 
         return new RequestFileCheckResultVer2(
             hasError: false,
-            inputSession: new RequestInputSession(filteredInput, string.Empty, Array.Empty<string>()));
+            inputSession: new RequestInputSession(filteredInput, Array.Empty<string>()));
     }
 
     static bool IsLegacyInputPath(string fullPath)
