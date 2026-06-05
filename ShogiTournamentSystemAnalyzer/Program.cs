@@ -40,15 +40,23 @@ internal static partial class Program
 
             // ［依頼という境界］
             RequestBoundary requestBoundary = new();
+            IReadOnlyList<string> recordedLines = Array.Empty<string>();
+            string? requestFilePath = null;
 
             // ［大会利用者域］（`TournamentUser`）
             bool isSuccessful = RunTournamentUserDomain(
                 args,
-                requestBoundary);
+                requestBoundary,
+                ref recordedLines,
+                ref requestFilePath);
             if (!isSuccessful) return;  // エラー終了
 
             // ［□分析(`Analysis`)］
             RunAnalysisDomain(requestBoundary);
+
+            ConsoleInput.PauseRecording();
+            WriteRequestFile(recordedLines, requestFilePath);
+            ConsoleInput.StopRecording();
 
             //      │
             //      ↓
@@ -86,11 +94,10 @@ internal static partial class Program
     /// <exception cref="OperationCanceledException"></exception>
     private static bool RunTournamentUserDomain(
         string[] args,
-        RequestBoundary requestBoundary)
+        RequestBoundary requestBoundary,
+        ref IReadOnlyList<string> recordedLines,
+        ref string? requestFilePath)
     {
-        // 記録した手動入力行
-        IReadOnlyList<string> recordedLines = Array.Empty<string>();
-
         //　　｜
         //　　｜　［大会ルールという境界］        `TournamentRule`
         //　　｜　［プレイヤー一覧という境界］    `PlayerList`
@@ -197,28 +204,9 @@ internal static partial class Program
                     Console.WriteLine("1 か 2 を入力してください。\n");
                 }
             }
-            var requestFilePath = InputRequestFilePath();
-
-            // ［要求ファイル］を書き出します。
-            void WriteRequestFile(
-                // 記録した手動入力行
-                ref IReadOnlyList<string> recordedLines,
-                string? requestFilePath)
-            {
-                // ［要求ファイル］は、分析中の入力記録が揃っていたら書き出す。
-                if (!string.IsNullOrWhiteSpace(requestFilePath) && recordedLines != null && recordedLines.Count > 0)
-                {
-                    // ［要求ファイル］を書き出します。
-                    Console.WriteLine($"要求ファイルを書き出します: {requestFilePath}\n");
-                    StsaFileIOHelper.Write(
-                        label: "要求ファイル",
-                        outputPath: requestFilePath,
-                        lines: recordedLines);
-                }
-            }
-            WriteRequestFile(ref recordedLines, requestFilePath);
-
-            ConsoleInput.StopRecording();
+            ConsoleInput.PauseRecording();
+            requestFilePath = InputRequestFilePath();
+            recordedLines = ConsoleInput.ResumeRecording(recordedLines);
         }
 
         if (requestText is not null)
@@ -227,6 +215,23 @@ internal static partial class Program
         }
 
         return true;
+    }
+
+    /// <summary>
+    /// ［要求ファイル］を書き出します。
+    /// </summary>
+    private static void WriteRequestFile(
+        IReadOnlyList<string> recordedLines,
+        string? requestFilePath)
+    {
+        if (!string.IsNullOrWhiteSpace(requestFilePath) && recordedLines.Count > 0)
+        {
+            Console.WriteLine($"要求ファイルを書き出します: {requestFilePath}\n");
+            StsaFileIOHelper.Write(
+                label: "要求ファイル",
+                outputPath: requestFilePath,
+                lines: recordedLines);
+        }
     }
 
     /// <summary>

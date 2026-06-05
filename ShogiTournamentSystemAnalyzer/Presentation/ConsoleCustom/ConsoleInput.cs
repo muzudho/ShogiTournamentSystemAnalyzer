@@ -29,6 +29,17 @@ internal static class ConsoleInput
         recordedLines = null;
     }
 
+    internal static void PauseRecording()
+    {
+        recordedLines = null;
+    }
+
+    internal static IReadOnlyList<string> ResumeRecording(IReadOnlyList<string> lines)
+    {
+        recordedLines = lines as List<string> ?? [.. lines];
+        return recordedLines;
+    }
+
     internal static string? ReadLine()
     {
         var line = inputReader is null
