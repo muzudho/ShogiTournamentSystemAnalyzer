@@ -231,10 +231,11 @@ internal static partial class Program
                         label: "要求ファイル",
                         outputPath: requestFilePath,
                         lines: recordedLines);
-                    ConsoleInput.StopRecording();
                 }
             }
             WriteRequestFile(ref requestFileInputText, ref recordedLines, requestFilePath);
+
+            ConsoleInput.StopRecording();
         }
 
         return true;
