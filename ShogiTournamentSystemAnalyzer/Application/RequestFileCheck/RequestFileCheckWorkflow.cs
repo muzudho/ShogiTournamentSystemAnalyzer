@@ -60,13 +60,11 @@ internal class RequestFileCheckWorkflow
             Console.WriteLine($"●エラー終了：　［要求ファイル］パース中エラー。 {parseErrorMessage}");
             return new RequestFileCheckResultVer2(
                 hasError: true,
-                requestFileInputText: null,
                 recordedLines: Array.Empty<string>());
         }
 
         return new RequestFileCheckResultVer2(
             hasError: false,
-            requestFileInputText: filteredInput,
             recordedLines: Array.Empty<string>());
     }
 
