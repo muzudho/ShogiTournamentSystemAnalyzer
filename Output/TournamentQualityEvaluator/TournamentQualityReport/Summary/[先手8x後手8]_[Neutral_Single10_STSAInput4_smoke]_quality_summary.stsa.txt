@@ -7,7 +7,6 @@ ExecutionMode=Single
 TournamentRuleSetMode=
 
 TournamentQualityEvaluationReportGrouping=Off
-EvaluationMemo=シミュレーション (10回)
 #[EndSection]
 
 #[Section] PlayersCsv

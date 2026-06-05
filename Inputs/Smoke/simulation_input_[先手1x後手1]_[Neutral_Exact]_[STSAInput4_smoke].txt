@@ -1,0 +1,25 @@
+# STSAInput/4 simulation smoke example
+#[Format] STSAInput/4
+
+#[Section] Meta
+AnalysisFlowSteps=Simulation
+RuleProfileMode=Standard
+TournamentRuleSetMode=Neutral
+FirstPlayerWinRatePercent=51
+SimulationCount=10
+#[EndSection]
+
+#[Section] PlayersCsv
+name,elo
+Alice,1500
+Bob,1480
+#[EndSection]
+
+#[Section] MatchesInput
+first,second
+Alice,Bob
+#[EndSection]
+
+#[Section] Output
+SummaryOutputPath=Output\FinalRanking\simulation_input_[先手1x後手1]_[Neutral_Exact]_[STSAInput4_smoke].csv
+#[EndSection]

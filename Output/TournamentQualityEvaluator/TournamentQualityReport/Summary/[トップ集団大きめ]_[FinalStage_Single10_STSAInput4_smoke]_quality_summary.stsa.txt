@@ -2,12 +2,11 @@
 
 #[Section] Meta
 AnalysisFlowSteps=QualityEvaluation
-RuleProfileMode=StandardOrFinalStage
+RuleProfileMode=FinalStage
 ExecutionMode=Single
 TournamentRuleSetMode=
 
 TournamentQualityEvaluationReportGrouping=Off
-EvaluationMemo=本戦専用 シミュレーション (10回)
 #[EndSection]
 
 #[Section] PlayersCsv

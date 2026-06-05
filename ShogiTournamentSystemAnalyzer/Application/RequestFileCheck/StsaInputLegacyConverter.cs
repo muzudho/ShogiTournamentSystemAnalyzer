@@ -52,7 +52,12 @@ internal static class StsaInputLegacyConverter
         if (analysisFlowMode == AnalysisFlowMode.Simulation
             && ruleProfileMode == RuleProfileMode.Empty) return StsaSimulationLegacyConverter.ConvertEmpty(meta, sections, fullPath, formatName, promptPrefixLines);
 
-        if (analysisFlowMode != AnalysisFlowMode.QualityEvaluation) throw new OperationCanceledException($"{formatName} の通常・本戦シミュレーション要求ファイル変換は、現在のところ未対応です。");
+        if (analysisFlowMode == AnalysisFlowMode.Simulation)
+        {
+            return ruleProfileMode == RuleProfileMode.FinalStage
+                ? StsaSimulationLegacyConverter.ConvertFinalStage(meta, sections, fullPath, formatName, promptPrefixLines)
+                : StsaSimulationLegacyConverter.ConvertStandard(meta, sections, fullPath, formatName, promptPrefixLines);
+        }
 
         return ruleProfileMode == RuleProfileMode.FinalStage
             ? StsaQualityEvaluationLegacyConverter.ConvertFinalStage(meta, sections, fullPath, formatName, promptPrefixLines)

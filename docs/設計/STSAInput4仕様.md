@@ -38,7 +38,7 @@ AnalysisFlowSteps=Simulation,QualityEvaluation
 要求ファイルからの自動実行では、現在は単一ステップだけ対応しています。
 
 - `AnalysisFlowSteps=QualityEvaluation`
-- `AnalysisFlowSteps=Simulation` のうち、既存 converter が対応している `TournamentFramework` / `Empty`
+- `AnalysisFlowSteps=Simulation` の `Standard` / `FinalStage` / `TournamentFramework` / `Empty`
 
 `AnalysisFlowSteps=Simulation,QualityEvaluation` は形式として予約していますが、まだ要求ファイルからの自動変換には対応していません。理由は、既存実装が要求ファイルを直接モデル化せず、対話入力の回答列へ変換しているためです。複数ステップを1ファイルで実行するには、ステップ別入力セクションの仕様が必要です。
 
@@ -51,6 +51,36 @@ AnalysisFlowSteps=Simulation,QualityEvaluation
 
 保存される新しい要求ファイルは `STSAInput/4` を基本とします。
 
+## シミュレーションの最小例
+
+```plaintext
+#[Format] STSAInput/4
+
+#[Section] Meta
+AnalysisFlowSteps=Simulation
+RuleProfileMode=Standard
+TournamentRuleSetMode=Neutral
+FirstPlayerWinRatePercent=51
+SimulationCount=10
+#[EndSection]
+
+#[Section] PlayersCsv
+name,elo
+Alice,1500
+Bob,1480
+#[EndSection]
+
+#[Section] MatchesInput
+first,second
+Alice,Bob
+#[EndSection]
+
+#[Section] Output
+SummaryOutputPath=Output\FinalRanking\sample_simulation_summary.csv
+#[EndSection]
+```
+
+`SimulationCount` は対局数が 21 局以上で近似計算になる場合だけ使います。対局数が 20 局以下の場合は厳密計算になり、要求ファイル変換では `SimulationCount` を対話入力行へ流しません。
 ## 品質評価の最小例
 
 ```plaintext

@@ -186,6 +186,8 @@ internal static class ApplicationWorkflow
         if (requestText is not null)
         {
             InputFromSomewhere.UseText(requestText);
+            requestBoundary.AnalysisFlowSelection = ConsolePromptReaders.ReadAnalysisFlowSelection();
+            requestBoundary.RuleProfileMode = ConsolePromptReaders.ReadRuleProfileMode(requestBoundary.AnalysisFlowSelection);
         }
 
         return true;
