@@ -115,8 +115,8 @@ internal static partial class Program
                 // ［■辺７：いいえ、エラー無し］
                 requestModelProducer.Produce(requestBoundary);
 
-                //  ［録音ログ］の保存先パスを尋ねるだけ（＾～＾） まだ保存はしない。
-                static string? InputRecordingLogPath()
+                //  ［手入力ログ］の保存先パスを尋ねるだけ（＾～＾） まだ保存はしない。
+                static string? ReadManualInputLogPath()
                 {
                     // ［◆節４：今回の入力を保存しておきますか？］
                     Console.WriteLine("今回の入力を保存しておきますか？");
@@ -129,39 +129,39 @@ internal static partial class Program
                         attempt++;
                         Console.Write("番号を入力してください [1]: ");
                         var input = ConsoleInput.ReadLine()?.Trim();
-                        if (input is null) throw new OperationCanceledException("録音ログ作成の選択中に入力ストリームが終了しました。");
+                        if (input is null) throw new OperationCanceledException("手入力ログ作成の選択中に入力ストリームが終了しました。");
 
                         // ［■辺８：はい、保存します］
                         if (input == "2")
                         {
-                            // ［□録音ログ作成］
-                            Console.WriteLine("■［録音ログ作成］");
-                            var defaultPath = ManualInputRecordingLog.BuildDefaultPath();
+                            // ［□手入力ログ作成］
+                            Console.WriteLine("■［手入力ログ作成］");
+                            var defaultPath = ManualInputLog.BuildDefaultPath();
                             var outputPath = ConsolePromptReaders.ReadTextWithDefault(
-                                $"録音ログの出力先パスまたはフォルダーパスを入力してください [{defaultPath}]: ",
+                                $"手入力ログの出力先パスまたはフォルダーパスを入力してください [{defaultPath}]: ",
                                 defaultPath);
 
-                            return ManualInputRecordingLog.ResolveOutputPath(outputPath);
+                            return ManualInputLog.ResolveOutputPath(outputPath);
                         }
 
                         // ［■辺９：いいえ、保存しません］
                         if (string.IsNullOrEmpty(input) || input == "1") return null;
 
-                        if (attempt >= ConsolePromptReaders.InputRetryLimit) ConsolePromptReaders.ThrowInputRetryLimitExceeded("録音ログ作成選択", "1 または 2 以外が入力されました");
+                        if (attempt >= ConsolePromptReaders.InputRetryLimit) ConsolePromptReaders.ThrowInputRetryLimitExceeded("手入力ログ作成選択", "1 または 2 以外が入力されました");
 
                         Console.WriteLine("1 か 2 を入力してください。\n");
                     }
                 }
-                var recordingLogPath = InputRecordingLogPath();
+                var manualInputLogPath = ReadManualInputLogPath();
 
-                if (recordingLogPath is null)
+                if (manualInputLogPath is null)
                 {
                     Console.WriteLine();
                     inputSession = new RequestInputSession(null, null);
                 }
                 else
                 {
-                    inputSession = ManualInputRecordingSessionStarter.Start(recordingLogPath);
+                    inputSession = ManualInputLogSessionStarter.Start(manualInputLogPath);
                 }
             }
 
@@ -226,14 +226,14 @@ internal static partial class Program
             AnalysisFlowDispatcher.Execute(requestBoundary.AnalysisFlowSelection, requestBoundary.RuleProfileMode);
 
 
-            // ［録音ログ］は、分析中の入力記録が揃ってから書き出す。
-            if (inputSession.RecordingCompletionTarget != null)
+            // ［手入力ログ］は、分析中の入力記録が揃ってから書き出す。
+            if (inputSession.ManualInputLogCompletionTarget != null)
             {
-                // ［録音ログ］を書き出します。
+                // ［手入力ログ］を書き出します。
                 StsaFileIOHelper.Write(
-                    label: "録音ログ",
-                    outputPath: inputSession.RecordingCompletionTarget.RecordingLogPath,
-                    lines: inputSession.RecordingCompletionTarget.RecordedLines);
+                    label: "手入力ログ",
+                    outputPath: inputSession.ManualInputLogCompletionTarget.ManualInputLogPath,
+                    lines: inputSession.ManualInputLogCompletionTarget.RecordedLines);
                 ConsoleInput.StopRecording();
             }
 

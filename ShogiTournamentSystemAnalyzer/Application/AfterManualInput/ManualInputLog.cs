@@ -1,18 +1,18 @@
 /*
- * ［アプリケーション　＞　手動入力後　＞　手動入力録音ログ］
+ * ［アプリケーション　＞　手動入力後　＞　手入力ログ］
  */
 namespace ShogiTournamentSystemAnalyzer.Application.AfterManualInput;
 
 using ShogiTournamentSystemAnalyzer.Application.Shared;
 
-internal static class ManualInputRecordingLog
+internal static class ManualInputLog
 {
     internal static string BuildDefaultPath()
     {
         return Path.Combine(
             RepositoryPaths.OutputPath,
             "TournamentUser",
-            "RecordingLog",
+            "ManualInputLog",
             BuildFileName());
     }
 
@@ -29,7 +29,7 @@ internal static class ManualInputRecordingLog
 
     static string BuildFileName()
     {
-        return "manual_input_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".録音ログ.txt";
+        return "manual_input_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".手入力ログ.txt";
     }
 
     static bool LooksLikeDirectoryPath(string path)

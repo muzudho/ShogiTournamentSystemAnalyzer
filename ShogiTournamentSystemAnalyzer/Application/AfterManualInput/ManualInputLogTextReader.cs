@@ -1,14 +1,14 @@
 /*
- * ［アプリケーション　＞　手動入力後　＞　手動入力記録］
+ * ［アプリケーション　＞　手動入力後　＞　手入力ログ記録］
  */
 namespace ShogiTournamentSystemAnalyzer.Application.AfterManualInput;
 
-internal sealed class ManualInputRecordingTextReader : TextReader
+internal sealed class ManualInputLogTextReader : TextReader
 {
     readonly TextReader inner;
     readonly List<string> recordedLines = [];
 
-    internal ManualInputRecordingTextReader(TextReader inner)
+    internal ManualInputLogTextReader(TextReader inner)
     {
         this.inner = inner;
     }

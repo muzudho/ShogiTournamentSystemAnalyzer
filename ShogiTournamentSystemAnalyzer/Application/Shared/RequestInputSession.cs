@@ -9,13 +9,13 @@ internal class RequestInputSession
 {
     internal RequestInputSession(
         string? requestFileInputText,
-        ManualInputRecordingCompletionTarget? completionTarget)
+        ManualInputLogCompletionTarget? completionTarget)
     {
         RequestFileInputText = requestFileInputText;
-        RecordingCompletionTarget = completionTarget;
+        ManualInputLogCompletionTarget = completionTarget;
     }
 
     internal string? RequestFileInputText { get; }
 
-    internal ManualInputRecordingCompletionTarget? RecordingCompletionTarget { get; }
+    internal ManualInputLogCompletionTarget? ManualInputLogCompletionTarget { get; }
 }
