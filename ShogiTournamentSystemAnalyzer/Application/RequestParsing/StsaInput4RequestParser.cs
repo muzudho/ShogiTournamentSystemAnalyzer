@@ -14,6 +14,7 @@ using static ShogiTournamentSystemAnalyzer.Application.RequestFileCheck.StsaInpu
 internal static class StsaInput4RequestParser
 {
     const int ExactCalculationMatchThreshold = 20;
+    const int DefaultApproximationSimulationCount = 200_000;
     const string FormatName = "STSAInput/4";
 
     internal static bool TryParse(RequestText requestText, out AnalysisRequest? request)
@@ -33,34 +34,22 @@ internal static class StsaInput4RequestParser
         if (flowSelection.Steps[0] == AnalysisFlowMode.Simulation && ruleProfileMode == RuleProfileMode.Standard)
         {
             var standardSimulationRequest = ParseStandardSimulationRequest(meta, sections, fullPath);
-            if (standardSimulationRequest.Matches.Count > ExactCalculationMatchThreshold
-                && !standardSimulationRequest.SimulationCount.HasValue) return false;
-
-            stepRequest = standardSimulationRequest;
+            stepRequest = EnsureStandardSimulationCountIfNeeded(standardSimulationRequest);
         }
         else if (flowSelection.Steps[0] == AnalysisFlowMode.Simulation && ruleProfileMode == RuleProfileMode.FinalStage)
         {
             var finalStageSimulationRequest = ParseFinalStageSimulationRequest(meta, sections, fullPath);
-            if (finalStageSimulationRequest.Matches.Count > ExactCalculationMatchThreshold
-                && !finalStageSimulationRequest.SimulationCount.HasValue) return false;
-
-            stepRequest = finalStageSimulationRequest;
+            stepRequest = EnsureFinalStageSimulationCountIfNeeded(finalStageSimulationRequest);
         }
         else if (flowSelection.Steps[0] == AnalysisFlowMode.QualityEvaluation && ruleProfileMode == RuleProfileMode.Standard)
         {
             var standardQualityEvaluationRequest = ParseStandardQualityEvaluationRequest(meta, sections, fullPath);
-            if (standardQualityEvaluationRequest.Input.Matches.Count > ExactCalculationMatchThreshold
-                && !standardQualityEvaluationRequest.ExecutionOptions.SimulationCount.HasValue) return false;
-
-            stepRequest = standardQualityEvaluationRequest;
+            stepRequest = EnsureStandardQualityEvaluationSimulationCountIfNeeded(standardQualityEvaluationRequest);
         }
         else if (flowSelection.Steps[0] == AnalysisFlowMode.QualityEvaluation && ruleProfileMode == RuleProfileMode.FinalStage)
         {
             var finalStageQualityEvaluationRequest = ParseFinalStageQualityEvaluationRequest(meta, sections, fullPath);
-            if (finalStageQualityEvaluationRequest.Input.Matches.Count > ExactCalculationMatchThreshold
-                && !finalStageQualityEvaluationRequest.ExecutionOptions.SimulationCount.HasValue) return false;
-
-            stepRequest = finalStageQualityEvaluationRequest;
+            stepRequest = EnsureFinalStageQualityEvaluationSimulationCountIfNeeded(finalStageQualityEvaluationRequest);
         }
         else
         {
@@ -72,6 +61,40 @@ internal static class StsaInput4RequestParser
             ruleProfileMode,
             new[] { stepRequest });
         return true;
+    }
+
+    static StandardSimulationRequest EnsureStandardSimulationCountIfNeeded(StandardSimulationRequest request)
+    {
+        if (request.Matches.Count <= ExactCalculationMatchThreshold || request.SimulationCount.HasValue) return request;
+
+        return request with { SimulationCount = DefaultApproximationSimulationCount };
+    }
+
+    static FinalStageSimulationRequest EnsureFinalStageSimulationCountIfNeeded(FinalStageSimulationRequest request)
+    {
+        if (request.Matches.Count <= ExactCalculationMatchThreshold || request.SimulationCount.HasValue) return request;
+
+        return request with { SimulationCount = DefaultApproximationSimulationCount };
+    }
+
+    static StandardQualityEvaluationRequest EnsureStandardQualityEvaluationSimulationCountIfNeeded(StandardQualityEvaluationRequest request)
+    {
+        if (request.Input.Matches.Count <= ExactCalculationMatchThreshold || request.ExecutionOptions.SimulationCount.HasValue) return request;
+
+        return request with
+        {
+            ExecutionOptions = request.ExecutionOptions with { SimulationCount = DefaultApproximationSimulationCount },
+        };
+    }
+
+    static FinalStageQualityEvaluationRequest EnsureFinalStageQualityEvaluationSimulationCountIfNeeded(FinalStageQualityEvaluationRequest request)
+    {
+        if (request.Input.Matches.Count <= ExactCalculationMatchThreshold || request.ExecutionOptions.SimulationCount.HasValue) return request;
+
+        return request with
+        {
+            ExecutionOptions = request.ExecutionOptions with { SimulationCount = DefaultApproximationSimulationCount },
+        };
     }
 
     static StandardSimulationRequest ParseStandardSimulationRequest(

@@ -40,7 +40,7 @@ AnalysisFlowSteps=Simulation,QualityEvaluation
 - `AnalysisFlowSteps=QualityEvaluation` の `Standard` / `FinalStage`
 - `AnalysisFlowSteps=Simulation` の `Standard` / `FinalStage` / `TournamentFramework` / `Empty`
 
-`Simulation + Standard` と `Simulation + FinalStage` は、20局以下、または20局超で `SimulationCount` がある場合に `AnalysisRequest` へ直接パースして実行します。`SimulationCount` 未指定の20局超シミュレーションは従来の legacy 入力列変換へ fallback します。`QualityEvaluation + Standard` と `QualityEvaluation + FinalStage` は、条件がそろう場合 `AnalysisRequest` へ直接パースして実行します。20局超の品質評価は `SimulationCount` がある場合だけ直接ルートで実行し、未対応条件は従来の legacy 入力列変換へ fallback します。
+`Simulation + Standard` と `Simulation + FinalStage` は、20局以下、または20局超の近似計算に対応し、`AnalysisRequest` へ直接パースして実行します。`QualityEvaluation + Standard` と `QualityEvaluation + FinalStage` も、20局以下、または20局超の近似計算に対応し、`AnalysisRequest` へ直接パースして実行します。20局超で `SimulationCount` が未指定の場合は、要求ファイル実行の既定試行回数として `200000` を採用します。
 
 `AnalysisFlowSteps=Simulation,QualityEvaluation` は形式として予約していますが、まだ要求ファイルからの自動変換には対応していません。複数ステップを1ファイルで実行するには、ステップ別入力セクションの仕様が必要です。
 
@@ -82,7 +82,7 @@ SummaryOutputPath=Output\FinalRanking\sample_simulation_summary.csv
 #[EndSection]
 ```
 
-`SimulationCount` は対局数が 21 局以上で近似計算になる場合だけ使います。対局数が 20 局以下の場合は厳密計算になり、`AnalysisRequest` 直通ルートでは `SimulationCount` を使いません。シミュレーションと品質評価の20局超では、`SimulationCount` がある場合だけ `AnalysisRequest` 直通ルートで使います。未対応条件で legacy fallback する場合は対話入力行へ流します。
+`SimulationCount` は対局数が 21 局以上で近似計算になる場合だけ使います。対局数が 20 局以下の場合は厳密計算になり、`AnalysisRequest` 直通ルートでは `SimulationCount` を使いません。シミュレーションと品質評価の20局超では、`SimulationCount` を指定した場合はその値を使い、未指定の場合は要求ファイル実行の既定値 `200000` を使います。
 ## 品質評価の最小例
 
 ```plaintext
