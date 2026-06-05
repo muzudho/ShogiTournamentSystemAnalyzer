@@ -57,11 +57,11 @@ internal static partial class Program
             // ［依頼という境界］
             RequestBoundary requestBoundary = new();
 
-            RequestInputSession? inputSession;
+            RequestInputSession? requestInputSession;
 
             #endregion
 
-            #region ［◆節１：コマンドライン引数で入力ファイルを指定したか？
+            #region ［◆節１：コマンドライン引数で要求ファイルを指定したか？
 
             var argumentResult = RequestFileArgumentReader.Read(args);
 
@@ -74,7 +74,7 @@ internal static partial class Program
 
             #endregion
 
-            // ［■辺２：はい、入力ファイル指定有り］
+            // ［■辺２：はい、要求ファイル指定有り］
             if (argumentResult.HasInputFile)
             {
                 // ［□要求ファイルチェック(`RequestFileCheck`)］
@@ -90,7 +90,7 @@ internal static partial class Program
                 }
 
                 // ［■辺４：いいえ、エラー無し］
-                inputSession = requestFileCheckResultVer2.InputSession;
+                requestInputSession = requestFileCheckResultVer2.InputSession;
             }
             //  ［■辺５：いいえ、入力ファイル指定無し］
             else
@@ -115,11 +115,11 @@ internal static partial class Program
                 // ［■辺７：いいえ、エラー無し］
                 requestModelProducer.Produce(requestBoundary);
 
-                //  ［手入力ログ］の保存先パスを尋ねるだけ（＾～＾） まだ保存はしない。
-                static string? ReadManualInputLogPath()
+                //  ［要求ファイル］の保存先パスを尋ねるだけ（＾～＾） まだ保存はしない。
+                static string? InputRequestFilePath()
                 {
-                    // ［◆節４：今回の入力を保存しておきますか？］
-                    Console.WriteLine("今回の入力を保存しておきますか？");
+                    // ［◆節４：今回の手入力を要求ファイルとして保存しておきますか？］
+                    Console.WriteLine("今回の手入力を要求ファイルとして保存しておきますか？");
                     Console.WriteLine("1. いいえ");
                     Console.WriteLine("2. はい\n");
 
@@ -129,16 +129,16 @@ internal static partial class Program
                         attempt++;
                         Console.Write("番号を入力してください [1]: ");
                         var input = ConsoleInput.ReadLine()?.Trim();
-                        if (input is null) throw new OperationCanceledException("手入力ログ作成の選択中に入力ストリームが終了しました。");
+                        if (input is null) throw new OperationCanceledException("要求ファイル作成中に入力ストリームが終了しました。");
 
                         // ［■辺８：はい、保存します］
                         if (input == "2")
                         {
-                            // ［□手入力ログ作成］
-                            Console.WriteLine("■［手入力ログ作成］");
+                            // ［□要求ファイル作成］
+                            Console.WriteLine("■［要求ファイル作成］");
                             var defaultPath = ManualInputLog.BuildDefaultPath();
                             var outputPath = ConsolePromptReaders.ReadTextWithDefault(
-                                $"手入力ログの出力先パスまたはフォルダーパスを入力してください [{defaultPath}]: ",
+                                $"要求ファイルの出力先パスまたはフォルダーパスを入力してください [{defaultPath}]: ",
                                 defaultPath);
 
                             return ManualInputLog.ResolveOutputPath(outputPath);
@@ -147,33 +147,44 @@ internal static partial class Program
                         // ［■辺９：いいえ、保存しません］
                         if (string.IsNullOrEmpty(input) || input == "1") return null;
 
-                        if (attempt >= ConsolePromptReaders.InputRetryLimit) ConsolePromptReaders.ThrowInputRetryLimitExceeded("手入力ログ作成選択", "1 または 2 以外が入力されました");
+                        if (attempt >= ConsolePromptReaders.InputRetryLimit) ConsolePromptReaders.ThrowInputRetryLimitExceeded("要求ファイル作成選択", "1 または 2 以外が入力されました");
 
                         Console.WriteLine("1 か 2 を入力してください。\n");
                     }
                 }
-                var manualInputLogPath = ReadManualInputLogPath();
+                var requestFilePath = InputRequestFilePath();
 
-                if (manualInputLogPath is null)
+                if (requestFilePath is null)
                 {
                     Console.WriteLine();
-                    inputSession = new RequestInputSession(null, null);
+                    requestInputSession = new RequestInputSession(null, null);
                 }
                 else
                 {
-                    inputSession = ManualInputLogSessionStarter.Start(manualInputLogPath);
+                    requestInputSession = RequestFileCreationSessionStarter.Start(requestFilePath);
                 }
-            }
 
-            if (inputSession is null)
-            {
-                Console.WriteLine("●異常終了：　入力セッションを開始できませんでした。");
-                return;
-            }
+                if (requestInputSession is null)
+                {
+                    Console.WriteLine("●異常終了：　入力セッションを開始できませんでした。");
+                    return;
+                }
 
-            if (inputSession.RequestFileInputText is not null)
-            {
-                ConsoleInput.UseText(inputSession.RequestFileInputText);
+                if (requestInputSession.RequestFileInputText is not null)
+                {
+                    ConsoleInput.UseText(requestInputSession.RequestFileInputText);
+                }
+
+                // ［要求ファイル］は、分析中の入力記録が揃ってから書き出す。
+                if (requestInputSession.RequestFileCompletionTarget != null)
+                {
+                    // ［要求ファイル］を書き出します。
+                    StsaFileIOHelper.Write(
+                        label: "要求ファイル",
+                        outputPath: requestInputSession.RequestFileCompletionTarget.ManualInputLogPath,
+                        lines: requestInputSession.RequestFileCompletionTarget.RecordedLines);
+                    ConsoleInput.StopRecording();
+                }
             }
 
             #region ［■辺１０：分析の前に］
@@ -224,18 +235,6 @@ internal static partial class Program
 
             // 本処理（選択フロー）
             AnalysisFlowDispatcher.Execute(requestBoundary.AnalysisFlowSelection, requestBoundary.RuleProfileMode);
-
-
-            // ［手入力ログ］は、分析中の入力記録が揃ってから書き出す。
-            if (inputSession.ManualInputLogCompletionTarget != null)
-            {
-                // ［手入力ログ］を書き出します。
-                StsaFileIOHelper.Write(
-                    label: "手入力ログ",
-                    outputPath: inputSession.ManualInputLogCompletionTarget.ManualInputLogPath,
-                    lines: inputSession.ManualInputLogCompletionTarget.RecordedLines);
-                ConsoleInput.StopRecording();
-            }
 
             //      │
             //      ↓

@@ -8,6 +8,6 @@ namespace ShogiTournamentSystemAnalyzer.Application.AfterManualInput;
 /// </summary>
 /// <param name="ManualInputLogPath">手入力ログ作成パス</param>
 /// <param name="RecordedLines">記録した手動入力行</param>
-internal sealed record ManualInputLogCompletionTarget(
+internal sealed record RequestFileCompletionTarget(
     string ManualInputLogPath,
     IReadOnlyList<string> RecordedLines);

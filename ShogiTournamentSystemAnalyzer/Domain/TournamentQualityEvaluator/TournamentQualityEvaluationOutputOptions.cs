@@ -7,4 +7,5 @@ internal readonly record struct TournamentQualityEvaluationOutputOptions(
     TournamentQualityEvaluationReportGroupingOptions ReportGroupingOptions,
     string OutputCsvPath,
     string? PlayerCsvPath = null,
+    string? RequestInputLogPath = null,
     RuleProfileMode RuleProfileMode = RuleProfileMode.Standard);

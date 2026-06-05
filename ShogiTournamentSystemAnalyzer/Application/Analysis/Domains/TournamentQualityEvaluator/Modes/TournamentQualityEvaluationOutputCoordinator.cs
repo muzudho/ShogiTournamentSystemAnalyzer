@@ -49,7 +49,18 @@ internal static class TournamentQualityEvaluationOutputCoordinator
             $"\n品質評価サマリーCSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
             defaultOutputCsvPath));
         var playerCsvPath = ReportOutputPathBuilder.BuildTournamentQualityPlayersOutputPathFromSummary(outputCsvPath);
-        return new TournamentQualityEvaluationOutputOptions(reportGroupingOptions, outputCsvPath, playerCsvPath, ResolveRuleProfileMode(ruleDefinition));
+        var summaryMarkdownPath = CsvOutputHelpers.ChangeOutputExtension(outputCsvPath, ".md");
+        var requestInputLogPath = CsvOutputHelpers.ChangeOutputExtension(outputCsvPath, ".stsa.txt");
+        var outputOptions = new TournamentQualityEvaluationOutputOptions(
+            reportGroupingOptions,
+            outputCsvPath,
+            playerCsvPath,
+            requestInputLogPath,
+            ResolveRuleProfileMode(ruleDefinition));
+
+        WriteTournamentQualityReportRequestInputLog(outputOptions, summaryMarkdownPath);
+        Console.WriteLine($"依頼ログSTSAを出力しました: {requestInputLogPath}");
+        return outputOptions;
     }
 
     internal static TournamentQualityEvaluationOutputOptions ReadTournamentQualitySweepReportOutputOptions(TournamentQualityEvaluationRuleDefinition ruleDefinition)
@@ -99,14 +110,25 @@ internal static class TournamentQualityEvaluationOutputCoordinator
                 outputOptions.ReportGroupingOptions,
                 tournamentQualityReportData.Suggestion));
 
-        var requestInputLogPath = CsvOutputHelpers.ChangeOutputExtension(outputOptions.OutputCsvPath, ".stsa.txt");
+        Console.WriteLine($"品質評価サマリーCSVを出力しました: {outputOptions.OutputCsvPath}");
+        Console.WriteLine($"品質評価選手別CSVを出力しました: {playerCsvPath}");
+        Console.WriteLine($"品質評価サマリーMarkdownを出力しました: {summaryMarkdownPath}");
+    }
+
+
+    static void WriteTournamentQualityReportRequestInputLog(
+        TournamentQualityEvaluationOutputOptions outputOptions,
+        string summaryMarkdownPath)
+    {
+        if (outputOptions.RequestInputLogPath is null) return;
+
         WriterHelper.WriteText(
-            outputPath: requestInputLogPath,
+            outputPath: outputOptions.RequestInputLogPath,
             getLines: () => RequestInputLogFileWriter.CreateRequestInputLogLines(new
             {
                 analysis_flow_steps = "QualityEvaluation",
                 rule_profile_mode = outputOptions.RuleProfileMode.ToString(),
-                execution_mode = tournamentQualityReportData.CalculationMode.Contains("スイープ", StringComparison.Ordinal) ? "Sweep" : "Single",
+                execution_mode = "Single",
                 tournament_rule_set_mode = (string?)null,
                 first_player_win_rate_percent = (double?)null,
                 simulation_count = (int?)null,
@@ -119,7 +141,7 @@ internal static class TournamentQualityEvaluationOutputCoordinator
                 quality_innov_expected_rank_offset_mode = (string?)null,
                 tournament_quality_evaluation_report_grouping = outputOptions.ReportGroupingOptions.IsEnabled ? "On" : "Off",
                 tournament_quality_evaluation_report_outcome = outputOptions.ReportGroupingOptions.IsEnabled ? outputOptions.ReportGroupingOptions.Outcome.ToString() : (string?)null,
-                evaluation_memo = tournamentQualityReportData.CalculationMode,
+                evaluation_memo = string.IsNullOrWhiteSpace(outputOptions.ReportGroupingOptions.EvaluationMemo) ? (string?)null : outputOptions.ReportGroupingOptions.EvaluationMemo,
                 players_csv = string.Empty,
                 group_map_csv = (string?)null,
                 additional_apex_players_csv = (string?)null,
@@ -131,11 +153,6 @@ internal static class TournamentQualityEvaluationOutputCoordinator
                 summary_markdown_path = summaryMarkdownPath,
                 sweep_markdown_path = (string?)null
             }));
-
-        Console.WriteLine($"品質評価サマリーCSVを出力しました: {outputOptions.OutputCsvPath}");
-        Console.WriteLine($"品質評価選手別CSVを出力しました: {playerCsvPath}");
-        Console.WriteLine($"品質評価サマリーMarkdownを出力しました: {summaryMarkdownPath}");
-        Console.WriteLine($"依頼ログSTSAを出力しました: {requestInputLogPath}");
     }
 
     internal static void WriteTournamentQualitySweepReportOutputs(
