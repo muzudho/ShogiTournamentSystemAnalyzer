@@ -6,6 +6,7 @@ namespace ShogiTournamentSystemAnalyzer.Application.RequestParsing;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
+using Match = ShogiTournamentSystemAnalyzer.Domain.Simulation.Match;
 
 internal sealed record AnalysisRequest(
     AnalysisFlowSelection FlowSelection,
@@ -22,3 +23,9 @@ internal sealed record StandardSimulationRequest(
     IReadOnlyList<Match> Matches,
     int? SimulationCount,
     string? OutputPath) : AnalysisStepRequest;
+
+internal sealed record StandardQualityEvaluationRequest(
+    TournamentQualityEvaluationRuleDefinition RuleDefinition,
+    TournamentQualityEvaluationInput Input,
+    TournamentQualityEvaluationExecutionOptions ExecutionOptions,
+    TournamentQualityEvaluationOutputOptions OutputOptions) : AnalysisStepRequest;

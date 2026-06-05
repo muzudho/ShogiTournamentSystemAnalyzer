@@ -27,16 +27,43 @@ internal static class TournamentQualityEvaluationMainline
         // ［大会品質評価実行オプション］を読み取る
         var executionOptions = TournamentQualityEvaluationExecutor.ReadTournamentQualityEvaluationExecutionOptions(input, ruleDefinition);
 
+        RunAfterInput(input, ruleDefinition, executionOptions, outputOptions: null);
+    }
+
+    internal static void Run(
+        TournamentQualityEvaluationInput input,
+        TournamentQualityEvaluationRuleDefinition ruleDefinition,
+        TournamentQualityEvaluationExecutionOptions executionOptions,
+        TournamentQualityEvaluationOutputOptions outputOptions)
+    {
+        RunAfterInput(input, ruleDefinition, executionOptions, outputOptions);
+    }
+
+    static void RunAfterInput(
+        TournamentQualityEvaluationInput input,
+        TournamentQualityEvaluationRuleDefinition ruleDefinition,
+        TournamentQualityEvaluationExecutionOptions executionOptions,
+        TournamentQualityEvaluationOutputOptions? outputOptions)
+    {
         // ［大会品質評価実行コンテキスト］を出力
         TournamentQualityEvaluationOutputCoordinator.PrintTournamentQualityEvaluationContext(input, ruleDefinition);
 
         // スイープ実行
         if (executionOptions.IsSweep)
         {
-            TournamentQualityEvaluationSweepExecutor.Run(
+            var tournamentQualitySweepReportData = TournamentQualityEvaluationSweepExecutor.ExecuteSweepReport(
                 input,
                 ruleDefinition,
                 executionOptions);
+
+            ConsoleResultPrinter.PrintTournamentQualitySweepReportRows(tournamentQualitySweepReportData);
+            if (tournamentQualitySweepReportData.StoppedByTimeout)
+            {
+                Console.WriteLine($"シミュレーションは時間上限 {SimulationTimeBudget.SimulationTimeLimit.TotalMinutes:F0} 分で打ち切ったため、n% スイープは途中で終了しました。\n");
+            }
+
+            var resolvedOutputOptions = outputOptions ?? TournamentQualityEvaluationOutputCoordinator.ReadTournamentQualitySweepReportOutputOptions(ruleDefinition);
+            TournamentQualityEvaluationOutputCoordinator.WriteTournamentQualitySweepReportOutputs(tournamentQualitySweepReportData, resolvedOutputOptions);
             return;
         }
 
@@ -58,9 +85,9 @@ internal static class TournamentQualityEvaluationMainline
         }
 
         // 出力オプションを読み取る
-        var outputOptions = TournamentQualityEvaluationOutputCoordinator.ReadTournamentQualityReportOutputOptions(ruleDefinition);
+        var singleRunOutputOptions = outputOptions ?? TournamentQualityEvaluationOutputCoordinator.ReadTournamentQualityReportOutputOptions(ruleDefinition);
 
         // 出力オプションの指定があればCSV出力する
-        TournamentQualityEvaluationOutputCoordinator.WriteTournamentQualityReportOutputs(tournamentQualityReportData, outputOptions);
+        TournamentQualityEvaluationOutputCoordinator.WriteTournamentQualityReportOutputs(tournamentQualityReportData, singleRunOutputOptions);
     }
 }

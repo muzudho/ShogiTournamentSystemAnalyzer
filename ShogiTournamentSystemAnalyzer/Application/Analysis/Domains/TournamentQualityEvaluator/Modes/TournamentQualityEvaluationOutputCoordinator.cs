@@ -58,8 +58,6 @@ internal static class TournamentQualityEvaluationOutputCoordinator
             requestInputLogPath,
             ResolveRuleProfileMode(ruleDefinition));
 
-        WriteTournamentQualityReportRequestInputLog(outputOptions, summaryMarkdownPath);
-        Console.WriteLine($"依頼ログSTSAを出力しました: {requestInputLogPath}");
         return outputOptions;
     }
 
@@ -109,6 +107,12 @@ internal static class TournamentQualityEvaluationOutputCoordinator
                 playerCsvPath,
                 outputOptions.ReportGroupingOptions,
                 tournamentQualityReportData.Suggestion));
+
+        WriteTournamentQualityReportRequestInputLog(outputOptions, summaryMarkdownPath);
+        if (outputOptions.RequestInputLogPath is not null)
+        {
+            Console.WriteLine($"依頼ログSTSAを出力しました: {outputOptions.RequestInputLogPath}");
+        }
 
         Console.WriteLine($"品質評価サマリーCSVを出力しました: {outputOptions.OutputCsvPath}");
         Console.WriteLine($"品質評価選手別CSVを出力しました: {playerCsvPath}");
