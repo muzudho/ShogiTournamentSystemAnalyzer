@@ -118,8 +118,8 @@ internal static partial class Program
                 //  ［要求ファイル］の保存先パスを尋ねるだけ（＾～＾） まだ保存はしない。
                 static string? InputRequestFilePath()
                 {
-                    // ［◆節４：今回の手入力を要求ファイルとして保存しておきますか？］
-                    Console.WriteLine("今回の手入力を要求ファイルとして保存しておきますか？");
+                    // ［◆節４：今回の手入力を要求ファイルとして書き出しておきますか？］
+                    Console.WriteLine("今回の手入力を要求ファイルとして書き出しておきますか？");
                     Console.WriteLine("1. いいえ");
                     Console.WriteLine("2. はい\n");
 
@@ -129,13 +129,13 @@ internal static partial class Program
                         attempt++;
                         Console.Write("番号を入力してください [1]: ");
                         var input = ConsoleInput.ReadLine()?.Trim();
-                        if (input is null) throw new OperationCanceledException("要求ファイル作成中に入力ストリームが終了しました。");
+                        if (input is null) throw new OperationCanceledException("要求ファイル書出中に入力ストリームが終了しました。");
 
-                        // ［■辺８：はい、保存します］
+                        // ［■辺８：はい、書き出します］
                         if (input == "2")
                         {
-                            // ［□要求ファイル作成］
-                            Console.WriteLine("■［要求ファイル作成］");
+                            // ［□要求ファイル書出］
+                            Console.WriteLine("■［要求ファイル書出］");
                             var defaultPath = RequestFile.BuildDefaultPath();
                             var outputPath = ConsolePromptReaders.ReadTextWithDefault(
                                 $"要求ファイルの出力先パスまたはフォルダーパスを入力してください [{defaultPath}]: ",
@@ -144,47 +144,53 @@ internal static partial class Program
                             return RequestFile.ResolveOutputPath(outputPath);
                         }
 
-                        // ［■辺９：いいえ、保存しません］
+                        // ［■辺９：いいえ、書き出しません］
                         if (string.IsNullOrEmpty(input) || input == "1") return null;
 
-                        if (attempt >= ConsolePromptReaders.InputRetryLimit) ConsolePromptReaders.ThrowInputRetryLimitExceeded("要求ファイル作成選択", "1 または 2 以外が入力されました");
+                        if (attempt >= ConsolePromptReaders.InputRetryLimit) ConsolePromptReaders.ThrowInputRetryLimitExceeded("要求ファイル書出選択", "1 または 2 以外が入力されました");
 
                         Console.WriteLine("1 か 2 を入力してください。\n");
                     }
                 }
                 var requestFilePath = InputRequestFilePath();
 
-                if (requestFilePath is null)
+                // ［要求ファイル］を書き出します。
+                void WriteRequestFile(string? requestFilePath)
                 {
-                    Console.WriteLine();
-                    requestInputSession = new RequestInputSession(null, null);
-                }
-                else
-                {
-                    requestInputSession = RequestFileCreationSessionStarter.Start(requestFilePath);
-                }
 
-                if (requestInputSession is null)
-                {
-                    Console.WriteLine("●異常終了：　入力セッションを開始できませんでした。");
-                    return;
-                }
+                    if (requestFilePath is null)
+                    {
+                        Console.WriteLine();
+                        requestInputSession = new RequestInputSession(null, null);
+                    }
+                    else
+                    {
+                        requestInputSession = RequestFileCreationSessionStarter.Start(requestFilePath);
+                    }
 
-                if (requestInputSession.RequestFileInputText is not null)
-                {
-                    ConsoleInput.UseText(requestInputSession.RequestFileInputText);
-                }
+                    if (requestInputSession is null)
+                    {
+                        Console.WriteLine("●異常終了：　入力セッションを開始できませんでした。");
+                        return;
+                    }
 
-                // ［要求ファイル］は、分析中の入力記録が揃ってから書き出す。
-                if (requestInputSession.RequestFileCompletionTarget != null)
-                {
-                    // ［要求ファイル］を書き出します。
-                    StsaFileIOHelper.Write(
-                        label: "要求ファイル",
-                        outputPath: requestInputSession.RequestFileCompletionTarget.ManualInputLogPath,
-                        lines: requestInputSession.RequestFileCompletionTarget.RecordedLines);
-                    ConsoleInput.StopRecording();
+                    if (requestInputSession.RequestFileInputText is not null)
+                    {
+                        ConsoleInput.UseText(requestInputSession.RequestFileInputText);
+                    }
+
+                    // ［要求ファイル］は、分析中の入力記録が揃ってから書き出す。
+                    if (requestInputSession.RequestFileCompletionTarget != null)
+                    {
+                        // ［要求ファイル］を書き出します。
+                        StsaFileIOHelper.Write(
+                            label: "要求ファイル",
+                            outputPath: requestInputSession.RequestFileCompletionTarget.ManualInputLogPath,
+                            lines: requestInputSession.RequestFileCompletionTarget.RecordedLines);
+                        ConsoleInput.StopRecording();
+                    }
                 }
+                WriteRequestFile(requestFilePath);
             }
 
             #region ［■辺１０：分析の前に］
