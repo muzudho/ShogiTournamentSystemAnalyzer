@@ -8,7 +8,6 @@ using ShogiTournamentSystemAnalyzer.Application.Analysis;
 using ShogiTournamentSystemAnalyzer.Application.BeforeRequestFileCheck;
 using ShogiTournamentSystemAnalyzer.Application.RequestFileCheck;
 using ShogiTournamentSystemAnalyzer.Application.RequestFileWrite;
-using ShogiTournamentSystemAnalyzer.Application.Shared;
 using ShogiTournamentSystemAnalyzer.Domain.Request;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles;
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
@@ -42,17 +41,10 @@ internal static partial class Program
             // ［依頼という境界］
             RequestBoundary requestBoundary = new();
 
-            // ファイル入力テキスト
-            string? requestFileInputText = null;
-            // 記録した手動入力行
-            IReadOnlyList<string> recordedLines = Array.Empty<string>();
-
             // ［大会利用者域］（`TournamentUser`）
             bool isSuccessful = RunTournamentUserDomain(
                 args,
-                requestBoundary,
-                ref requestFileInputText,
-                ref recordedLines);
+                requestBoundary);
             if (!isSuccessful) return;  // エラー終了
 
             // ［□分析(`Analysis`)］
@@ -90,17 +82,15 @@ internal static partial class Program
     /// </summary>
     /// <param name="args"></param>
     /// <param name="requestBoundary"></param>
-    /// <param name="requestInputSession"></param>
     /// <returns>成功か</returns>
     /// <exception cref="OperationCanceledException"></exception>
     private static bool RunTournamentUserDomain(
         string[] args,
-        RequestBoundary requestBoundary,
-        // ファイル入力テキスト
-        ref string? requestFileInputText,
-        // 記録した手動入力行
-        ref IReadOnlyList<string> recordedLines)
+        RequestBoundary requestBoundary)
     {
+        // 記録した手動入力行
+        IReadOnlyList<string> recordedLines = Array.Empty<string>();
+
         //　　｜
         //　　｜　［大会ルールという境界］        `TournamentRule`
         //　　｜　［プレイヤー一覧という境界］    `PlayerList`
@@ -137,8 +127,6 @@ internal static partial class Program
             }
 
             // ［■辺４：いいえ、エラー無し］
-            // ファイル入力テキスト
-            requestFileInputText = requestFileCheckResultVer2.RequestFileInputText;
             // 記録した手動入力行
             recordedLines = requestFileCheckResultVer2.RecordedLines;
         }
@@ -153,7 +141,7 @@ internal static partial class Program
             //
 
             // ファイル入力テキスト
-            requestFileInputText = null;
+            string? requestFileInputText = null;
             // 記録した手動入力行
             recordedLines = ConsoleInput.StartRecording();
 
