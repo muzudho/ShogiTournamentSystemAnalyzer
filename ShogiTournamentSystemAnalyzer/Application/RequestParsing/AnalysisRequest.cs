@@ -29,3 +29,9 @@ internal sealed record StandardQualityEvaluationRequest(
     TournamentQualityEvaluationInput Input,
     TournamentQualityEvaluationExecutionOptions ExecutionOptions,
     TournamentQualityEvaluationOutputOptions OutputOptions) : AnalysisStepRequest;
+
+internal sealed record FinalStageQualityEvaluationRequest(
+    TournamentQualityEvaluationRuleDefinition RuleDefinition,
+    TournamentQualityEvaluationInput Input,
+    TournamentQualityEvaluationExecutionOptions ExecutionOptions,
+    TournamentQualityEvaluationOutputOptions OutputOptions) : AnalysisStepRequest;

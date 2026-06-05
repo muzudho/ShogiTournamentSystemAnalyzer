@@ -4,10 +4,13 @@
 利用者向けの使い方や仕様説明は [docs/設計](../設計/README.md)、このフォルダーは実装予定・改修方針・調査メモを扱います。
 
 ## ファイル一覧
+- [プログラム4パート構成_第67ステップ実行計画.md](./プログラム4パート構成_第67ステップ実行計画.md)
+  - 本戦品質評価を `AnalysisRequest` 直通ルートへ移す実装計画
 - [プログラム4パート構成_第66ステップ実行計画.md](./プログラム4パート構成_第66ステップ実行計画.md)
   - 標準品質評価を `AnalysisRequest` 直通ルートへ移す実装計画
 - [プログラム4パート構成_第65ステップ実行計画.md](./プログラム4パート構成_第65ステップ実行計画.md)
-  - 標準シミュレーションを `AnalysisRequest` 直通ルートへ移す実装計画- [Codex_apply_patch回避メモ_20260605.md](./Codex_apply_patch回避メモ_20260605.md)
+  - 標準シミュレーションを `AnalysisRequest` 直通ルートへ移す実装計画
+- [Codex_apply_patch回避メモ_20260605.md](./Codex_apply_patch回避メモ_20260605.md)
   - `apply_patch` がワークスペース外判定で失敗したときの PowerShell 回避策
 - [step63-flow-sequentialization-plan.md](./step63-flow-sequentialization-plan.md)
   - 分析フロー直列化、STSAInput/4、代表要求ファイルモダナイズの実装計画

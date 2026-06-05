@@ -31,6 +31,10 @@ internal static class AnalysisRequestDispatcher
                 ExecuteStandardQualityEvaluation(standardQualityEvaluationRequest);
                 break;
 
+            case FinalStageQualityEvaluationRequest finalStageQualityEvaluationRequest:
+                ExecuteFinalStageQualityEvaluation(finalStageQualityEvaluationRequest);
+                break;
+
             default:
                 throw new InvalidOperationException($"未対応の分析要求です: {step.GetType().Name}");
         }
@@ -52,6 +56,15 @@ internal static class AnalysisRequestDispatcher
     }
 
     static void ExecuteStandardQualityEvaluation(StandardQualityEvaluationRequest request)
+    {
+        TournamentQualityEvaluationMainline.Run(
+            request.Input,
+            request.RuleDefinition,
+            request.ExecutionOptions,
+            request.OutputOptions);
+    }
+
+    static void ExecuteFinalStageQualityEvaluation(FinalStageQualityEvaluationRequest request)
     {
         TournamentQualityEvaluationMainline.Run(
             request.Input,

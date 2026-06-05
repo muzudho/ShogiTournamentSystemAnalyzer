@@ -37,10 +37,12 @@ AnalysisFlowSteps=Simulation,QualityEvaluation
 
 要求ファイルからの自動実行では、現在は単一ステップだけ対応しています。
 
-- `AnalysisFlowSteps=QualityEvaluation`
+- `AnalysisFlowSteps=QualityEvaluation` の `Standard` / `FinalStage`
 - `AnalysisFlowSteps=Simulation` の `Standard` / `FinalStage` / `TournamentFramework` / `Empty`
 
-`AnalysisFlowSteps=Simulation,QualityEvaluation` は形式として予約していますが、まだ要求ファイルからの自動変換には対応していません。理由は、既存実装が要求ファイルを直接モデル化せず、対話入力の回答列へ変換しているためです。複数ステップを1ファイルで実行するには、ステップ別入力セクションの仕様が必要です。
+`QualityEvaluation + Standard` と `QualityEvaluation + FinalStage` は、条件がそろう場合 `AnalysisRequest` へ直接パースして実行します。20局超の品質評価は `SimulationCount` がある場合だけ直接ルートで実行し、未対応条件は従来の legacy 入力列変換へ fallback します。
+
+`AnalysisFlowSteps=Simulation,QualityEvaluation` は形式として予約していますが、まだ要求ファイルからの自動変換には対応していません。複数ステップを1ファイルで実行するには、ステップ別入力セクションの仕様が必要です。
 
 ## 互換性
 

@@ -45,6 +45,14 @@ internal static class StsaInput4RequestParser
 
             stepRequest = standardQualityEvaluationRequest;
         }
+        else if (flowSelection.Steps[0] == AnalysisFlowMode.QualityEvaluation && ruleProfileMode == RuleProfileMode.FinalStage)
+        {
+            var finalStageQualityEvaluationRequest = ParseFinalStageQualityEvaluationRequest(meta, sections, fullPath);
+            if (finalStageQualityEvaluationRequest.Input.Matches.Count > ExactCalculationMatchThreshold
+                && !finalStageQualityEvaluationRequest.ExecutionOptions.SimulationCount.HasValue) return false;
+
+            stepRequest = finalStageQualityEvaluationRequest;
+        }
         else
         {
             return false;
@@ -123,9 +131,65 @@ internal static class StsaInput4RequestParser
             TournamentQualityEvaluationInnovExpectedRankOffsetMode.Off,
             0);
         var executionOptions = ParseQualityEvaluationExecutionOptions(meta, fullPath);
-        var outputOptions = ParseQualityEvaluationOutputOptions(meta, sections, executionOptions.IsSweep, fullPath);
+        var outputOptions = ParseQualityEvaluationOutputOptions(meta, sections, executionOptions.IsSweep, fullPath, RuleProfileMode.Standard);
 
         return new StandardQualityEvaluationRequest(
+            ruleDefinition,
+            input,
+            executionOptions,
+            outputOptions);
+    }
+
+    static FinalStageQualityEvaluationRequest ParseFinalStageQualityEvaluationRequest(
+        Dictionary<string, string> meta,
+        Dictionary<string, List<string>> sections,
+        string fullPath)
+    {
+        var players = ParsePlayers(GetRequiredSectionLines(sections, "PlayersCsv", fullPath, FormatName), fullPath);
+        var groupMap = ParseFinalStageGroupMap(GetRequiredSectionLines(sections, "GroupMapCsv", fullPath, FormatName), fullPath);
+        if (!FinalStageValidators.ValidateFinalStagePlayers(players, groupMap, out var playerErrorMessage))
+        {
+            throw new OperationCanceledException($"{FormatName} の PlayersCsv / GroupMapCsv セクションを本戦品質評価の選手一覧として検証できません: {playerErrorMessage} ({fullPath})");
+        }
+
+        var additionalApexPlayers = ParseOptionalPlayers(GetOptionalSectionLines(sections, "AdditionalApexPlayersCsv"), fullPath);
+        if (!FinalStageValidators.ValidateAdditionalApexPlayers(players, groupMap, additionalApexPlayers, out var additionalApexErrorMessage))
+        {
+            throw new OperationCanceledException($"{FormatName} の AdditionalApexPlayersCsv セクションを検証できません: {additionalApexErrorMessage} ({fullPath})");
+        }
+
+        var matches = ParseMatches(GetRequiredSectionLines(sections, "MatchesInput", fullPath, FormatName), players, "MatchesInput", fullPath);
+        if (!FinalStageValidators.ValidateFinalStageMatches(players, groupMap, matches, out var matchErrorMessage))
+        {
+            throw new OperationCanceledException($"{FormatName} の MatchesInput セクションを本戦品質評価の対局として検証できません: {matchErrorMessage} ({fullPath})");
+        }
+
+        var additionalApexPlacementMode = ParseAdditionalApexPlacementMode(GetRequiredMetaValue(meta, "AdditionalApexPlacementMode", fullPath, FormatName));
+        var effectiveAdditionalApexCount = AdditionalApexPlacementRule.GetEffectiveAdditionalApexCount(additionalApexPlayers.Count, additionalApexPlacementMode);
+        var variableTop8Mode = ParseVariableTop8Mode(GetRequiredMetaValue(meta, "VariableTop8Mode", fullPath, FormatName));
+        var ruleDefinition = new TournamentQualityEvaluationRuleDefinition(
+            FinalStageGroupingMode.On,
+            TournamentRuleSetMode.Neutral,
+            groupMap,
+            additionalApexPlayers,
+            additionalApexPlacementMode,
+            effectiveAdditionalApexCount,
+            ParseBoundaryRescueMode(GetRequiredMetaValue(meta, "BoundaryRescueMode", fullPath, FormatName)),
+            variableTop8Mode,
+            VariableTop8Rule.GetPromotedInnovCount(variableTop8Mode, additionalApexPlayers.Count));
+        var innovExpectedRankOffsetMode = ParseInnovExpectedRankOffsetMode(GetRequiredMetaValue(meta, "QualityInnovExpectedRankOffsetMode", fullPath, FormatName));
+        var input = new TournamentQualityEvaluationInput(
+            players,
+            matches,
+            ParseOptionalMatches(GetOptionalSectionLines(sections, "ReferenceMatchesInput"), players, "ReferenceMatchesInput", fullPath),
+            innovExpectedRankOffsetMode,
+            TournamentQualityEvaluationInnovExpectedRankOffsetRule.GetComparisonRankOffset(
+                effectiveAdditionalApexCount,
+                innovExpectedRankOffsetMode));
+        var executionOptions = ParseQualityEvaluationExecutionOptions(meta, fullPath);
+        var outputOptions = ParseQualityEvaluationOutputOptions(meta, sections, executionOptions.IsSweep, fullPath, RuleProfileMode.FinalStage);
+
+        return new FinalStageQualityEvaluationRequest(
             ruleDefinition,
             input,
             executionOptions,
@@ -164,7 +228,8 @@ internal static class StsaInput4RequestParser
         Dictionary<string, string> meta,
         Dictionary<string, List<string>> sections,
         bool isSweep,
-        string fullPath)
+        string fullPath,
+        RuleProfileMode ruleProfileMode)
     {
         var output = ReadOutputKeyValues(sections, fullPath);
         var groupingOptions = ParseReportGroupingOptions(meta, output);
@@ -181,7 +246,7 @@ internal static class StsaInput4RequestParser
             outputPath,
             isSweep ? null : playerCsvPath,
             isSweep ? null : Path.ChangeExtension(outputPath, ".stsa.txt"),
-            RuleProfileMode.Standard);
+            ruleProfileMode);
     }
 
     static TournamentQualityEvaluationReportGroupingOptions ParseReportGroupingOptions(
@@ -256,6 +321,48 @@ internal static class StsaInput4RequestParser
         if (InputParsers.TryParsePlayers(lines, out var players, out var err)) return players;
 
         throw new OperationCanceledException($"{FormatName} の PlayersCsv セクションを解析できません: {err.Value} ({fullPath})");
+    }
+
+    static List<Player> ParseOptionalPlayers(IReadOnlyList<string> lines, string fullPath)
+    {
+        return lines.Any(line => !string.IsNullOrWhiteSpace(line))
+            ? ParsePlayers(lines, fullPath)
+            : new List<Player>();
+    }
+
+    static Dictionary<string, FinalStageGroup> ParseFinalStageGroupMap(IReadOnlyList<string> lines, string fullPath)
+    {
+        if (InputParsers.TryParseFinalStageGroups(lines, out var groupMap, out var err)) return groupMap;
+
+        throw new OperationCanceledException($"{FormatName} の GroupMapCsv セクションを解析できません: {err.Value} ({fullPath})");
+    }
+
+    static AdditionalApexPlacementMode ParseAdditionalApexPlacementMode(string value)
+    {
+        return ParseOffOnSelection(value, offNumber: "1", onNumber: "2", "AdditionalApexPlacementMode", FormatName) == "2"
+            ? AdditionalApexPlacementMode.On
+            : AdditionalApexPlacementMode.Off;
+    }
+
+    static BoundaryRescueMode ParseBoundaryRescueMode(string value)
+    {
+        return ParseOffOnSelection(value, offNumber: "1", onNumber: "2", "BoundaryRescueMode", FormatName) == "2"
+            ? BoundaryRescueMode.On
+            : BoundaryRescueMode.Off;
+    }
+
+    static VariableTop8Mode ParseVariableTop8Mode(string value)
+    {
+        return ParseOffOnSelection(value, offNumber: "1", onNumber: "2", "VariableTop8Mode", FormatName) == "2"
+            ? VariableTop8Mode.On
+            : VariableTop8Mode.Off;
+    }
+
+    static TournamentQualityEvaluationInnovExpectedRankOffsetMode ParseInnovExpectedRankOffsetMode(string value)
+    {
+        return ParseOffOnSelection(value, offNumber: "1", onNumber: "2", "QualityInnovExpectedRankOffsetMode", FormatName) == "2"
+            ? TournamentQualityEvaluationInnovExpectedRankOffsetMode.On
+            : TournamentQualityEvaluationInnovExpectedRankOffsetMode.Off;
     }
 
     static List<Match> ParseOptionalMatches(
