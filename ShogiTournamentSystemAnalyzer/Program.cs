@@ -111,12 +111,14 @@ internal static partial class Program
 
         #endregion
 
+        // 要求テキスト
+        string? requestText = null;
+
         // ［■辺２：はい、要求ファイル指定有り］
         if (argumentResult.HasInputFile)
         {
             // ［□要求ファイルチェック(`RequestFileCheck`)］
-            (bool isSuccessful, string inputText) = RequestFileCheckWorkflow.Run(argumentResult);
-
+            (bool isSuccessful, requestText) = RequestFileCheckWorkflow.Run(argumentResult);
 
             // ［◆節２：エラーが有ったか？］
             if (!isSuccessful)
@@ -128,7 +130,7 @@ internal static partial class Program
 
             // ［■辺４：いいえ、エラー無し］
             // 記録した手動入力行
-            recordedLines = inputText.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+            recordedLines = requestText.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
         }
         //  ［■辺５：いいえ、入力ファイル指定無し］
         else
@@ -140,8 +142,6 @@ internal static partial class Program
             //  📍 TODO: ここで、大会ルールを入力するプログラムを作りたい。今は空っぽ。
             //
 
-            // ファイル入力テキスト
-            string? requestFileInputText = null;
             // 記録した手動入力行
             recordedLines = ConsoleInput.StartRecording();
 
@@ -211,17 +211,11 @@ internal static partial class Program
             // ［要求ファイル］を書き出します。
             void WriteRequestFile(
                 // ファイル入力テキスト
-                ref string? requestFileInputText,
+                ref string? requestText,
                 // 記録した手動入力行
                 ref IReadOnlyList<string> recordedLines,
                 string? requestFilePath)
             {
-
-                if (requestFileInputText is not null)
-                {
-                    ConsoleInput.UseText(requestFileInputText);
-                }
-
                 // ［要求ファイル］は、分析中の入力記録が揃っていたら書き出す。
                 if (!string.IsNullOrWhiteSpace(requestFilePath) && recordedLines != null && recordedLines.Count > 0)
                 {
@@ -233,9 +227,14 @@ internal static partial class Program
                         lines: recordedLines);
                 }
             }
-            WriteRequestFile(ref requestFileInputText, ref recordedLines, requestFilePath);
+            WriteRequestFile(ref requestText, ref recordedLines, requestFilePath);
 
             ConsoleInput.StopRecording();
+        }
+
+        if (requestText is not null)
+        {
+            ConsoleInput.UseText(requestText);
         }
 
         return true;
