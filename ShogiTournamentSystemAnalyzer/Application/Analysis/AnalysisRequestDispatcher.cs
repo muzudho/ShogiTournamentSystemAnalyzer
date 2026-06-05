@@ -31,6 +31,10 @@ internal static class AnalysisRequestDispatcher
                 ExecuteStandardQualityEvaluation(standardQualityEvaluationRequest);
                 break;
 
+            case FinalStageSimulationRequest finalStageSimulationRequest:
+                ExecuteFinalStageSimulation(finalStageSimulationRequest);
+                break;
+
             case FinalStageQualityEvaluationRequest finalStageQualityEvaluationRequest:
                 ExecuteFinalStageQualityEvaluation(finalStageQualityEvaluationRequest);
                 break;
@@ -62,6 +66,29 @@ internal static class AnalysisRequestDispatcher
             request.RuleDefinition,
             request.ExecutionOptions,
             request.OutputOptions);
+    }
+
+    static void ExecuteFinalStageSimulation(FinalStageSimulationRequest request)
+    {
+        var firstPlayerWinRateRating = SimulationRatingMath.ConvertFirstPlayerWinRatePercentToRating(request.FirstPlayerWinRatePercent);
+        var context = new FinalStageModeSimulationContext(
+            request.TournamentRuleSetMode,
+            request.FirstPlayerWinRatePercent,
+            firstPlayerWinRateRating,
+            request.Players,
+            request.GroupingMode,
+            request.GroupMap,
+            request.AdditionalApexPlayers,
+            request.AdditionalApexPlacementMode,
+            request.EffectiveAdditionalApexCount,
+            request.BoundaryRescueMode,
+            request.ApexCount,
+            request.InnovCount,
+            request.Matches,
+            request.ReferenceMatches);
+
+        var mainline = new FinalStageSimulationMainline();
+        mainline.Run(context, request.OutputPath);
     }
 
     static void ExecuteFinalStageQualityEvaluation(FinalStageQualityEvaluationRequest request)

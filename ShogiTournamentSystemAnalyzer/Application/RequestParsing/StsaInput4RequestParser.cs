@@ -37,6 +37,13 @@ internal static class StsaInput4RequestParser
 
             stepRequest = standardSimulationRequest;
         }
+        else if (flowSelection.Steps[0] == AnalysisFlowMode.Simulation && ruleProfileMode == RuleProfileMode.FinalStage)
+        {
+            var finalStageSimulationRequest = ParseFinalStageSimulationRequest(meta, sections, fullPath);
+            if (finalStageSimulationRequest.Matches.Count > ExactCalculationMatchThreshold) return false;
+
+            stepRequest = finalStageSimulationRequest;
+        }
         else if (flowSelection.Steps[0] == AnalysisFlowMode.QualityEvaluation && ruleProfileMode == RuleProfileMode.Standard)
         {
             var standardQualityEvaluationRequest = ParseStandardQualityEvaluationRequest(meta, sections, fullPath);
@@ -91,6 +98,55 @@ internal static class StsaInput4RequestParser
             players,
             matches,
             simulationCount,
+            outputPath);
+    }
+
+    static FinalStageSimulationRequest ParseFinalStageSimulationRequest(
+        Dictionary<string, string> meta,
+        Dictionary<string, List<string>> sections,
+        string fullPath)
+    {
+        var firstPlayerWinRatePercent = ParseDouble(GetRequiredMetaValue(meta, "FirstPlayerWinRatePercent", fullPath, FormatName), "FirstPlayerWinRatePercent");
+        var players = ParsePlayers(GetRequiredSectionLines(sections, "PlayersCsv", fullPath, FormatName), fullPath);
+        var groupMap = ParseFinalStageGroupMap(GetRequiredSectionLines(sections, "GroupMapCsv", fullPath, FormatName), fullPath);
+        if (!FinalStageValidators.ValidateFinalStagePlayers(players, groupMap, out var playerErrorMessage))
+        {
+            throw new OperationCanceledException($"{FormatName} の PlayersCsv / GroupMapCsv セクションを本戦シミュレーションの選手一覧として検証できません: {playerErrorMessage} ({fullPath})");
+        }
+
+        var additionalApexPlayers = ParseOptionalPlayers(GetOptionalSectionLines(sections, "AdditionalApexPlayersCsv"), fullPath);
+        if (!FinalStageValidators.ValidateAdditionalApexPlayers(players, groupMap, additionalApexPlayers, out var additionalApexErrorMessage))
+        {
+            throw new OperationCanceledException($"{FormatName} の AdditionalApexPlayersCsv セクションを検証できません: {additionalApexErrorMessage} ({fullPath})");
+        }
+
+        var matches = ParseMatches(GetRequiredSectionLines(sections, "MatchesInput", fullPath, FormatName), players, "MatchesInput", fullPath);
+        if (!FinalStageValidators.ValidateFinalStageMatches(players, groupMap, matches, out var matchErrorMessage))
+        {
+            throw new OperationCanceledException($"{FormatName} の MatchesInput セクションを本戦シミュレーションの対局として検証できません: {matchErrorMessage} ({fullPath})");
+        }
+
+        var additionalApexPlacementMode = ParseAdditionalApexPlacementMode(GetRequiredMetaValue(meta, "AdditionalApexPlacementMode", fullPath, FormatName));
+        var effectiveAdditionalApexCount = AdditionalApexPlacementRule.GetEffectiveAdditionalApexCount(additionalApexPlayers.Count, additionalApexPlacementMode);
+        var apexCount = groupMap.Count(x => x.Value == FinalStageGroup.Apex);
+        var innovCount = groupMap.Count - apexCount;
+        var outputPath = ReadSimulationOutputPath(meta, sections, fullPath);
+
+        return new FinalStageSimulationRequest(
+            TournamentRuleSetMode.Neutral,
+            firstPlayerWinRatePercent,
+            players,
+            FinalStageGroupingMode.On,
+            groupMap,
+            additionalApexPlayers,
+            additionalApexPlacementMode,
+            effectiveAdditionalApexCount,
+            ParseBoundaryRescueMode(GetRequiredMetaValue(meta, "BoundaryRescueMode", fullPath, FormatName)),
+            apexCount,
+            innovCount,
+            matches,
+            ParseOptionalMatches(GetOptionalSectionLines(sections, "ReferenceMatchesInput"), players, "ReferenceMatchesInput", fullPath),
+            ParseOptionalInt(GetOptionalMetaValue(meta, "SimulationCount"), "SimulationCount"),
             outputPath);
     }
 
@@ -194,6 +250,18 @@ internal static class StsaInput4RequestParser
             input,
             executionOptions,
             outputOptions);
+    }
+
+    static string? ReadSimulationOutputPath(
+        Dictionary<string, string> meta,
+        Dictionary<string, List<string>> sections,
+        string fullPath)
+    {
+        var output = ReadOutputKeyValues(sections, fullPath);
+        return GetOptionalMetaValue(output, "SummaryOutputPath")
+            ?? GetOptionalMetaValue(output, "OutputPath")
+            ?? GetOptionalMetaValue(meta, "SummaryOutputPath")
+            ?? GetOptionalMetaValue(meta, "OutputPath");
     }
 
     static TournamentQualityEvaluationExecutionOptions ParseQualityEvaluationExecutionOptions(

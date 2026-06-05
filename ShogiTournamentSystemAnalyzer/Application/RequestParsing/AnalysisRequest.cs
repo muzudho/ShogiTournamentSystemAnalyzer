@@ -24,6 +24,23 @@ internal sealed record StandardSimulationRequest(
     int? SimulationCount,
     string? OutputPath) : AnalysisStepRequest;
 
+internal sealed record FinalStageSimulationRequest(
+    TournamentRuleSetMode TournamentRuleSetMode,
+    double FirstPlayerWinRatePercent,
+    IReadOnlyList<Player> Players,
+    FinalStageGroupingMode GroupingMode,
+    IReadOnlyDictionary<string, FinalStageGroup> GroupMap,
+    IReadOnlyList<Player> AdditionalApexPlayers,
+    AdditionalApexPlacementMode AdditionalApexPlacementMode,
+    int EffectiveAdditionalApexCount,
+    BoundaryRescueMode BoundaryRescueMode,
+    int ApexCount,
+    int InnovCount,
+    IReadOnlyList<Match> Matches,
+    IReadOnlyList<Match> ReferenceMatches,
+    int? SimulationCount,
+    string? OutputPath) : AnalysisStepRequest;
+
 internal sealed record StandardQualityEvaluationRequest(
     TournamentQualityEvaluationRuleDefinition RuleDefinition,
     TournamentQualityEvaluationInput Input,

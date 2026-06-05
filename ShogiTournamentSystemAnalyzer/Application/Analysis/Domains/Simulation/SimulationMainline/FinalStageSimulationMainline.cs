@@ -23,6 +23,21 @@ using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 internal class FinalStageSimulationMainline
     : AbstractSimulationMainline
 {
+    string? outputPathOverride;
+
+    internal void Run(FinalStageModeSimulationContext context, string? outputPathOverride)
+    {
+        this.outputPathOverride = outputPathOverride;
+        try
+        {
+            Run(context);
+        }
+        finally
+        {
+            this.outputPathOverride = null;
+        }
+    }
+
     protected override SimulationMainlineExecutionResult ExecuteSimulation(AbstractSimulationContext context)
     {
         var finalStageContext = (FinalStageModeSimulationContext)context;
@@ -125,7 +140,7 @@ internal class FinalStageSimulationMainline
     /// <param name="result"></param>
     /// <param name="standardResultRows"></param>
     /// <param name="finalStageResultRows"></param>
-    static void WriteFinalRankingOutputsForFinalStageMode(
+    void WriteFinalRankingOutputsForFinalStageMode(
         FinalRankingMarkdownFileWriter finalRankingDataFileWriter,
         FinalStageModeSimulationContext context,
         SimulationMainlineExecutionResult<StandardResultRow> executionResult)
@@ -137,7 +152,7 @@ internal class FinalStageSimulationMainline
         CompleteFinalStageOutputs(context, outputCsvPath, outputMarkdownPath, referenceMatchesCsvPath);
     }
 
-    static void WriteFinalRankingOutputsForFinalStageMode(
+    void WriteFinalRankingOutputsForFinalStageMode(
         FinalRankingMarkdownFileWriter finalRankingDataFileWriter,
         FinalStageModeSimulationContext context,
         SimulationMainlineExecutionResult<FinalStageResultRow> executionResult)
@@ -154,13 +169,22 @@ internal class FinalStageSimulationMainline
         CompleteFinalStageOutputs(context, outputCsvPath, outputMarkdownPath, referenceMatchesCsvPath);
     }
 
-    static (string OutputCsvPath, string OutputMarkdownPath, string? ReferenceMatchesCsvPath) PrepareFinalStageOutputPaths(FinalStageModeSimulationContext context)
+    (string OutputCsvPath, string OutputMarkdownPath, string? ReferenceMatchesCsvPath) PrepareFinalStageOutputPaths(FinalStageModeSimulationContext context)
     {
-        var (outputCsvPath, outputMarkdownPath) = ResolveFinalRankingOutputPaths($"final_stage_final_ranking_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
+        var (outputCsvPath, outputMarkdownPath) = string.IsNullOrWhiteSpace(outputPathOverride)
+            ? ResolveFinalRankingOutputPaths($"final_stage_final_ranking_{DateTime.Now:yyyyMMdd_HHmmss}.csv")
+            : ResolveFinalRankingOutputPathsFromOverride(outputPathOverride);
         var referenceMatchesCsvPath = context.ReferenceMatches.Count > 0
             ? ReportOutputPathBuilder.BuildTournamentFinalStateDefaultOutputPath($"reference_matches_{DateTime.Now:yyyyMMdd_HHmmss}.csv")
             : null;
         return (outputCsvPath, outputMarkdownPath, referenceMatchesCsvPath);
+    }
+
+    static (string OutputCsvPath, string OutputMarkdownPath) ResolveFinalRankingOutputPathsFromOverride(string outputPath)
+    {
+        var outputCsvPath = CsvOutputHelpers.ResolveOutputCsvPath(outputPath);
+        var outputMarkdownPath = CsvOutputHelpers.ChangeOutputExtension(outputCsvPath, ".md");
+        return (outputCsvPath, outputMarkdownPath);
     }
 
     static void CompleteFinalStageOutputs(
