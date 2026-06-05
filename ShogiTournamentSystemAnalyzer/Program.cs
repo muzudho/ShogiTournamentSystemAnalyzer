@@ -11,8 +11,8 @@ using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation;
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.TournamentUser;
 using ShogiTournamentSystemAnalyzer.Application.BeforeRequestFileCheck;
-using ShogiTournamentSystemAnalyzer.Application.BeforeRequestFileCreate;
 using ShogiTournamentSystemAnalyzer.Application.RequestFileCheck;
+using ShogiTournamentSystemAnalyzer.Application.RequestFileCreate;
 using ShogiTournamentSystemAnalyzer.Application.Shared;
 using ShogiTournamentSystemAnalyzer.Domain.FinalRanking;
 using ShogiTournamentSystemAnalyzer.Domain.Request;
@@ -116,8 +116,44 @@ internal static partial class Program
                 // ［■辺７：いいえ、エラー無し］
                 requestModelProducer.Produce(requestBoundary);
 
-                // 👇［節４］～［辺９］
-                var requestFileCreatePath = RequestFileCreatePrompt.InputRequestFilePath();
+                //  ［要求ファイル］の保存先パスを尋ねるだけ（＾～＾） まだ保存はしない。
+                static string? InputRequestFilePath()
+                {
+                    // ［◆節４：今回の入力を保存しておきますか？］
+                    Console.WriteLine("今回の入力を保存しておきますか？");
+                    Console.WriteLine("1. いいえ");
+                    Console.WriteLine("2. はい\n");
+
+                    var attempt = 0;
+                    while (true)
+                    {
+                        attempt++;
+                        Console.Write("番号を入力してください [1]: ");
+                        var input = ConsoleInput.ReadLine()?.Trim();
+                        if (input is null) throw new OperationCanceledException("要求ファイル作成の選択中に入力ストリームが終了しました。");
+
+                        // ［■辺８：はい、保存します］
+                        if (input == "2")
+                        {
+                            // ［□要求ファイル作成(`RequestFileCreate`)］
+                            Console.WriteLine("■［要求ファイル作成］");
+                            var defaultPath = RequestFileCreate.BuildDefaultPath();
+                            var outputPath = ConsolePromptReaders.ReadTextWithDefault(
+                                $"要求ファイルの出力先パスまたはフォルダーパスを入力してください [{defaultPath}]: ",
+                                defaultPath);
+
+                            return RequestFileCreate.ResolveOutputPath(outputPath);
+                        }
+
+                        // ［■辺９：いいえ、保存しません］
+                        if (string.IsNullOrEmpty(input) || input == "1") return null;
+
+                        if (attempt >= ConsolePromptReaders.InputRetryLimit) ConsolePromptReaders.ThrowInputRetryLimitExceeded("要求ファイル作成選択", "1 または 2 以外が入力されました");
+
+                        Console.WriteLine("1 か 2 を入力してください。\n");
+                    }
+                }
+                var requestFileCreatePath = InputRequestFilePath();
 
                 if (requestFileCreatePath is null)
                 {
@@ -191,7 +227,7 @@ internal static partial class Program
             AnalysisFlowDispatcher.Execute(requestBoundary.AnalysisFlowSelection, requestBoundary.RuleProfileMode);
 
 
-            // TODO: ［要求ファイル］の書き出しは、分析の前では（＾～＾）？
+            // TODO: ［要求ファイル］の書き出しは、［出力先パス］を尋ねた直後でよいのでは（＾～＾）？
             if (inputSession.CompletionTarget != null)
             {
                 // ［要求ファイル］を書き出します。
