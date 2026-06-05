@@ -136,6 +136,9 @@ internal static partial class Program
             }
 
             // ［■辺４：いいえ、エラー無し］
+            ConsoleInput.UseText(requestText);
+            requestBoundary.AnalysisFlowSelection = ConsolePromptReaders.ReadAnalysisFlowSelection();
+            requestBoundary.RuleProfileMode = ConsolePromptReaders.ReadRuleProfileMode(requestBoundary.AnalysisFlowSelection);
         }
         //  ［■辺５：いいえ、入力ファイル指定無し］
         else
@@ -207,11 +210,6 @@ internal static partial class Program
             ConsoleInput.PauseRecording();
             requestFilePath = InputRequestFilePath();
             recordedLines = ConsoleInput.ResumeRecording(recordedLines);
-        }
-
-        if (requestText is not null)
-        {
-            ConsoleInput.UseText(requestText);
         }
 
         return true;
