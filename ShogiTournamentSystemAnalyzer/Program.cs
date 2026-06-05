@@ -6,11 +6,17 @@ namespace ShogiTournamentSystemAnalyzer;
 using ShogiTournamentSystemAnalyzer.Application;
 using ShogiTournamentSystemAnalyzer.Application.AfterManualInput;
 using ShogiTournamentSystemAnalyzer.Application.Analysis;
+using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Ranking;
+using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation;
+using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.TournamentQualityEvaluator;
+using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.TournamentUser;
 using ShogiTournamentSystemAnalyzer.Application.BeforeRequestFileCheck;
 using ShogiTournamentSystemAnalyzer.Application.BeforeRequestFileCreate;
 using ShogiTournamentSystemAnalyzer.Application.RequestFileCheck;
 using ShogiTournamentSystemAnalyzer.Application.Shared;
+using ShogiTournamentSystemAnalyzer.Domain.FinalRanking;
 using ShogiTournamentSystemAnalyzer.Domain.Request;
+using ShogiTournamentSystemAnalyzer.Domain.TournamentFinalState;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles;
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 using System.Text;
@@ -155,7 +161,35 @@ internal static partial class Program
             //      ↓
             //      ［□分析(`Analysis`)］
             Console.WriteLine("■［分析］");
-            AnalysisWorkflow.Run(requestBoundary);
+            //［大会利用者域］                        `TournamentUser`
+            TournamentUserWorkflow.Run(requestBoundary);
+            //　　｜
+            //　　｜　［大会ルールという境界］        `TournamentRule`
+            //　　｜　［プレイヤー一覧という境界］    `PlayerList`
+            //　　｜　［順位付けの設定という境界］    `RankingSettings`
+            //　　↓
+            TournamentFinalStateBoundary tournamentFinalStateBoundary = new();
+            //［シミュレーション域］
+            SimulationWorkflow.Run(requestBoundary, tournamentFinalStateBoundary);
+            //　　｜
+            //　　｜　［大会最終状態という境界］      `TournamentFinalState`
+            //　　↓
+            //［順位付け域］
+            FinalRankingBoundary finalRankingBoundary = new();
+            RankingWorkflow.Run(tournamentFinalStateBoundary, finalRankingBoundary);
+            //　　｜
+            //　　｜　［最終順位という境界］          `FinalRanking`
+            //　　↓
+            //［大会品質評価フロー域］                `TournamentQualityEvaluator`
+            TournamentQualityEvaluatorWorkflow.Run(finalRankingBoundary);
+            //　　｜
+            //　　｜　［大会品質レポートという境界］  `TournamentQualityReport`
+            //　　↓
+
+
+            // 本処理（選択フロー）
+            AnalysisFlowDispatcher.Execute(requestBoundary.AnalysisFlowSelection, requestBoundary.RuleProfileMode);
+
 
             // TODO: ［要求ファイル］の書き出しは、分析の前では（＾～＾）？
             if (inputSession.CompletionTarget != null)
