@@ -129,8 +129,6 @@ internal static partial class Program
             }
 
             // ［■辺４：いいえ、エラー無し］
-            // 記録した手動入力行
-            recordedLines = requestText.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
         }
         //  ［■辺５：いいえ、入力ファイル指定無し］
         else
