@@ -210,8 +210,6 @@ internal static partial class Program
 
             // ［要求ファイル］を書き出します。
             void WriteRequestFile(
-                // ファイル入力テキスト
-                ref string? requestText,
                 // 記録した手動入力行
                 ref IReadOnlyList<string> recordedLines,
                 string? requestFilePath)
@@ -227,7 +225,7 @@ internal static partial class Program
                         lines: recordedLines);
                 }
             }
-            WriteRequestFile(ref requestText, ref recordedLines, requestFilePath);
+            WriteRequestFile(ref recordedLines, requestFilePath);
 
             ConsoleInput.StopRecording();
         }
