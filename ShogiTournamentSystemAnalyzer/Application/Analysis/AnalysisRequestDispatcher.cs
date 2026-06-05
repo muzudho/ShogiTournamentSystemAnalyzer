@@ -56,7 +56,7 @@ internal static class AnalysisRequestDispatcher
             request.Matches);
 
         var mainline = new StandardSimulationMainline();
-        mainline.Run(context, request.OutputPath);
+        mainline.Run(context, request.OutputPath, request.SimulationCount);
     }
 
     static void ExecuteStandardQualityEvaluation(StandardQualityEvaluationRequest request)

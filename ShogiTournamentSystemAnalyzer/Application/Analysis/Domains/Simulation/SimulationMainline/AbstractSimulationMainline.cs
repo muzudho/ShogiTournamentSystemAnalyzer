@@ -79,7 +79,8 @@ internal abstract class AbstractSimulationMainline
     protected static CalculationResult ExecuteStandardTournamentFinalState(
         AbstractSimulationContext context,
         string exactCalculationMessage,
-        string simulationPrompt)
+        string simulationPrompt,
+        int? requestedSimulationCount = null)
     {
         if (context.Matches.Count <= 20)
         {
@@ -89,10 +90,11 @@ internal abstract class AbstractSimulationMainline
         }
 
         const int defaultSimulationCount = 200_000;
-        var simulationCount = ConsolePromptReaders.ReadIntWithDefault(
-            simulationPrompt,
-            defaultSimulationCount,
-            min: 1);
+        var simulationCount = requestedSimulationCount
+            ?? ConsolePromptReaders.ReadIntWithDefault(
+                simulationPrompt,
+                defaultSimulationCount,
+                min: 1);
 
         Console.WriteLine();
         using var simulationBudget = SimulationTimeBudget.BeginSimulationBudget();

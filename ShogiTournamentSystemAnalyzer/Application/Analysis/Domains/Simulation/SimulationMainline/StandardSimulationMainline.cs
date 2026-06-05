@@ -21,10 +21,12 @@ internal class StandardSimulationMainline
     : AbstractSimulationMainline
 {
     string? outputPathOverride;
+    int? requestedSimulationCount;
 
-    internal void Run(StandardModeSimulationContext context, string? outputPathOverride)
+    internal void Run(StandardModeSimulationContext context, string? outputPathOverride, int? requestedSimulationCount = null)
     {
         this.outputPathOverride = outputPathOverride;
+        this.requestedSimulationCount = requestedSimulationCount;
         try
         {
             Run(context);
@@ -32,6 +34,7 @@ internal class StandardSimulationMainline
         finally
         {
             this.outputPathOverride = null;
+            this.requestedSimulationCount = null;
         }
     }
 
@@ -66,12 +69,13 @@ internal class StandardSimulationMainline
         WriteFinalRankingOutputsForStandardMode(standardContext, standardExecutionResult.Result, standardExecutionResult.ResultRows, outputPathOverride);
     }
 
-    static CalculationResult ExecuteTournamentFinalState(StandardModeSimulationContext context)
+    CalculationResult ExecuteTournamentFinalState(StandardModeSimulationContext context)
     {
         return ExecuteStandardTournamentFinalState(
             context,
             exactCalculationMessage: "厳密計算を行います。\n",
-            simulationPrompt: "局数が多いためシミュレーションで近似します。試行回数を入力してください [200000]: ");
+            simulationPrompt: "局数が多いためシミュレーションで近似します。試行回数を入力してください [200000]: ",
+            requestedSimulationCount: requestedSimulationCount);
     }
 
     static void PrintStandardModeContext(StandardModeSimulationContext context)
