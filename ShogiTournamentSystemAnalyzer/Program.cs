@@ -44,53 +44,16 @@ internal static partial class Program
             // ［■辺１］
             Opening();
 
-
-            // ========================================
-            // ［大会利用者域］（`TournamentUser`）
-            // ========================================
-
-
             // ［依頼という境界］
             RequestBoundary requestBoundary = new();
 
             RequestInputSession? requestInputSession = null;
 
+            // ［大会利用者域］（`TournamentUser`）
             RunTournamentUserDomain(args, requestBoundary, ref requestInputSession);
 
-
-            // ========================================
             // ［□分析(`Analysis`)］
-            // ========================================
-
-
-            // メインライン選択のガイドを表示するぜ（＾▽＾）！
-            ProgramConsoleGuide.PrintSelectedMainline(requestBoundary.AnalysisFlowSelection, requestBoundary.RuleProfileMode);
-
-            //      │
-            //      ↓
-            //      
-            Console.WriteLine("■［分析］");
-            TournamentFinalStateBoundary tournamentFinalStateBoundary = new();
-            //［シミュレーション域］
-            SimulationWorkflow.Run(requestBoundary, tournamentFinalStateBoundary);
-            //　　｜
-            //　　｜　［大会最終状態という境界］      `TournamentFinalState`
-            //　　↓
-            //［順位付け域］
-            FinalRankingBoundary finalRankingBoundary = new();
-            RankingWorkflow.Run(tournamentFinalStateBoundary, finalRankingBoundary);
-            //　　｜
-            //　　｜　［最終順位という境界］          `FinalRanking`
-            //　　↓
-            //［大会品質評価フロー域］                `TournamentQualityEvaluator`
-            TournamentQualityEvaluatorWorkflow.Run(finalRankingBoundary);
-            //　　｜
-            //　　｜　［大会品質レポートという境界］  `TournamentQualityReport`
-            //　　↓
-
-
-            // 本処理（選択フロー）
-            AnalysisFlowDispatcher.Execute(requestBoundary.AnalysisFlowSelection, requestBoundary.RuleProfileMode);
+            RunAnalysisDomain(requestBoundary);
 
             //      │
             //      ↓
@@ -271,5 +234,42 @@ internal static partial class Program
             }
             WriteRequestFile(ref requestInputSession, requestFilePath);
         }
+    }
+
+    /// <summary>
+    /// ［分析］
+    /// </summary>
+    private static void RunAnalysisDomain(
+        RequestBoundary requestBoundary)
+    {
+        // メインライン選択のガイドを表示するぜ（＾▽＾）！
+        ProgramConsoleGuide.PrintSelectedMainline(requestBoundary.AnalysisFlowSelection, requestBoundary.RuleProfileMode);
+
+        //      │
+        //      ↓
+        //      
+        Console.WriteLine("■［分析］");
+        TournamentFinalStateBoundary tournamentFinalStateBoundary = new();
+        //［シミュレーション域］
+        SimulationWorkflow.Run(requestBoundary, tournamentFinalStateBoundary);
+        //　　｜
+        //　　｜　［大会最終状態という境界］      `TournamentFinalState`
+        //　　↓
+        //［順位付け域］
+        FinalRankingBoundary finalRankingBoundary = new();
+        RankingWorkflow.Run(tournamentFinalStateBoundary, finalRankingBoundary);
+        //　　｜
+        //　　｜　［最終順位という境界］          `FinalRanking`
+        //　　↓
+        //［大会品質評価フロー域］                `TournamentQualityEvaluator`
+        TournamentQualityEvaluatorWorkflow.Run(finalRankingBoundary);
+        //　　｜
+        //　　｜　［大会品質レポートという境界］  `TournamentQualityReport`
+        //　　↓
+
+
+        // 本処理（選択フロー）
+        AnalysisFlowDispatcher.Execute(requestBoundary.AnalysisFlowSelection, requestBoundary.RuleProfileMode);
+
     }
 }
