@@ -42,10 +42,17 @@ internal static partial class Program
             // ［依頼という境界］
             RequestBoundary requestBoundary = new();
 
-            RequestInputSession? requestInputSession = null;
+            // ファイル入力テキスト
+            string? requestFileInputText = null;
+            // 記録した手動入力行
+            IReadOnlyList<string> recordedLines = Array.Empty<string>();
 
             // ［大会利用者域］（`TournamentUser`）
-            bool isSuccessful = RunTournamentUserDomain(args, requestBoundary, ref requestInputSession);
+            bool isSuccessful = RunTournamentUserDomain(
+                args,
+                requestBoundary,
+                ref requestFileInputText,
+                ref recordedLines);
             if (!isSuccessful) return;  // エラー終了
 
             // ［□分析(`Analysis`)］
@@ -89,7 +96,10 @@ internal static partial class Program
     private static bool RunTournamentUserDomain(
         string[] args,
         RequestBoundary requestBoundary,
-        ref RequestInputSession? requestInputSession)
+        // ファイル入力テキスト
+        ref string? requestFileInputText,
+        // 記録した手動入力行
+        ref IReadOnlyList<string> recordedLines)
     {
         //　　｜
         //　　｜　［大会ルールという境界］        `TournamentRule`
@@ -127,7 +137,10 @@ internal static partial class Program
             }
 
             // ［■辺４：いいえ、エラー無し］
-            requestInputSession = requestFileCheckResultVer2.InputSession;
+            // ファイル入力テキスト
+            requestFileInputText = requestFileCheckResultVer2.RequestFileInputText;
+            // 記録した手動入力行
+            recordedLines = requestFileCheckResultVer2.RecordedLines;
         }
         //  ［■辺５：いいえ、入力ファイル指定無し］
         else
@@ -138,17 +151,17 @@ internal static partial class Program
             //
             //  📍 TODO: ここで、大会ルールを入力するプログラムを作りたい。今は空っぽ。
             //
-            var recordedLines = ConsoleInput.StartRecording();
 
-            requestInputSession = new RequestInputSession(
-                requestFileInputText: null,
-                recordedLines);
+            // ファイル入力テキスト
+            requestFileInputText = null;
+            // 記録した手動入力行
+            recordedLines = ConsoleInput.StartRecording();
 
-            if (requestInputSession is null)
-            {
-                Console.WriteLine("●異常終了：　入力セッションを開始できませんでした。");
-                return false;
-            }
+            //if (requestInputSession is null)
+            //{
+            //    Console.WriteLine("●異常終了：　入力セッションを開始できませんでした。");
+            //    return false;
+            //}
 
             // 前提入力は TournamentRule / PlayerList / RankingSettings の３境界だぜ（＾▽＾）！
             // 主線は TournamentFinalState → FinalRanking → TournamentQualityReport に寄せていくぜ（＾▽＾）！
@@ -209,28 +222,31 @@ internal static partial class Program
 
             // ［要求ファイル］を書き出します。
             void WriteRequestFile(
-                ref RequestInputSession? requestInputSession,
+                // ファイル入力テキスト
+                ref string? requestFileInputText,
+                // 記録した手動入力行
+                ref IReadOnlyList<string> recordedLines,
                 string? requestFilePath)
             {
 
-                if (requestInputSession.RequestFileInputText is not null)
+                if (requestFileInputText is not null)
                 {
-                    ConsoleInput.UseText(requestInputSession.RequestFileInputText);
+                    ConsoleInput.UseText(requestFileInputText);
                 }
 
                 // ［要求ファイル］は、分析中の入力記録が揃っていたら書き出す。
-                if (!string.IsNullOrWhiteSpace(requestFilePath) && requestInputSession.RecordedLines != null && requestInputSession.RecordedLines.Count > 0)
+                if (!string.IsNullOrWhiteSpace(requestFilePath) && recordedLines != null && recordedLines.Count > 0)
                 {
                     // ［要求ファイル］を書き出します。
                     Console.WriteLine($"要求ファイルを書き出します: {requestFilePath}\n");
                     StsaFileIOHelper.Write(
                         label: "要求ファイル",
                         outputPath: requestFilePath,
-                        lines: requestInputSession.RecordedLines);
+                        lines: recordedLines);
                     ConsoleInput.StopRecording();
                 }
             }
-            WriteRequestFile(ref requestInputSession, requestFilePath);
+            WriteRequestFile(ref requestFileInputText, ref recordedLines, requestFilePath);
         }
 
         return true;

@@ -14,6 +14,7 @@ internal class RequestInputSession
         RecordedLines = recordedLines;
     }
 
+    // ファイル入力テキスト
     internal string? RequestFileInputText { get; }
 
     // 記録した手動入力行

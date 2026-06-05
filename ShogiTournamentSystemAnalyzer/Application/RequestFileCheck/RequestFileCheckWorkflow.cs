@@ -58,12 +58,16 @@ internal class RequestFileCheckWorkflow
         {
             // ファイルは有ったが、内容のパースエラー等の場合。
             Console.WriteLine($"●エラー終了：　［要求ファイル］パース中エラー。 {parseErrorMessage}");
-            return new RequestFileCheckResultVer2(hasError: true, inputSession: null);
+            return new RequestFileCheckResultVer2(
+                hasError: true,
+                requestFileInputText: null,
+                recordedLines: Array.Empty<string>());
         }
 
         return new RequestFileCheckResultVer2(
             hasError: false,
-            inputSession: new RequestInputSession(filteredInput, Array.Empty<string>()));
+            requestFileInputText: filteredInput,
+            recordedLines: Array.Empty<string>());
     }
 
     static bool IsLegacyInputPath(string fullPath)
