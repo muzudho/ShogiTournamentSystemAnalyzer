@@ -203,7 +203,7 @@ internal static partial class Program
                 if (requestFilePath is null)
                 {
                     Console.WriteLine();
-                    requestInputSession = new RequestInputSession(null, null);
+                    requestInputSession = new RequestInputSession(null, string.Empty, Array.Empty<string>());
                 }
                 else
                 {
@@ -221,14 +221,14 @@ internal static partial class Program
                     ConsoleInput.UseText(requestInputSession.RequestFileInputText);
                 }
 
-                // ［要求ファイル］は、分析中の入力記録が揃ってから書き出す。
-                if (requestInputSession.RequestFileCompletionTarget != null)
+                // ［要求ファイル］は、分析中の入力記録が揃っていたら書き出す。
+                if (!string.IsNullOrWhiteSpace(requestInputSession.RequestFilePath) && requestInputSession.RecordedLines != null && requestInputSession.RecordedLines.Count > 0)
                 {
                     // ［要求ファイル］を書き出します。
                     StsaFileIOHelper.Write(
                         label: "要求ファイル",
-                        outputPath: requestInputSession.RequestFileCompletionTarget.ManualInputLogPath,
-                        lines: requestInputSession.RequestFileCompletionTarget.RecordedLines);
+                        outputPath: requestInputSession.RequestFilePath,
+                        lines: requestInputSession.RecordedLines);
                     ConsoleInput.StopRecording();
                 }
             }

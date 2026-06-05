@@ -9,13 +9,22 @@ internal class RequestInputSession
 {
     internal RequestInputSession(
         string? requestFileInputText,
-        RequestFileCompletionTarget? completionTarget)
+        // 要求ファイル作成パス
+        string requestFilePath,
+        // 記録した手動入力行
+        IReadOnlyList<string> recordedLines)
     {
         RequestFileInputText = requestFileInputText;
-        RequestFileCompletionTarget = completionTarget;
+        RequestFilePath = requestFilePath;
+        RecordedLines = recordedLines;
     }
 
     internal string? RequestFileInputText { get; }
 
-    internal RequestFileCompletionTarget? RequestFileCompletionTarget { get; }
+    // 要求ファイル作成パス
+    internal string RequestFilePath { get; init; }
+
+    // 記録した手動入力行
+    internal IReadOnlyList<string> RecordedLines { get; init; }
+
 }

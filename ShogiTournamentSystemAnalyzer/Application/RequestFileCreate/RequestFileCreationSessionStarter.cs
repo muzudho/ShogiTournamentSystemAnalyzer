@@ -11,9 +11,11 @@ internal static class RequestFileCreationSessionStarter
     internal static RequestInputSession Start(string requestFilePath)
     {
         var recordedLines = ConsoleInput.StartRecording();
-        var requestFileCompletionTarget = new RequestFileCompletionTarget(requestFilePath, recordedLines);
 
         Console.WriteLine($"分析中の入力を記録し、分析後に要求ファイルを作成します: {requestFilePath}\n");
-        return new RequestInputSession(requestFileInputText: null, requestFileCompletionTarget);
+        return new RequestInputSession(
+            requestFileInputText: null,
+            requestFilePath,
+            recordedLines);
     }
 }
