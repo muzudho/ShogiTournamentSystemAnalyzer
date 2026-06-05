@@ -18,7 +18,7 @@ dotnet run --project .\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyz
 入力ファイルで流すときは次です。
 
 ```powershell
-dotnet run --project .\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyzer.csproj -- --input-file .\Inputs\Bench\quality_input_[先手8x後手8].txt
+dotnet run --project .\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyzer.csproj -- --input-file .\Inputs\Bench\quality_input_[先手8x後手8]_[Neutral_Single10]_[STSAInput2_draft].request.txt
 ```
 
 ### 2. 大会ルールの入力方法
@@ -173,7 +173,7 @@ TournamentFinalState -> FinalRanking -> TournamentQualityReport
 ## 入力ファイルと見本の置き場
 
 - `Inputs`
-  - `--input-file` で流す実行用入力ファイル
+  - `--input-file` で流す実行用入力ファイル。要求ファイル名は `*.request.txt`
   - `Smoke`: 1 回や少数回の確認用
   - `Bench`: 単発評価や軽いベンチマーク用
   - `Sweeps`: n% スイープ実験用

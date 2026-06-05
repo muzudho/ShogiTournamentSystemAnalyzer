@@ -1,4 +1,4 @@
-﻿# SmokeTest Precheck Memo 2026-06-03
+# SmokeTest Precheck Memo 2026-06-03
 
 ## Purpose
 
@@ -129,7 +129,7 @@ FinalStage STSAInput3 smoke completed successfully.
 About to run legacy sweep smoke:
 
 ```powershell
-dotnet run --project .\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyzer.csproj -- --input-file ".\Inputs\Smoke\quality_sweep_input_[先手8x後手8]_[Twill_50to100_smoke10].txt"
+dotnet run --project .\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyzer.csproj -- --input-file ".\Inputs\Smoke\quality_sweep_input_[先手8x後手8]_[Twill_50to100_smoke10].request.txt"
 ```
 
 Expected risk: Sweep prompt alignment, Twill rule path, repeated single-run execution, sweep output path handling.
@@ -140,7 +140,7 @@ Legacy sweep smoke did not hang and did not terminate the process, but it failed
 
 - Exit code: 0
 - Wall time observed by Codex: about 2.6 seconds
-- Input: `Inputs/Smoke/quality_sweep_input_[先手8x後手8]_[Twill_50to100_smoke10].txt`
+- Input: `Inputs/Smoke/quality_sweep_input_[先手8x後手8]_[Twill_50to100_smoke10].request.txt`
 - Observed behavior: the run selected `FinalStage` and entered `品質評価 / 本戦ルール`, then repeatedly asked for `グループ対応CSV`.
 - Failure message: `入力を中断しました: グループ対応CSVの入力失敗が 10 回に達したため中断しました。最後のエラー: CSVが入力されていません`
 - Likely cause: this smoke file is a stale legacy prompt-script. Its second answer is `2`, which currently selects `RuleProfileMode.FinalStage`, while the file content appears intended for a standard Twill sweep path.
@@ -152,7 +152,7 @@ Next step: search for a current-format sweep input, preferably STSAInput2/3, bef
 Found a current-format sweep candidate and will run it next:
 
 ```powershell
-dotnet run --project .\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyzer.csproj -- --input-file ".\Inputs\Sweeps\quality_sweep_input_[先手8x後手8]_[Neutral_50to100]_[STSAInput2_draft].txt"
+dotnet run --project .\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyzer.csproj -- --input-file ".\Inputs\Sweeps\quality_sweep_input_[先手8x後手8]_[Neutral_50to100]_[STSAInput2_draft].request.txt"
 ```
 
 Reason: the previous smoke sweep file was a stale legacy prompt-script. This candidate declares `#[Format] STSAInput/2` and `ExecutionMode=Sweep`, so it should exercise the current request-file converter.
@@ -164,7 +164,7 @@ STSAInput2 sweep candidate timed out under Codex command timeout.
 - Command timeout: 60 seconds
 - Observed exit code from shell tool: 124
 - No normal program output was returned before timeout.
-- Input: `Inputs/Sweeps/quality_sweep_input_[先手8x後手8]_[Neutral_50to100]_[STSAInput2_draft].txt`
+- Input: `Inputs/Sweeps/quality_sweep_input_[先手8x後手8]_[Neutral_50to100]_[STSAInput2_draft].request.txt`
 
 This is currently the strongest freeze/hang reproduction candidate. Next step: inspect the input file to check sweep range, step, and whether `SimulationCount` is missing, which may cause repeated exact calculations.
 
@@ -218,7 +218,7 @@ Verification after the sweep simulation-count fix:
 
 - `dotnet build .\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyzer.csproj` succeeded with 0 warnings and 0 errors.
 - The STSAInput2 sweep that previously timed out after 60 seconds completed successfully in about 14.3 seconds.
-  - Input: `Inputs/Sweeps/quality_sweep_input_[先手8x後手8]_[Neutral_50to100]_[STSAInput2_draft].txt`
+  - Input: `Inputs/Sweeps/quality_sweep_input_[先手8x後手8]_[Neutral_50to100]_[STSAInput2_draft].request.txt`
   - It now prompts for simulation count in sweep mode and accepts the default from the inserted empty line.
   - Output: `Output/TournamentQualityEvaluator/TournamentQualityReport/Sweeps/neutral_[先手8x後手8]_50to100_quality_sweep.csv`
   - Output: `Output/TournamentQualityEvaluator/TournamentQualityReport/Sweeps/neutral_[先手8x後手8]_50to100_quality_sweep.md`
@@ -242,7 +242,7 @@ Focus for the next pass:
 
 Found stale legacy prompt-script sweep inputs:
 
-- `Inputs/Smoke/quality_sweep_input_[先手8x後手8]_[Twill_50to100_smoke10].txt`
+- `Inputs/Smoke/quality_sweep_input_[先手8x後手8]_[Twill_50to100_smoke10].request.txt`
 - Related non-smoke files under `Inputs/Sweeps` and `Inputs/Bench` still use prompt-script order.
 
 Immediate fix target:

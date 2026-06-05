@@ -27,12 +27,27 @@ internal static class RequestFilePath
             return Path.Combine(fullPath, BuildFileName());
         }
 
-        return fullPath;
+        return EnsureRequestFileName(fullPath);
     }
 
     static string BuildFileName()
     {
-        return "request_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".txt";
+        return "request_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".request.txt";
+    }
+
+    static string EnsureRequestFileName(string fullPath)
+    {
+        var directoryName = Path.GetDirectoryName(fullPath) ?? string.Empty;
+        var fileName = Path.GetFileName(fullPath);
+        if (fileName.EndsWith(".request.txt", StringComparison.OrdinalIgnoreCase)) return fullPath;
+
+        var normalizedFileName = Path.GetExtension(fileName).Equals(".txt", StringComparison.OrdinalIgnoreCase)
+            ? Path.GetFileNameWithoutExtension(fileName) + ".request.txt"
+            : fileName + ".request.txt";
+
+        return string.IsNullOrEmpty(directoryName)
+            ? normalizedFileName
+            : Path.Combine(directoryName, normalizedFileName);
     }
 
     static bool LooksLikeDirectoryPath(string path)

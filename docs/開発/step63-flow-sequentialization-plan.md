@@ -58,8 +58,8 @@
 
 - `dotnet build` を実行する。
 - 代表 smoke:
-  - `Inputs/Smoke/quality_input_[先手8x後手8]_[Neutral_Single10]_[STSAInput4_smoke].txt`
-  - `Inputs/Smoke/quality_input_[トップ集団大きめ]_[FinalStage_Single10]_[STSAInput4_smoke].txt`
+  - `Inputs/Smoke/quality_input_[先手8x後手8]_[Neutral_Single10]_[STSAInput4_smoke].request.txt`
+  - `Inputs/Smoke/quality_input_[トップ集団大きめ]_[FinalStage_Single10]_[STSAInput4_smoke].request.txt`
 - モダナイズ後は同じファイルまたは後継ファイルで `STSAInput/4` の読み取りを確認する。
 
 ## 中断時の再開ポイント
