@@ -24,10 +24,17 @@ internal class FinalStageSimulationMainline
     : AbstractSimulationMainline
 {
     string? outputPathOverride;
+    int? simulationCountOverride;
 
     internal void Run(FinalStageModeSimulationContext context, string? outputPathOverride)
     {
+        Run(context, outputPathOverride, simulationCountOverride: null);
+    }
+
+    internal void Run(FinalStageModeSimulationContext context, string? outputPathOverride, int? simulationCountOverride)
+    {
         this.outputPathOverride = outputPathOverride;
+        this.simulationCountOverride = simulationCountOverride;
         try
         {
             Run(context);
@@ -35,13 +42,14 @@ internal class FinalStageSimulationMainline
         finally
         {
             this.outputPathOverride = null;
+            this.simulationCountOverride = null;
         }
     }
 
     protected override SimulationMainlineExecutionResult ExecuteSimulation(AbstractSimulationContext context)
     {
         var finalStageContext = (FinalStageModeSimulationContext)context;
-        return ExecuteTournamentFinalStateAndFinalRanking(finalStageContext);
+        return ExecuteTournamentFinalStateAndFinalRanking(finalStageContext, simulationCountOverride);
     }
 
     protected override void AfterExecuteSimulationContext(AbstractSimulationContext context, SimulationMainlineExecutionResult executionResult)
@@ -83,7 +91,7 @@ internal class FinalStageSimulationMainline
     /// <param name="standardResultRows"></param>
     /// <param name="finalStageResultRows"></param>
     /// <returns></returns>
-    static SimulationMainlineExecutionResult ExecuteTournamentFinalStateAndFinalRanking(FinalStageModeSimulationContext context)
+    static SimulationMainlineExecutionResult ExecuteTournamentFinalStateAndFinalRanking(FinalStageModeSimulationContext context, int? requestedSimulationCount)
     {
         if (context.GroupingMode == FinalStageGroupingMode.Off)
         {
@@ -92,7 +100,7 @@ internal class FinalStageSimulationMainline
             return new SimulationMainlineExecutionResult<StandardResultRow>(result, standardResultRows);
         }
 
-        var finalStageResult = FinalStageSimulationExecutor.Execute(context);
+        var finalStageResult = FinalStageSimulationExecutor.Execute(context, requestedSimulationCount);
         var finalStageResultRows = RankingResultRowBuilder.BuildFinalStageResultRows(context.Players, context.Matches, finalStageResult, context.FirstPlayerWinRatePercent, context.GroupMap!, context.EffectiveAdditionalApexCount);
         return new SimulationMainlineExecutionResult<FinalStageResultRow>(finalStageResult, finalStageResultRows);
 

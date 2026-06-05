@@ -12,6 +12,11 @@ internal static class FinalStageSimulationExecutor
 {
     internal static CalculationResult Execute(FinalStageModeSimulationContext context)
     {
+        return Execute(context, requestedSimulationCount: null);
+    }
+
+    internal static CalculationResult Execute(FinalStageModeSimulationContext context, int? requestedSimulationCount)
+    {
         if (context.Matches.Count <= 20)
         {
             Console.WriteLine("本戦専用の厳密計算を行います。\n");
@@ -26,10 +31,11 @@ internal static class FinalStageSimulationExecutor
         }
 
         const int finalStageDefaultSimulationCount = 200_000;
-        var finalStageSimulationCount = ConsolePromptReaders.ReadIntWithDefault(
-            $"局数が多いため本戦専用シミュレーションで近似します。試行回数を入力してください [{finalStageDefaultSimulationCount}]: ",
-            finalStageDefaultSimulationCount,
-            min: 1);
+        var finalStageSimulationCount = requestedSimulationCount
+            ?? ConsolePromptReaders.ReadIntWithDefault(
+                $"局数が多いため本戦専用シミュレーションで近似します。試行回数を入力してください [{finalStageDefaultSimulationCount}]: ",
+                finalStageDefaultSimulationCount,
+                min: 1);
 
         Console.WriteLine();
         using var finalStageSimulationBudget = SimulationTimeBudget.BeginSimulationBudget();

@@ -40,7 +40,8 @@ internal static class StsaInput4RequestParser
         else if (flowSelection.Steps[0] == AnalysisFlowMode.Simulation && ruleProfileMode == RuleProfileMode.FinalStage)
         {
             var finalStageSimulationRequest = ParseFinalStageSimulationRequest(meta, sections, fullPath);
-            if (finalStageSimulationRequest.Matches.Count > ExactCalculationMatchThreshold) return false;
+            if (finalStageSimulationRequest.Matches.Count > ExactCalculationMatchThreshold
+                && !finalStageSimulationRequest.SimulationCount.HasValue) return false;
 
             stepRequest = finalStageSimulationRequest;
         }

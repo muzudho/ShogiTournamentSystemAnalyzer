@@ -88,7 +88,7 @@ internal static class AnalysisRequestDispatcher
             request.ReferenceMatches);
 
         var mainline = new FinalStageSimulationMainline();
-        mainline.Run(context, request.OutputPath);
+        mainline.Run(context, request.OutputPath, request.SimulationCount);
     }
 
     static void ExecuteFinalStageQualityEvaluation(FinalStageQualityEvaluationRequest request)
