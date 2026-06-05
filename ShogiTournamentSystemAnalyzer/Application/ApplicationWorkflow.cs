@@ -44,7 +44,7 @@ internal static class ApplicationWorkflow
         RunAnalysisDomain(requestBoundary, analysisRequest);
 
         InputFromSomewhere.PauseRecording();
-        WriteRequestFile(recordedLines, requestFilePath);
+        WriteRequestFile(recordedLines, requestFilePath);   // TODO: ［要求ファイル］の書き込みは、［大会利用者域］の仕事だぜ（＾～＾）
         InputFromSomewhere.StopRecording();
 
         // ●終了
