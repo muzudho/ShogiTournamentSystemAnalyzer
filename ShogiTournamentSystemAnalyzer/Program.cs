@@ -134,7 +134,17 @@ internal static partial class Program
             //
             //  📍 TODO: ここで、大会ルールを入力するプログラムを作りたい。今は空っぽ。
             //
-            var requestModelProducer = new RequestModelFromManualProducer();
+            var recordedLines = ConsoleInput.StartRecording();
+
+            requestInputSession = new RequestInputSession(
+                requestFileInputText: null,
+                recordedLines);
+
+            if (requestInputSession is null)
+            {
+                Console.WriteLine("●異常終了：　入力セッションを開始できませんでした。");
+                return;
+            }
 
             // 前提入力は TournamentRule / PlayerList / RankingSettings の３境界だぜ（＾▽＾）！
             // 主線は TournamentFinalState → FinalRanking → TournamentQualityReport に寄せていくぜ（＾▽＾）！
@@ -145,15 +155,14 @@ internal static partial class Program
 
             // ［◆節３：エラーが有ったか？］
 
-            // ［■辺６：はい、エラー有り］
-            if (requestModelProducer.HasError)
-            {
-                // ［●終了２］
-                return;
-            }
+            //// ［■辺６：はい、エラー有り］
+            //if (false)
+            //{
+            //    // ［●終了２］
+            //    return;
+            //}
 
             // ［■辺７：いいえ、エラー無し］
-            requestModelProducer.Produce(requestBoundary);
 
             //  ［要求ファイル］の保存先パスを尋ねるだけ（＾～＾） まだ保存はしない。
             static string? InputRequestFilePath()
@@ -200,40 +209,19 @@ internal static partial class Program
                 string? requestFilePath)
             {
 
-                if (requestFilePath is null)
-                {
-                    Console.WriteLine();
-                    requestInputSession = new RequestInputSession(null, string.Empty, Array.Empty<string>());
-                }
-                else
-                {
-                    var recordedLines = ConsoleInput.StartRecording();
-
-                    Console.WriteLine($"分析中の入力を記録し、分析後に要求ファイルを作成します: {requestFilePath}\n");
-                    requestInputSession =  new RequestInputSession(
-                        requestFileInputText: null,
-                        requestFilePath,
-                        recordedLines);
-                }
-
-                if (requestInputSession is null)
-                {
-                    Console.WriteLine("●異常終了：　入力セッションを開始できませんでした。");
-                    return;
-                }
-
                 if (requestInputSession.RequestFileInputText is not null)
                 {
                     ConsoleInput.UseText(requestInputSession.RequestFileInputText);
                 }
 
                 // ［要求ファイル］は、分析中の入力記録が揃っていたら書き出す。
-                if (!string.IsNullOrWhiteSpace(requestInputSession.RequestFilePath) && requestInputSession.RecordedLines != null && requestInputSession.RecordedLines.Count > 0)
+                if (!string.IsNullOrWhiteSpace(requestFilePath) && requestInputSession.RecordedLines != null && requestInputSession.RecordedLines.Count > 0)
                 {
                     // ［要求ファイル］を書き出します。
+                    Console.WriteLine($"要求ファイルを書き出します: {requestFilePath}\n");
                     StsaFileIOHelper.Write(
                         label: "要求ファイル",
-                        outputPath: requestInputSession.RequestFilePath,
+                        outputPath: requestFilePath,
                         lines: requestInputSession.RecordedLines);
                     ConsoleInput.StopRecording();
                 }
