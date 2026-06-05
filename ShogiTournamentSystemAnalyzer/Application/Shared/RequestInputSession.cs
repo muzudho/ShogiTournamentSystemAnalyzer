@@ -3,7 +3,7 @@
  */
 namespace ShogiTournamentSystemAnalyzer.Application.Shared;
 
-using ShogiTournamentSystemAnalyzer.Application.AfterManualInput;
+using ShogiTournamentSystemAnalyzer.Application.RequestFileCreate;
 
 internal class RequestInputSession
 {

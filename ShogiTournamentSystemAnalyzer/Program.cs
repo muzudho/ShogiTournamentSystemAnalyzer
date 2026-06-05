@@ -4,7 +4,7 @@
 namespace ShogiTournamentSystemAnalyzer;
 
 using ShogiTournamentSystemAnalyzer.Application;
-using ShogiTournamentSystemAnalyzer.Application.AfterManualInput;
+using ShogiTournamentSystemAnalyzer.Application.RequestFileCreate;
 using ShogiTournamentSystemAnalyzer.Application.Analysis;
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Ranking;
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation;
@@ -136,12 +136,12 @@ internal static partial class Program
                         {
                             // ［□要求ファイル作成］
                             Console.WriteLine("■［要求ファイル作成］");
-                            var defaultPath = ManualInputLog.BuildDefaultPath();
+                            var defaultPath = RequestFile.BuildDefaultPath();
                             var outputPath = ConsolePromptReaders.ReadTextWithDefault(
                                 $"要求ファイルの出力先パスまたはフォルダーパスを入力してください [{defaultPath}]: ",
                                 defaultPath);
 
-                            return ManualInputLog.ResolveOutputPath(outputPath);
+                            return RequestFile.ResolveOutputPath(outputPath);
                         }
 
                         // ［■辺９：いいえ、保存しません］

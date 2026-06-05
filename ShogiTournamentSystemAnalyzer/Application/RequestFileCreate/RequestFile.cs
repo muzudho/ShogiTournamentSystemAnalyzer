@@ -1,11 +1,14 @@
 /*
- * ［アプリケーション　＞　手動入力後　＞　手入力ログ］
+ * ［アプリケーション　＞　要求ファイル作成　＞　要求ファイル］
  */
-namespace ShogiTournamentSystemAnalyzer.Application.AfterManualInput;
+namespace ShogiTournamentSystemAnalyzer.Application.RequestFileCreate;
 
 using ShogiTournamentSystemAnalyzer.Application.Shared;
 
-internal static class ManualInputLog
+/// <summary>
+/// 要求ファイル
+/// </summary>
+internal static class RequestFile
 {
     internal static string BuildDefaultPath()
     {

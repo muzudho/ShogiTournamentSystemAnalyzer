@@ -1,7 +1,7 @@
 /*
  * ［アプリケーション　＞　手動入力後　＞　手入力ログ記録］
  */
-namespace ShogiTournamentSystemAnalyzer.Application.AfterManualInput;
+namespace ShogiTournamentSystemAnalyzer.Application.RequestFileCreate;
 
 internal sealed class ManualInputLogTextReader : TextReader
 {

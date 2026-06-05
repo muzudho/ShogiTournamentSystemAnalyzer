@@ -1,7 +1,7 @@
 /*
  * ［アプリケーション　＞　手動入力後　＞　要求ファイル作成セッション開始］
  */
-namespace ShogiTournamentSystemAnalyzer.Application.AfterManualInput;
+namespace ShogiTournamentSystemAnalyzer.Application.RequestFileCreate;
 
 using ShogiTournamentSystemAnalyzer.Application.Shared;
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
