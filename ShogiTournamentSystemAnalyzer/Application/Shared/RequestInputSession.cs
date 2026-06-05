@@ -3,8 +3,6 @@
  */
 namespace ShogiTournamentSystemAnalyzer.Application.Shared;
 
-using ShogiTournamentSystemAnalyzer.Application.RequestFileWrite;
-
 internal class RequestInputSession
 {
     internal RequestInputSession(

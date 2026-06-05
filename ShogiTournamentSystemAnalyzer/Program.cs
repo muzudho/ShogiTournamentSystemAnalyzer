@@ -207,7 +207,13 @@ internal static partial class Program
                 }
                 else
                 {
-                    requestInputSession = RequestFileCreationSessionStarter.Start(requestFilePath);
+                    var recordedLines = ConsoleInput.StartRecording();
+
+                    Console.WriteLine($"分析中の入力を記録し、分析後に要求ファイルを作成します: {requestFilePath}\n");
+                    requestInputSession =  new RequestInputSession(
+                        requestFileInputText: null,
+                        requestFilePath,
+                        recordedLines);
                 }
 
                 if (requestInputSession is null)
