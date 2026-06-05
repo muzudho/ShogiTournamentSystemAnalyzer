@@ -143,17 +143,10 @@ internal static partial class Program
             // 記録した手動入力行
             recordedLines = ConsoleInput.StartRecording();
 
-            //if (requestInputSession is null)
-            //{
-            //    Console.WriteLine("●異常終了：　入力セッションを開始できませんでした。");
-            //    return false;
-            //}
-
-            // 前提入力は TournamentRule / PlayerList / RankingSettings の３境界だぜ（＾▽＾）！
-            // 主線は TournamentFinalState → FinalRanking → TournamentQualityReport に寄せていくぜ（＾▽＾）！
+            // TODO: これも入力に含めたいぜ（＾～＾）
             requestBoundary.AnalysisFlowSelection = ConsolePromptReaders.ReadAnalysisFlowSelection();
 
-            // 対象［大会ルール］を選ばせるぜ（＾▽＾）！
+            // TODO: これも入力に含めたいぜ（＾～＾）
             requestBoundary.RuleProfileMode = ConsolePromptReaders.ReadRuleProfileMode(requestBoundary.AnalysisFlowSelection);
 
             // ［◆節３：エラーが有ったか？］
