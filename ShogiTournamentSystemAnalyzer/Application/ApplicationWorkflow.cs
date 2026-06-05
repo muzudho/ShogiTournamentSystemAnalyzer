@@ -14,9 +14,11 @@ internal static class ApplicationWorkflow
 {
     public static void Run(string[] args)
     {
-        // ［●開始］
+        // ●開始
 
-        // ［■辺１］
+        //┌───┴──┐
+        //│オープニング│
+        //└───┬──┘
         Opening();
 
         // ［依頼という境界］
@@ -25,7 +27,9 @@ internal static class ApplicationWorkflow
         string? requestFilePath = null;
         AnalysisRequest? analysisRequest = null;
 
-        // ［大会利用者域］（`TournamentUser`）
+        //┌───┴──┐
+        //│大会利用者域│
+        //└───┬──┘
         bool isSuccessful = RunTournamentUserDomain(
             args,
             requestBoundary,
@@ -34,16 +38,16 @@ internal static class ApplicationWorkflow
             ref analysisRequest);
         if (!isSuccessful) return;  // エラー終了
 
-        // ［□分析(`Analysis`)］
+        //┌───┴──┐
+        //│分析　　　　│
+        //└───┬──┘
         RunAnalysisDomain(requestBoundary, analysisRequest);
 
         InputFromSomewhere.PauseRecording();
         WriteRequestFile(recordedLines, requestFilePath);
         InputFromSomewhere.StopRecording();
 
-        //      │
-        //      ↓
-        // ［●終了］
+        // ●終了
         return;
     }
 
