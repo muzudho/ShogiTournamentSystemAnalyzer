@@ -59,29 +59,16 @@ internal static partial class Program
 
 
             // ========================================
-            // ［■辺１０：分析の前に］
+            // ［□分析(`Analysis`)］
             // ========================================
 
-
-            #region ［■辺１０：分析の前に］
-
-            Console.WriteLine("■［分析の前に］");
-
-            // 前提入力は TournamentRule / PlayerList / RankingSettings の３境界だぜ（＾▽＾）！
-            // 主線は TournamentFinalState → FinalRanking → TournamentQualityReport に寄せていくぜ（＾▽＾）！
-            requestBoundary.AnalysisFlowSelection = ConsolePromptReaders.ReadAnalysisFlowSelection();
-
-            // 対象［大会ルール］を選ばせるぜ（＾▽＾）！
-            requestBoundary.RuleProfileMode = ConsolePromptReaders.ReadRuleProfileMode(requestBoundary.AnalysisFlowSelection);
 
             // メインライン選択のガイドを表示するぜ（＾▽＾）！
             ProgramConsoleGuide.PrintSelectedMainline(requestBoundary.AnalysisFlowSelection, requestBoundary.RuleProfileMode);
 
-            #endregion
-
             //      │
             //      ↓
-            //      ［□分析(`Analysis`)］
+            //      
             Console.WriteLine("■［分析］");
             TournamentFinalStateBoundary tournamentFinalStateBoundary = new();
             //［シミュレーション域］
@@ -185,6 +172,13 @@ internal static partial class Program
             //  📍 TODO: ここで、大会ルールを入力するプログラムを作りたい。今は空っぽ。
             //
             var requestModelProducer = new RequestModelFromManualProducer();
+
+            // 前提入力は TournamentRule / PlayerList / RankingSettings の３境界だぜ（＾▽＾）！
+            // 主線は TournamentFinalState → FinalRanking → TournamentQualityReport に寄せていくぜ（＾▽＾）！
+            requestBoundary.AnalysisFlowSelection = ConsolePromptReaders.ReadAnalysisFlowSelection();
+
+            // 対象［大会ルール］を選ばせるぜ（＾▽＾）！
+            requestBoundary.RuleProfileMode = ConsolePromptReaders.ReadRuleProfileMode(requestBoundary.AnalysisFlowSelection);
 
             // ［◆節３：エラーが有ったか？］
 
