@@ -8,7 +8,6 @@ using ShogiTournamentSystemAnalyzer.Application.Analysis.Boundaries;
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.FinalRanking.UseCases;
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.TournamentFramework;
 using ShogiTournamentSystemAnalyzer.Domain.Ranking;
-using ShogiTournamentSystemAnalyzer.Domain.Request.RankingSettings;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.Request.TournamentRule;
@@ -56,7 +55,6 @@ internal static partial class SimulationTournamentFrameworkMode
         var tournamentRuleData = BoundaryDataBuilders.BuildTournamentRuleBoundaryData(context, dslDefinition);
 
         // ［順位設定データ］
-        var rankingSettingsData = BoundaryDataBuilders.BuildRankingSettingsBoundaryData(tournamentRuleData);
 
         // ［初回状態］
         var initialState = new TournamentState(0, players, stages, matchRecords);
@@ -100,7 +98,7 @@ internal static partial class SimulationTournamentFrameworkMode
             aggregateResult.TournamentRuleSetMode,
             tournamentRuleData.FirstPlayerWinRatePercent ?? context.FirstPlayerWinRatePercent);
 
-        Console.WriteLine($"順位ルール: {TournamentRuleSetRule.GetLabel(rankingSettingsData.TournamentRuleSetMode)}");
+        Console.WriteLine($"順位ルール: {TournamentRuleSetRule.GetLabel(finalRankingResult.TournamentRuleSetMode)}");
 
         if (aggregateResult.IsExactCalculation)
         {
@@ -125,17 +123,10 @@ internal static partial class SimulationTournamentFrameworkMode
             Console.WriteLine($"DSL OverallRanking: {dslDefinition.OverallRankingRuleName}\n");
         }
 
-        FinalRankingDomain.PrintTournamentFrameworkSimulationResults(
-            finalRankingResult,
-            tournamentRuleData,
-            rankingSettingsData,
-            context.FirstPlayerWinRatePercent);
+        FinalRankingDomain.PrintTournamentFrameworkSimulationResults(finalRankingResult);
 
         FinalRankingDomain.WriteTournamentFrameworkSimulationOutputs(
             context.OutputPath,
-            context.FirstPlayerWinRatePercent,
-            tournamentRuleData,
-            rankingSettingsData,
             finalRankingResult);
     }
 

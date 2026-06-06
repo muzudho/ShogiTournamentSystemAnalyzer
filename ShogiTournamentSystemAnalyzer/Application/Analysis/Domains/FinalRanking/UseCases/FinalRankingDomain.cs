@@ -8,8 +8,6 @@ using ShogiTournamentSystemAnalyzer.Application.Analysis.Boundaries;
 using ShogiTournamentSystemAnalyzer.Domain.FinalRanking;
 using ShogiTournamentSystemAnalyzer.Domain.Ranking;
 using ShogiTournamentSystemAnalyzer.Domain.Request.PlayerList;
-using ShogiTournamentSystemAnalyzer.Domain.Request.RankingSettings;
-using ShogiTournamentSystemAnalyzer.Domain.Request.TournamentRule;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentFinalState;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
@@ -154,7 +152,9 @@ internal static class FinalRankingDomain
             tournamentFinalStateData,
             representativeExecutionRankRows,
             aggregateCalculationResult,
-            new FinalRankingResult(aggregateFinalRankingRows));
+            new FinalRankingResult(aggregateFinalRankingRows),
+            tournamentRuleSetMode,
+            firstPlayerWinRatePercent);
     }
 
     static CalculationResult BuildTournamentFrameworkCalculationResult(
@@ -189,19 +189,16 @@ internal static class FinalRankingDomain
     }
 
     internal static void PrintTournamentFrameworkSimulationResults(
-        TournamentFrameworkFinalRankingResult finalRankingResult,
-        TournamentRuleData tournamentRuleData,
-        RankingSettingsData rankingSettingsData,
-        double defaultFirstPlayerWinRatePercent)
+        TournamentFrameworkFinalRankingResult finalRankingResult)
     {
         ConsoleResultPrinter.PrintMatchesCsv(finalRankingResult.StandardPlayers, finalRankingResult.StandardMatches, "大会進行フレームワークで読み込んだ対局CSV:");
         Console.WriteLine("注記: これ以降の順位表は複数回試行の aggregate 結果です。");
         Console.WriteLine("注記: あとで出力する大会最終状態CSV/Markdownは代表実行1件の対局記録です。\n");
-        ConsoleResultPrinter.PrintRepresentativeExecutionRanking(finalRankingResult.RepresentativeExecutionRankRows, rankingSettingsData.TournamentRuleSetMode);
+        ConsoleResultPrinter.PrintRepresentativeExecutionRanking(finalRankingResult.RepresentativeExecutionRankRows, finalRankingResult.TournamentRuleSetMode);
         ConsoleResultPrinter.PrintResult(
             finalRankingResult.StandardPlayers.Count,
             finalRankingResult.AggregateCalculationResult,
-            tournamentRuleData.FirstPlayerWinRatePercent ?? defaultFirstPlayerWinRatePercent,
+            finalRankingResult.FirstPlayerWinRatePercent,
             finalRankingResult.AggregateFinalRankingResult.Rows);
         if (finalRankingResult.AggregateCalculationResult.Mode.Contains("時間切れ", StringComparison.Ordinal))
         {
@@ -300,9 +297,6 @@ internal static class FinalRankingDomain
 
     internal static void WriteTournamentFrameworkSimulationOutputs(
         string? outputPathOverride,
-        double defaultFirstPlayerWinRatePercent,
-        TournamentRuleData tournamentRuleData,
-        RankingSettingsData rankingSettingsData,
         TournamentFrameworkFinalRankingResult finalRankingResult)
     {
         const string AggregateOverviewNoteForCsv = "この順位表は複数回試行の aggregate 結果です。大会最終状態CSVとは 1 対 1 には対応しません。";
@@ -312,7 +306,6 @@ internal static class FinalRankingDomain
 
         var settings = new FinalRankingDataFileWriterSettings(RuleProfileMode.TournamentFramework);
         FinalRankingMarkdownFileWriter finalRankingDataFileWriter = new(settings);
-        var firstPlayerWinRatePercent = tournamentRuleData.FirstPlayerWinRatePercent ?? defaultFirstPlayerWinRatePercent;
 
         var defaultOutputCsvPath = ReportOutputPathBuilder.BuildFinalRankingDefaultOutputPath($"tournament_framework_aggregate_final_ranking_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
         var requestedOutputPath = string.IsNullOrWhiteSpace(outputPathOverride)
@@ -329,7 +322,7 @@ internal static class FinalRankingDomain
             outputPath: outputCsvPath,
             getLines: () => new FinalRankingCsvFileWriter(settings).CreateResultCsvLines(
                 mode: finalRankingResult.AggregateCalculationResult.Mode,
-                firstPlayerWinRatePercent: firstPlayerWinRatePercent,
+                firstPlayerWinRatePercent: finalRankingResult.FirstPlayerWinRatePercent,
                 resultRows: finalRankingResult.AggregateFinalRankingResult.Rows,
                 overviewNote: AggregateOverviewNoteForCsv));
 
@@ -339,7 +332,7 @@ internal static class FinalRankingDomain
                 outputMarkdownPath: outputMarkdownPath,
                 outputCsvPath: outputCsvPath,
                 mode: finalRankingResult.AggregateCalculationResult.Mode,
-                firstPlayerWinRatePercent: firstPlayerWinRatePercent,
+                firstPlayerWinRatePercent: finalRankingResult.FirstPlayerWinRatePercent,
                 resultRows: finalRankingResult.AggregateFinalRankingResult.Rows,
                 overviewNote: AggregateOverviewNoteForMarkdown,
                 representativeRankingMarkdownPath: representativeRankingMarkdownPath));
@@ -347,7 +340,7 @@ internal static class FinalRankingDomain
         WriterHelper.WriteText(
             outputPath: representativeRankingCsvPath,
             getLines: () => RepresentativeExecutionRankFileWriter.CreateCsv(
-                rankingSettingsData.TournamentRuleSetMode,
+                finalRankingResult.TournamentRuleSetMode,
                 finalRankingResult.RepresentativeExecutionRankRows,
                 overviewNote: RepresentativeOverviewNote));
 
@@ -356,7 +349,7 @@ internal static class FinalRankingDomain
             getLines: () => RepresentativeExecutionRankFileWriter.CreateMarkdown(
                 representativeRankingMarkdownPath,
                 representativeRankingCsvPath,
-                rankingSettingsData.TournamentRuleSetMode,
+                finalRankingResult.TournamentRuleSetMode,
                 finalRankingResult.RepresentativeExecutionRankRows,
                 overviewNote: RepresentativeOverviewNote,
                 representativeMatchRecordsMarkdownPath: tournamentMatchRecordsMarkdownPath));

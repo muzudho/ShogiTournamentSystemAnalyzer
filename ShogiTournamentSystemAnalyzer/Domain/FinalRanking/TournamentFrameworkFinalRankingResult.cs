@@ -5,6 +5,7 @@ namespace ShogiTournamentSystemAnalyzer.Domain.FinalRanking;
 
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentFinalState;
+using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 
 /// <summary>
 /// 大会進行フレームワーク用の最終順位付け結果だ。
@@ -25,4 +26,6 @@ internal sealed record class TournamentFrameworkFinalRankingResult(
     TournamentFinalStateData RepresentativeTournamentFinalState,
     IReadOnlyList<RepresentativeExecutionRankRow> RepresentativeExecutionRankRows,
     CalculationResult AggregateCalculationResult,
-    FinalRankingResult AggregateFinalRankingResult);
+    FinalRankingResult AggregateFinalRankingResult,
+    TournamentRuleSetMode TournamentRuleSetMode,
+    double FirstPlayerWinRatePercent);
