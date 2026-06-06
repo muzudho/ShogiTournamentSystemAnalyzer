@@ -1,0 +1,11 @@
+#[Format] STSAInput/4
+
+#[Section] Meta
+AnalysisFlowSteps=Simulation
+RuleProfileMode=Empty
+OutputPath=Output\FinalRanking\empty_rule_final_ranking_[空ルール_最小_STSAInput4_smoke].csv
+#[EndSection]
+
+#[Section] Output
+OutputPath=Output\FinalRanking\empty_rule_final_ranking_[空ルール_最小_STSAInput4_smoke].csv
+#[EndSection]

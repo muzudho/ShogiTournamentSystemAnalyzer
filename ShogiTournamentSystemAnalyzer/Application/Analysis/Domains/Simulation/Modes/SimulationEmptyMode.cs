@@ -15,15 +15,21 @@ internal static class SimulationEmptyMode
     {
         Console.WriteLine("対局シミュレーション / 空ルール: ペアリングを一切行わず、大会最終状態 0 件の最小結果を出力します。\n");
         ConsoleSamplePrinter.PrintSimulationEmptyOverview();
-        RunMainlineToEmptyTournamentFinalState();
+        RunMainlineToEmptyTournamentFinalState(null);
     }
 
-    static void RunMainlineToEmptyTournamentFinalState()
+    internal static void Run(string? outputPathOverride)
     {
-        ExecuteEmptyMode();
+        Console.WriteLine("対局シミュレーション / 空ルール: ペアリングを一切行わず、大会最終状態 0 件の最小結果を出力します。\n");
+        RunMainlineToEmptyTournamentFinalState(outputPathOverride);
     }
 
-    static void ExecuteEmptyMode()
+    static void RunMainlineToEmptyTournamentFinalState(string? outputPathOverride)
+    {
+        ExecuteEmptyMode(outputPathOverride);
+    }
+
+    static void ExecuteEmptyMode(string? outputPathOverride)
     {
         const string mode = "空ルール / ペアリング0回 / 大会最終状態0件";
         const int pairingCount = 0;
@@ -35,9 +41,12 @@ internal static class SimulationEmptyMode
         Console.WriteLine($"大会最終状態件数: {tournamentMatchRecordCount}\n");
 
         var defaultOutputCsvPath = ReportOutputPathBuilder.BuildFinalRankingDefaultOutputPath($"empty_rule_final_ranking_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
-        var outputCsvPath = CsvOutputHelpers.ResolveOutputCsvPath(ConsolePromptReaders.ReadTextWithDefault(
-            $"空ルール結果CSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
-            defaultOutputCsvPath));
+        var requestedOutputPath = string.IsNullOrWhiteSpace(outputPathOverride)
+            ? ConsolePromptReaders.ReadTextWithDefault(
+                $"空ルール結果CSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
+                defaultOutputCsvPath)
+            : outputPathOverride!;
+        var outputCsvPath = CsvOutputHelpers.ResolveOutputCsvPath(requestedOutputPath);
         var outputMarkdownPath = CsvOutputHelpers.ChangeOutputExtension(outputCsvPath, ".md");
         var tournamentMatchRecordsCsvPath = ReportOutputPathBuilder.BuildTournamentFinalStateDefaultOutputPath($"empty_tournament_final_state_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
         var tournamentMatchRecordsMarkdownPath = CsvOutputHelpers.ChangeOutputExtension(tournamentMatchRecordsCsvPath, ".md");

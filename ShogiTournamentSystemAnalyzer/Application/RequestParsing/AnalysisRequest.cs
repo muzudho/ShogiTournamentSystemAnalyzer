@@ -41,6 +41,20 @@ internal sealed record FinalStageSimulationRequest(
     int? SimulationCount,
     string? OutputPath) : AnalysisStepRequest;
 
+internal sealed record TournamentFrameworkSimulationRequest(
+    string PlayersCsvPath,
+    string StagesCsvPath,
+    string TournamentMatchRecordsCsvPath,
+    string? RuleFilePath,
+    int? RandomSeed,
+    int? SimulationCount,
+    TournamentRuleSetMode TournamentRuleSetMode,
+    double FirstPlayerWinRatePercent,
+    string? OutputPath) : AnalysisStepRequest;
+
+internal sealed record EmptySimulationRequest(
+    string? OutputPath) : AnalysisStepRequest;
+
 internal sealed record StandardQualityEvaluationRequest(
     TournamentQualityEvaluationRuleDefinition RuleDefinition,
     TournamentQualityEvaluationInput Input,

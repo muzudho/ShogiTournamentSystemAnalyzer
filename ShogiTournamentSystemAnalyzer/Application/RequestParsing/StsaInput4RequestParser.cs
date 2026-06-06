@@ -41,6 +41,14 @@ internal static class StsaInput4RequestParser
             var finalStageSimulationRequest = ParseFinalStageSimulationRequest(meta, sections, fullPath);
             stepRequest = EnsureFinalStageSimulationCountIfNeeded(finalStageSimulationRequest);
         }
+        else if (flowSelection.Steps[0] == AnalysisFlowMode.Simulation && ruleProfileMode == RuleProfileMode.TournamentFramework)
+        {
+            stepRequest = ParseTournamentFrameworkSimulationRequest(meta, sections, fullPath);
+        }
+        else if (flowSelection.Steps[0] == AnalysisFlowMode.Simulation && ruleProfileMode == RuleProfileMode.Empty)
+        {
+            stepRequest = ParseEmptySimulationRequest(meta, sections, fullPath);
+        }
         else if (flowSelection.Steps[0] == AnalysisFlowMode.QualityEvaluation && ruleProfileMode == RuleProfileMode.Standard)
         {
             var standardQualityEvaluationRequest = ParseStandardQualityEvaluationRequest(meta, sections, fullPath);
@@ -173,6 +181,45 @@ internal static class StsaInput4RequestParser
             ParseOptionalMatches(GetOptionalSectionLines(sections, "ReferenceMatchesInput"), players, "ReferenceMatchesInput", fullPath),
             ParseOptionalInt(GetOptionalMetaValue(meta, "SimulationCount"), "SimulationCount"),
             outputPath);
+    }
+
+    static TournamentFrameworkSimulationRequest ParseTournamentFrameworkSimulationRequest(
+        Dictionary<string, string> meta,
+        Dictionary<string, List<string>> sections,
+        string fullPath)
+    {
+        var inputs = sections.TryGetValue("Inputs", out var inputLines)
+            ? ParseSectionKeyValues(inputLines, "Inputs", fullPath, FormatName)
+            : new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        var output = ReadOutputKeyValues(sections, fullPath);
+
+        var firstPlayerWinRatePercent = ParseOptionalDouble(GetOptionalMetaValue(meta, "FirstPlayerWinRatePercent"), "FirstPlayerWinRatePercent") ?? 51.0;
+        var tournamentRuleSetMode = ParseTournamentRuleSetMode(GetOptionalMetaValue(meta, "TournamentRuleSetMode") ?? "Neutral");
+        var outputPath = GetOptionalMetaValue(output, "OutputPath")
+            ?? GetOptionalMetaValue(meta, "OutputPath");
+
+        return new TournamentFrameworkSimulationRequest(
+            GetRequiredMetaValue(inputs, "PlayersCsvPath", fullPath, FormatName),
+            GetRequiredMetaValue(inputs, "StagesCsvPath", fullPath, FormatName),
+            GetRequiredMetaValue(inputs, "TournamentMatchRecordsCsvPath", fullPath, FormatName),
+            GetOptionalMetaValue(inputs, "RuleFilePath") ?? GetOptionalMetaValue(meta, "RuleFilePath"),
+            ParseOptionalAnyInt(GetOptionalMetaValue(meta, "RandomSeed"), "RandomSeed"),
+            ParseOptionalInt(GetOptionalMetaValue(meta, "SimulationCount"), "SimulationCount"),
+            tournamentRuleSetMode,
+            firstPlayerWinRatePercent,
+            outputPath);
+    }
+
+    static EmptySimulationRequest ParseEmptySimulationRequest(
+        Dictionary<string, string> meta,
+        Dictionary<string, List<string>> sections,
+        string fullPath)
+    {
+        var output = ReadOutputKeyValues(sections, fullPath);
+        var outputPath = GetOptionalMetaValue(output, "OutputPath")
+            ?? GetOptionalMetaValue(meta, "OutputPath");
+
+        return new EmptySimulationRequest(outputPath);
     }
 
     static StandardQualityEvaluationRequest ParseStandardQualityEvaluationRequest(
@@ -401,12 +448,28 @@ internal static class StsaInput4RequestParser
         throw new OperationCanceledException($"{FormatName} の {keyName} を数値として解釈できません: {value}");
     }
 
+    static double? ParseOptionalDouble(string? value, string keyName)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return null;
+        if (InputParsers.TryParseDouble(value, out var parsed)) return parsed;
+
+        throw new OperationCanceledException($"{FormatName} の {keyName} を数値として解釈できません: {value}");
+    }
+
     static int? ParseOptionalInt(string? value, string keyName)
     {
         if (string.IsNullOrWhiteSpace(value)) return null;
         if (int.TryParse(value, out var parsed) && parsed > 0) return parsed;
 
         throw new OperationCanceledException($"{FormatName} の {keyName} は 1 以上の整数で入力してください: {value}");
+    }
+
+    static int? ParseOptionalAnyInt(string? value, string keyName)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return null;
+        if (int.TryParse(value, out var parsed)) return parsed;
+
+        throw new OperationCanceledException($"{FormatName} の {keyName} は整数で入力してください: {value}");
     }
 
     static List<Player> ParsePlayers(IReadOnlyList<string> lines, string fullPath)

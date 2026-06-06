@@ -3,6 +3,7 @@
  */
 namespace ShogiTournamentSystemAnalyzer.Application.Analysis;
 
+using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.Modes;
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.SimulationContext;
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.SimulationMainline;
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.TournamentQualityEvaluator.Modes;
@@ -33,6 +34,14 @@ internal static class AnalysisRequestDispatcher
 
             case FinalStageSimulationRequest finalStageSimulationRequest:
                 ExecuteFinalStageSimulation(finalStageSimulationRequest);
+                break;
+
+            case TournamentFrameworkSimulationRequest tournamentFrameworkSimulationRequest:
+                ExecuteTournamentFrameworkSimulation(tournamentFrameworkSimulationRequest);
+                break;
+
+            case EmptySimulationRequest emptySimulationRequest:
+                ExecuteEmptySimulation(emptySimulationRequest);
                 break;
 
             case FinalStageQualityEvaluationRequest finalStageQualityEvaluationRequest:
@@ -66,6 +75,29 @@ internal static class AnalysisRequestDispatcher
             request.RuleDefinition,
             request.ExecutionOptions,
             request.OutputOptions);
+    }
+
+    static void ExecuteTournamentFrameworkSimulation(TournamentFrameworkSimulationRequest request)
+    {
+        var firstPlayerWinRateRating = SimulationRatingMath.ConvertFirstPlayerWinRatePercentToRating(request.FirstPlayerWinRatePercent);
+        var context = new TournamentFrameworkModeContext(
+            request.PlayersCsvPath,
+            request.StagesCsvPath,
+            request.TournamentMatchRecordsCsvPath,
+            request.RuleFilePath,
+            request.RandomSeed,
+            request.SimulationCount,
+            request.TournamentRuleSetMode,
+            request.FirstPlayerWinRatePercent,
+            firstPlayerWinRateRating,
+            request.OutputPath);
+
+        SimulationTournamentFrameworkMode.Run(context);
+    }
+
+    static void ExecuteEmptySimulation(EmptySimulationRequest request)
+    {
+        SimulationEmptyMode.Run(request.OutputPath);
     }
 
     static void ExecuteFinalStageSimulation(FinalStageSimulationRequest request)

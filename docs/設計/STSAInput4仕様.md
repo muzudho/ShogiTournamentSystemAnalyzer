@@ -40,7 +40,7 @@ AnalysisFlowSteps=Simulation,QualityEvaluation
 - `AnalysisFlowSteps=QualityEvaluation` の `Standard` / `FinalStage`
 - `AnalysisFlowSteps=Simulation` の `Standard` / `FinalStage` / `TournamentFramework` / `Empty`
 
-`Simulation + Standard` と `Simulation + FinalStage` は、20局以下、または20局超の近似計算に対応し、`AnalysisRequest` へ直接パースして実行します。`QualityEvaluation + Standard` と `QualityEvaluation + FinalStage` も、20局以下、または20局超の近似計算に対応し、`AnalysisRequest` へ直接パースして実行します。20局超で `SimulationCount` が未指定の場合は、要求ファイル実行の既定試行回数として `200000` を採用します。
+`Simulation + Standard` と `Simulation + FinalStage` は、20局以下、または20局超の近似計算に対応し、`AnalysisRequest` へ直接パースして実行します。`Simulation + TournamentFramework` と `Simulation + Empty` も、要求ファイルを `AnalysisRequest` へ直接パースして実行します。`QualityEvaluation + Standard` と `QualityEvaluation + FinalStage` も、20局以下、または20局超の近似計算に対応し、`AnalysisRequest` へ直接パースして実行します。20局超で `SimulationCount` が未指定の場合は、要求ファイル実行の既定試行回数として `200000` を採用します。
 
 `AnalysisFlowSteps=Simulation,QualityEvaluation` は形式として予約していますが、まだ要求ファイルからの自動変換には対応していません。複数ステップを1ファイルで実行するには、ステップ別入力セクションの仕様が必要です。
 
