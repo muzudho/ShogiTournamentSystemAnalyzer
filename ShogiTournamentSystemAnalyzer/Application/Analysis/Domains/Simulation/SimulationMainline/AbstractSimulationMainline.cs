@@ -5,6 +5,7 @@ namespace ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.
 
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.SimulationContext;
 using ShogiTournamentSystemAnalyzer.Application;
+using ShogiTournamentSystemAnalyzer.Domain.FinalRanking;
 using ShogiTournamentSystemAnalyzer.Domain.Ranking;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
@@ -28,7 +29,7 @@ internal abstract class AbstractSimulationMainline
 
         AfterExecuteSimulationContext(context, executionResult);
         PrintSimulationResult(context, executionResult);
-        PrintTimeLimitIfNeeded(executionResult.Result);
+        PrintTimeLimitIfNeeded(executionResult.TournamentFinalState);
         WriteSimulationOutputs(context, executionResult);
     }
 
@@ -105,10 +106,18 @@ internal abstract class AbstractSimulationMainline
 
 }
 
-internal abstract record SimulationMainlineExecutionResult(CalculationResult Result);
+internal abstract record SimulationMainlineExecutionResult(CalculationResult TournamentFinalState);
 
 internal sealed record SimulationMainlineExecutionResult<TRow>(
-    CalculationResult Result,
-    IReadOnlyList<TRow> ResultRows)
-    : SimulationMainlineExecutionResult(Result)
-    where TRow : ISimulationResultRow;
+    CalculationResult TournamentFinalState,
+    FinalRankingResult<TRow> FinalRankingResult)
+    : SimulationMainlineExecutionResult(TournamentFinalState)
+    where TRow : ISimulationResultRow
+{
+    internal SimulationMainlineExecutionResult(
+        CalculationResult tournamentFinalState,
+        IReadOnlyList<TRow> resultRows)
+        : this(tournamentFinalState, new FinalRankingResult<TRow>(resultRows))
+    {
+    }
+}

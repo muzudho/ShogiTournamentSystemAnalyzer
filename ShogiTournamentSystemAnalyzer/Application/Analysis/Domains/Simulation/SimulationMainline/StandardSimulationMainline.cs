@@ -5,6 +5,7 @@ namespace ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.
 
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.SimulationContext;
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.FinalRanking.UseCases;
+using ShogiTournamentSystemAnalyzer.Domain.FinalRanking;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.FinalRanking;
@@ -57,16 +58,16 @@ internal class StandardSimulationMainline
         var standardExecutionResult = (SimulationMainlineExecutionResult<StandardResultRow>)executionResult;
         ConsoleResultPrinter.PrintResult(
             standardContext.Players.Count,
-            standardExecutionResult.Result,
+            standardExecutionResult.TournamentFinalState,
             standardContext.FirstPlayerWinRatePercent,
-            standardExecutionResult.ResultRows);
+            standardExecutionResult.FinalRankingResult.Rows);
     }
 
     protected override void WriteSimulationOutputs(AbstractSimulationContext context, SimulationMainlineExecutionResult executionResult)
     {
         var standardContext = (StandardModeSimulationContext)context;
         var standardExecutionResult = (SimulationMainlineExecutionResult<StandardResultRow>)executionResult;
-        WriteFinalRankingOutputsForStandardMode(standardContext, standardExecutionResult.Result, standardExecutionResult.ResultRows, outputPathOverride);
+        WriteFinalRankingOutputsForStandardMode(standardContext, standardExecutionResult.TournamentFinalState, standardExecutionResult.FinalRankingResult, outputPathOverride);
     }
 
     CalculationResult ExecuteTournamentFinalState(StandardModeSimulationContext context)
@@ -91,7 +92,7 @@ internal class StandardSimulationMainline
     static void WriteFinalRankingOutputsForStandardMode(
         StandardModeSimulationContext context,
         CalculationResult tournamentFinalState,
-        IReadOnlyList<StandardResultRow> finalRankingRows,
+        FinalRankingResult<StandardResultRow> finalRankingResult,
         string? outputPathOverride)
     {
         var (outputCsvPath, outputMarkdownPath) = FinalRankingDomain.ResolveOutputPaths(
@@ -105,7 +106,7 @@ internal class StandardSimulationMainline
             outputMarkdownPath,
             tournamentFinalState,
             context.FirstPlayerWinRatePercent,
-            finalRankingRows);
+            finalRankingResult.Rows);
 
         FinalRankingDomain.PrintOutputCompleted(outputCsvPath, outputMarkdownPath);
     }
