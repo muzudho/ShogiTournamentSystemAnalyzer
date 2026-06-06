@@ -75,16 +75,16 @@ internal static class ConsolePromptReaders
     }
     /// <summary>
     ///     <pre>
-    /// 対象［大会ルール］を選ばせるぜ（＾▽＾）！
+    /// 対象［大会ルール］を属性として選ばせるぜ（＾▽＾）！
     /// これは、外部の設定ファイルで編集できるようにしたいぜ（＾▽＾）！
     ///     </pre>
     /// </summary>
-    /// <param name="flowMode"></param>
+    /// <param name="flowSelection"></param>
     /// <returns></returns>
-    internal static RuleProfileMode ReadRuleProfileMode(AnalysisFlowSelection flowSelection)
+    internal static RuleProfileAttributes ReadRuleProfileAttributes(AnalysisFlowSelection flowSelection)
     {
         var flowLabel = flowSelection.ToPromptLabel();
-        Console.WriteLine($"{flowLabel} の対象ルールを選んでください。");
+        Console.WriteLine($"{flowLabel} の対象ルールプロファイルを選んでください。");
         Console.WriteLine("1. 通常ルール");
         Console.WriteLine("2. 本戦ルール");
         if (!flowSelection.RunsQualityEvaluation)
@@ -98,47 +98,41 @@ internal static class ConsolePromptReaders
         var attempt = 0;
         while (true)
         {
-            SimulationTimeBudget.ThrowIfApplicationTimeExpired("対象ルール選択");
+            SimulationTimeBudget.ThrowIfApplicationTimeExpired("対象ルールプロファイル選択");
             attempt++;
             Console.Write("番号を入力してください [1]: ");
             var input = InputFromSomewhere.ReadLine()?.Trim();
             if (string.IsNullOrEmpty(input) || input == "1")
             {
                 Console.WriteLine();
-                return RuleProfileMode.Standard;
+                return RuleProfileAttributes.CreateStandardScheduled();
             }
 
             if (input == "2")
             {
                 Console.WriteLine();
-                return RuleProfileMode.FinalStage;
+                return RuleProfileAttributes.CreateFinalStageGrouped();
             }
 
             if (!flowSelection.RunsQualityEvaluation && input == "3")
             {
                 Console.WriteLine();
-                return RuleProfileMode.TournamentFramework;
+                return RuleProfileAttributes.CreateTournamentFramework();
             }
 
             if (!flowSelection.RunsQualityEvaluation && input == "4")
             {
                 Console.WriteLine();
-                return RuleProfileMode.Empty;
+                return RuleProfileAttributes.CreateEmpty();
             }
 
-            if (attempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("対象ルール選択", !flowSelection.RunsQualityEvaluation ? "1、2、3、4 のいずれでもありません" : "1 または 2 以外が入力されました");
+            if (attempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("対象ルールプロファイル選択", !flowSelection.RunsQualityEvaluation ? "1、2、3、4 のいずれでもありません" : "1 または 2 以外が入力されました");
 
             Console.WriteLine(!flowSelection.RunsQualityEvaluation
                 ? "1、2、3、4 のいずれかを入力してください。\n"
                 : "1、2 のいずれかを入力してください。\n");
         }
     }
-
-    internal static RuleProfileAttributes ReadRuleProfileAttributes(AnalysisFlowSelection flowSelection)
-    {
-        return RuleProfileAttributes.FromCompatibilityLabel(ReadRuleProfileMode(flowSelection));
-    }
-
     internal static string ReadTextWithDefault(string prompt, string defaultValue)
     {
         if (!SimulationTimeBudget.HasApplicationTimeRemaining())

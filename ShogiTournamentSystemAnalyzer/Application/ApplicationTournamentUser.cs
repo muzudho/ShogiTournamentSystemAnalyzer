@@ -27,7 +27,7 @@ internal static class ApplicationTournamentUser
 
         result = null!;
         var analysisFlowSelection = AnalysisFlowSelection.FromSingle(AnalysisFlowMode.Simulation);
-        var ruleProfileAttributes = RuleProfileAttributes.FromCompatibilityLabel(RuleProfileMode.Standard);
+        var ruleProfileAttributes = RuleProfileAttributes.CreateStandardScheduled();
         AnalysisRequest? analysisRequest = null;    // TODO: これは現在の本命フローに合わせている（＾～＾）この変数を育てていき、将来的には旧フロー用の選択値は解消したい（＾～＾）？
 
         #region ［◆節１：コマンドライン引数で要求ファイルを指定したか？
@@ -67,7 +67,7 @@ internal static class ApplicationTournamentUser
                 requestText = null;
                 analysisRequest = parsedAnalysisRequest;
                 analysisFlowSelection = parsedAnalysisRequest.FlowSelection;
-                ruleProfileAttributes = RuleProfileAttributes.FromCompatibilityLabel(parsedAnalysisRequest.GetCompatibilityRuleProfileMode());
+                ruleProfileAttributes = parsedAnalysisRequest.Steps[0].GetRuleProfileAttributes();
             }
             else
             {

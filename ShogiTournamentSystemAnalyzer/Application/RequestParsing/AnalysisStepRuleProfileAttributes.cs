@@ -12,19 +12,17 @@ internal static class AnalysisStepRuleProfileAttributes
     {
         return step switch
         {
-            StandardSimulationRequest request => CreateStandardAttributes(request.TournamentRuleSetMode),
+            StandardSimulationRequest request => RuleProfileAttributes.CreateStandardScheduled(request.TournamentRuleSetMode),
             FinalStageSimulationRequest request => CreateFinalStageAttributes(
                 request.TournamentRuleSetMode,
                 request.AdditionalApexPlacementMode,
                 request.BoundaryRescueMode,
                 UsesVariableTop8: false,
                 request.ReferenceMatches.Count > 0),
-            TournamentFrameworkSimulationRequest request => RuleProfileAttributes.FromCompatibilityLabel(
-                RuleProfileMode.TournamentFramework,
-                request.TournamentRuleSetMode),
-            EmptySimulationRequest => RuleProfileAttributes.FromCompatibilityLabel(RuleProfileMode.Empty),
+            TournamentFrameworkSimulationRequest request => RuleProfileAttributes.CreateTournamentFramework(request.TournamentRuleSetMode),
+            EmptySimulationRequest => RuleProfileAttributes.CreateEmpty(),
             StandardQualityEvaluationRequest request => CreateAttributes(request.RuleDefinition, request.Input.ReferenceMatches.Count > 0),
-            DeferredStandardQualityEvaluationRequest request => CreateStandardAttributes(request.TournamentRuleSetMode),
+            DeferredStandardQualityEvaluationRequest request => RuleProfileAttributes.CreateStandardScheduled(request.TournamentRuleSetMode),
             FinalStageQualityEvaluationRequest request => CreateAttributes(request.RuleDefinition, request.Input.ReferenceMatches.Count > 0),
             DeferredFinalStageQualityEvaluationRequest request => CreateFinalStageAttributes(
                 TournamentRuleSetMode.Neutral,
@@ -52,22 +50,7 @@ internal static class AnalysisStepRuleProfileAttributes
                 ruleDefinition.BoundaryRescueMode,
                 ruleDefinition.VariableTop8Mode == VariableTop8Mode.On,
                 hasReferenceMatches)
-            : CreateStandardAttributes(ruleDefinition.TournamentRuleSetMode, hasReferenceMatches);
-    }
-
-    static RuleProfileAttributes CreateStandardAttributes(
-        TournamentRuleSetMode tournamentRuleSetMode,
-        bool hasReferenceMatches = false)
-    {
-        return new RuleProfileAttributes(
-            RuleProfileSimulationShape.ScheduledMatches,
-            UsesFinalStageGrouping: false,
-            UsesAdditionalApexPlacement: false,
-            UsesBoundaryRescue: false,
-            UsesVariableTop8: false,
-            tournamentRuleSetMode,
-            hasReferenceMatches,
-            RuleProfilePairingSource.ScheduledMatches);
+            : RuleProfileAttributes.CreateStandardScheduled(ruleDefinition.TournamentRuleSetMode, hasReferenceMatches);
     }
 
     static RuleProfileAttributes CreateFinalStageAttributes(
@@ -77,14 +60,11 @@ internal static class AnalysisStepRuleProfileAttributes
         bool UsesVariableTop8,
         bool HasReferenceMatches)
     {
-        return new RuleProfileAttributes(
-            RuleProfileSimulationShape.FinalStageGrouped,
-            UsesFinalStageGrouping: true,
+        return RuleProfileAttributes.CreateFinalStageGrouped(
+            tournamentRuleSetMode,
             additionalApexPlacementMode == AdditionalApexPlacementMode.On,
             boundaryRescueMode == BoundaryRescueMode.On,
             UsesVariableTop8,
-            tournamentRuleSetMode,
-            HasReferenceMatches,
-            RuleProfilePairingSource.ScheduledMatches);
+            HasReferenceMatches);
     }
 }
