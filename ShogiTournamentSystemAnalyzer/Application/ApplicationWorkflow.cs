@@ -35,18 +35,18 @@ internal static class ApplicationWorkflow
 
         Console.WriteLine("■［分析］"); // TODO: この出力、消していいかだぜ（＾～＾）？
 
-        // 本処理（選択フロー）
+        // ［要求ファイル］から読んだ STSAInput/4 直通要求は、要求側の Steps リスト構造で実行する。
         if (tournamentUserDomainResult.AnalysisRequest is not null)
         {
             AnalysisRequestDispatcher.Execute(tournamentUserDomainResult.AnalysisRequest);
             return;
         }
 
-        // TODO: ここ、［シミュレーション域］、［最終順位付け域］、［大会品質評価域］の３つを直列に並べるだけでいいんじゃないのか（＾～＾）？
-        foreach (var flowMode in tournamentUserDomainResult.AnalysisFlowSelection.Steps)
-        {
-            ExecuteSingle(flowMode, tournamentUserDomainResult.RuleProfileMode);
-        }
+        // 手入力などの旧入口は、アプリケーション上の［３大域］固定シーケンスとして実行する。
+        new AnalysisDomainSequence(
+            tournamentUserDomainResult.AnalysisFlowSelection,
+            tournamentUserDomainResult.RuleProfileMode)
+            .Execute();
 
         // ●終了
         return;
@@ -69,12 +69,4 @@ internal static class ApplicationWorkflow
         ProgramConsoleGuide.PrintProgramIntroduction();
     }
 
-    static void ExecuteSingle(AnalysisFlowMode flowMode, RuleProfileMode ruleProfileMode)
-    {
-        // TODO: switch文じゃいかんの（＾～＾）？　もっと細かい分類をしてる（＾～＾）？
-        if (SimulationFlowDispatcher.TryExecute(flowMode, ruleProfileMode)) return;
-        if (QualityEvaluationFlowDispatcher.TryExecute(flowMode, ruleProfileMode)) return;
-
-        throw new InvalidOperationException("未対応のモードです。");
-    }
 }

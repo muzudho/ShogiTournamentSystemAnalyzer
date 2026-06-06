@@ -11,9 +11,10 @@ internal static class AnalysisRequestDispatcher
     {
         var context = new AnalysisExecutionContext();
 
-        foreach (var step in request.Steps)
+        // 要求ファイルから読んだ実行希望は、Steps のリスト構造として順に扱う。
+        foreach (var requestedStep in request.Steps)
         {
-            ExecuteSingle(step, context);
+            ExecuteSingle(requestedStep, context);
         }
     }
 

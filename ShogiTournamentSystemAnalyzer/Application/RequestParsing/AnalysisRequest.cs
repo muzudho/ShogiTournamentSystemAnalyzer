@@ -11,6 +11,9 @@ using Match = ShogiTournamentSystemAnalyzer.Domain.Simulation.Match;
 internal sealed record AnalysisRequest(
     AnalysisFlowSelection FlowSelection,
     RuleProfileMode RuleProfileMode,
+    /// <summary>
+    /// ［要求ファイル］から読んだ実行希望のリスト構造。
+    /// </summary>
     IReadOnlyList<AnalysisStepRequest> Steps);
 
 internal abstract record AnalysisStepRequest;

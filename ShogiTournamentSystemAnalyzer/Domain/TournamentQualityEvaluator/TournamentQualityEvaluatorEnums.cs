@@ -40,7 +40,8 @@ internal sealed class AnalysisFlowSelection
     }
 
     /// <summary>
-    /// TODO: リストにする必要あんの（＾～＾）？　［シミュレーション域］、［最終順位付け域］、［大会品質評価域］の３プロパティでいいんじゃない（＾～＾）？　あるいは、Dictionary 型がいいんじゃないか（＾～＾）？
+    /// ［要求ファイル］から読んだ実行希望のリスト構造。
+    /// アプリケーション直下の［３大域］固定順序は AnalysisDomainSequence が持つ。
     /// </summary>
     internal IReadOnlyList<AnalysisFlowMode> Steps { get; }
 
