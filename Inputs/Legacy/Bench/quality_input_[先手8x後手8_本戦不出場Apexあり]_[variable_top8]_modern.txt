@@ -53,7 +53,7 @@ name,elo
 1
 #[Prompt] 可変定員8ルールを使いますか？ [1]
 2
-#[Prompt] 対局CSVまたは Round/Black-White/対局記号表を貼り付けてください。入力終了は END 行です。
+#[Prompt] 対局CSVまたは Round/FirstPlayer-SecondPlayer/対局記号表を貼り付けてください。入力終了は END 行です。
 Round
  , A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P
 A, -, -, -, -, -, -, -, -, 8, 7, 6, 5, 4, 3, 2, 1
@@ -111,7 +111,7 @@ O, "いのしし"
 P, "ひよこ"
 #[Enter]
 END
-#[Prompt] 参考対局CSVまたは Round/Black-White/対局記号表を貼り付けてください。空のまま END で省略できます。
+#[Prompt] 参考対局CSVまたは Round/FirstPlayer-SecondPlayer/対局記号表を貼り付けてください。空のまま END で省略できます。
 END
 #[Prompt] 品質評価で Innov の期待順位ずれ補正を使いますか？ [1]
 1

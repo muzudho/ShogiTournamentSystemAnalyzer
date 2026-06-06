@@ -117,7 +117,7 @@ Dave,1800
 
 ### 例
 ```csv
-black,white
+first,second
 Alice,Bob
 Carol,Alice
 Dave,Alice

@@ -23,7 +23,7 @@
 - 選手一覧CSVの読込
 - グループ対応CSVの読込
 - 本戦不出場Apex一覧CSVの読込（省略可）
-- 対局CSV / Round/Black-White/対局記号表の読込
+- 対局CSV / Round/FirstPlayer-SecondPlayer/対局記号表の読込
 - 本戦参加者の検証
 - 本戦対局の検証
 - 本戦専用の厳密計算
@@ -92,7 +92,7 @@ MVP（最小実装）
   - 追加で各参加者のグループを入力
 
 - 本戦対局の入力
-  - 既存の対局CSVまたは Round/Black-White/対局記号表を流用
+  - 既存の対局CSVまたは Round/FirstPlayer-SecondPlayer/対局記号表を流用
   - ただし Apex vs Innov 以外の対局が含まれていないかを検証
 
 - 結果計算
@@ -220,7 +220,7 @@ MVP では「案1: グループ対応CSVを別入力」を推奨。
 
 許可する入力形式:
 - 対局CSV
-- Round/Black-White/対局記号表
+- Round/FirstPlayer-SecondPlayer/対局記号表
 
 追加検証:
 - Apex vs Apex の対局が含まれていないこと
@@ -364,7 +364,7 @@ Innov 参加者は overallPlace9～16 にしか出現しないはず。
 - 選手一覧CSV
 - グループ対応CSV
 - 本戦不出場Apex一覧CSV（省略可）
-- 対局CSV または Round/Black-White/対局記号表
+- 対局CSV または Round/FirstPlayer-SecondPlayer/対局記号表
 - 必要ならシミュレーション回数
 - 出力先
 

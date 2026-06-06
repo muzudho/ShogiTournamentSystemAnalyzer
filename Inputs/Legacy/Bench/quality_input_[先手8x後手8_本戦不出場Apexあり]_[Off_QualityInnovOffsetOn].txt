@@ -109,7 +109,7 @@ O, "いのしし"
 P, "ひよこ"
 #[Enter]
 END
-#[Prompt] 参考対局CSVまたは Round/Black-White/対局記号表を貼り付けてください。空のまま END で省略できます。
+#[Prompt] 参考対局CSVまたは Round/FirstPlayer-SecondPlayer/対局記号表を貼り付けてください。空のまま END で省略できます。
 END
 #[Prompt] 品質評価で Innov の期待順位ずれ補正を使いますか？ [1]
 2

@@ -20,7 +20,7 @@
   - 選手一覧CSV
   - グループ対応CSV
   - 本戦不出場Apex一覧CSV（省略可）
-  - 対局CSV または Round/Black-White/対局記号表
+  - 対局CSV または Round/FirstPlayer-SecondPlayer/対局記号表
 - 本戦専用の順位計算結果を使った品質指標の算出
 - コンソール要約表示
 - サマリーCSV出力

@@ -1,6 +1,6 @@
 # STSAInput/2 仕様ドラフト
 
-この文書は、実行用入力ファイルの次世代方式として検討している **`STSAInput/2`** の仕様ドラフトです。  
+この文書は、実行用入力ファイルの次世代方式として検討している **`STSAInput/2`** の仕様ドラフトです。
 現行の `#[Prompt]` / `#[Enter]` 方式をすぐ廃止するものではなく、**仕様変更に強い入力プロトコル**を目指す案として整理しています。
 
 ## 目的
@@ -91,7 +91,7 @@ SimulationCount=20000
 ```
 
 ### CSV / 複合入力セクション
-CSV 本文や、`Round / Black/White / 対局記号表` のような複合入力本文をそのまま入れるセクションです。
+CSV 本文や、`Round / First/Second / 対局記号表` のような複合入力本文をそのまま入れるセクションです。
 
 ```plaintext
 #[Section] PlayersCsv
@@ -108,10 +108,10 @@ Round
 A, -, 1
 B, 1, -
 
-Black/White
+First/Second
  , A, B
-A, -, b
-B, w, -
+A, -, f
+B, s, -
 
 対局記号表
 A, "Alice"
@@ -168,7 +168,7 @@ B, "Bob"
 - `SweepStepPercent`
 
 > [!NOTE]
-> 数字の列挙値より、`QualityEvaluation` や `FinalStage` のような**名前付き値**を優先する想定です。  
+> 数字の列挙値より、`QualityEvaluation` や `FinalStage` のような**名前付き値**を優先する想定です。
 > ただし移行期には、数値表現も互換入力として許容する案があります。
 
 ## 値の書き方
@@ -200,12 +200,12 @@ TournamentRuleSetMode=Twill
 
 ## 複合入力の書き方
 
-対局入力は、単純な `black,white` CSV だけではなく、`Round / First/Second / 対局記号表` や `Round / Black/White / 対局記号表` の複合表記もあります。  
+対局入力は、単純な `first,second` CSV だけではなく、`Round / First/Second / 対局記号表` の複合表記もあります。
 そのため `STSAInput/2` では、対局入力系セクションを `MatchesCsv` のような狭い名前ではなく、`MatchesInput` / `ReferenceMatchesInput` のような広い名前で扱う案を推奨します。
 
 ```plaintext
 #[Section] MatchesInput
-black,white
+first,second
 Alice,Bob
 Carol,Alice
 #[EndSection]
@@ -220,10 +220,10 @@ Round
 A, -, 1
 B, 1, -
 
-First/Second または Black/White
+First/Second
  , A, B
-A, -, b
-B, w, -
+A, -, f
+B, s, -
 
 対局記号表
 A, "Alice"
@@ -235,7 +235,7 @@ B, "Bob"
 
 ## 必須と任意の考え方
 
-`STSAInput/2` では、すべてのファイルが同じ項目を持つとは限りません。  
+`STSAInput/2` では、すべてのファイルが同じ項目を持つとは限りません。
 そのため、項目は次の 3 種類に分けて扱う想定です。
 
 ### 必須項目
@@ -338,7 +338,7 @@ Apex,銀
 #[EndSection]
 
 #[Section] MatchesInput
-black,white
+first,second
 金,銀
 #[EndSection]
 
@@ -389,7 +389,7 @@ Alice,Bob
 
 ## この文書の位置づけ
 
-この文書は**仕様ドラフト**です。  
+この文書は**仕様ドラフト**です。
 正式採用前のため、セクション名・キー名・必須項目は今後の実装方針に応じて調整される可能性があります。
 
 関連資料:
@@ -399,5 +399,5 @@ Alice,Bob
 
 ## 用語メモ
 
-この仕様では、将棋の黒番 / 白番という表現に固定せず、より汎用的な概念として **先手 / 後手** を基準にした `FirstPlayerWinRatePercent` を使います。  
-実際の UI 表示や既存の入力パーサーには `Black/White` が残っている箇所がありますが、`STSAInput/2` のキー名としては `FirstPlayerWinRatePercent` を優先します。
+この仕様では、将棋の黒番 / 白番という表現に固定せず、より汎用的な概念として **先手 / 後手** を基準にした `FirstPlayerWinRatePercent` を使います。
+入力表記も `First/Second` を優先し、`STSAInput/2` のキー名としては `FirstPlayerWinRatePercent` を使います。
