@@ -7,11 +7,9 @@ using ShogiTournamentSystemAnalyzer.Application;
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Boundaries;
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.FinalRanking.UseCases;
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.TournamentFramework;
-using ShogiTournamentSystemAnalyzer.Domain.FinalRanking;
 using ShogiTournamentSystemAnalyzer.Domain.Ranking;
 using ShogiTournamentSystemAnalyzer.Domain.Request.RankingSettings;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
-using ShogiTournamentSystemAnalyzer.Domain.TournamentFinalState;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.Request.TournamentRule;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
@@ -57,9 +55,6 @@ internal static partial class SimulationTournamentFrameworkMode
         // ［大会ルールデータ］
         var tournamentRuleData = BoundaryDataBuilders.BuildTournamentRuleBoundaryData(context, dslDefinition);
 
-        // ［選手一覧データ］
-        var playerListData = BoundaryDataBuilders.BuildPlayerListBoundaryData(players);
-
         // ［順位設定データ］
         var rankingSettingsData = BoundaryDataBuilders.BuildRankingSettingsBoundaryData(tournamentRuleData);
 
@@ -90,18 +85,14 @@ internal static partial class SimulationTournamentFrameworkMode
         // ［実行結果］
         var executionResult = aggregateResult.RepresentativeExecutionResult;
 
-        // ［大会最終状態データ］
-        var tournamentFinalStateData = BoundaryDataBuilders.BuildTournamentFinalStateBoundaryData(executionResult);
-
-        // ［最終順位データ］
-        var finalRankingData = BoundaryDataBuilders.BuildFinalRankingBoundaryData(executionResult);
-
         // ［最終順位付け結果］
         var finalRankingResult = FinalRankingDomain.BuildTournamentFrameworkFinalRankingResult(
-            playerListData,
+            players,
             stages,
-            tournamentFinalStateData,
-            finalRankingData,
+            executionResult.FinalState,
+            executionResult.OverallRanking,
+            executionResult.TickCount,
+            executionResult.CompletedNaturally,
             aggregateResult.PlaceProbabilities,
             aggregateResult.RequestedSimulationCount,
             aggregateResult.CompletedSimulationCount,
@@ -124,10 +115,10 @@ internal static partial class SimulationTournamentFrameworkMode
             Console.WriteLine($"自然終了率: {aggregateResult.CompletedNaturallyCount:N0}/{aggregateResult.CompletedSimulationCount:N0}");
         }
 
-        Console.WriteLine($"代表実行Tick数: {tournamentFinalStateData.TickCount}");
-        Console.WriteLine($"代表実行の自然終了: {(tournamentFinalStateData.CompletedNaturally ? "Yes" : "No")}");
-        Console.WriteLine($"ステージ数: {stages.Count}");
-        Console.WriteLine($"総対局数: {matchRecords.Count}\n");
+        Console.WriteLine($"代表実行Tick数: {finalRankingResult.RepresentativeTournamentFinalState.TickCount}");
+        Console.WriteLine($"代表実行の自然終了: {(finalRankingResult.RepresentativeTournamentFinalState.CompletedNaturally ? "Yes" : "No")}");
+        Console.WriteLine($"ステージ数: {finalRankingResult.RepresentativeStages.Count}");
+        Console.WriteLine($"総対局数: {finalRankingResult.RepresentativeTournamentFinalState.MatchRecords.Count}\n");
         if (dslDefinition is not null)
         {
             Console.WriteLine($"DSL TimeAxis: {dslDefinition.TimeAxis}");

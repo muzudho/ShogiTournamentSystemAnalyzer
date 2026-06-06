@@ -75,6 +75,44 @@ internal static class FinalRankingDomain
     }
 
     internal static TournamentFrameworkFinalRankingResult BuildTournamentFrameworkFinalRankingResult(
+        IReadOnlyList<PlayerEntry> players,
+        IReadOnlyList<StageEntry> stages,
+        TournamentState representativeFinalState,
+        IReadOnlyList<PlayerRankRow> representativeOverallRanking,
+        int representativeTickCount,
+        bool representativeCompletedNaturally,
+        double[,] placeProbabilities,
+        int requestedSimulationCount,
+        int completedSimulationCount,
+        bool isExactCalculation,
+        TournamentRuleSetMode tournamentRuleSetMode,
+        double firstPlayerWinRatePercent)
+    {
+        var playerListData = new PlayerListData(players);
+        var tournamentFinalStateData = new TournamentFinalStateData(
+            representativeFinalState.MatchRecords,
+            representativeFinalState.CurrentTime,
+            representativeTickCount,
+            representativeCompletedNaturally);
+        var finalRankingData = new FinalRankingData(
+            representativeOverallRanking,
+            IsIntermediate: false,
+            Note: "大会進行フレームワークの最終順位データ");
+
+        return BuildTournamentFrameworkFinalRankingResult(
+            playerListData,
+            stages,
+            tournamentFinalStateData,
+            finalRankingData,
+            placeProbabilities,
+            requestedSimulationCount,
+            completedSimulationCount,
+            isExactCalculation,
+            tournamentRuleSetMode,
+            firstPlayerWinRatePercent);
+    }
+
+    internal static TournamentFrameworkFinalRankingResult BuildTournamentFrameworkFinalRankingResult(
         PlayerListData playerListData,
         IReadOnlyList<StageEntry> stages,
         TournamentFinalStateData tournamentFinalStateData,
