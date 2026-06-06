@@ -76,6 +76,7 @@ internal static class FinalRankingDomain
 
     internal static TournamentFrameworkFinalRankingResult BuildTournamentFrameworkFinalRankingResult(
         PlayerListData playerListData,
+        IReadOnlyList<StageEntry> stages,
         TournamentFinalStateData tournamentFinalStateData,
         FinalRankingData finalRankingData,
         double[,] placeProbabilities,
@@ -110,6 +111,9 @@ internal static class FinalRankingDomain
         return new TournamentFrameworkFinalRankingResult(
             standardPlayers,
             standardMatches,
+            stages,
+            playerListData.Players,
+            tournamentFinalStateData,
             representativeExecutionRankRows,
             aggregateCalculationResult,
             new FinalRankingResult(aggregateFinalRankingRows));
@@ -261,9 +265,6 @@ internal static class FinalRankingDomain
         double defaultFirstPlayerWinRatePercent,
         TournamentRuleData tournamentRuleData,
         RankingSettingsData rankingSettingsData,
-        TournamentFinalStateData tournamentFinalStateData,
-        IReadOnlyList<StageEntry> stages,
-        IReadOnlyList<PlayerEntry> players,
         TournamentFrameworkFinalRankingResult finalRankingResult)
     {
         const string AggregateOverviewNoteForCsv = "この順位表は複数回試行の aggregate 結果です。大会最終状態CSVとは 1 対 1 には対応しません。";
@@ -325,9 +326,9 @@ internal static class FinalRankingDomain
         WriterHelper.WriteText(
             outputPath: tournamentMatchRecordsCsvPath,
             getLines: () => TournamentFinalStateDataFileWriter.CreateTournamentMatchRecordCsv(
-                stages,
-                players,
-                tournamentFinalStateData.MatchRecords,
+                finalRankingResult.RepresentativeStages,
+                finalRankingResult.RepresentativePlayers,
+                finalRankingResult.RepresentativeTournamentFinalState.MatchRecords,
                 overviewNote: TournamentFinalStateOverviewNote));
 
         WriterHelper.WriteText(
@@ -335,9 +336,9 @@ internal static class FinalRankingDomain
             getLines: () => TournamentFinalStateDataFileWriter.CreateTournamentMatchRecordMarkdown(
                 tournamentMatchRecordsMarkdownPath,
                 tournamentMatchRecordsCsvPath,
-                stages,
-                players,
-                tournamentFinalStateData.MatchRecords,
+                finalRankingResult.RepresentativeStages,
+                finalRankingResult.RepresentativePlayers,
+                finalRankingResult.RepresentativeTournamentFinalState.MatchRecords,
                 overviewNote: TournamentFinalStateOverviewNote,
                 aggregateResultMarkdownPath: outputMarkdownPath,
                 representativeRankingMarkdownPath: representativeRankingMarkdownPath));

@@ -99,6 +99,7 @@ internal static partial class SimulationTournamentFrameworkMode
         // ［最終順位付け結果］
         var finalRankingResult = FinalRankingDomain.BuildTournamentFrameworkFinalRankingResult(
             playerListData,
+            stages,
             tournamentFinalStateData,
             finalRankingData,
             aggregateResult.PlaceProbabilities,
@@ -144,9 +145,6 @@ internal static partial class SimulationTournamentFrameworkMode
             context.FirstPlayerWinRatePercent,
             tournamentRuleData,
             rankingSettingsData,
-            tournamentFinalStateData,
-            stages,
-            players,
             finalRankingResult);
     }
 
