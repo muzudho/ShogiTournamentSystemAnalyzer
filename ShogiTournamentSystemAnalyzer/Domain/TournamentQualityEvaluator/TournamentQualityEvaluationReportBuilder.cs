@@ -9,7 +9,7 @@ using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 internal static class TournamentQualityEvaluationReportBuilder
 {
     internal static List<TournamentQualityReportPlayerRow> BuildTournamentQualityReportPlayerRows(
-        IReadOnlyList<StandardResultRow> resultRows,
+        IReadOnlyList<GeneralSimulationResultRow> resultRows,
         IReadOnlyDictionary<string, FinalStageGroup>? groupMap,
         IReadOnlyList<Player> additionalApexPlayers,
         AdditionalApexPlacementMode placementMode,
@@ -17,7 +17,7 @@ internal static class TournamentQualityEvaluationReportBuilder
         int innovExpectedRankOffsetCount)
     {
         var allPlayers = resultRows
-            .Select(row => new Player(row.Name, row.OriginalRating))
+            .Select(row => new Player(row.CommonData.Name, row.CommonData.OriginalRating))
             .Concat(placementMode == AdditionalApexPlacementMode.Off ? additionalApexPlayers : Enumerable.Empty<Player>())
             .ToList();
 
@@ -30,25 +30,38 @@ internal static class TournamentQualityEvaluationReportBuilder
         return resultRows
             .Select(row =>
             {
-                var eloRank = eloRanks[row.Name];
+                var commonData = row.CommonData;
+                var averagePlace = GetMetric(row, "averagePlace");
+                var championshipProbability = GetMetric(row, "championshipProbability");
+                var eloRank = eloRanks[commonData.Name];
                 var comparisonEloRank = groupMap is not null
-                    && groupMap[row.Name] == FinalStageGroup.Innov
+                    && groupMap[commonData.Name] == FinalStageGroup.Innov
                     && innovExpectedRankOffsetMode == TournamentQualityEvaluationInnovExpectedRankOffsetMode.On
                     ? eloRank + innovExpectedRankOffsetCount
                     : eloRank;
-                var overallTop8Probability = row.PlaceProbabilities.Take(Math.Min(8, row.PlaceProbabilities.Length)).Sum();
+                var overallTop8Probability = commonData.PlaceProbabilities.Take(Math.Min(8, commonData.PlaceProbabilities.Length)).Sum();
                 return new TournamentQualityReportPlayerRow(
-                    row.Name,
-                    groupMap is null ? "Neutral" : groupMap[row.Name].ToString(),
-                    row.OriginalRating,
+                    commonData.Name,
+                    groupMap is null ? "Neutral" : groupMap[commonData.Name].ToString(),
+                    commonData.OriginalRating,
                     eloRank,
-                    row.AveragePlace,
-                    row.AveragePlace - comparisonEloRank,
-                    row.ChampionshipProbability,
+                    averagePlace,
+                    averagePlace - comparisonEloRank,
+                    championshipProbability,
                     overallTop8Probability);
             })
             .OrderBy(x => x.EloRank)
             .ToList();
+    }
+
+    static double GetMetric(GeneralSimulationResultRow row, string key)
+    {
+        if (row.Metrics.TryGetValue(key, out var metric))
+        {
+            return metric.Value;
+        }
+
+        throw new InvalidOperationException($"品質評価レポート生成に必要な metric がありません: {key}");
     }
 
     internal static TournamentQualityReportSummary BuildTournamentQualityReportSummary(IReadOnlyList<TournamentQualityReportPlayerRow> playerRows)

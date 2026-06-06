@@ -116,7 +116,7 @@ internal static partial class SimulationTournamentFrameworkMode
         var representativeExecutionRankRows = BuildRepresentativeExecutionRankRows(playerListData.Players, finalRankingData.RankRows);
 
         var result = BuildTournamentFrameworkCalculationResult(aggregateResult);
-        var resultRows = RankingResultRowBuilder.BuildResultRows(standardPlayers, standardMatches, result, tournamentRuleData.FirstPlayerWinRatePercent ?? context.FirstPlayerWinRatePercent);
+        var resultRows = RankingResultRowBuilder.BuildGeneralResultRows(standardPlayers, standardMatches, result, tournamentRuleData.FirstPlayerWinRatePercent ?? context.FirstPlayerWinRatePercent);
 
         Console.WriteLine($"順位ルール: {TournamentRuleSetRule.GetLabel(rankingSettingsData.TournamentRuleSetMode)}");
 
@@ -174,7 +174,7 @@ internal static partial class SimulationTournamentFrameworkMode
         IReadOnlyList<PlayerEntry> players,
         IReadOnlyList<RepresentativeExecutionRankRow> representativeExecutionRankRows,
         CalculationResult finalRankingCalculation,
-        IReadOnlyList<StandardResultRow> finalRankingRows)
+        IReadOnlyList<GeneralSimulationResultRow> finalRankingRows)
     {
         var settings = new FinalRankingDataFileWriterSettings(RuleProfileMode.TournamentFramework);
         FinalRankingMarkdownFileWriter finalRankingDataFileWriter = new(settings);

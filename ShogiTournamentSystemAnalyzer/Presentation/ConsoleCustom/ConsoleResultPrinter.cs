@@ -203,10 +203,6 @@ internal static class ConsoleResultPrinter
         throw new InvalidOperationException($"シミュレーション結果行に必要な自由形式列がありません: {key}");
     }
 
-    internal static void PrintResult(int playerCount, CalculationResult result, double firstPlayerWinRatePercent, IReadOnlyList<StandardResultRow> resultRows)
-    {
-        PrintChampionshipResult(result, firstPlayerWinRatePercent, resultRows.Select(row => row.ToGeneralResultRow()).ToArray());
-    }
 
     internal static void PrintResult(int playerCount, CalculationResult result, double firstPlayerWinRatePercent, IReadOnlyList<GeneralSimulationResultRow> resultRows)
     {
@@ -279,10 +275,6 @@ internal static class ConsoleResultPrinter
         Console.WriteLine();
     }
 
-    internal static void PrintFinalStageResult(CalculationResult result, double firstPlayerWinRatePercent, IReadOnlyList<FinalStageResultRow> resultRows)
-    {
-        PrintGroupedOverallResult(result, firstPlayerWinRatePercent, resultRows.Select(row => row.ToGeneralResultRow()).ToArray());
-    }
 
     internal static void PrintFinalStageResult(CalculationResult result, double firstPlayerWinRatePercent, IReadOnlyList<GeneralSimulationResultRow> resultRows)
     {

@@ -61,11 +61,11 @@ internal static class TournamentQualityEvaluationSingleRunExecutor
                 : StandardCalculationEngine.CalculateExactly(input.Players, input.Matches, firstPlayerWinRateRating, ruleDefinition.TournamentRuleSetMode);
     }
 
-    static IReadOnlyList<StandardResultRow> BuildFinalRankingRows(
+    static IReadOnlyList<GeneralSimulationResultRow> BuildFinalRankingRows(
         TournamentQualityEvaluationInput input,
         CalculationResult tournamentFinalState,
         double firstPlayerWinRatePercent)
     {
-        return RankingResultRowBuilder.BuildResultRows(input.Players, input.Matches, tournamentFinalState, firstPlayerWinRatePercent);
+        return RankingResultRowBuilder.BuildGeneralResultRows(input.Players, input.Matches, tournamentFinalState, firstPlayerWinRatePercent);
     }
 }

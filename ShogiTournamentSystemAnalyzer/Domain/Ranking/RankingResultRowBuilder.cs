@@ -5,10 +5,11 @@ namespace ShogiTournamentSystemAnalyzer.Domain.Ranking;
 
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
+using System.Globalization;
 
 internal static class RankingResultRowBuilder
 {
-    internal static List<StandardResultRow> BuildResultRows(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, CalculationResult result, double firstPlayerWinRatePercent)
+    internal static List<GeneralSimulationResultRow> BuildGeneralResultRows(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, CalculationResult result, double firstPlayerWinRatePercent)
     {
         var firstPlayerWinRateRating = SimulationRatingMath.ConvertFirstPlayerWinRatePercentToRating(firstPlayerWinRatePercent);
         var firstPlayerCounts = new int[players.Count];
@@ -33,14 +34,14 @@ internal static class RankingResultRowBuilder
             opponentRatings[match.SecondPlayer].Add(players[match.FirstPlayer].Rating);
         }
 
-        var rows = new List<StandardResultRow>(players.Count);
+        var rows = new List<GeneralSimulationResultRow>(players.Count);
         for (var playerIndex = 0; playerIndex < players.Count; playerIndex++)
         {
             var expectedPlace = Enumerable.Range(0, players.Count)
                 .Sum(place => (place + 1) * result.PlaceProbabilities[playerIndex, place]);
             var commonData = CreateCommonData(playerIndex);
 
-            rows.Add(new StandardResultRow(
+            rows.Add(CreateChampionshipResultRow(
                 commonData,
                 result.PlaceProbabilities[playerIndex, 0],
                 expectedPlace));
@@ -82,43 +83,92 @@ internal static class RankingResultRowBuilder
         }
     }
 
-    internal static List<GeneralSimulationResultRow> BuildGeneralResultRows(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, CalculationResult result, double firstPlayerWinRatePercent)
+    internal static List<GeneralSimulationResultRow> BuildFinalStageGeneralResultRows(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, CalculationResult result, double firstPlayerWinRatePercent, IReadOnlyDictionary<string, FinalStageGroup> groupMap, int additionalApexCount)
     {
-        return BuildResultRows(players, matches, result, firstPlayerWinRatePercent)
-            .Select(row => row.ToGeneralResultRow())
-            .ToList();
-    }
-
-    internal static List<FinalStageResultRow> BuildFinalStageResultRows(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, CalculationResult result, double firstPlayerWinRatePercent, IReadOnlyDictionary<string, FinalStageGroup> groupMap, int additionalApexCount)
-    {
-        var standardRows = BuildResultRows(players, matches, result, firstPlayerWinRatePercent);
+        var standardRows = BuildGeneralResultRows(players, matches, result, firstPlayerWinRatePercent);
         var apexCount = groupMap.Count(x => x.Value == FinalStageGroup.Apex);
         var innovCount = players.Count - apexCount;
 
         return standardRows
             .Select(row =>
             {
-                var group = groupMap[row.Name];
+                var group = groupMap[row.CommonData.Name];
                 var groupStartIndex = group == FinalStageGroup.Apex ? 0 : apexCount + additionalApexCount;
                 var groupSize = group == FinalStageGroup.Apex ? apexCount : innovCount;
                 var groupPlaceAverage = Enumerable.Range(0, groupSize)
-                    .Sum(offset => (offset + 1) * row.PlaceProbabilities[groupStartIndex + offset]);
+                    .Sum(offset => (offset + 1) * row.CommonData.PlaceProbabilities[groupStartIndex + offset]);
+                var overallPlaceAverage = GetMetric(row, "averagePlace");
 
-                return new FinalStageResultRow(
+                return CreateGroupedOverallResultRow(
                     row.CommonData,
                     group.ToString(),
-                    row.PlaceProbabilities[groupStartIndex],
+                    row.CommonData.PlaceProbabilities[groupStartIndex],
                     groupPlaceAverage,
-                    row.PlaceProbabilities[0],
-                    row.AveragePlace);
+                    row.CommonData.PlaceProbabilities[0],
+                    overallPlaceAverage);
             })
             .ToList();
     }
 
-    internal static List<GeneralSimulationResultRow> BuildFinalStageGeneralResultRows(IReadOnlyList<Player> players, IReadOnlyList<Match> matches, CalculationResult result, double firstPlayerWinRatePercent, IReadOnlyDictionary<string, FinalStageGroup> groupMap, int additionalApexCount)
+    static GeneralSimulationResultRow CreateChampionshipResultRow(
+        SimulationResultRowCommonData commonData,
+        double championshipProbability,
+        double averagePlace)
     {
-        return BuildFinalStageResultRows(players, matches, result, firstPlayerWinRatePercent, groupMap, additionalApexCount)
-            .Select(row => row.ToGeneralResultRow())
-            .ToList();
+        var championshipProbabilityPercent = (championshipProbability * 100).ToString("F2", CultureInfo.InvariantCulture);
+        var averagePlaceText = averagePlace.ToString("F3", CultureInfo.InvariantCulture);
+
+        return new GeneralSimulationResultRow(
+            commonData,
+            [
+                new SimulationResultFreeColumn("championshipProbabilityPercent", championshipProbabilityPercent, championshipProbabilityPercent),
+                new SimulationResultFreeColumn("averagePlace", averagePlaceText, averagePlaceText)
+            ],
+            new Dictionary<string, SimulationResultMetric>
+            {
+                ["championshipProbability"] = new("championshipProbability", championshipProbability),
+                ["averagePlace"] = new("averagePlace", averagePlace)
+            });
+    }
+
+    static GeneralSimulationResultRow CreateGroupedOverallResultRow(
+        SimulationResultRowCommonData commonData,
+        string group,
+        double groupPlace1Probability,
+        double groupPlaceAverage,
+        double overallPlace1Probability,
+        double overallPlaceAverage)
+    {
+        var groupPlace1ProbabilityPercent = (groupPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture);
+        var groupPlaceAverageText = groupPlaceAverage.ToString("F3", CultureInfo.InvariantCulture);
+        var overallPlace1ProbabilityPercent = (overallPlace1Probability * 100).ToString("F2", CultureInfo.InvariantCulture);
+        var overallPlaceAverageText = overallPlaceAverage.ToString("F3", CultureInfo.InvariantCulture);
+
+        return new GeneralSimulationResultRow(
+            commonData,
+            [
+                new SimulationResultFreeColumn("group", group, group),
+                new SimulationResultFreeColumn("groupPlace1ProbabilityPercent", groupPlace1ProbabilityPercent, groupPlace1ProbabilityPercent),
+                new SimulationResultFreeColumn("groupPlaceAverage", groupPlaceAverageText, groupPlaceAverageText),
+                new SimulationResultFreeColumn("overallPlace1ProbabilityPercent", overallPlace1ProbabilityPercent, overallPlace1ProbabilityPercent),
+                new SimulationResultFreeColumn("overallPlaceAverage", overallPlaceAverageText, overallPlaceAverageText)
+            ],
+            new Dictionary<string, SimulationResultMetric>
+            {
+                ["groupPlace1Probability"] = new("groupPlace1Probability", groupPlace1Probability),
+                ["groupPlaceAverage"] = new("groupPlaceAverage", groupPlaceAverage),
+                ["overallPlace1Probability"] = new("overallPlace1Probability", overallPlace1Probability),
+                ["overallPlaceAverage"] = new("overallPlaceAverage", overallPlaceAverage)
+            });
+    }
+
+    static double GetMetric(GeneralSimulationResultRow row, string key)
+    {
+        if (row.Metrics.TryGetValue(key, out var metric))
+        {
+            return metric.Value;
+        }
+
+        throw new InvalidOperationException($"順位付け結果行に必要な metric がありません: {key}");
     }
 }
