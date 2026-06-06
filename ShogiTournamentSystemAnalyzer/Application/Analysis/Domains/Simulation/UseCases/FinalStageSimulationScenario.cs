@@ -8,13 +8,22 @@ using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.Mode
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.SimulationMainline;
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.TournamentQualityEvaluator.Modes;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
+using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 
 internal sealed class FinalStageSimulationScenario : ISimulationScenario
 {
     internal static readonly FinalStageSimulationScenario Instance = new();
 
-    public RuleProfileMode RuleProfileMode => RuleProfileMode.FinalStage;
+    public RuleProfileAttributes RuleProfileAttributes { get; } = new(
+        RuleProfileSimulationShape.FinalStageGrouped,
+        UsesFinalStageGrouping: true,
+        UsesAdditionalApexPlacement: true,
+        UsesBoundaryRescue: true,
+        UsesVariableTop8: true,
+        TournamentRuleSetMode.Neutral,
+        HasReferenceMatches: true,
+        RuleProfilePairingSource.ScheduledMatches);
 
     public void PrintOverview()
     {
@@ -34,7 +43,6 @@ internal sealed class FinalStageSimulationScenario : ISimulationScenario
         var finalStageContext = context!;
 
         plan = new SimulationExecutionPlan(
-            RuleProfileMode,
             "FinalStageMainline",
             () =>
             {

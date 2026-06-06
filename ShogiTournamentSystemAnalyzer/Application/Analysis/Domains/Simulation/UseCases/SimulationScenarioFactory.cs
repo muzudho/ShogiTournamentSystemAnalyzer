@@ -7,11 +7,6 @@ using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 
 internal static class SimulationScenarioFactory
 {
-    internal static ISimulationScenario Create(RuleProfileMode ruleProfileMode)
-    {
-        return Create(RuleProfileAttributes.FromCompatibilityLabel(ruleProfileMode));
-    }
-
     internal static ISimulationScenario Create(RuleProfileAttributes ruleProfileAttributes)
     {
         return ruleProfileAttributes.SimulationShape switch

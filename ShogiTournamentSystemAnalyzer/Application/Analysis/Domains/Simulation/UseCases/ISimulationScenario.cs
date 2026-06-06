@@ -7,7 +7,7 @@ using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 
 internal interface ISimulationScenario
 {
-    RuleProfileMode RuleProfileMode { get; }
+    RuleProfileAttributes RuleProfileAttributes { get; }
 
     /// <summary>
     /// 概要表示

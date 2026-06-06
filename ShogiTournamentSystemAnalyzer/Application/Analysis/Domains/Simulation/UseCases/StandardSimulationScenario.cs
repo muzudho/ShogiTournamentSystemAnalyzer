@@ -8,13 +8,22 @@ using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.Mode
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.SimulationMainline;
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.TournamentQualityEvaluator.Modes;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
+using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 
 internal sealed class StandardSimulationScenario : ISimulationScenario
 {
     internal static readonly StandardSimulationScenario Instance = new();
 
-    public RuleProfileMode RuleProfileMode => RuleProfileMode.Standard;
+    public RuleProfileAttributes RuleProfileAttributes { get; } = new(
+        RuleProfileSimulationShape.ScheduledMatches,
+        UsesFinalStageGrouping: false,
+        UsesAdditionalApexPlacement: false,
+        UsesBoundaryRescue: false,
+        UsesVariableTop8: false,
+        TournamentRuleSetMode.Neutral,
+        HasReferenceMatches: false,
+        RuleProfilePairingSource.ScheduledMatches);
 
     public void PrintOverview()
     {
@@ -28,7 +37,6 @@ internal sealed class StandardSimulationScenario : ISimulationScenario
     {
         var context = SimulationModeInputReaders.ReadStandardModeContext();
         plan = new SimulationExecutionPlan(
-            RuleProfileMode,
             "StandardMainline",
             () =>
             {
