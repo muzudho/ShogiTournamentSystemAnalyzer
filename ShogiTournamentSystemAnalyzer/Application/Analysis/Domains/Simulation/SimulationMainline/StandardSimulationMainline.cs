@@ -94,12 +94,12 @@ internal class StandardSimulationMainline
         IReadOnlyList<StandardResultRow> finalRankingRows,
         string? outputPathOverride)
     {
-        var (outputCsvPath, outputMarkdownPath) = string.IsNullOrWhiteSpace(outputPathOverride)
-            ? ResolveFinalRankingOutputPaths($"standard_final_ranking_{DateTime.Now:yyyyMMdd_HHmmss}.csv")
-            : ResolveFinalRankingOutputPathsFromOverride(outputPathOverride);
+        var (outputCsvPath, outputMarkdownPath) = FinalRankingDomain.ResolveOutputPaths(
+            $"standard_final_ranking_{DateTime.Now:yyyyMMdd_HHmmss}.csv",
+            outputPathOverride);
 
         FinalRankingMarkdownFileWriter finalRankingDataFileWriter = new(new FinalRankingDataFileWriterSettings(RuleProfileMode.Standard));
-        WriteFinalRankingOutputs(
+        FinalRankingDomain.WriteOutputs(
             finalRankingDataFileWriter,
             outputCsvPath,
             outputMarkdownPath,
@@ -107,11 +107,6 @@ internal class StandardSimulationMainline
             context.FirstPlayerWinRatePercent,
             finalRankingRows);
 
-        PrintFinalRankingOutputCompleted(outputCsvPath, outputMarkdownPath);
-    }
-
-    static (string OutputCsvPath, string OutputMarkdownPath) ResolveFinalRankingOutputPathsFromOverride(string outputPath)
-    {
-        return FinalRankingDomain.ResolveOutputPathsFromOverride(outputPath);
+        FinalRankingDomain.PrintOutputCompleted(outputCsvPath, outputMarkdownPath);
     }
 }

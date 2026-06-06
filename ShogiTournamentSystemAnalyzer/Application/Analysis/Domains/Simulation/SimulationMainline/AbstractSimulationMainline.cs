@@ -5,11 +5,9 @@ namespace ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.
 
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.SimulationContext;
 using ShogiTournamentSystemAnalyzer.Application;
-using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.FinalRanking.UseCases;
 using ShogiTournamentSystemAnalyzer.Domain.Ranking;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
-using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.FinalRanking;
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 
 /// <summary>
@@ -105,67 +103,6 @@ internal abstract class AbstractSimulationMainline
         return RankingResultRowBuilder.BuildResultRows(context.Players, context.Matches, result, context.FirstPlayerWinRatePercent);
     }
 
-    protected static (string OutputCsvPath, string OutputMarkdownPath) ResolveFinalRankingOutputPaths(string defaultFileName)
-    {
-        return FinalRankingDomain.ResolveOutputPaths(defaultFileName);
-    }
-
-    protected static void PrintFinalRankingOutputCompleted(string outputCsvPath, string outputMarkdownPath)
-    {
-        FinalRankingDomain.PrintOutputCompleted(outputCsvPath, outputMarkdownPath);
-    }
-
-    protected static void WriteOutputFiles(
-        string outputCsvPath,
-        string outputMarkdownPath,
-        Func<IEnumerable<string>> createCsvLines,
-        Func<IEnumerable<string>> createMarkdownLines)
-    {
-        FinalRankingDomain.WriteOutputFiles(
-            outputCsvPath,
-            outputMarkdownPath,
-            createCsvLines,
-            createMarkdownLines);
-    }
-
-    protected static void WriteFinalRankingOutputs<TRow>(
-        string outputCsvPath,
-        string outputMarkdownPath,
-        CalculationResult result,
-        double firstPlayerWinRatePercent,
-        IReadOnlyList<TRow> resultRows,
-        Func<string, string, double, IReadOnlyList<TRow>, IEnumerable<string>> createCsvLines,
-        Func<string, string, string, double, IReadOnlyList<TRow>, IEnumerable<string>> createMarkdownLines)
-    {
-        FinalRankingDomain.WriteOutputs(
-            outputCsvPath,
-            outputMarkdownPath,
-            result,
-            firstPlayerWinRatePercent,
-            resultRows,
-            createCsvLines,
-            createMarkdownLines);
-    }
-
-    protected static void WriteFinalRankingOutputs<TRow>(
-        FinalRankingMarkdownFileWriter finalRankingDataFileWriter,
-        string outputCsvPath,
-        string outputMarkdownPath,
-        CalculationResult result,
-        double firstPlayerWinRatePercent,
-        IReadOnlyList<TRow> resultRows,
-        string? referenceMatchesCsvPath = null)
-        where TRow : ISimulationResultRow
-    {
-        FinalRankingDomain.WriteOutputs(
-            finalRankingDataFileWriter,
-            outputCsvPath,
-            outputMarkdownPath,
-            result,
-            firstPlayerWinRatePercent,
-            resultRows,
-            referenceMatchesCsvPath);
-    }
 }
 
 internal abstract record SimulationMainlineExecutionResult(CalculationResult Result);

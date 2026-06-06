@@ -156,7 +156,7 @@ internal class FinalStageSimulationMainline
     {
         var (outputCsvPath, outputMarkdownPath, referenceMatchesCsvPath) = PrepareFinalStageOutputPaths(context);
 
-        WriteFinalRankingOutputs(finalRankingDataFileWriter, outputCsvPath, outputMarkdownPath, executionResult.Result, context.FirstPlayerWinRatePercent, executionResult.ResultRows);
+        FinalRankingDomain.WriteOutputs(finalRankingDataFileWriter, outputCsvPath, outputMarkdownPath, executionResult.Result, context.FirstPlayerWinRatePercent, executionResult.ResultRows);
 
         CompleteFinalStageOutputs(context, outputCsvPath, outputMarkdownPath, referenceMatchesCsvPath);
     }
@@ -167,7 +167,7 @@ internal class FinalStageSimulationMainline
         SimulationMainlineExecutionResult<FinalStageResultRow> executionResult)
     {
         var (outputCsvPath, outputMarkdownPath, referenceMatchesCsvPath) = PrepareFinalStageOutputPaths(context);
-        WriteFinalRankingOutputs(
+        FinalRankingDomain.WriteOutputs(
             finalRankingDataFileWriter,
             outputCsvPath,
             outputMarkdownPath,
@@ -180,19 +180,15 @@ internal class FinalStageSimulationMainline
 
     (string OutputCsvPath, string OutputMarkdownPath, string? ReferenceMatchesCsvPath) PrepareFinalStageOutputPaths(FinalStageModeSimulationContext context)
     {
-        var (outputCsvPath, outputMarkdownPath) = string.IsNullOrWhiteSpace(outputPathOverride)
-            ? ResolveFinalRankingOutputPaths($"final_stage_final_ranking_{DateTime.Now:yyyyMMdd_HHmmss}.csv")
-            : ResolveFinalRankingOutputPathsFromOverride(outputPathOverride);
+        var (outputCsvPath, outputMarkdownPath) = FinalRankingDomain.ResolveOutputPaths(
+            $"final_stage_final_ranking_{DateTime.Now:yyyyMMdd_HHmmss}.csv",
+            outputPathOverride);
         var referenceMatchesCsvPath = context.ReferenceMatches.Count > 0
             ? ReportOutputPathBuilder.BuildTournamentFinalStateDefaultOutputPath($"reference_matches_{DateTime.Now:yyyyMMdd_HHmmss}.csv")
             : null;
         return (outputCsvPath, outputMarkdownPath, referenceMatchesCsvPath);
     }
 
-    static (string OutputCsvPath, string OutputMarkdownPath) ResolveFinalRankingOutputPathsFromOverride(string outputPath)
-    {
-        return FinalRankingDomain.ResolveOutputPathsFromOverride(outputPath);
-    }
 
     static void CompleteFinalStageOutputs(
         FinalStageModeSimulationContext context,
@@ -200,7 +196,7 @@ internal class FinalStageSimulationMainline
         string outputMarkdownPath,
         string? referenceMatchesCsvPath)
     {
-        PrintFinalRankingOutputCompleted(outputCsvPath, outputMarkdownPath);
+        FinalRankingDomain.PrintOutputCompleted(outputCsvPath, outputMarkdownPath);
 
         if (context.ReferenceMatches.Count == 0) return;
 

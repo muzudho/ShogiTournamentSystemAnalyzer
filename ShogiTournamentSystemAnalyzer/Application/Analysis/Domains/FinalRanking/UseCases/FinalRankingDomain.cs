@@ -21,6 +21,13 @@ internal static class FinalRankingDomain
         return (outputCsvPath, outputMarkdownPath);
     }
 
+    internal static (string OutputCsvPath, string OutputMarkdownPath) ResolveOutputPaths(string defaultFileName, string? outputPathOverride)
+    {
+        return string.IsNullOrWhiteSpace(outputPathOverride)
+            ? ResolveOutputPaths(defaultFileName)
+            : ResolveOutputPathsFromOverride(outputPathOverride);
+    }
+
     internal static (string OutputCsvPath, string OutputMarkdownPath) ResolveOutputPathsFromOverride(string outputPath)
     {
         var outputCsvPath = CsvOutputHelpers.ResolveOutputCsvPath(outputPath);
