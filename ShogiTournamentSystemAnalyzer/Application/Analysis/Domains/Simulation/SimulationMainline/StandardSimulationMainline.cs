@@ -49,25 +49,23 @@ internal class StandardSimulationMainline
         var standardContext = (StandardModeSimulationContext)context;
         var tournamentFinalState = ExecuteTournamentFinalState(standardContext);
         var finalRankingRows = BuildStandardResultRows(standardContext, tournamentFinalState);
-        return new SimulationMainlineResult<StandardResultRow>(tournamentFinalState, finalRankingRows);
+        return new SimulationMainlineResult(tournamentFinalState, finalRankingRows, SimulationMainlineResultPresentation.Championship);
     }
 
     protected override void PrintSimulationResult(AbstractSimulationContext context, SimulationMainlineResult mainlineResult)
     {
         var standardContext = (StandardModeSimulationContext)context;
-        var standardMainlineResult = (SimulationMainlineResult<StandardResultRow>)mainlineResult;
         ConsoleResultPrinter.PrintResult(
             standardContext.Players.Count,
-            standardMainlineResult.SimulationResult.TournamentFinalState,
+            mainlineResult.SimulationResult.TournamentFinalState,
             standardContext.FirstPlayerWinRatePercent,
-            standardMainlineResult.FinalRankingResult.Rows);
+            mainlineResult.FinalRankingResult.Rows);
     }
 
     protected override void WriteSimulationOutputs(AbstractSimulationContext context, SimulationMainlineResult mainlineResult)
     {
         var standardContext = (StandardModeSimulationContext)context;
-        var standardMainlineResult = (SimulationMainlineResult<StandardResultRow>)mainlineResult;
-        WriteFinalRankingOutputsForStandardMode(standardContext, standardMainlineResult.SimulationResult.TournamentFinalState, standardMainlineResult.FinalRankingResult, outputPathOverride);
+        WriteFinalRankingOutputsForStandardMode(standardContext, mainlineResult.SimulationResult.TournamentFinalState, mainlineResult.FinalRankingResult, outputPathOverride);
     }
 
     CalculationResult ExecuteTournamentFinalState(StandardModeSimulationContext context)
@@ -92,7 +90,7 @@ internal class StandardSimulationMainline
     static void WriteFinalRankingOutputsForStandardMode(
         StandardModeSimulationContext context,
         CalculationResult tournamentFinalState,
-        FinalRankingResult<StandardResultRow> finalRankingResult,
+        FinalRankingResult<GeneralSimulationResultRow> finalRankingResult,
         string? outputPathOverride)
     {
         var (outputCsvPath, outputMarkdownPath) = FinalRankingDomain.ResolveOutputPaths(

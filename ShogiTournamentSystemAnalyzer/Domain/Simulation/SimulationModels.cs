@@ -104,7 +104,22 @@ readonly record struct SimulationResultMetric(
 readonly record struct GeneralSimulationResultRow(
     SimulationResultRowCommonData CommonData,
     IReadOnlyList<SimulationResultFreeColumn> FreeColumns,
-    IReadOnlyDictionary<string, SimulationResultMetric> Metrics);
+    IReadOnlyDictionary<string, SimulationResultMetric> Metrics)
+    : ISimulationResultRow
+{
+    public string Name => CommonData.Name;
+    public double OriginalRating => CommonData.OriginalRating;
+    public double EffectiveRating => CommonData.EffectiveRating;
+    public double RatingDelta => CommonData.RatingDelta;
+    public int FirstPlayerCount => CommonData.FirstPlayerCount;
+    public int SecondPlayerCount => CommonData.SecondPlayerCount;
+    public double? FirstPlayerWinRate => CommonData.FirstPlayerWinRate;
+    public double? SecondPlayerWinRate => CommonData.SecondPlayerWinRate;
+    public double[] PlaceProbabilities => CommonData.PlaceProbabilities;
+    public double[]? PlaceCounts => CommonData.PlaceCounts;
+
+    public GeneralSimulationResultRow ToGeneralResultRow() => this;
+}
 
 /// <summary>
 ///     <pre>

@@ -208,6 +208,11 @@ internal static class ConsoleResultPrinter
         PrintChampionshipResult(result, firstPlayerWinRatePercent, resultRows.Select(row => row.ToGeneralResultRow()).ToArray());
     }
 
+    internal static void PrintResult(int playerCount, CalculationResult result, double firstPlayerWinRatePercent, IReadOnlyList<GeneralSimulationResultRow> resultRows)
+    {
+        PrintChampionshipResult(result, firstPlayerWinRatePercent, resultRows);
+    }
+
     static void PrintChampionshipResult(CalculationResult result, double firstPlayerWinRatePercent, IReadOnlyList<GeneralSimulationResultRow> resultRows)
     {
         PrintSimulationResultSummary(result, firstPlayerWinRatePercent);
@@ -277,6 +282,11 @@ internal static class ConsoleResultPrinter
     internal static void PrintFinalStageResult(CalculationResult result, double firstPlayerWinRatePercent, IReadOnlyList<FinalStageResultRow> resultRows)
     {
         PrintGroupedOverallResult(result, firstPlayerWinRatePercent, resultRows.Select(row => row.ToGeneralResultRow()).ToArray());
+    }
+
+    internal static void PrintFinalStageResult(CalculationResult result, double firstPlayerWinRatePercent, IReadOnlyList<GeneralSimulationResultRow> resultRows)
+    {
+        PrintGroupedOverallResult(result, firstPlayerWinRatePercent, resultRows);
     }
 
     static void PrintGroupedOverallResult(CalculationResult result, double firstPlayerWinRatePercent, IReadOnlyList<GeneralSimulationResultRow> resultRows)

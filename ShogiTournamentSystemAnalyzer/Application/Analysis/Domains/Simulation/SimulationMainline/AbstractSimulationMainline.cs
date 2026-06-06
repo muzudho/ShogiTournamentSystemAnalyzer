@@ -99,25 +99,29 @@ internal abstract class AbstractSimulationMainline
         return StandardCalculationEngine.CalculateBySimulation(context.Players, context.Matches, context.FirstPlayerWinRateRating, simulationCount, context.TournamentRuleSetMode);
     }
 
-    protected static IReadOnlyList<StandardResultRow> BuildStandardResultRows(AbstractSimulationContext context, CalculationResult result)
+    protected static IReadOnlyList<GeneralSimulationResultRow> BuildStandardResultRows(AbstractSimulationContext context, CalculationResult result)
     {
-        return RankingResultRowBuilder.BuildResultRows(context.Players, context.Matches, result, context.FirstPlayerWinRatePercent);
+        return RankingResultRowBuilder.BuildGeneralResultRows(context.Players, context.Matches, result, context.FirstPlayerWinRatePercent);
     }
 
 }
 
-internal abstract record SimulationMainlineResult(SimulationResult SimulationResult);
+internal enum SimulationMainlineResultPresentation
+{
+    Championship,
+    GroupedOverall
+}
 
-internal sealed record SimulationMainlineResult<TRow>(
+internal sealed record SimulationMainlineResult(
     SimulationResult SimulationResult,
-    FinalRankingResult<TRow> FinalRankingResult)
-    : SimulationMainlineResult(SimulationResult)
-    where TRow : ISimulationResultRow
+    FinalRankingResult<GeneralSimulationResultRow> FinalRankingResult,
+    SimulationMainlineResultPresentation Presentation)
 {
     internal SimulationMainlineResult(
         CalculationResult tournamentFinalState,
-        IReadOnlyList<TRow> resultRows)
-        : this(new SimulationResult(tournamentFinalState), new FinalRankingResult<TRow>(resultRows))
+        IReadOnlyList<GeneralSimulationResultRow> resultRows,
+        SimulationMainlineResultPresentation presentation)
+        : this(new SimulationResult(tournamentFinalState), new FinalRankingResult<GeneralSimulationResultRow>(resultRows), presentation)
     {
     }
 }
