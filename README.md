@@ -204,6 +204,8 @@ TournamentFinalState -> FinalRanking -> TournamentQualityReport
   - [大会進行フレームワークガイド](./docs/Manuals/大会進行フレームワークガイド.md)
 - 実装の場所を探したい
   - [実装ファイル案内](./docs/Manuals/実装ファイル案内.md)
+- Codex 用スキルを個人用フォルダーへコピーしたい
+  - [Codex skill のコピー手順](./docs/運用/codex-skill運用.md#インストール)
 
 ## 進め方のイメージ
 

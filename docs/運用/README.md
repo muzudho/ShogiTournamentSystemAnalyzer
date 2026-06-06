@@ -4,8 +4,8 @@
 
 ## 目的別
 
-- Codex がこのリポジトリのメモや docs の読み方を、他のリポジトリでも分かるようにしたい
-  - [codex-skill運用](./codex-skill運用.md)
+- Codex 用スキルを個人用フォルダーへコピーしたい
+  - [Codex skill のコピー手順](./codex-skill運用.md#インストール)
 - `docs` 配下の文書を追加・編集したい
   - [docs運用ルール](./docs運用ルール.md)
 - このフォルダーに何があるか確認したい
@@ -14,7 +14,7 @@
 ## 配置
 
 - `skills/`
-  - 他リポジトリでも使いたい Codex skill の原本。
+  - 他リポジトリでも使いたい Codex skill の原本。コピー手順は [Codex skill のコピー手順](./codex-skill運用.md#インストール) を見てください。
 - `skills/docs-handoff/SKILL.md`
   - docs 引き継ぎ用 skill の本体。
 
