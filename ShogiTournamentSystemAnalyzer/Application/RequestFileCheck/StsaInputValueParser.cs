@@ -28,7 +28,12 @@ internal static class StsaInputValueParser
 
         return new AnalysisFlowSelection(steps);
     }
-    internal static RuleProfileMode ParseRuleProfileMode(string value, string formatName)
+    internal static RuleProfileAttributes ParseRuleProfileAttributesFromCompatibilityLabel(string value, string formatName)
+    {
+        return RuleProfileAttributes.FromCompatibilityLabel(ParseRuleProfileMode(value, formatName));
+    }
+
+    static RuleProfileMode ParseRuleProfileMode(string value, string formatName)
     {
         if (value.Equals("Empty", StringComparison.OrdinalIgnoreCase) || value == "4") return RuleProfileMode.Empty;
 

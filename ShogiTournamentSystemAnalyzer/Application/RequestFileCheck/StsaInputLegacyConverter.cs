@@ -29,7 +29,7 @@ internal static class StsaInputLegacyConverter
         var sections = ParseStsaInputSections(rawLines, fullPath, formatName);
         var meta = ParseSectionKeyValues(GetRequiredSectionLines(sections, "Meta", fullPath, formatName), "Meta", fullPath, formatName);
         var flowSelection = ReadFlowSelection(meta, fullPath, formatName);
-        var ruleProfileMode = ParseRuleProfileMode(GetRequiredMetaValue(meta, "RuleProfileMode", fullPath, formatName), formatName);
+        var ruleProfileAttributes = ParseRuleProfileAttributesFromCompatibilityLabel(GetRequiredMetaValue(meta, "RuleProfileMode", fullPath, formatName), formatName);
 
         if (flowSelection.Steps.Count != 1)
         {
@@ -37,29 +37,29 @@ internal static class StsaInputLegacyConverter
         }
 
         if (flowSelection.RunsQualityEvaluation
-            && (ruleProfileMode == RuleProfileMode.TournamentFramework || ruleProfileMode == RuleProfileMode.Empty))
+            && !CanRunQualityEvaluation(ruleProfileAttributes))
         {
-            throw new OperationCanceledException($"{formatName} の QualityEvaluation では RuleProfileMode={ruleProfileMode} は未対応です。");
+            throw new OperationCanceledException($"{formatName} の QualityEvaluation では RuleProfileMode={ruleProfileAttributes.ToCompatibilityLabel()} は未対応です。");
         }
 
-        var promptPrefixLines = BuildPromptPrefixLines(flowSelection, ruleProfileMode);
+        var promptPrefixLines = BuildPromptPrefixLines(flowSelection, ruleProfileAttributes);
         var analysisFlowMode = flowSelection.Steps[0];
 
         if (analysisFlowMode == AnalysisFlowMode.Simulation
-            && (ruleProfileMode == RuleProfileMode.TournamentFramework
+            && (ruleProfileAttributes.SimulationShape == RuleProfileSimulationShape.TournamentFramework
                 || GetOptionalMetaValue(meta, "TournamentFrameworkMode") is not null)) return StsaSimulationLegacyConverter.ConvertTournamentFramework(meta, sections, fullPath, formatName, promptPrefixLines);
 
         if (analysisFlowMode == AnalysisFlowMode.Simulation
-            && ruleProfileMode == RuleProfileMode.Empty) return StsaSimulationLegacyConverter.ConvertEmpty(meta, sections, fullPath, formatName, promptPrefixLines);
+            && ruleProfileAttributes.SimulationShape == RuleProfileSimulationShape.Empty) return StsaSimulationLegacyConverter.ConvertEmpty(meta, sections, fullPath, formatName, promptPrefixLines);
 
         if (analysisFlowMode == AnalysisFlowMode.Simulation)
         {
-            return ruleProfileMode == RuleProfileMode.FinalStage
+            return IsFinalStageScheduledProfile(ruleProfileAttributes)
                 ? StsaSimulationLegacyConverter.ConvertFinalStage(meta, sections, fullPath, formatName, promptPrefixLines)
                 : StsaSimulationLegacyConverter.ConvertStandard(meta, sections, fullPath, formatName, promptPrefixLines);
         }
 
-        return ruleProfileMode == RuleProfileMode.FinalStage
+        return IsFinalStageScheduledProfile(ruleProfileAttributes)
             ? StsaQualityEvaluationLegacyConverter.ConvertFinalStage(meta, sections, fullPath, formatName, promptPrefixLines)
             : StsaQualityEvaluationLegacyConverter.ConvertStandard(meta, sections, fullPath, formatName, promptPrefixLines);
     }
@@ -73,26 +73,43 @@ internal static class StsaInputLegacyConverter
         return AnalysisFlowSelection.FromSingle(ParseAnalysisFlowMode(modeValue, formatName));
     }
 
-    static IReadOnlyList<string> BuildPromptPrefixLines(AnalysisFlowSelection flowSelection, RuleProfileMode ruleProfileMode)
+    static bool CanRunQualityEvaluation(RuleProfileAttributes ruleProfileAttributes)
+    {
+        return IsStandardScheduledProfile(ruleProfileAttributes) || IsFinalStageScheduledProfile(ruleProfileAttributes);
+    }
+
+    static bool IsStandardScheduledProfile(RuleProfileAttributes ruleProfileAttributes)
+    {
+        return ruleProfileAttributes.PairingSource == RuleProfilePairingSource.ScheduledMatches
+            && ruleProfileAttributes.SimulationShape == RuleProfileSimulationShape.ScheduledMatches
+            && !ruleProfileAttributes.UsesFinalStageGrouping;
+    }
+
+    static bool IsFinalStageScheduledProfile(RuleProfileAttributes ruleProfileAttributes)
+    {
+        return ruleProfileAttributes.PairingSource == RuleProfilePairingSource.ScheduledMatches
+            && (ruleProfileAttributes.SimulationShape == RuleProfileSimulationShape.FinalStageGrouped
+                || ruleProfileAttributes.UsesFinalStageGrouping);
+    }
+
+    static IReadOnlyList<string> BuildPromptPrefixLines(AnalysisFlowSelection flowSelection, RuleProfileAttributes ruleProfileAttributes)
     {
         return new[]
         {
             flowSelection.RunsSimulation ? "2" : "1",
             flowSelection.RunsQualityEvaluation ? "2" : "1",
-            RuleProfileModeToPromptNumber(ruleProfileMode),
+            RuleProfileAttributesToPromptNumber(ruleProfileAttributes),
         };
     }
 
-    static string RuleProfileModeToPromptNumber(RuleProfileMode ruleProfileMode)
+    static string RuleProfileAttributesToPromptNumber(RuleProfileAttributes ruleProfileAttributes)
     {
-        return ruleProfileMode switch
-        {
-            RuleProfileMode.Standard => "1",
-            RuleProfileMode.FinalStage => "2",
-            RuleProfileMode.TournamentFramework => "3",
-            RuleProfileMode.Empty => "4",
-            _ => throw new InvalidOperationException($"未対応のルールプロファイルモードです: {ruleProfileMode}"),
-        };
+        if (ruleProfileAttributes.SimulationShape == RuleProfileSimulationShape.TournamentFramework) return "3";
+        if (ruleProfileAttributes.SimulationShape == RuleProfileSimulationShape.Empty) return "4";
+        if (IsFinalStageScheduledProfile(ruleProfileAttributes)) return "2";
+        if (IsStandardScheduledProfile(ruleProfileAttributes)) return "1";
+
+        throw new InvalidOperationException($"未対応のルールプロファイル属性です: {ruleProfileAttributes}");
     }
 
 }

@@ -37,7 +37,7 @@ internal static class StsaInputRequestParser
         {
             var ruleProfileAttributes = isAttributeFormat
                 ? ParseRuleProfileAttributesSection(sections, "RuleProfileAttributes", fullPath)
-                : RuleProfileAttributes.FromCompatibilityLabel(ParseRuleProfileMode(GetRequiredMetaValue(meta, "RuleProfileMode", fullPath, FormatName), FormatName));
+                : ParseRuleProfileAttributesFromCompatibilityLabel(GetRequiredMetaValue(meta, "RuleProfileMode", fullPath, FormatName), FormatName);
             var stepRequest = ParseStepRequest(
                 flowSelection.Steps[0],
                 ruleProfileAttributes,
@@ -100,7 +100,7 @@ internal static class StsaInputRequestParser
                 inputFormatName);
             var ruleProfileAttributes = isAttributeFormat
                 ? ParseRuleProfileAttributesSection(sections, $"Step.{stepName}.RuleProfileAttributes", fullPath)
-                : RuleProfileAttributes.FromCompatibilityLabel(ParseRuleProfileMode(GetRequiredMetaValue(stepMeta, "RuleProfileMode", fullPath, FormatName), FormatName));
+                : ParseRuleProfileAttributesFromCompatibilityLabel(GetRequiredMetaValue(stepMeta, "RuleProfileMode", fullPath, FormatName), FormatName);
             var stepSections = BuildStepSections(sections, stepName, fullPath, inputFormatName);
             var stepRequest = ParseStepRequest(
                 step,
