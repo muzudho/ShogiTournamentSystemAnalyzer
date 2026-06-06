@@ -13,30 +13,38 @@ internal static class SimulationDomain
 {
     internal static bool TryExecute(AnalysisStepRequest step)
     {
+        return TryExecute(step, out _);
+    }
+
+    internal static bool TryExecute(AnalysisStepRequest step, out SimulationMainlineResult? mainlineResult)
+    {
         switch (step)
         {
             case StandardSimulationRequest standardSimulationRequest:
-                ExecuteStandardSimulation(standardSimulationRequest);
+                mainlineResult = ExecuteStandardSimulation(standardSimulationRequest);
                 return true;
 
             case FinalStageSimulationRequest finalStageSimulationRequest:
-                ExecuteFinalStageSimulation(finalStageSimulationRequest);
+                mainlineResult = ExecuteFinalStageSimulation(finalStageSimulationRequest);
                 return true;
 
             case TournamentFrameworkSimulationRequest tournamentFrameworkSimulationRequest:
                 ExecuteTournamentFrameworkSimulation(tournamentFrameworkSimulationRequest);
+                mainlineResult = null;
                 return true;
 
             case EmptySimulationRequest emptySimulationRequest:
                 ExecuteEmptySimulation(emptySimulationRequest);
+                mainlineResult = null;
                 return true;
 
             default:
+                mainlineResult = null;
                 return false;
         }
     }
 
-    static void ExecuteStandardSimulation(StandardSimulationRequest request)
+    static SimulationMainlineResult ExecuteStandardSimulation(StandardSimulationRequest request)
     {
         var firstPlayerWinRateRating = SimulationRatingMath.ConvertFirstPlayerWinRatePercentToRating(request.FirstPlayerWinRatePercent);
         var context = new StandardModeSimulationContext(
@@ -48,10 +56,10 @@ internal static class SimulationDomain
             request.Matches);
 
         var mainline = new StandardSimulationMainline();
-        mainline.Run(context, request.OutputPath, request.SimulationCount);
+        return mainline.Run(context, request.OutputPath, request.SimulationCount);
     }
 
-    static void ExecuteFinalStageSimulation(FinalStageSimulationRequest request)
+    static SimulationMainlineResult ExecuteFinalStageSimulation(FinalStageSimulationRequest request)
     {
         var firstPlayerWinRateRating = SimulationRatingMath.ConvertFirstPlayerWinRatePercentToRating(request.FirstPlayerWinRatePercent);
         var context = new FinalStageModeSimulationContext(
@@ -71,7 +79,7 @@ internal static class SimulationDomain
             request.ReferenceMatches);
 
         var mainline = new FinalStageSimulationMainline();
-        mainline.Run(context, request.OutputPath, request.SimulationCount);
+        return mainline.Run(context, request.OutputPath, request.SimulationCount);
     }
 
     static void ExecuteTournamentFrameworkSimulation(TournamentFrameworkSimulationRequest request)
