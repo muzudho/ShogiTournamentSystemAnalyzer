@@ -8,8 +8,7 @@ using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 
 /// <summary>
 /// ［大会進行フレームワーク］の実行結果を表すクラス。
-/// 
-/// TODO: "TournamentFramework" は［４大域］のいずれかに含めてほしいぜ（＾～＾）
+/// シミュレーション域から順位付け域へ渡す大会最終状態を含む。
 /// </summary>
 /// <param name="FinalState">大会の最終状態</param>
 /// <param name="OverallRanking">大会の最終順位</param>

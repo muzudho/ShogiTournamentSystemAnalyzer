@@ -6,7 +6,7 @@ namespace ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 
 /// <summary>
-/// TODO: "TournamentFramework" は［４大域］のいずれかに含めてほしいぜ（＾～＾）
+/// シミュレーション域の大会進行フレームワーク実行モード。
 /// </summary>
 internal static partial class SimulationTournamentFrameworkMode
 {

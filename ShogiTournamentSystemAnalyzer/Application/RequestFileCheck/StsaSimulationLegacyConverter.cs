@@ -85,7 +85,7 @@ internal static class StsaSimulationLegacyConverter
     }
 
     /// <summary>
-    /// TODO: "TournamentFramework" は［４大域］のいずれかに含めてほしいぜ（＾～＾）
+    /// TournamentFramework 形式のシミュレーション要求を旧手入力ルート用の行列へ変換する。
     /// </summary>
     /// <param name="meta"></param>
     /// <param name="sections"></param>

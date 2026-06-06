@@ -9,8 +9,7 @@ using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 
 /// <summary>
 /// 大会進行フレームワーク用の最終順位付け結果だ。
-/// 
-/// TODO: "TournamentFramework" は［４大域］のいずれかに含めてほしいぜ（＾～＾）
+/// TournamentFramework 自体はシミュレーション域の大会進行方式で、この型は最終順位付け域の結果を表す。
 /// </summary>
 /// <param name="StandardPlayers">既存の順位表表示・書き出しで使う標準形式の選手。</param>
 /// <param name="StandardMatches">既存の順位表表示・書き出しで使う標準形式の対局。</param>

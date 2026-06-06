@@ -6,7 +6,7 @@ namespace ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 
 /// <summary>
-/// TODO: "TournamentFramework" は［４大域］のいずれかに含めてほしいぜ（＾～＾）
+/// 大会進行フレームワークのシミュレーションで使う進行ルール一式。
 /// </summary>
 /// <param name="PairingRule"></param>
 /// <param name="RankingRule"></param>

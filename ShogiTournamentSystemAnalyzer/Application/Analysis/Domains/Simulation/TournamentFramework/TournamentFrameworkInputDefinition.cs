@@ -4,7 +4,7 @@
 namespace ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.TournamentFramework;
 
 /// <summary>
-/// TODO: "TournamentFramework" は［４大域］のいずれかに含めてほしいぜ（＾～＾）
+/// 大会進行フレームワークをシミュレーション域で使うための入力ファイル定義。
 /// </summary>
 /// <param name="PlayersCsvPath"></param>
 /// <param name="StagesCsvPath"></param>

@@ -89,7 +89,7 @@ internal static class ConsoleSamplePrinter
     }
 
     /// <summary>
-    /// TODO: "TournamentFramework" は［４大域］のいずれかに含めてほしいぜ（＾～＾）
+    /// TournamentFramework はシミュレーション域の大会進行方式として扱う。
     /// </summary>
     internal static void PrintSimulationTournamentFrameworkOverview()
     {

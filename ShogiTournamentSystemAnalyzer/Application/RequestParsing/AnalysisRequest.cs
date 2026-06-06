@@ -42,7 +42,7 @@ internal sealed record FinalStageSimulationRequest(
     string? OutputPath) : AnalysisStepRequest;
 
 /// <summary>
-/// TODO: "TournamentFramework" は［４大域］のいずれかに含めてほしいぜ（＾～＾）
+/// シミュレーション域で大会進行フレームワークを実行する要求。
 /// </summary>
 /// <param name="PlayersCsvPath"></param>
 /// <param name="StagesCsvPath"></param>
