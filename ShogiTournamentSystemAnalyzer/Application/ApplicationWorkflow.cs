@@ -21,31 +21,23 @@ internal static class ApplicationWorkflow
         //└───┬──┘
         Opening();
 
-        IReadOnlyList<string> recordedLines = Array.Empty<string>();
-        string? requestFilePath = null;
-        AnalysisFlowSelection analysisFlowSelection = AnalysisFlowSelection.FromSingle(AnalysisFlowMode.Simulation);
-        RuleProfileMode ruleProfileMode = new();
-        AnalysisRequest? analysisRequest = null;    // TODO: これは現在の本命フローに合わせている（＾～＾）この変数を育てていき、将来的には旧フロー用の選択値は解消したい（＾～＾）？
-
         //┌───┴──┐
         //│大会利用者域│
         //└───┬──┘
-        bool isSuccessful = RunTournamentUserDomain(
-            args,
-            ref recordedLines,
-            ref requestFilePath,
-            ref analysisFlowSelection,
-            ref ruleProfileMode,
-            ref analysisRequest);
-        if (!isSuccessful) return;  // エラー終了
+        if (!TryRunTournamentUserDomain(args, out var tournamentUserDomainResult)) return;  // エラー終了
 
         //┌───┴──┐
         //│分析　　　　│
         //└───┬──┘
-        RunAnalysisDomain(analysisFlowSelection, ruleProfileMode, analysisRequest);
+        RunAnalysisDomain(
+            tournamentUserDomainResult.AnalysisFlowSelection,
+            tournamentUserDomainResult.RuleProfileMode,
+            tournamentUserDomainResult.AnalysisRequest);
 
         InputFromSomewhere.PauseRecording();
-        WriteRequestFile(recordedLines, requestFilePath);   // TODO: ［要求ファイル］の書き込みは、［大会利用者域］の仕事だぜ（＾～＾）
+        WriteRequestFile(
+            tournamentUserDomainResult.RecordedLines,
+            tournamentUserDomainResult.RequestFilePath);   // TODO: ［要求ファイル］の書き込みは、［大会利用者域］の仕事だぜ（＾～＾）
         InputFromSomewhere.StopRecording();
 
         // ●終了
@@ -74,19 +66,21 @@ internal static class ApplicationWorkflow
     /// <param name="args"></param>
     /// <returns>成功か</returns>
     /// <exception cref="OperationCanceledException"></exception>
-    private static bool RunTournamentUserDomain(
+    private static bool TryRunTournamentUserDomain(
         string[] args,
-        ref IReadOnlyList<string> recordedLines,
-        ref string? requestFilePath,
-        ref AnalysisFlowSelection analysisFlowSelection,
-        ref RuleProfileMode ruleProfileMode,
-        ref AnalysisRequest? analysisRequest)
+        out TournamentUserDomainResult result)
     {        //　　｜
         //　　｜　［大会ルールという境界］        `TournamentRule`
         //　　｜　［プレイヤー一覧という境界］    `PlayerList`
         //　　｜　［順位付けの設定という境界］    `RankingSettings`
         //　　↓
 
+        result = null!;
+        IReadOnlyList<string> recordedLines = Array.Empty<string>();
+        string? requestFilePath = null;
+        var analysisFlowSelection = AnalysisFlowSelection.FromSingle(AnalysisFlowMode.Simulation);
+        var ruleProfileMode = new RuleProfileMode();
+        AnalysisRequest? analysisRequest = null;    // TODO: これは現在の本命フローに合わせている（＾～＾）この変数を育てていき、将来的には旧フロー用の選択値は解消したい（＾～＾）？
 
         #region ［◆節１：コマンドライン引数で要求ファイルを指定したか？
 
@@ -213,8 +207,21 @@ internal static class ApplicationWorkflow
             ruleProfileMode = ConsolePromptReaders.ReadRuleProfileMode(analysisFlowSelection);
         }
 
+        result = new TournamentUserDomainResult(
+            recordedLines,
+            requestFilePath,
+            analysisFlowSelection,
+            ruleProfileMode,
+            analysisRequest);
         return true;
     }
+
+    private sealed record TournamentUserDomainResult(
+        IReadOnlyList<string> RecordedLines,
+        string? RequestFilePath,
+        AnalysisFlowSelection AnalysisFlowSelection,
+        RuleProfileMode RuleProfileMode,
+        AnalysisRequest? AnalysisRequest);
 
     static bool TryConvertToLegacyInputText(RequestText? checkedRequestText, out string? requestText)
     {
