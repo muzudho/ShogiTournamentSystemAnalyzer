@@ -246,7 +246,7 @@ internal static class FinalRankingDomain
             $"standard_final_ranking_{DateTime.Now:yyyyMMdd_HHmmss}.csv",
             outputPathOverride);
 
-        FinalRankingMarkdownFileWriter finalRankingDataFileWriter = new(new FinalRankingDataFileWriterSettings(RuleProfileMode.Standard));
+        FinalRankingMarkdownFileWriter finalRankingDataFileWriter = new(new FinalRankingDataFileWriterSettings(FinalRankingTableProfile.Standard));
         WriteOutputs(
             finalRankingDataFileWriter,
             outputCsvPath,
@@ -277,7 +277,7 @@ internal static class FinalRankingDomain
             ? referenceMatchesCsvPath
             : null;
 
-        FinalRankingMarkdownFileWriter finalRankingDataFileWriter = new(new FinalRankingDataFileWriterSettings(RuleProfileMode.FinalStage));
+        FinalRankingMarkdownFileWriter finalRankingDataFileWriter = new(new FinalRankingDataFileWriterSettings(FinalRankingTableProfile.FinalStage));
         WriteOutputs(
             finalRankingDataFileWriter,
             outputCsvPath,
@@ -302,7 +302,7 @@ internal static class FinalRankingDomain
         const string AggregateOverviewNoteForCsv = "この順位表は複数回試行の aggregate 結果です。大会最終状態CSVとは 1 対 1 には対応しません。";
         const string AggregateOverviewNoteForMarkdown = "この順位表は複数回試行の aggregate 結果です。下記の大会最終状態テーブルとは 1 対 1 には対応しません。";
         const string RepresentativeOverviewNote = "この順位表は代表実行 1 件の順位です。aggregate 結果の順位表そのものではありません。";
-        var settings = new FinalRankingDataFileWriterSettings(RuleProfileMode.TournamentFramework);
+        var settings = new FinalRankingDataFileWriterSettings(FinalRankingTableProfile.Standard);
         FinalRankingMarkdownFileWriter finalRankingDataFileWriter = new(settings);
 
         var defaultOutputCsvPath = ReportOutputPathBuilder.BuildFinalRankingDefaultOutputPath($"tournament_framework_aggregate_final_ranking_{DateTime.Now:yyyyMMdd_HHmmss}.csv");

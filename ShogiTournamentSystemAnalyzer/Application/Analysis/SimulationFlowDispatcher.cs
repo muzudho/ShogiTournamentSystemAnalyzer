@@ -22,19 +22,19 @@ internal static class SimulationFlowDispatcher
     {
         if (flowMode != AnalysisFlowMode.Simulation) return false;
 
-        switch (ruleProfileMode)
+        var ruleProfileAttributes = RuleProfileAttributes.FromCompatibilityLabel(ruleProfileMode);
+        switch (ruleProfileAttributes.SimulationShape)
         {
-            // TODO: ［標準ルール］とか、［本戦ルール］のような分類は、将来的にこのシステムから廃止したい（＾～＾）もっと細かいルールの違いを、ルールプロファイルの属性で表現したい（＾～＾）
-            case RuleProfileMode.Standard:
-            case RuleProfileMode.FinalStage:
-                SimulationScenarioRunner.Run(SimulationScenarioFactory.Create(ruleProfileMode));
+            case RuleProfileSimulationShape.ScheduledMatches:
+            case RuleProfileSimulationShape.FinalStageGrouped:
+                SimulationScenarioRunner.Run(SimulationScenarioFactory.Create(ruleProfileAttributes));
                 return true;
 
-            case RuleProfileMode.TournamentFramework:
+            case RuleProfileSimulationShape.TournamentFramework:
                 SimulationTournamentFrameworkMode.Run();
                 return true;
 
-            case RuleProfileMode.Empty:
+            case RuleProfileSimulationShape.Empty:
                 SimulationEmptyMode.Run();
                 return true;
 

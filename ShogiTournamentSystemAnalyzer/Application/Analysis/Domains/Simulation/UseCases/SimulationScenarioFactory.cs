@@ -9,11 +9,17 @@ internal static class SimulationScenarioFactory
 {
     internal static ISimulationScenario Create(RuleProfileMode ruleProfileMode)
     {
-        return ruleProfileMode switch
+        return Create(RuleProfileAttributes.FromCompatibilityLabel(ruleProfileMode));
+    }
+
+    internal static ISimulationScenario Create(RuleProfileAttributes ruleProfileAttributes)
+    {
+        return ruleProfileAttributes.SimulationShape switch
         {
-            RuleProfileMode.Standard => StandardSimulationScenario.Instance,
-            RuleProfileMode.FinalStage => FinalStageSimulationScenario.Instance,
-            _ => throw new InvalidOperationException($"Simulation 用の scenario が未対応です: {ruleProfileMode}")
+            RuleProfileSimulationShape.ScheduledMatches when !ruleProfileAttributes.UsesFinalStageGrouping => StandardSimulationScenario.Instance,
+            RuleProfileSimulationShape.FinalStageGrouped => FinalStageSimulationScenario.Instance,
+            RuleProfileSimulationShape.ScheduledMatches when ruleProfileAttributes.UsesFinalStageGrouping => FinalStageSimulationScenario.Instance,
+            _ => throw new InvalidOperationException($"Simulation 用の scenario が未対応です: {ruleProfileAttributes}")
         };
     }
 }

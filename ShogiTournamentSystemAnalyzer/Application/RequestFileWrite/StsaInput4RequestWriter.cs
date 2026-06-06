@@ -27,7 +27,7 @@ internal static class StsaInput4RequestWriter
             string.Empty,
             "#[Section] Meta",
             $"AnalysisFlowSteps={request.FlowSelection.ToRequestFileValue()}",
-            $"RuleProfileMode={request.RuleProfileMode}",
+            $"RuleProfileMode={request.Steps[0].GetCompatibilityRuleProfileMode()}",
         };
 
         AddMetaLines(lines, request.Steps[0]);
@@ -311,16 +311,7 @@ internal static class StsaInput4RequestWriter
 
     static RuleProfileMode GetRuleProfileMode(AnalysisStepRequest step)
     {
-        return step switch
-        {
-            StandardSimulationRequest => RuleProfileMode.Standard,
-            FinalStageSimulationRequest => RuleProfileMode.FinalStage,
-            TournamentFrameworkSimulationRequest => RuleProfileMode.TournamentFramework,
-            EmptySimulationRequest => RuleProfileMode.Empty,
-            StandardQualityEvaluationRequest => RuleProfileMode.Standard,
-            FinalStageQualityEvaluationRequest => RuleProfileMode.FinalStage,
-            _ => throw new InvalidOperationException($"未対応の分析要求です: {step.GetType().Name}"),
-        };
+        return step.GetCompatibilityRuleProfileMode();
     }
 
     static string GetStepName(AnalysisStepRequest step)

@@ -2,48 +2,51 @@ namespace ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.FinalRanking;
 
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 
+enum FinalRankingTableProfile
+{
+    Standard,
+    FinalStage,
+}
+
 /// <summary>
 /// ［最終順位］境界の writer 設定だ。
 /// </summary>
-internal sealed record class FinalRankingDataFileWriterSettings(RuleProfileMode RuleProfileMode)
+internal sealed record class FinalRankingDataFileWriterSettings(FinalRankingTableProfile TableProfile)
 {
-    /// <summary>
-    ///     <pre>
-    /// ［最終順位テーブルタイプ・ファイルの名前］取得
-    /// 
-    ///     - TODO: 例えば、入力画面で［RuleProfileMode］を選ばせるんじゃなくて、［{大会ルール設定ファイル名}.json］を選択させるようにして、そこからルールプロファイルモードを決定するようにしたらいいんじゃないか（＾▽＾）？　どう思う（＾～＾）？
-    ///     </pre>
-    /// </summary>
-    /// <returns></returns>
-    /// <exception cref="InvalidOperationException"></exception>
+    internal FinalRankingDataFileWriterSettings(RuleProfileMode ruleProfileMode)
+        : this(ToFinalRankingTableProfile(RuleProfileAttributes.FromCompatibilityLabel(ruleProfileMode)))
+    {
+    }
+
+    internal FinalRankingDataFileWriterSettings(RuleProfileAttributes ruleProfileAttributes)
+        : this(ToFinalRankingTableProfile(ruleProfileAttributes))
+    {
+    }
+
     internal string GetFinalRankingTableTypeFileName()
     {
-        return RuleProfileMode switch
+        return TableProfile switch
         {
-            RuleProfileMode.Standard => "FinalRankingStandardTableType.json",
-            RuleProfileMode.FinalStage => "FinalRankingFinalStageTableType.json",
-            RuleProfileMode.TournamentFramework => "FinalRankingStandardTableType.json",
-            _ => throw new InvalidOperationException($"未対応のルールプロファイルモード: {RuleProfileMode}")
+            FinalRankingTableProfile.Standard => "FinalRankingStandardTableType.json",
+            FinalRankingTableProfile.FinalStage => "FinalRankingFinalStageTableType.json",
+            _ => throw new InvalidOperationException($"未対応の最終順位表プロファイル: {TableProfile}")
         };
     }
 
-    /// <summary>
-    ///     <pre>
-    /// ［スキーマ名］取得
-    /// 
-    ///     - TODO: ［{大会ルール設定ファイル名}.json］からスキーマ名を取得するようにしたらいいんじゃないか（＾▽＾）？　どう思う（＾～＾）？
-    ///     </pre>
-    /// </summary>
-    /// <returns></returns>
-    /// <exception cref="InvalidOperationException"></exception>
     internal string GetSchemaName()
     {
-        return RuleProfileMode switch
+        return TableProfile switch
         {
-            RuleProfileMode.Standard => "standardFinalRanking",
-            RuleProfileMode.FinalStage => "finalStageFinalRanking",
-            RuleProfileMode.TournamentFramework => "standardFinalRanking",
-            _ => throw new InvalidOperationException($"未対応のルールプロファイルモード: {RuleProfileMode}")
+            FinalRankingTableProfile.Standard => "standardFinalRanking",
+            FinalRankingTableProfile.FinalStage => "finalStageFinalRanking",
+            _ => throw new InvalidOperationException($"未対応の最終順位表プロファイル: {TableProfile}")
         };
+    }
+
+    static FinalRankingTableProfile ToFinalRankingTableProfile(RuleProfileAttributes ruleProfileAttributes)
+    {
+        return ruleProfileAttributes.UsesFinalStageGrouping
+            ? FinalRankingTableProfile.FinalStage
+            : FinalRankingTableProfile.Standard;
     }
 }

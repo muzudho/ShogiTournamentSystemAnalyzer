@@ -15,15 +15,10 @@ internal static class QualityEvaluationFlowDispatcher
     {
         if (flowMode != AnalysisFlowMode.QualityEvaluation) return false;
 
-        switch (ruleProfileMode)
-        {
-            case RuleProfileMode.Standard:
-            case RuleProfileMode.FinalStage:
-                TournamentQualityEvaluationMode.Run(ruleProfileMode);
-                return true;
+        var ruleProfileAttributes = RuleProfileAttributes.FromCompatibilityLabel(ruleProfileMode);
+        if (ruleProfileAttributes.PairingSource != RuleProfilePairingSource.ScheduledMatches) return false;
 
-            default:
-                return false;
-        }
+        TournamentQualityEvaluationMode.Run(ruleProfileAttributes);
+        return true;
     }
 }
