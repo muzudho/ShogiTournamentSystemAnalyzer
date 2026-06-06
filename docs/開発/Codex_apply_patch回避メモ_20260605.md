@@ -81,3 +81,22 @@ dotnet build .\ShogiTournamentSystemAnalyzer\ShogiTournamentSystemAnalyzer.cspro
 ## 注意
 
 この回避策は、`apply_patch` がワークスペース外判定で誤って失敗したときだけ使う。通常は差分が読みやすい `apply_patch` を優先する。
+
+## 2026-06-06 切り分けメモ
+
+今回の追加確認では、`apply_patch` は読み取り・期待行検証までは進めるが、実際に書き込みが必要になると `writing outside of the project` で拒否される挙動だった。
+
+確認したこと:
+
+- ルート直下の ASCII 名一時ファイル追加は `writing outside of the project` で拒否された。
+- `./` 付きの相対パスでも同じ拒否だった。
+- 既存 docs ファイルへの no-op 更新も、書き込み段階で同じ拒否だった。
+- `README.md` で存在しない期待行を指定した場合は、通常の `Failed to find expected lines` になった。これは `apply_patch` が対象ファイルを読めていることを示す。
+- 同じ `README.md` で正しい期待行を指定すると、書き込み段階で `writing outside of the project` になった。
+- PowerShell の一時ファイル作成と削除を同一コマンドで試した確認は、削除を含むため実行ポリシー側でブロックされた。
+
+暫定結論:
+
+- 問題は Git、ファイル内容、日本語パス、対象ファイルの有無ではなく、`apply_patch` の書き込み許可判定にある可能性が高い。
+- `apply_patch` は読み取り・差分検証はできるが、ワークスペース内への書き込みを sandbox/project-root 比較で誤ってワークスペース外扱いしているように見える。
+- リポジトリ側で根本修正できる材料は今のところない。引き続き、編集は PowerShell から .NET API で UTF-8 BOM なし・CRLF を明示して行う。
