@@ -24,13 +24,13 @@ internal class StandardSimulationMainline
     string? outputPathOverride;
     int? requestedSimulationCount;
 
-    internal void Run(StandardModeSimulationContext context, string? outputPathOverride, int? requestedSimulationCount = null)
+    internal SimulationMainlineResult Run(StandardModeSimulationContext context, string? outputPathOverride, int? requestedSimulationCount = null)
     {
         this.outputPathOverride = outputPathOverride;
         this.requestedSimulationCount = requestedSimulationCount;
         try
         {
-            Run(context);
+            return Run(context);
         }
         finally
         {

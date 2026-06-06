@@ -20,7 +20,7 @@ internal abstract class AbstractSimulationMainline
     /// 実行
     /// </summary>
     /// <param name="context"></param>
-    public void Run(AbstractSimulationContext context)
+    public SimulationMainlineResult Run(AbstractSimulationContext context)
     {
         Console.WriteLine($"順位ルール: {TournamentRuleSetRule.GetLabel(context.TournamentRuleSetMode)}\n");
         BeforeExecuteSimulationContext(context);
@@ -31,6 +31,7 @@ internal abstract class AbstractSimulationMainline
         PrintSimulationResult(context, mainlineResult);
         PrintTimeLimitIfNeeded(mainlineResult.SimulationResult.TournamentFinalState);
         WriteSimulationOutputs(context, mainlineResult);
+        return mainlineResult;
     }
 
     protected virtual void BeforeExecuteSimulationContext(AbstractSimulationContext context)

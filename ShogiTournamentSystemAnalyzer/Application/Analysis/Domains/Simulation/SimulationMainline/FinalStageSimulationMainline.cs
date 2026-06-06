@@ -27,18 +27,18 @@ internal class FinalStageSimulationMainline
     string? outputPathOverride;
     int? simulationCountOverride;
 
-    internal void Run(FinalStageModeSimulationContext context, string? outputPathOverride)
+    internal SimulationMainlineResult Run(FinalStageModeSimulationContext context, string? outputPathOverride)
     {
-        Run(context, outputPathOverride, simulationCountOverride: null);
+        return Run(context, outputPathOverride, simulationCountOverride: null);
     }
 
-    internal void Run(FinalStageModeSimulationContext context, string? outputPathOverride, int? simulationCountOverride)
+    internal SimulationMainlineResult Run(FinalStageModeSimulationContext context, string? outputPathOverride, int? simulationCountOverride)
     {
         this.outputPathOverride = outputPathOverride;
         this.simulationCountOverride = simulationCountOverride;
         try
         {
-            Run(context);
+            return Run(context);
         }
         finally
         {
