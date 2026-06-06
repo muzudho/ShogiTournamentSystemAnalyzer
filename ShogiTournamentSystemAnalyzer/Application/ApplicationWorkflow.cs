@@ -21,6 +21,9 @@ internal static class ApplicationWorkflow
         //└───┬──┘
         Opening();
 
+        // （開発用の機能）
+        if (RequestWriterRoundTripSmoke.TryRun(args)) return;
+
         //┌───┴──┐
         //│大会利用者域│
         //└───┬──┘
