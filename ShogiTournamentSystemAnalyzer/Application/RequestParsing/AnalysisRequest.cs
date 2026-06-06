@@ -10,11 +10,21 @@ using Match = ShogiTournamentSystemAnalyzer.Domain.Simulation.Match;
 
 internal sealed record AnalysisRequest(
     AnalysisFlowSelection FlowSelection,
-    RuleProfileMode RuleProfileMode,
     /// <summary>
     /// ［要求ファイル］から読んだ実行希望のリスト構造。
     /// </summary>
-    IReadOnlyList<AnalysisStepRequest> Steps);
+    IReadOnlyList<AnalysisStepRequest> Steps)
+{
+    /// <summary>
+    /// STSAInput/4 と旧フロー表示のための互換ラベル。
+    /// </summary>
+    internal RuleProfileMode GetCompatibilityRuleProfileMode()
+    {
+        if (Steps.Count == 0) throw new InvalidOperationException("分析要求にステップがありません。");
+
+        return Steps[0].GetCompatibilityRuleProfileMode();
+    }
+}
 
 internal abstract record AnalysisStepRequest;
 

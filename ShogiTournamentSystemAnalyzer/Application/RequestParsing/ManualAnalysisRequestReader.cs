@@ -32,7 +32,6 @@ internal static partial class ManualAnalysisRequestReader
 
         analysisRequest = new AnalysisRequest(
             analysisFlowSelection,
-            ruleProfileMode,
             new[] { stepRequest });
         return true;
     }

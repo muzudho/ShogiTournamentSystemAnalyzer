@@ -19,13 +19,14 @@ internal static class ProgramConsoleGuide
 
     internal static void PrintSelectedMainline(TournamentUserDomainResult result)
     {
-        var profileLabel = result.RuleProfileMode switch
+        var compatibilityRuleProfileMode = result.AnalysisRequest?.GetCompatibilityRuleProfileMode() ?? result.RuleProfileMode;
+        var profileLabel = compatibilityRuleProfileMode switch
         {
             RuleProfileMode.Standard => "Standard",
             RuleProfileMode.FinalStage => "FinalStage",
             RuleProfileMode.TournamentFramework => "TournamentFramework",
             RuleProfileMode.Empty => "Empty",
-            _ => result.RuleProfileMode.ToString(),
+            _ => compatibilityRuleProfileMode.ToString(),
         };
 
         var mainlineLabel = string.Join(" -> ", result.AnalysisFlowSelection.Steps.Select(step => step switch

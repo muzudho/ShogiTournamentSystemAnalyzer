@@ -35,7 +35,6 @@ internal static class StsaInput4RequestParser
 
             request = new AnalysisRequest(
                 flowSelection,
-                ruleProfileMode,
                 new[] { stepRequest });
             return true;
         }
@@ -53,7 +52,6 @@ internal static class StsaInput4RequestParser
         if (flowSelection.Steps.Count < 2) return false;
 
         var stepRequests = new List<AnalysisStepRequest>();
-        var ruleProfileModes = new List<RuleProfileMode>();
         foreach (var step in flowSelection.Steps)
         {
             var stepName = FormatStepName(step);
@@ -69,12 +67,10 @@ internal static class StsaInput4RequestParser
             if (stepRequest is null) return false;
 
             stepRequests.Add(stepRequest);
-            ruleProfileModes.Add(ruleProfileMode);
         }
 
         request = new AnalysisRequest(
             flowSelection,
-            ruleProfileModes[0],
             stepRequests);
         return true;
     }
