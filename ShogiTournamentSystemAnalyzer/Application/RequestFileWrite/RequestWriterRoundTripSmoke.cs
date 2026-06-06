@@ -67,20 +67,20 @@ internal static class RequestWriterRoundTripSmoke
             ? "STSAInput/5"
             : "STSAInput/4";
         var requestText = new RequestText(sourceFormatName, rawLines, fullPath);
-        if (!StsaInput4RequestParser.TryParse(requestText, out var parsedRequest) || parsedRequest is null)
+        if (!StsaInputRequestParser.TryParse(requestText, out var parsedRequest) || parsedRequest is null)
         {
             throw new OperationCanceledException($"{sourceFormatName} として解析できません: {fullPath}");
         }
 
         var generatedLines = generatedFormatName.Equals("STSAInput/5", StringComparison.OrdinalIgnoreCase)
-            ? StsaInput4RequestWriter.BuildAttributeLines(parsedRequest)
-            : StsaInput4RequestWriter.BuildLines(parsedRequest);
+            ? StsaInputRequestWriter.BuildAttributeLines(parsedRequest)
+            : StsaInputRequestWriter.BuildLines(parsedRequest);
         var generatedPath = Path.Combine(outputDirectory, Path.GetFileName(requestFilePath));
         File.WriteAllLines(generatedPath, generatedLines);
 
         var generatedFullPath = Path.GetFullPath(generatedPath);
         var generatedRequestText = new RequestText(generatedFormatName, File.ReadAllLines(generatedFullPath), generatedFullPath);
-        if (!StsaInput4RequestParser.TryParse(generatedRequestText, out var roundTrippedRequest) || roundTrippedRequest is null)
+        if (!StsaInputRequestParser.TryParse(generatedRequestText, out var roundTrippedRequest) || roundTrippedRequest is null)
         {
             throw new OperationCanceledException($"Writer 出力を {generatedFormatName} として再解析できません: {generatedFullPath}");
         }

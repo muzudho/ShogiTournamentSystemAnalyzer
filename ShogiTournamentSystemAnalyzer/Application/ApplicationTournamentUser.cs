@@ -61,7 +61,7 @@ internal static class ApplicationTournamentUser
             }
 
             if (requestFileCheckResult.RequestText is not null
-                && StsaInput4RequestParser.TryParse(requestFileCheckResult.RequestText, out var parsedAnalysisRequest)
+                && StsaInputRequestParser.TryParse(requestFileCheckResult.RequestText, out var parsedAnalysisRequest)
                 && parsedAnalysisRequest is not null)
             {
                 requestText = null;
@@ -218,6 +218,6 @@ internal static class ApplicationTournamentUser
         StsaFileIOHelper.Write(
             label: "要求ファイル",
             outputPath: requestFilePath,
-            lines: StsaInput4RequestWriter.BuildAttributeLines(analysisRequest));
+            lines: StsaInputRequestWriter.BuildAttributeLines(analysisRequest));
     }
 }

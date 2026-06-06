@@ -1,5 +1,5 @@
 /*
- * ［アプリケーション　＞　要求ファイル書出　＞　STSAInput/4］
+ * ［アプリケーション　＞　要求ファイル書出　＞　STSAInput］
  */
 namespace ShogiTournamentSystemAnalyzer.Application.RequestFileWrite;
 
@@ -10,7 +10,7 @@ using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 using System.Globalization;
 using Match = ShogiTournamentSystemAnalyzer.Domain.Simulation.Match;
 
-internal static class StsaInput4RequestWriter
+internal static class StsaInputRequestWriter
 {
     internal static IReadOnlyList<string> BuildLines(AnalysisRequest request)
     {

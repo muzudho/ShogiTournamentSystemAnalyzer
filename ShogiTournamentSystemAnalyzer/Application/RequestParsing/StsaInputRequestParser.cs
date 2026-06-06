@@ -1,5 +1,5 @@
 /*
- * ［アプリケーション　＞　要求パース　＞　STSAInput/4］
+ * ［アプリケーション　＞　要求パース　＞　STSAInput］
  */
 namespace ShogiTournamentSystemAnalyzer.Application.RequestParsing;
 
@@ -11,7 +11,7 @@ using ShogiTournamentSystemAnalyzer.Infrastructure.Parsing;
 using static ShogiTournamentSystemAnalyzer.Application.RequestFileCheck.StsaInputSectionParser;
 using static ShogiTournamentSystemAnalyzer.Application.RequestFileCheck.StsaInputValueParser;
 
-internal static class StsaInput4RequestParser
+internal static class StsaInputRequestParser
 {
     const int ExactCalculationMatchThreshold = 20;
     const int DefaultApproximationSimulationCount = 200_000;
