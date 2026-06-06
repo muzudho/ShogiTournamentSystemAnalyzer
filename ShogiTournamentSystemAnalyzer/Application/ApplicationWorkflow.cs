@@ -34,10 +34,6 @@ internal static class ApplicationWorkflow
             tournamentUserDomainResult.RuleProfileMode,
             tournamentUserDomainResult.AnalysisRequest);
 
-        WriteRequestFile(
-            tournamentUserDomainResult.AnalysisRequest,
-            tournamentUserDomainResult.RequestFilePath);   // TODO: ［要求ファイル］の書き込みは、［大会利用者域］の仕事だぜ（＾～＾）
-
         // ●終了
         return;
     }
@@ -74,7 +70,6 @@ internal static class ApplicationWorkflow
         //　　↓
 
         result = null!;
-        string? requestFilePath = null;
         var analysisFlowSelection = AnalysisFlowSelection.FromSingle(AnalysisFlowMode.Simulation);
         var ruleProfileMode = new RuleProfileMode();
         AnalysisRequest? analysisRequest = null;    // TODO: これは現在の本命フローに合わせている（＾～＾）この変数を育てていき、将来的には旧フロー用の選択値は解消したい（＾～＾）？
@@ -191,7 +186,8 @@ internal static class ApplicationWorkflow
                     Console.WriteLine("1 か 2 を入力してください。\n");
                 }
             }
-            requestFilePath = InputRequestFilePath();
+            var requestFilePath = InputRequestFilePath();
+            WriteRequestFile(analysisRequest, requestFilePath);
         }
 
         if (requestText is not null)
@@ -202,7 +198,6 @@ internal static class ApplicationWorkflow
         }
 
         result = new TournamentUserDomainResult(
-            requestFilePath,
             analysisFlowSelection,
             ruleProfileMode,
             analysisRequest);
@@ -210,7 +205,6 @@ internal static class ApplicationWorkflow
     }
 
     private sealed record TournamentUserDomainResult(
-        string? RequestFilePath,
         AnalysisFlowSelection AnalysisFlowSelection,
         RuleProfileMode RuleProfileMode,
         AnalysisRequest? AnalysisRequest);
