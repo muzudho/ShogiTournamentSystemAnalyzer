@@ -91,7 +91,7 @@ SimulationCount=20000
 ```
 
 ### CSV / 複合入力セクション
-CSV 本文や、`Round / First/Second / 対局記号表` のような複合入力本文をそのまま入れるセクションです。
+CSV 本文や、`Round / First/Second / PlayerSymbols` のような複合入力本文をそのまま入れるセクションです。
 
 ```plaintext
 #[Section] PlayersCsv
@@ -113,7 +113,7 @@ First/Second
 A, -, f
 B, s, -
 
-対局記号表
+PlayerSymbols
 A, "Alice"
 B, "Bob"
 #[EndSection]
@@ -200,7 +200,7 @@ TournamentRuleSetMode=Twill
 
 ## 複合入力の書き方
 
-対局入力は、単純な `first,second` CSV だけではなく、`Round / First/Second / 対局記号表` の複合表記もあります。
+対局入力は、単純な `first,second` CSV だけではなく、`Round / First/Second / PlayerSymbols` の複合表記もあります。
 そのため `STSAInput/2` では、対局入力系セクションを `MatchesCsv` のような狭い名前ではなく、`MatchesInput` / `ReferenceMatchesInput` のような広い名前で扱う案を推奨します。
 
 ```plaintext
@@ -225,7 +225,7 @@ First/Second
 A, -, f
 B, s, -
 
-対局記号表
+PlayerSymbols
 A, "Alice"
 B, "Bob"
 #[EndSection]

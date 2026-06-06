@@ -25,7 +25,7 @@ name,elo
 2
 #[Prompt] 順位ルールを選んでください [1]
 1
-#[Prompt] 対局CSVまたは Round/First-Second/対局記号表を貼り付けてください。入力終了は END 行です。
+#[Prompt] 対局CSVまたは Round/First-Second / PlayerSymbols を貼り付けてください。入力終了は END 行です。
 Round
  , A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P
 A, -, -, -, -, -, -, -, -, 8, 7, 6, 5, 4, 3, 2, 1
@@ -82,7 +82,7 @@ N, "うさぎ"
 O, "いのしし"
 P, "ひよこ"
 END
-#[Prompt] 参考対局CSVまたは Round/FirstPlayer-SecondPlayer/対局記号表を貼り付けてください。空のまま END で省略できます。
+#[Prompt] 参考対局CSVまたは Round/FirstPlayer-SecondPlayer / PlayerSymbols を貼り付けてください。空のまま END で省略できます。
 END
 #[Prompt] 品質評価の実行方法を入力してください [1]
 2

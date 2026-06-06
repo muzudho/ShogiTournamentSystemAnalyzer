@@ -25,7 +25,7 @@
 
 <a id="boundary-tournament-result"></a>
 ### TournamentResult（大会結果データ）
-- 対局結果入力の基本フォーマットは、この文書の [対局CSV](#対局csv) と [Round / First-Second / 対局記号表](#round--first-second--対局記号表) を見てください
+- 対局結果入力の基本フォーマットは、この文書の [対局CSV](#対局csv) と [Round / First-Second / PlayerSymbols](#round--first-second--playersymbols) を見てください
 - 本戦補助データや再利用データの置き場:
   - [Data/Matches README](../../Data/Matches/README.md)
   - [Data/FinalStage README](../../Data/FinalStage/README.md)
@@ -127,9 +127,9 @@ Dave,Carol
 END
 ```
 
-## Round / First-Second / 対局記号表
+## Round / First-Second / PlayerSymbols
 横長になる実名の代わりに、`A`, `B`, `C` のような記号を使えます。
-必要なら `対局記号表` セクションで記号と選手 / Player 名を対応付けます。
+必要なら `PlayerSymbols` セクションで記号と選手 / Player 名を対応付けます。
 互換性のため、旧ヘッダー `Players` でも読み取れます。
 
 ### 例
@@ -148,7 +148,7 @@ B, s, -, f, f
 C, s, s, -, f
 D, s, s, s, -
 
-対局記号表
+PlayerSymbols
 A, "Alice"
 B, "Bob"
 C, "Carol"

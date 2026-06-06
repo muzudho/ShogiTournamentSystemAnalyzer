@@ -200,10 +200,11 @@ internal static class InputParsers
         if (roundNames.Count != colorNames.Count || !roundNames.SequenceEqual(colorNames, StringComparer.OrdinalIgnoreCase)) { err = ErrorMessageModel.FromString("Round セクションと First/Second セクションの見出しが一致していません。"); return false; }
 
         var resolvedNames = roundNames;
-        if (sections.TryGetValue("Players", out var aliasLines)
+        if (sections.TryGetValue("PlayerSymbols", out var aliasLines)
+            || sections.TryGetValue("Players", out aliasLines)
             || sections.TryGetValue("対局記号表", out aliasLines))
         {
-            // 👓　対局記号表セクションがある場合は、Round セクションの見出しを選手名に変換する
+            // 👓　PlayerSymbols セクションがある場合は、Round セクションの見出しを選手名に変換する
             if (!TryParsePlayerAliases(aliasLines, roundNames, out resolvedNames, out err)) return false;
         }
 
@@ -214,8 +215,8 @@ internal static class InputParsers
         var orderedMatches = new List<(int Round, Match Match, int Order)>();
         for (var i = 0; i < roundNames.Count; i++)
         {
-            // 👓　Round セクションの見出し（または対局記号表で解決された名前）が選手一覧に存在することを確認
-            if (!playerIndexes.ContainsKey(resolvedNames[i])) { err = ErrorMessageModel.FromString($"対局記号表セクションの選手名 '{resolvedNames[i]}' が選手一覧にありません。"); return false; }
+            // 👓　Round セクションの見出し（または PlayerSymbols で解決された名前）が選手一覧に存在することを確認
+            if (!playerIndexes.ContainsKey(resolvedNames[i])) { err = ErrorMessageModel.FromString($"PlayerSymbols セクションの選手名 '{resolvedNames[i]}' が選手一覧にありません。"); return false; }
 
             for (var j = i + 1; j < roundNames.Count; j++)
             {
@@ -272,29 +273,29 @@ internal static class InputParsers
         err = ErrorMessageModel.FromString(string.Empty);
 
         // 👓　空でないことを確認
-        if (lines.Count == 0) { err = ErrorMessageModel.FromString("対局記号表セクションの内容がありません。"); return false; }
+        if (lines.Count == 0) { err = ErrorMessageModel.FromString("PlayerSymbols セクションの内容がありません。"); return false; }
 
         var aliasMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         foreach (var line in lines)
         {
             var columns = SplitCsvLine(line);
             // 👓　2 列以上であることを確認
-            if (columns.Count < 2) { err = ErrorMessageModel.FromString("対局記号表セクションは 2 列以上で入力してください。"); return false; }
+            if (columns.Count < 2) { err = ErrorMessageModel.FromString("PlayerSymbols セクションは 2 列以上で入力してください。"); return false; }
 
             var alias = columns[0].Trim();
             var playerName = columns[1].Trim();
 
             // 👓　記号も選手名も空でないことを確認
-            if (string.IsNullOrWhiteSpace(alias) || string.IsNullOrWhiteSpace(playerName)) { err = ErrorMessageModel.FromString("対局記号表セクションの記号または選手名が空です。"); return false; }
-            if (aliasMap.ContainsKey(alias)) { err = ErrorMessageModel.FromString($"対局記号表セクションの記号 '{alias}' が重複しています。"); return false; }
+            if (string.IsNullOrWhiteSpace(alias) || string.IsNullOrWhiteSpace(playerName)) { err = ErrorMessageModel.FromString("PlayerSymbols セクションの記号または選手名が空です。"); return false; }
+            if (aliasMap.ContainsKey(alias)) { err = ErrorMessageModel.FromString($"PlayerSymbols セクションの記号 '{alias}' が重複しています。"); return false; }
 
             aliasMap.Add(alias, playerName);
         }
 
         foreach (var alias in aliases)
         {
-            // 👓　Round セクションの見出しが対局記号表セクションの記号に存在することを確認
-            if (!aliasMap.TryGetValue(alias, out var playerName)) { err = ErrorMessageModel.FromString($"対局記号表セクションに記号 '{alias}' の対応表がありません。"); return false; }
+            // 👓　Round セクションの見出しが PlayerSymbols セクションの記号に存在することを確認
+            if (!aliasMap.TryGetValue(alias, out var playerName)) { err = ErrorMessageModel.FromString($"PlayerSymbols セクションに記号 '{alias}' の対応表がありません。"); return false; }
 
             resolvedNames.Add(playerName);
         }
@@ -525,7 +526,8 @@ internal static class InputParsers
     static bool IsPlayerAliasSectionHeader(string line)
     {
         var header = line.Trim();
-        return header.Equals("Players", StringComparison.OrdinalIgnoreCase)
+        return header.Equals("PlayerSymbols", StringComparison.OrdinalIgnoreCase)
+            || header.Equals("Players", StringComparison.OrdinalIgnoreCase)
             || header.Equals("対局記号表", StringComparison.OrdinalIgnoreCase);
     }
 }

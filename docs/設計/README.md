@@ -77,7 +77,7 @@
 - [CSVと出力](./CSVと出力.md)
   - 選手一覧CSV
   - 対局CSV
-  - Round / Black-White / 対局記号表
+  - Round / Black-White / PlayerSymbols
   - 結果CSVと品質評価CSV
 	- `Output/...` 配下の既定出力先
   - 実効Elo

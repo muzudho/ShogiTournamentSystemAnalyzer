@@ -122,7 +122,7 @@ T5. 本戦専用モードの参加者バリデーションを追加する
 T6. 本戦専用モードの対局入力を既存形式で受ける
 ===============================================
 目的:
-- 既存の対局CSV / Round/FirstPlayer-SecondPlayer/対局記号表入力を流用する
+- 既存の対局CSV / Round/FirstPlayer-SecondPlayer / PlayerSymbols入力を流用する
 
 作業:
 - ReadMatchesFromCsv() の流用方針を決める

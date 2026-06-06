@@ -131,7 +131,7 @@ Bob,1480
 ```
 
 ### MatchesInput
-対局入力です。単純な CSV でも、`Round / First-Second / 対局記号表` でも構いません。
+対局入力です。単純な CSV でも、`Round / First-Second / PlayerSymbols` でも構いません。
 
 ### ReferenceMatchesInput
 参考対局です。品質評価に含めず、説明表示や補助情報として使います。

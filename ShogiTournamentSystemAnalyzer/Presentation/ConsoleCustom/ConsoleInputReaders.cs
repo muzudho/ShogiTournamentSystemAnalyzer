@@ -238,7 +238,7 @@ internal static class ConsoleInputReaders
         {
             SimulationTimeBudget.ThrowIfApplicationTimeExpired("対局入力");
             attempt++;
-            Console.WriteLine("\n対局CSVまたは Round/FirstPlayer-SecondPlayer/対局記号表を貼り付けてください。入力終了は END 行です。\n");
+            Console.WriteLine("\n対局CSVまたは Round/FirstPlayer-SecondPlayer / PlayerSymbols を貼り付けてください。入力終了は END 行です。\n");
             ConsoleSamplePrinter.PrintMatchesCsvExample();
             ConsoleSamplePrinter.PrintRoundMatrixExample();
 

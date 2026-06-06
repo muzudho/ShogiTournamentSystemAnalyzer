@@ -45,7 +45,7 @@ internal static class ConsoleSamplePrinter
 
     internal static void PrintRoundMatrixExample()
     {
-        Console.WriteLine("Round/First-Second/対局記号表 の例:");
+        Console.WriteLine("Round/First-Second / PlayerSymbols の例:");
         Console.WriteLine("Round");
         Console.WriteLine(" , A, B");
         Console.WriteLine("A, -, 1");
@@ -56,7 +56,7 @@ internal static class ConsoleSamplePrinter
         Console.WriteLine("A, -, f");
         Console.WriteLine("B, s, -");
         Console.WriteLine();
-        Console.WriteLine("対局記号表");
+        Console.WriteLine("PlayerSymbols");
         Console.WriteLine("A, \"Alice\"");
         Console.WriteLine("B, \"Bob\"");
         Console.WriteLine("END\n");
@@ -68,7 +68,7 @@ internal static class ConsoleSamplePrinter
         Console.WriteLine("1. 順位ルールセット");
         Console.WriteLine("2. 同Elo対局時の先手勝率 (%)");
         Console.WriteLine("3. 選手 / Player 一覧CSV");
-        Console.WriteLine("4. 対局CSV または Round/FirstPlayer-SecondPlayer/対局記号表");
+        Console.WriteLine("4. 対局CSV または Round/FirstPlayer-SecondPlayer / PlayerSymbols");
         Console.WriteLine("5. 必要に応じて試行回数");
         Console.WriteLine("6. 結果CSVの出力先\n");
     }
@@ -82,7 +82,7 @@ internal static class ConsoleSamplePrinter
         Console.WriteLine("4. 本戦不出場Apex一覧CSV（省略可）");
         Console.WriteLine("5. 本戦不出場Apexの扱い");
         Console.WriteLine("6. 境界救済戦の有無");
-        Console.WriteLine("7. 対局CSV または Round/FirstPlayer-SecondPlayer/対局記号表");
+        Console.WriteLine("7. 対局CSV または Round/FirstPlayer-SecondPlayer / PlayerSymbols");
         Console.WriteLine("8. 参考対局CSV（省略可）");
         Console.WriteLine("9. 必要に応じて試行回数");
         Console.WriteLine("10. 結果CSVの出力先\n");
@@ -114,7 +114,7 @@ internal static class ConsoleSamplePrinter
         Console.WriteLine("1. 順位ルールセット");
         Console.WriteLine("2. 同Elo対局時の先手勝率 (%)");
         Console.WriteLine("3. 選手 / Player 一覧CSV");
-        Console.WriteLine("4. 対局CSV または Round/FirstPlayer-SecondPlayer/対局記号表");
+        Console.WriteLine("4. 対局CSV または Round/FirstPlayer-SecondPlayer / PlayerSymbols");
         Console.WriteLine("5. 単発評価または n% スイープ実験");
         Console.WriteLine("6. 必要に応じて試行回数");
         Console.WriteLine("7. レポート出力先\n");
@@ -130,7 +130,7 @@ internal static class ConsoleSamplePrinter
         Console.WriteLine("5. 本戦不出場Apexの扱い");
         Console.WriteLine("6. 境界救済戦の有無");
         Console.WriteLine("7. 可変定員8ルールの有無");
-        Console.WriteLine("8. 対局CSV または Round/FirstPlayer-SecondPlayer/対局記号表");
+        Console.WriteLine("8. 対局CSV または Round/FirstPlayer-SecondPlayer / PlayerSymbols");
         Console.WriteLine("9. 参考対局CSV（省略可）");
         Console.WriteLine("10. 単発評価または n% スイープ実験");
         Console.WriteLine("11. 必要に応じて試行回数");
