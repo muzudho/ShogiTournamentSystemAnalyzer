@@ -5,8 +5,8 @@ namespace ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.
 
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.SimulationContext;
 using ShogiTournamentSystemAnalyzer.Application;
+using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.FinalRanking.UseCases;
 using ShogiTournamentSystemAnalyzer.Domain.FinalRanking;
-using ShogiTournamentSystemAnalyzer.Domain.Ranking;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
@@ -102,7 +102,7 @@ internal abstract class AbstractSimulationMainline
 
     protected static IReadOnlyList<GeneralSimulationResultRow> BuildStandardResultRows(AbstractSimulationContext context, CalculationResult result)
     {
-        return RankingResultRowBuilder.BuildGeneralResultRows(context.Players, context.Matches, result, context.FirstPlayerWinRatePercent);
+        return FinalRankingDomain.BuildStandardResultRows(context.Players, context.Matches, result, context.FirstPlayerWinRatePercent);
     }
 
 }

@@ -6,7 +6,6 @@ namespace ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.SimulationContext;
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.FinalRanking.UseCases;
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Boundaries;
-using ShogiTournamentSystemAnalyzer.Domain.Ranking;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
@@ -95,7 +94,7 @@ internal class FinalStageSimulationMainline
         }
 
         var finalStageResult = FinalStageSimulationExecutor.Execute(context, requestedSimulationCount);
-        var finalStageResultRows = RankingResultRowBuilder.BuildFinalStageGeneralResultRows(context.Players, context.Matches, finalStageResult, context.FirstPlayerWinRatePercent, context.GroupMap!, context.EffectiveAdditionalApexCount);
+        var finalStageResultRows = FinalRankingDomain.BuildFinalStageResultRows(context.Players, context.Matches, finalStageResult, context.FirstPlayerWinRatePercent, context.GroupMap!, context.EffectiveAdditionalApexCount);
         return new SimulationMainlineResult(finalStageResult, finalStageResultRows, SimulationMainlineResultPresentation.GroupedOverall);
 
         // 以下、ローカル関数

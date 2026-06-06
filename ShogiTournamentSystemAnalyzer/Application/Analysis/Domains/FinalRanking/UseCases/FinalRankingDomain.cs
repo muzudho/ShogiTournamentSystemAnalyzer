@@ -4,13 +4,35 @@
 namespace ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.FinalRanking.UseCases;
 
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Boundaries;
+using ShogiTournamentSystemAnalyzer.Domain.Ranking;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
+using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.FinalRanking;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.Shared;
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 
 internal static class FinalRankingDomain
 {
+    internal static IReadOnlyList<GeneralSimulationResultRow> BuildStandardResultRows(
+        IReadOnlyList<Player> players,
+        IReadOnlyList<Match> matches,
+        CalculationResult result,
+        double firstPlayerWinRatePercent)
+    {
+        return RankingResultRowBuilder.BuildGeneralResultRows(players, matches, result, firstPlayerWinRatePercent);
+    }
+
+    internal static IReadOnlyList<GeneralSimulationResultRow> BuildFinalStageResultRows(
+        IReadOnlyList<Player> players,
+        IReadOnlyList<Match> matches,
+        CalculationResult result,
+        double firstPlayerWinRatePercent,
+        IReadOnlyDictionary<string, FinalStageGroup> groupMap,
+        int additionalApexCount)
+    {
+        return RankingResultRowBuilder.BuildFinalStageGeneralResultRows(players, matches, result, firstPlayerWinRatePercent, groupMap, additionalApexCount);
+    }
+
     internal static (string OutputCsvPath, string OutputMarkdownPath) ResolveOutputPaths(string defaultFileName)
     {
         var defaultOutputCsvPath = ReportOutputPathBuilder.BuildFinalRankingDefaultOutputPath(defaultFileName);
