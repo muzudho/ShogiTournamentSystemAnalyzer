@@ -9,15 +9,22 @@ internal static class AnalysisRequestDispatcher
 {
     internal static void Execute(AnalysisRequest request)
     {
+        var context = new AnalysisExecutionContext();
+
         foreach (var step in request.Steps)
         {
-            ExecuteSingle(step);
+            ExecuteSingle(step, context);
         }
     }
 
-    static void ExecuteSingle(AnalysisStepRequest step)
+    static void ExecuteSingle(AnalysisStepRequest step, AnalysisExecutionContext context)
     {
-        if (SimulationRequestDispatcher.TryExecute(step)) return;
+        if (SimulationRequestDispatcher.TryExecute(step, out var simulationResult))
+        {
+            context.SetSimulationResult(simulationResult);
+            return;
+        }
+
         if (QualityEvaluationRequestDispatcher.TryExecute(step)) return;
 
         throw new InvalidOperationException($"未対応の分析要求です: {step.GetType().Name}");
