@@ -111,7 +111,7 @@ internal static partial class SimulationTournamentFrameworkMode
         var standardMatches = tournamentFinalStateData.MatchRecords
             .Select(match => new Match(playerIndexById[match.FirstPlayerId], playerIndexById[match.SecondPlayerId]))
             .ToArray();
-        var representativeExecutionRankRows = BuildRepresentativeExecutionRankRows(playerListData.Players, finalRankingData.RankRows);
+        var representativeExecutionRankRows = FinalRankingDomain.BuildRepresentativeExecutionRankRows(playerListData.Players, finalRankingData);
 
         var result = BuildTournamentFrameworkCalculationResult(aggregateResult);
         var resultRows = FinalRankingDomain.BuildStandardResultRows(standardPlayers, standardMatches, result, tournamentRuleData.FirstPlayerWinRatePercent ?? context.FirstPlayerWinRatePercent);
@@ -433,44 +433,6 @@ internal static partial class SimulationTournamentFrameworkMode
         TwillTournamentRule.AccumulatePlaceProbabilitiesWithCommonOpponentWeight(standardMatches, blackWins, weight, placeProbabilities);
     }
 
-    /// <summary>
-    /// 順位の行を組立
-    /// </summary>
-    /// <param name="players"></param>
-    /// <param name="ranking"></param>
-    /// <returns></returns>
-    static List<RepresentativeExecutionRankRow> BuildRepresentativeExecutionRankRows(
-        IReadOnlyList<PlayerEntry> players,
-        IReadOnlyList<PlayerRankRow> ranking)
-    {
-        var playerNameById = players.ToDictionary(player => player.PlayerId, player => player.Name);
-
-        return ranking
-            .GroupBy(row => row.Rank)
-            .OrderBy(group => group.Key)
-            .SelectMany(group =>
-            {
-                var rows = group.ToArray();
-                var lastRank = group.Key + rows.Length - 1;
-                var averagePlace = (group.Key + lastRank) / 2.0;
-                var rankLabel = rows.Length == 1
-                    ? group.Key.ToString()
-                    : $"{group.Key}-{lastRank}";
-                var firstPlaceProbability = group.Key == 1 ? 1.0 / rows.Length : 0.0;
-
-                return rows
-                    .Select(row => new RepresentativeExecutionRankRow(
-                        playerNameById[row.PlayerId],
-                        row.Points,
-                        rankLabel,
-                        averagePlace,
-                        firstPlaceProbability));
-            })
-            .OrderBy(row => row.AveragePlace)
-            .ThenByDescending(row => row.Points)
-            .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
-            .ToList();
-    }
 
     /// <summary>
     /// ［プレイヤーＩｄ］毎のポイントの組立

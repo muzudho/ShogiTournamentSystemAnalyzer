@@ -4,6 +4,10 @@
 利用者向けの使い方や仕様説明は [docs/設計](../設計/README.md)、このフォルダーは実装予定・改修方針・調査メモを扱います。
 
 ## ファイル一覧
+- [プログラム4パート構成_第103ステップ実行計画.md](./プログラム4パート構成_第103ステップ実行計画.md)
+  - TournamentFramework の representative 順位行生成を FinalRankingDomain へ寄せる実行計画
+- [プログラム4パート構成_第102ステップ実行計画.md](./プログラム4パート構成_第102ステップ実行計画.md)
+  - TournamentFramework の aggregate / representative 出力を FinalRankingDomain へ寄せる実行計画
 - [プログラム4パート構成_第101ステップ実行計画.md](./プログラム4パート構成_第101ステップ実行計画.md)
   - 標準/本戦シミュレーション mainline から最終順位表出力を外し、FinalRankingDomain 経由へ寄せる実行計画
 - [プログラム4パート構成_第100ステップ実行計画.md](./プログラム4パート構成_第100ステップ実行計画.md)

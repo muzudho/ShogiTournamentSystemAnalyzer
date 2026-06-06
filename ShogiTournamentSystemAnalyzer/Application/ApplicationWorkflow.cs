@@ -287,7 +287,6 @@ internal static class ApplicationWorkflow
         //　　｜　［大会最終状態という境界］      `TournamentFinalState`
         //　　↓
         //［順位付け域］
-        //FinalRankingBoundary finalRankingBoundary = new();
         //　　｜
         //　　｜　［最終順位という境界］          `FinalRanking`
         //　　↓

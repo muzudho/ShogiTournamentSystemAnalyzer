@@ -39,6 +39,39 @@ internal static class FinalRankingDomain
         return RankingResultRowBuilder.BuildFinalStageGeneralResultRows(players, matches, result, firstPlayerWinRatePercent, groupMap, additionalApexCount);
     }
 
+    internal static IReadOnlyList<RepresentativeExecutionRankRow> BuildRepresentativeExecutionRankRows(
+        IReadOnlyList<PlayerEntry> players,
+        FinalRankingData finalRankingData)
+    {
+        var playerNameById = players.ToDictionary(player => player.PlayerId, player => player.Name);
+
+        return finalRankingData.RankRows
+            .GroupBy(row => row.Rank)
+            .OrderBy(group => group.Key)
+            .SelectMany(group =>
+            {
+                var rows = group.ToArray();
+                var lastRank = group.Key + rows.Length - 1;
+                var averagePlace = (group.Key + lastRank) / 2.0;
+                var rankLabel = rows.Length == 1
+                    ? group.Key.ToString()
+                    : $"{group.Key}-{lastRank}";
+                var firstPlaceProbability = group.Key == 1 ? 1.0 / rows.Length : 0.0;
+
+                return rows
+                    .Select(row => new RepresentativeExecutionRankRow(
+                        playerNameById[row.PlayerId],
+                        row.Points,
+                        rankLabel,
+                        averagePlace,
+                        firstPlaceProbability));
+            })
+            .OrderBy(row => row.AveragePlace)
+            .ThenByDescending(row => row.Points)
+            .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+    }
+
     internal static (string OutputCsvPath, string OutputMarkdownPath) ResolveOutputPaths(string defaultFileName)
     {
         var defaultOutputCsvPath = ReportOutputPathBuilder.BuildFinalRankingDefaultOutputPath(defaultFileName);
