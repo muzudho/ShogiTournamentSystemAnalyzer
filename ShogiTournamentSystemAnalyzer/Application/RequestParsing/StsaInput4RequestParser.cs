@@ -16,11 +16,19 @@ internal static class StsaInput4RequestParser
     const int ExactCalculationMatchThreshold = 20;
     const int DefaultApproximationSimulationCount = 200_000;
     const string FormatName = "STSAInput/4";
+    const string AttributeFormatName = "STSAInput/5";
 
     internal static bool TryParse(RequestText requestText, out AnalysisRequest? request)
     {
         request = null;
-        if (!requestText.FormatName.Equals(FormatName, StringComparison.OrdinalIgnoreCase)) return false;
+        if (requestText.FormatName.Equals(AttributeFormatName, StringComparison.OrdinalIgnoreCase))
+        {
+            requestText = NormalizeAttributeFormatToCompatibilityFormat(requestText);
+        }
+        else if (!requestText.FormatName.Equals(FormatName, StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
 
         var fullPath = requestText.SourcePath ?? "(要求テキスト)";
         var sections = ParseStsaInputSections(requestText.Lines, fullPath, FormatName);
@@ -40,6 +48,100 @@ internal static class StsaInput4RequestParser
         }
 
         return TryParseMultiStepRequest(flowSelection, sections, fullPath, out request);
+    }
+
+    static RequestText NormalizeAttributeFormatToCompatibilityFormat(RequestText requestText)
+    {
+        var fullPath = requestText.SourcePath ?? "(要求テキスト)";
+        var sections = ParseStsaInputSections(requestText.Lines, fullPath, AttributeFormatName);
+        var meta = ParseSectionKeyValues(GetRequiredSectionLines(sections, "Meta", fullPath, AttributeFormatName), "Meta", fullPath, AttributeFormatName);
+        var flowSelection = ReadFlowSelection(meta, fullPath);
+        var ruleProfileModes = new Dictionary<string, RuleProfileMode>(StringComparer.OrdinalIgnoreCase);
+
+        if (flowSelection.Steps.Count == 1)
+        {
+            ruleProfileModes["Meta"] = ParseRuleProfileAttributesSection(sections, "RuleProfileAttributes", fullPath).ToCompatibilityLabel();
+        }
+        else
+        {
+            foreach (var step in flowSelection.Steps)
+            {
+                var stepName = FormatStepName(step);
+                var sectionName = $"Step.{stepName}.RuleProfileAttributes";
+                ruleProfileModes[$"Step.{stepName}"] = ParseRuleProfileAttributesSection(sections, sectionName, fullPath).ToCompatibilityLabel();
+            }
+        }
+
+        return new RequestText(
+            FormatName,
+            InsertCompatibilityRuleProfileModes(requestText.Lines, ruleProfileModes),
+            requestText.SourcePath);
+    }
+
+    static IReadOnlyList<string> InsertCompatibilityRuleProfileModes(
+        IReadOnlyList<string> rawLines,
+        IReadOnlyDictionary<string, RuleProfileMode> ruleProfileModes)
+    {
+        var lines = new List<string>();
+        string? currentSectionName = null;
+        var ruleProfileModeInserted = false;
+
+        foreach (var rawLine in rawLines)
+        {
+            var trimmed = rawLine.Trim();
+            if (trimmed.Equals($"#[Format] {AttributeFormatName}", StringComparison.OrdinalIgnoreCase))
+            {
+                lines.Add($"#[Format] {FormatName}");
+                continue;
+            }
+
+            if (trimmed.StartsWith("#[Section]", StringComparison.OrdinalIgnoreCase))
+            {
+                currentSectionName = trimmed[11..].Trim();
+                ruleProfileModeInserted = false;
+                lines.Add(rawLine);
+                continue;
+            }
+
+            if (currentSectionName is not null
+                && !ruleProfileModeInserted
+                && ruleProfileModes.TryGetValue(currentSectionName, out var ruleProfileMode))
+            {
+                lines.Add($"RuleProfileMode={ruleProfileMode}");
+                ruleProfileModeInserted = true;
+            }
+
+            if (trimmed.Equals("#[EndSection]", StringComparison.OrdinalIgnoreCase))
+            {
+                currentSectionName = null;
+            }
+
+            lines.Add(rawLine);
+        }
+
+        return lines;
+    }
+
+    static RuleProfileAttributes ParseRuleProfileAttributesSection(
+        Dictionary<string, List<string>> sections,
+        string sectionName,
+        string fullPath)
+    {
+        var values = ParseSectionKeyValues(
+            GetRequiredSectionLines(sections, sectionName, fullPath, AttributeFormatName),
+            sectionName,
+            fullPath,
+            AttributeFormatName);
+
+        return new RuleProfileAttributes(
+            ParseRuleProfileSimulationShape(GetRequiredMetaValue(values, "SimulationShape", fullPath, AttributeFormatName), AttributeFormatName),
+            ParseOnOffBool(GetRequiredMetaValue(values, "UsesFinalStageGrouping", fullPath, AttributeFormatName), "UsesFinalStageGrouping", AttributeFormatName),
+            ParseOnOffBool(GetRequiredMetaValue(values, "UsesAdditionalApexPlacement", fullPath, AttributeFormatName), "UsesAdditionalApexPlacement", AttributeFormatName),
+            ParseOnOffBool(GetRequiredMetaValue(values, "UsesBoundaryRescue", fullPath, AttributeFormatName), "UsesBoundaryRescue", AttributeFormatName),
+            ParseOnOffBool(GetRequiredMetaValue(values, "UsesVariableTop8", fullPath, AttributeFormatName), "UsesVariableTop8", AttributeFormatName),
+            ParseTournamentRuleSetModeValue(GetRequiredMetaValue(values, "RankingRuleSetMode", fullPath, AttributeFormatName), AttributeFormatName),
+            ParseOnOffBool(GetRequiredMetaValue(values, "HasReferenceMatches", fullPath, AttributeFormatName), "HasReferenceMatches", AttributeFormatName),
+            ParseRuleProfilePairingSource(GetRequiredMetaValue(values, "PairingSource", fullPath, AttributeFormatName), AttributeFormatName));
     }
 
     static bool TryParseMultiStepRequest(

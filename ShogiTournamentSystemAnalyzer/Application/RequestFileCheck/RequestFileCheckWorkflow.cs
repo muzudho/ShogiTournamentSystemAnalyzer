@@ -23,17 +23,19 @@ internal class RequestFileCheckWorkflow
             fullPath = Path.GetFullPath(requestFilePath);
             if (IsLegacyInputPath(fullPath))
             {
-                throw new OperationCanceledException($"Legacy 入力は実行対象外です。STSAInput/2、STSAInput/3、STSAInput/4 へ更新してください: {fullPath}");
+                throw new OperationCanceledException($"Legacy 入力は実行対象外です。STSAInput/2、STSAInput/3、STSAInput/4、STSAInput/5 へ更新してください: {fullPath}");
             }
 
             var rawLines = StsaFileIOHelper.ReadAllLines("要求ファイル", requestFilePath);
-            var formatName = RequestInputFormatDetector.IsStsaInput4(rawLines)
-                ? "STSAInput/4"
-                : RequestInputFormatDetector.IsStsaInput3(rawLines)
-                    ? "STSAInput/3"
-                    : RequestInputFormatDetector.IsStsaInput2(rawLines)
-                        ? "STSAInput/2"
-                        : "Legacy";
+            var formatName = RequestInputFormatDetector.IsStsaInput5(rawLines)
+                ? "STSAInput/5"
+                : RequestInputFormatDetector.IsStsaInput4(rawLines)
+                    ? "STSAInput/4"
+                    : RequestInputFormatDetector.IsStsaInput3(rawLines)
+                        ? "STSAInput/3"
+                        : RequestInputFormatDetector.IsStsaInput2(rawLines)
+                            ? "STSAInput/2"
+                            : "Legacy";
             requestText = new RequestText(formatName, rawLines, fullPath);
 
 

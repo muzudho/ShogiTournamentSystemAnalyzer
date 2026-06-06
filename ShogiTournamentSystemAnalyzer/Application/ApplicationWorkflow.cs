@@ -32,7 +32,7 @@ internal static class ApplicationWorkflow
 
         Console.WriteLine("■［分析］"); // TODO: この出力、消していいかだぜ（＾～＾）？
 
-        // ［要求ファイル］から読んだ STSAInput/4 直通要求は、要求側の Steps リスト構造で実行する。
+        // ［要求ファイル］から読んだ STSAInput/4 または STSAInput/5 直通要求は、要求側の Steps リスト構造で実行する。
         if (tournamentUserDomainResult.AnalysisRequest is not null)
         {
             AnalysisRequestDispatcher.Execute(tournamentUserDomainResult.AnalysisRequest);

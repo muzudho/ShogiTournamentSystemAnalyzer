@@ -4,6 +4,7 @@
 namespace ShogiTournamentSystemAnalyzer.Application.RequestFileCheck;
 
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
+using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 
 internal static class StsaInputValueParser
 {
@@ -38,6 +39,45 @@ internal static class StsaInputValueParser
         if (value.Equals("Standard", StringComparison.OrdinalIgnoreCase) || value == "1") return RuleProfileMode.Standard;
 
         throw new OperationCanceledException($"{formatName} の RuleProfileMode の値が解釈できません: {value}");
+    }
+
+    internal static RuleProfileSimulationShape ParseRuleProfileSimulationShape(string value, string formatName)
+    {
+        if (value.Equals("ScheduledMatches", StringComparison.OrdinalIgnoreCase) || value == "1") return RuleProfileSimulationShape.ScheduledMatches;
+
+        if (value.Equals("FinalStageGrouped", StringComparison.OrdinalIgnoreCase) || value == "2") return RuleProfileSimulationShape.FinalStageGrouped;
+
+        if (value.Equals("TournamentFramework", StringComparison.OrdinalIgnoreCase) || value == "3") return RuleProfileSimulationShape.TournamentFramework;
+
+        if (value.Equals("Empty", StringComparison.OrdinalIgnoreCase) || value == "4") return RuleProfileSimulationShape.Empty;
+
+        throw new OperationCanceledException($"{formatName} の RuleProfileAttributes.SimulationShape の値が解釈できません: {value}");
+    }
+
+    internal static RuleProfilePairingSource ParseRuleProfilePairingSource(string value, string formatName)
+    {
+        if (value.Equals("None", StringComparison.OrdinalIgnoreCase) || value == "1") return RuleProfilePairingSource.None;
+
+        if (value.Equals("ScheduledMatches", StringComparison.OrdinalIgnoreCase) || value == "2") return RuleProfilePairingSource.ScheduledMatches;
+
+        if (value.Equals("TournamentFramework", StringComparison.OrdinalIgnoreCase) || value == "3") return RuleProfilePairingSource.TournamentFramework;
+
+        throw new OperationCanceledException($"{formatName} の RuleProfileAttributes.PairingSource の値が解釈できません: {value}");
+    }
+
+    internal static TournamentRuleSetMode ParseTournamentRuleSetModeValue(string value, string formatName)
+    {
+        return ParseTournamentRuleSetSelection(value, formatName) switch
+        {
+            "2" => TournamentRuleSetMode.Twill,
+            "3" => TournamentRuleSetMode.TwillCommonOpponentWeighted,
+            _ => TournamentRuleSetMode.Neutral,
+        };
+    }
+
+    internal static bool ParseOnOffBool(string value, string keyName, string formatName)
+    {
+        return ParseOffOnSelection(value, offNumber: "1", onNumber: "2", keyName, formatName) == "2";
     }
 
     internal static string ParseOffOnSelection(string value, string offNumber, string onNumber, string keyName, string formatName)
