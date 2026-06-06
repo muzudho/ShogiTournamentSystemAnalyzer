@@ -5,6 +5,7 @@ using ShogiTournamentSystemAnalyzer.Application.RequestFileWrite;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 using System.Text;
+using static ShogiTournamentSystemAnalyzer.Application.ApplicationTournamentUser;
 
 internal static class ApplicationWorkflow
 {
@@ -27,7 +28,7 @@ internal static class ApplicationWorkflow
         if (!ApplicationTournamentUser.TryRunTournamentUserDomain(args, out var tournamentUserDomainResult)) return;  // エラー終了
 
         // メインライン選択のガイドを表示するぜ（＾▽＾）！
-        ProgramConsoleGuide.PrintSelectedMainline(tournamentUserDomainResult.AnalysisFlowSelection, tournamentUserDomainResult.RuleProfileMode);
+        ProgramConsoleGuide.PrintSelectedMainline(tournamentUserDomainResult);
 
         Console.WriteLine("■［分析］"); // TODO: この出力、消していいかだぜ（＾～＾）？
 
@@ -41,7 +42,7 @@ internal static class ApplicationWorkflow
         //┌───┴─────┐
         //│シミュレーション域│
         //└───┬─────┘
-        ExecuteSimulationDomain(tournamentUserDomainResult.AnalysisFlowSelection, tournamentUserDomainResult.RuleProfileMode);
+        ExecuteSimulationDomain(tournamentUserDomainResult);
 
         //┌───┴─────┐
         //│最終順位付け域　　│
@@ -51,7 +52,7 @@ internal static class ApplicationWorkflow
         //┌───┴─────┐
         //│大会品質評価域　　│
         //└───┬─────┘
-        ExecuteQualityEvaluationDomain(tournamentUserDomainResult.AnalysisFlowSelection, tournamentUserDomainResult.RuleProfileMode);
+        ExecuteQualityEvaluationDomain(tournamentUserDomainResult);
 
         // ローカル関数
 
@@ -79,15 +80,13 @@ internal static class ApplicationWorkflow
     /// <summary>
     /// ［シミュレーション域］実行
     /// </summary>
-    /// <param name="flowSelection"></param>
-    /// <param name="ruleProfileMode"></param>
+    /// <param name="result"></param>
     /// <exception cref="InvalidOperationException"></exception>
     private static void ExecuteSimulationDomain(
-        AnalysisFlowSelection flowSelection,
-        RuleProfileMode ruleProfileMode)
+        TournamentUserDomainResult result)
     {
-        if (!flowSelection.RunsSimulation) return;
-        if (SimulationFlowDispatcher.TryExecute(AnalysisFlowMode.Simulation, ruleProfileMode)) return;
+        if (!result.AnalysisFlowSelection.RunsSimulation) return;
+        if (SimulationFlowDispatcher.TryExecute(AnalysisFlowMode.Simulation, result.RuleProfileMode)) return;
 
         throw new InvalidOperationException("未対応のシミュレーション域です。");
     }
@@ -104,15 +103,13 @@ internal static class ApplicationWorkflow
     /// <summary>
     /// ［大会品質評価域］実行
     /// </summary>
-    /// <param name="flowSelection"></param>
-    /// <param name="ruleProfileMode"></param>
+    /// <param name="result"></param>
     /// <exception cref="InvalidOperationException"></exception>
     private static void ExecuteQualityEvaluationDomain(
-        AnalysisFlowSelection flowSelection,
-        RuleProfileMode ruleProfileMode)
+        TournamentUserDomainResult result)
     {
-        if (!flowSelection.RunsQualityEvaluation) return;
-        if (QualityEvaluationFlowDispatcher.TryExecute(AnalysisFlowMode.QualityEvaluation, ruleProfileMode)) return;
+        if (!result.AnalysisFlowSelection.RunsQualityEvaluation) return;
+        if (QualityEvaluationFlowDispatcher.TryExecute(AnalysisFlowMode.QualityEvaluation, result.RuleProfileMode)) return;
 
         throw new InvalidOperationException("未対応の大会品質評価域です。");
     }

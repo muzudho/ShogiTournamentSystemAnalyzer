@@ -5,6 +5,7 @@ namespace ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using System;
+using static ShogiTournamentSystemAnalyzer.Application.ApplicationTournamentUser;
 
 internal static class ProgramConsoleGuide
 {
@@ -16,24 +17,24 @@ internal static class ProgramConsoleGuide
         Console.WriteLine("主線: TournamentFinalState -> FinalRanking -> TournamentQualityReport\n");
     }
 
-    internal static void PrintSelectedMainline(AnalysisFlowSelection flowSelection, RuleProfileMode ruleProfileMode)
+    internal static void PrintSelectedMainline(TournamentUserDomainResult result)
     {
-        var profileLabel = ruleProfileMode switch
+        var profileLabel = result.RuleProfileMode switch
         {
             RuleProfileMode.Standard => "Standard",
             RuleProfileMode.FinalStage => "FinalStage",
             RuleProfileMode.TournamentFramework => "TournamentFramework",
             RuleProfileMode.Empty => "Empty",
-            _ => ruleProfileMode.ToString(),
+            _ => result.RuleProfileMode.ToString(),
         };
 
-        var mainlineLabel = string.Join(" -> ", flowSelection.Steps.Select(step => step switch
+        var mainlineLabel = string.Join(" -> ", result.AnalysisFlowSelection.Steps.Select(step => step switch
         {
             AnalysisFlowMode.Simulation => "TournamentFinalState -> FinalRanking",
             AnalysisFlowMode.QualityEvaluation => "TournamentQualityReport",
             _ => step.ToString(),
         }));
 
-        Console.WriteLine($"選択された主線: {profileLabel} / {flowSelection.ToPromptLabel()} / {mainlineLabel}\n");
+        Console.WriteLine($"選択された主線: {profileLabel} / {result.AnalysisFlowSelection.ToPromptLabel()} / {mainlineLabel}\n");
     }
 }
