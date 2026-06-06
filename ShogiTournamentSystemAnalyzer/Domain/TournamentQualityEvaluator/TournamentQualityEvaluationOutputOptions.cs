@@ -25,4 +25,9 @@ internal readonly record struct TournamentQualityEvaluationOutputOptions(
             _ => throw new InvalidOperationException($"未対応の品質評価出力プロファイル: {OutputProfile}")
         };
     }
+
+    internal RuleProfileAttributes GetRuleProfileAttributes()
+    {
+        return RuleProfileAttributes.FromCompatibilityLabel(GetCompatibilityRuleProfileMode());
+    }
 }

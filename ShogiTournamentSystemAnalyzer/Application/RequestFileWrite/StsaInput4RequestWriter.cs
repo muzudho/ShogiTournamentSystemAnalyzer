@@ -144,8 +144,16 @@ internal static class StsaInput4RequestWriter
                 AddQualityMetaLines(lines, request.RuleDefinition, request.Input, request.ExecutionOptions, request.OutputOptions);
                 break;
 
+            case DeferredStandardQualityEvaluationRequest request:
+                AddDeferredStandardQualityMetaLines(lines, request.TournamentRuleSetMode, request.ExecutionOptions, request.OutputOptions);
+                break;
+
             case FinalStageQualityEvaluationRequest request:
                 AddQualityMetaLines(lines, request.RuleDefinition, request.Input, request.ExecutionOptions, request.OutputOptions);
+                break;
+
+            case DeferredFinalStageQualityEvaluationRequest request:
+                AddDeferredFinalStageQualityMetaLines(lines, request.VariableTop8Mode, request.InnovExpectedRankOffsetMode, request.ExecutionOptions, request.OutputOptions);
                 break;
 
             default:
@@ -153,6 +161,31 @@ internal static class StsaInput4RequestWriter
         }
     }
 
+    static void AddDeferredStandardQualityMetaLines(
+        List<string> lines,
+        TournamentRuleSetMode tournamentRuleSetMode,
+        TournamentQualityEvaluationExecutionOptions executionOptions,
+        TournamentQualityEvaluationOutputOptions outputOptions)
+    {
+        AddQualityExecutionMetaLines(lines, executionOptions, outputOptions);
+        lines.Add($"TournamentRuleSetMode={tournamentRuleSetMode}");
+        lines.Add("QualityInnovExpectedRankOffsetMode=Off");
+    }
+
+    static void AddDeferredFinalStageQualityMetaLines(
+        List<string> lines,
+        VariableTop8Mode variableTop8Mode,
+        TournamentQualityEvaluationInnovExpectedRankOffsetMode innovExpectedRankOffsetMode,
+        TournamentQualityEvaluationExecutionOptions executionOptions,
+        TournamentQualityEvaluationOutputOptions outputOptions)
+    {
+        AddQualityExecutionMetaLines(lines, executionOptions, outputOptions);
+        lines.Add($"TournamentRuleSetMode={TournamentRuleSetMode.Neutral}");
+        lines.Add($"AdditionalApexPlacementMode={AdditionalApexPlacementMode.On}");
+        lines.Add($"BoundaryRescueMode={BoundaryRescueMode.On}");
+        lines.Add($"VariableTop8Mode={variableTop8Mode}");
+        lines.Add($"QualityInnovExpectedRankOffsetMode={innovExpectedRankOffsetMode}");
+    }
     static void AddQualityMetaLines(
         List<string> lines,
         TournamentQualityEvaluationRuleDefinition ruleDefinition,
@@ -160,20 +193,8 @@ internal static class StsaInput4RequestWriter
         TournamentQualityEvaluationExecutionOptions executionOptions,
         TournamentQualityEvaluationOutputOptions outputOptions)
     {
-        lines.Add($"ExecutionMode={(executionOptions.IsSweep ? "Sweep" : "Single")}");
+        AddQualityExecutionMetaLines(lines, executionOptions, outputOptions);
         lines.Add($"TournamentRuleSetMode={ruleDefinition.TournamentRuleSetMode}");
-        if (!executionOptions.IsSweep && executionOptions.FirstPlayerWinRatePercent.HasValue)
-        {
-            lines.Add($"FirstPlayerWinRatePercent={FormatNumber(executionOptions.FirstPlayerWinRatePercent.Value)}");
-        }
-
-        AddOptionalInt(lines, "SimulationCount", executionOptions.SimulationCount);
-        if (executionOptions.IsSweep)
-        {
-            lines.Add($"SweepStartPercent={FormatNumber(executionOptions.SweepOptions.StartPercent)}");
-            lines.Add($"SweepEndPercent={FormatNumber(executionOptions.SweepOptions.EndPercent)}");
-            lines.Add($"SweepStepPercent={FormatNumber(executionOptions.SweepOptions.StepPercent)}");
-        }
 
         if (ruleDefinition.UsesFinalStageGrouping)
         {
@@ -187,6 +208,28 @@ internal static class StsaInput4RequestWriter
             lines.Add("QualityInnovExpectedRankOffsetMode=Off");
         }
 
+
+    }
+
+    static void AddQualityExecutionMetaLines(
+        List<string> lines,
+        TournamentQualityEvaluationExecutionOptions executionOptions,
+        TournamentQualityEvaluationOutputOptions outputOptions)
+    {
+        lines.Add($"ExecutionMode={(executionOptions.IsSweep ? "Sweep" : "Single")}");
+        if (!executionOptions.IsSweep && executionOptions.FirstPlayerWinRatePercent.HasValue)
+        {
+            lines.Add($"FirstPlayerWinRatePercent={FormatNumber(executionOptions.FirstPlayerWinRatePercent.Value)}");
+        }
+
+        AddOptionalInt(lines, "SimulationCount", executionOptions.SimulationCount);
+        if (executionOptions.IsSweep)
+        {
+            lines.Add($"SweepStartPercent={FormatNumber(executionOptions.SweepOptions.StartPercent)}");
+            lines.Add($"SweepEndPercent={FormatNumber(executionOptions.SweepOptions.EndPercent)}");
+            lines.Add($"SweepStepPercent={FormatNumber(executionOptions.SweepOptions.StepPercent)}");
+        }
+
         lines.Add($"TournamentQualityEvaluationReportGrouping={FormatOnOff(outputOptions.ReportGroupingOptions.IsEnabled)}");
         if (outputOptions.ReportGroupingOptions.IsEnabled && outputOptions.ReportGroupingOptions.Outcome.HasValue)
         {
@@ -198,7 +241,6 @@ internal static class StsaInput4RequestWriter
             lines.Add($"EvaluationMemo={outputOptions.ReportGroupingOptions.EvaluationMemo}");
         }
     }
-
     static void AddBodySections(
         List<string> lines,
         AnalysisStepRequest step,
@@ -235,12 +277,33 @@ internal static class StsaInput4RequestWriter
                 AddQualityBodySections(lines, sectionPrefix, outputSectionName, request.RuleDefinition, request.Input, request.ExecutionOptions, request.OutputOptions);
                 break;
 
+            case DeferredStandardQualityEvaluationRequest request:
+                AddDeferredQualityBodySections(lines, outputSectionName, request.ExecutionOptions, request.OutputOptions);
+                break;
+
             case FinalStageQualityEvaluationRequest request:
                 AddQualityBodySections(lines, sectionPrefix, outputSectionName, request.RuleDefinition, request.Input, request.ExecutionOptions, request.OutputOptions);
+                break;
+
+            case DeferredFinalStageQualityEvaluationRequest request:
+                AddDeferredQualityBodySections(lines, outputSectionName, request.ExecutionOptions, request.OutputOptions);
                 break;
         }
     }
 
+    static void AddDeferredQualityBodySections(
+        List<string> lines,
+        string outputSectionName,
+        TournamentQualityEvaluationExecutionOptions executionOptions,
+        TournamentQualityEvaluationOutputOptions outputOptions)
+    {
+        AddOutputSection(
+            lines,
+            outputSectionName,
+            summaryOutputPath: executionOptions.IsSweep ? null : outputOptions.OutputCsvPath,
+            sweepOutputPath: executionOptions.IsSweep ? outputOptions.OutputCsvPath : null,
+            playerCsvPath: outputOptions.PlayerCsvPath);
+    }
     static void AddQualityBodySections(
         List<string> lines,
         string sectionPrefix,
@@ -369,7 +432,9 @@ internal static class StsaInput4RequestWriter
             TournamentFrameworkSimulationRequest => "Simulation",
             EmptySimulationRequest => "Simulation",
             StandardQualityEvaluationRequest => "QualityEvaluation",
+            DeferredStandardQualityEvaluationRequest => "QualityEvaluation",
             FinalStageQualityEvaluationRequest => "QualityEvaluation",
+            DeferredFinalStageQualityEvaluationRequest => "QualityEvaluation",
             _ => throw new InvalidOperationException($"未対応の分析要求です: {step.GetType().Name}"),
         };
     }

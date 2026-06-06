@@ -17,7 +17,7 @@ internal static class RequestWriterRoundTripSmoke
         if (optionIndex < 0) return false;
 
         var outputDirectory = "Output/SmokeGenerated";
-        var generatedFormatName = "STSAInput/4";
+        var generatedFormatName = "STSAInput/5";
         var requestFilePaths = new List<string>();
 
         for (var index = optionIndex + 1; index < args.Count; index++)
@@ -63,10 +63,13 @@ internal static class RequestWriterRoundTripSmoke
     {
         var fullPath = Path.GetFullPath(requestFilePath);
         var rawLines = File.ReadAllLines(fullPath);
-        var requestText = new RequestText("STSAInput/4", rawLines, fullPath);
+        var sourceFormatName = rawLines.Any(line => line.Trim().Equals("#[Format] STSAInput/5", StringComparison.OrdinalIgnoreCase))
+            ? "STSAInput/5"
+            : "STSAInput/4";
+        var requestText = new RequestText(sourceFormatName, rawLines, fullPath);
         if (!StsaInput4RequestParser.TryParse(requestText, out var parsedRequest) || parsedRequest is null)
         {
-            throw new OperationCanceledException($"STSAInput/4 として解析できません: {fullPath}");
+            throw new OperationCanceledException($"{sourceFormatName} として解析できません: {fullPath}");
         }
 
         var generatedLines = generatedFormatName.Equals("STSAInput/5", StringComparison.OrdinalIgnoreCase)

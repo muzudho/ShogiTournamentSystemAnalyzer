@@ -1,12 +1,21 @@
-# STSAInput/4 standard simulation-count smoke example
-#[Format] STSAInput/4
+#[Format] STSAInput/5
 
 #[Section] Meta
 AnalysisFlowSteps=Simulation
-RuleProfileMode=Standard
 TournamentRuleSetMode=Neutral
 FirstPlayerWinRatePercent=51
-SimulationCount=10
+SimulationCount=200000
+#[EndSection]
+
+#[Section] RuleProfileAttributes
+SimulationShape=ScheduledMatches
+UsesFinalStageGrouping=Off
+UsesAdditionalApexPlacement=Off
+UsesBoundaryRescue=Off
+UsesVariableTop8=Off
+RankingRuleSetMode=Neutral
+HasReferenceMatches=Off
+PairingSource=ScheduledMatches
 #[EndSection]
 
 #[Section] PlayersCsv
@@ -47,5 +56,5 @@ P04,P07
 #[EndSection]
 
 #[Section] Output
-SummaryOutputPath=Output\FinalRanking\simulation_input_[先手8x後手8]_[Neutral_Simulation10]_[STSAInput4_smoke].csv
+SummaryOutputPath=Output\FinalRanking\simulation_input_[先手8x後手8]_[Neutral_DefaultSimulationCount]_[STSAInput5_smoke].csv
 #[EndSection]

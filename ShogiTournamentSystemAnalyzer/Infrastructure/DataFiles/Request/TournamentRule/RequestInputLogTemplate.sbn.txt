@@ -1,8 +1,7 @@
-#[Format] STSAInput/4
+#[Format] STSAInput/5
 
 #[Section] Meta
 AnalysisFlowSteps={{ analysis_flow_steps }}
-RuleProfileMode={{ rule_profile_mode }}
 ExecutionMode={{ execution_mode }}
 TournamentRuleSetMode={{ tournament_rule_set_mode }}
 
@@ -42,6 +41,17 @@ TournamentQualityEvaluationReportOutcome={{ tournament_quality_evaluation_report
 {{~ if evaluation_memo != null ~}}
 EvaluationMemo={{ evaluation_memo }}
 {{~ end ~}}
+#[EndSection]
+
+#[Section] RuleProfileAttributes
+SimulationShape={{ simulation_shape }}
+UsesFinalStageGrouping={{ uses_final_stage_grouping }}
+UsesAdditionalApexPlacement={{ uses_additional_apex_placement }}
+UsesBoundaryRescue={{ uses_boundary_rescue }}
+UsesVariableTop8={{ uses_variable_top8 }}
+RankingRuleSetMode={{ ranking_rule_set_mode }}
+HasReferenceMatches={{ has_reference_matches }}
+PairingSource={{ pairing_source }}
 #[EndSection]
 
 #[Section] PlayersCsv

@@ -129,14 +129,22 @@ internal static class TournamentQualityEvaluationOutputCoordinator
     {
         if (outputOptions.RequestInputLogPath is null) return;
 
+        var ruleProfileAttributes = outputOptions.GetRuleProfileAttributes();
         WriterHelper.WriteText(
             outputPath: outputOptions.RequestInputLogPath,
             getLines: () => RequestInputLogFileWriter.CreateRequestInputLogLines(new
             {
                 analysis_flow_steps = "QualityEvaluation",
-                rule_profile_mode = outputOptions.GetCompatibilityRuleProfileMode().ToString(),
+                simulation_shape = ruleProfileAttributes.SimulationShape.ToString(),
+                uses_final_stage_grouping = FormatOnOff(ruleProfileAttributes.UsesFinalStageGrouping),
+                uses_additional_apex_placement = FormatOnOff(ruleProfileAttributes.UsesAdditionalApexPlacement),
+                uses_boundary_rescue = FormatOnOff(ruleProfileAttributes.UsesBoundaryRescue),
+                uses_variable_top8 = FormatOnOff(ruleProfileAttributes.UsesVariableTop8),
+                ranking_rule_set_mode = ruleProfileAttributes.RankingRuleSetMode.ToString(),
+                has_reference_matches = FormatOnOff(ruleProfileAttributes.HasReferenceMatches),
+                pairing_source = ruleProfileAttributes.PairingSource.ToString(),
                 execution_mode = "Single",
-                tournament_rule_set_mode = (string?)null,
+                tournament_rule_set_mode = ruleProfileAttributes.RankingRuleSetMode.ToString(),
                 first_player_win_rate_percent = (double?)null,
                 simulation_count = (int?)null,
                 sweep_start_percent = (double?)null,
@@ -160,6 +168,11 @@ internal static class TournamentQualityEvaluationOutputCoordinator
                 summary_markdown_path = summaryMarkdownPath,
                 sweep_markdown_path = (string?)null
             }));
+    }
+
+    static string FormatOnOff(bool value)
+    {
+        return value ? "On" : "Off";
     }
 
     internal static void WriteTournamentQualitySweepReportOutputs(

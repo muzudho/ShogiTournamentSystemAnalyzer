@@ -2,11 +2,13 @@
 
 #[Section] Meta
 AnalysisFlowSteps=QualityEvaluation
-ExecutionMode=Single
-FirstPlayerWinRatePercent=51
+ExecutionMode=Sweep
 SimulationCount=10
+SweepStartPercent=50
+SweepEndPercent=100
+SweepStepPercent=10
 TournamentQualityEvaluationReportGrouping=Off
-TournamentRuleSetMode=Neutral
+TournamentRuleSetMode=Twill
 QualityInnovExpectedRankOffsetMode=Off
 #[EndSection]
 
@@ -16,7 +18,7 @@ UsesFinalStageGrouping=Off
 UsesAdditionalApexPlacement=Off
 UsesBoundaryRescue=Off
 UsesVariableTop8=Off
-RankingRuleSetMode=Neutral
+RankingRuleSetMode=Twill
 HasReferenceMatches=Off
 PairingSource=ScheduledMatches
 #[EndSection]
@@ -110,5 +112,5 @@ first,second
 #[EndSection]
 
 #[Section] Output
-SummaryOutputPath=Output\TournamentQualityEvaluator\TournamentQualityReport\Summary\[先手8x後手8]_[Neutral_Single10_STSAInput5_smoke]_quality_summary.csv
+SweepOutputPath=Output\Reports\twill_[先手8x後手8]_50to100_smoke10_quality_sweep.csv
 #[EndSection]

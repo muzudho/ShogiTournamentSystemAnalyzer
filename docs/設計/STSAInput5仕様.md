@@ -192,8 +192,7 @@ PairingSource=ScheduledMatches
 ## 現在の制約
 
 - `STSAInput/5` は要求ファイルの直通 parser 専用です。直通 parser に乗らない場合、legacy 入力へ fallback せず明示エラーになります。
-- 手入力の要求ファイル保存と writer smoke は `STSAInput/5` 出力に対応しています。既存互換用の `STSAInput/4` writer も維持しています。
-- 品質評価の依頼ログ出力は、現時点では `STSAInput/4` です。
+- 手入力の要求ファイル保存、writer smoke の既定出力、品質評価の依頼ログ出力は `STSAInput/5` です。既存互換用の `STSAInput/4` writer も明示指定用に維持しています。
 - `STSAInput/5` の属性は、互換 `RuleProfileMode` へ正規化せず parser 内部で直接持ち回ります。
 - `QualityEvaluation` は `ScheduledMatches` の標準形式または本戦形式に対応します。`TournamentFramework` / `Empty` の品質評価は未対応です。
 

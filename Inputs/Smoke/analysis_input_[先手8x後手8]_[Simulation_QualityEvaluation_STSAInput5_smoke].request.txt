@@ -1,4 +1,3 @@
-# STSAInput/5 multi-step smoke example
 #[Format] STSAInput/5
 
 #[Section] Meta
@@ -23,12 +22,12 @@ PairingSource=ScheduledMatches
 #[EndSection]
 
 #[Section] Step.QualityEvaluation
-TournamentRuleSetMode=Neutral
 ExecutionMode=Single
 FirstPlayerWinRatePercent=51
 SimulationCount=10
-QualityInnovExpectedRankOffsetMode=Off
 TournamentQualityEvaluationReportGrouping=Off
+TournamentRuleSetMode=Neutral
+QualityInnovExpectedRankOffsetMode=Off
 #[EndSection]
 
 #[Section] Step.QualityEvaluation.RuleProfileAttributes
@@ -42,92 +41,186 @@ HasReferenceMatches=Off
 PairingSource=ScheduledMatches
 #[EndSection]
 
-#[Section] PlayersCsv
+#[Section] Simulation.PlayersCsv
 name,elo
-"飛",5050
-"角",5030
-"玉",5010
-"金",4990
-"銀",4970
-"桂",4950
-"香",4930
-"歩",4910
-"きりん",4890
-"ぞう",4870
-"らいおん",4850
-"いぬ",4830
-"ねこ",4810
-"うさぎ",4790
-"いのしし",4770
-"ひよこ",4750
+飛,5050
+角,5030
+玉,5010
+金,4990
+銀,4970
+桂,4950
+香,4930
+歩,4910
+きりん,4890
+ぞう,4870
+らいおん,4850
+いぬ,4830
+ねこ,4810
+うさぎ,4790
+いのしし,4770
+ひよこ,4750
 #[EndSection]
 
-#[Section] MatchesInput
-Round
- , A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P
-A, -, -, -, -, -, -, -, -, 8, 7, 6, 5, 4, 3, 2, 1
-B, -, -, -, -, -, -, -, -, 7, 8, 5, 6, 3, 4, 1, 2
-C, -, -, -, -, -, -, -, -, 6, 5, 8, 7, 2, 1, 4, 3
-D, -, -, -, -, -, -, -, -, 5, 6, 7, 8, 1, 2, 3, 4
-E, -, -, -, -, -, -, -, -, 4, 3, 2, 1, 8, 7, 6, 5
-F, -, -, -, -, -, -, -, -, 3, 4, 1, 2, 7, 8, 5, 6
-G, -, -, -, -, -, -, -, -, 2, 1, 4, 3, 6, 5, 8, 7
-H, -, -, -, -, -, -, -, -, 1, 2, 3, 4, 5, 6, 7, 8
-I, 8, 7, 6, 5, 4, 3, 2, 1, -, -, -, -, -, -, -, -
-J, 7, 8, 5, 6, 3, 4, 1, 2, -, -, -, -, -, -, -, -
-K, 6, 5, 8, 7, 2, 1, 4, 3, -, -, -, -, -, -, -, -
-L, 5, 6, 7, 8, 1, 2, 3, 4, -, -, -, -, -, -, -, -
-M, 4, 3, 2, 1, 8, 7, 6, 5, -, -, -, -, -, -, -, -
-N, 3, 4, 1, 2, 7, 8, 5, 6, -, -, -, -, -, -, -, -
-O, 2, 1, 4, 3, 6, 5, 8, 7, -, -, -, -, -, -, -, -
-P, 1, 2, 3, 4, 5, 6, 7, 8, -, -, -, -, -, -, -, -
-
-First/Second
- , A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P
-A, -, -, -, -, -, -, -, -, s, s, s, s, s, s, s, s
-B, -, -, -, -, -, -, -, -, s, s, s, s, s, s, s, s
-C, -, -, -, -, -, -, -, -, s, s, s, s, s, s, s, s
-D, -, -, -, -, -, -, -, -, s, s, s, s, s, s, s, s
-E, -, -, -, -, -, -, -, -, s, s, s, s, s, s, s, s
-F, -, -, -, -, -, -, -, -, s, s, s, s, s, s, s, s
-G, -, -, -, -, -, -, -, -, s, s, s, s, s, s, s, s
-H, -, -, -, -, -, -, -, -, s, s, s, s, s, s, s, s
-I, f, f, f, f, f, f, f, f, -, -, -, -, -, -, -, -
-J, f, f, f, f, f, f, f, f, -, -, -, -, -, -, -, -
-K, f, f, f, f, f, f, f, f, -, -, -, -, -, -, -, -
-L, f, f, f, f, f, f, f, f, -, -, -, -, -, -, -, -
-M, f, f, f, f, f, f, f, f, -, -, -, -, -, -, -, -
-N, f, f, f, f, f, f, f, f, -, -, -, -, -, -, -, -
-O, f, f, f, f, f, f, f, f, -, -, -, -, -, -, -, -
-P, f, f, f, f, f, f, f, f, -, -, -, -, -, -, -, -
-
-PlayerSymbols
-A, "飛"
-B, "角"
-C, "玉"
-D, "金"
-E, "銀"
-F, "桂"
-G, "香"
-H, "歩"
-I, "きりん"
-J, "ぞう"
-K, "らいおん"
-L, "いぬ"
-M, "ねこ"
-N, "うさぎ"
-O, "いのしし"
-P, "ひよこ"
-#[EndSection]
-
-#[Section] ReferenceMatchesInput
+#[Section] Simulation.MatchesInput
+first,second
+ひよこ,飛
+いのしし,角
+うさぎ,玉
+ねこ,金
+いぬ,銀
+らいおん,桂
+ぞう,香
+きりん,歩
+いのしし,飛
+ひよこ,角
+ねこ,玉
+うさぎ,金
+らいおん,銀
+いぬ,桂
+きりん,香
+ぞう,歩
+うさぎ,飛
+ねこ,角
+ひよこ,玉
+いのしし,金
+ぞう,銀
+きりん,桂
+いぬ,香
+らいおん,歩
+ねこ,飛
+うさぎ,角
+いのしし,玉
+ひよこ,金
+きりん,銀
+ぞう,桂
+らいおん,香
+いぬ,歩
+いぬ,飛
+らいおん,角
+ぞう,玉
+きりん,金
+ひよこ,銀
+いのしし,桂
+うさぎ,香
+ねこ,歩
+らいおん,飛
+いぬ,角
+きりん,玉
+ぞう,金
+いのしし,銀
+ひよこ,桂
+ねこ,香
+うさぎ,歩
+ぞう,飛
+きりん,角
+いぬ,玉
+らいおん,金
+うさぎ,銀
+ねこ,桂
+ひよこ,香
+いのしし,歩
+きりん,飛
+ぞう,角
+らいおん,玉
+いぬ,金
+ねこ,銀
+うさぎ,桂
+いのしし,香
+ひよこ,歩
 #[EndSection]
 
 #[Section] Simulation.Output
 SummaryOutputPath=Output\FinalRanking\analysis_input_[先手8x後手8]_[Simulation_QualityEvaluation_STSAInput5_smoke].csv
 #[EndSection]
 
+#[Section] QualityEvaluation.PlayersCsv
+name,elo
+飛,5050
+角,5030
+玉,5010
+金,4990
+銀,4970
+桂,4950
+香,4930
+歩,4910
+きりん,4890
+ぞう,4870
+らいおん,4850
+いぬ,4830
+ねこ,4810
+うさぎ,4790
+いのしし,4770
+ひよこ,4750
+#[EndSection]
+
+#[Section] QualityEvaluation.MatchesInput
+first,second
+ひよこ,飛
+いのしし,角
+うさぎ,玉
+ねこ,金
+いぬ,銀
+らいおん,桂
+ぞう,香
+きりん,歩
+いのしし,飛
+ひよこ,角
+ねこ,玉
+うさぎ,金
+らいおん,銀
+いぬ,桂
+きりん,香
+ぞう,歩
+うさぎ,飛
+ねこ,角
+ひよこ,玉
+いのしし,金
+ぞう,銀
+きりん,桂
+いぬ,香
+らいおん,歩
+ねこ,飛
+うさぎ,角
+いのしし,玉
+ひよこ,金
+きりん,銀
+ぞう,桂
+らいおん,香
+いぬ,歩
+いぬ,飛
+らいおん,角
+ぞう,玉
+きりん,金
+ひよこ,銀
+いのしし,桂
+うさぎ,香
+ねこ,歩
+らいおん,飛
+いぬ,角
+きりん,玉
+ぞう,金
+いのしし,銀
+ひよこ,桂
+ねこ,香
+うさぎ,歩
+ぞう,飛
+きりん,角
+いぬ,玉
+らいおん,金
+うさぎ,銀
+ねこ,桂
+ひよこ,香
+いのしし,歩
+きりん,飛
+ぞう,角
+らいおん,玉
+いぬ,金
+ねこ,銀
+うさぎ,桂
+いのしし,香
+ひよこ,歩
+#[EndSection]
+
 #[Section] QualityEvaluation.Output
-TournamentQualityEvaluationReportGrouping=Off
 SummaryOutputPath=Output\TournamentQualityEvaluator\TournamentQualityReport\Summary\[先手8x後手8]_[Simulation_QualityEvaluation_STSAInput5_smoke]_quality_summary.csv
 #[EndSection]

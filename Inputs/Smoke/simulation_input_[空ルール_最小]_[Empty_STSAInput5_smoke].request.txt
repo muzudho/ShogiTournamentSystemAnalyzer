@@ -1,0 +1,20 @@
+#[Format] STSAInput/5
+
+#[Section] Meta
+AnalysisFlowSteps=Simulation
+#[EndSection]
+
+#[Section] RuleProfileAttributes
+SimulationShape=Empty
+UsesFinalStageGrouping=Off
+UsesAdditionalApexPlacement=Off
+UsesBoundaryRescue=Off
+UsesVariableTop8=Off
+RankingRuleSetMode=Neutral
+HasReferenceMatches=Off
+PairingSource=None
+#[EndSection]
+
+#[Section] Output
+OutputPath=Output\FinalRanking\empty_rule_final_ranking_[空ルール_最小_STSAInput5_smoke].csv
+#[EndSection]

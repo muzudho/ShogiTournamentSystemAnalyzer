@@ -177,7 +177,7 @@ SummaryOutputPath=Output\TournamentQualityEvaluator\TournamentQualityReport\Summ
 - `AnalysisFlowMode=Simulation` は `AnalysisFlowSteps=Simulation` と同等に扱います。
 - `AnalysisFlowMode=QualityEvaluation` は `AnalysisFlowSteps=QualityEvaluation` と同等に扱います。
 
-保存される新しい要求ファイルは `STSAInput/4` を基本とします。
+`STSAInput/4` は読み取り互換として残します。保存される新しい要求ファイルとリポジトリ内の代表 smoke は `STSAInput/5` を基本とします。
 
 ## シミュレーションの最小例
 

@@ -1,0 +1,31 @@
+#[Format] STSAInput/5
+
+#[Section] Meta
+AnalysisFlowSteps=Simulation
+TournamentRuleSetMode=Neutral
+FirstPlayerWinRatePercent=51
+RandomSeed=12345
+SimulationCount=10
+#[EndSection]
+
+#[Section] RuleProfileAttributes
+SimulationShape=TournamentFramework
+UsesFinalStageGrouping=Off
+UsesAdditionalApexPlacement=Off
+UsesBoundaryRescue=Off
+UsesVariableTop8=Off
+RankingRuleSetMode=Neutral
+HasReferenceMatches=Off
+PairingSource=TournamentFramework
+#[EndSection]
+
+#[Section] Inputs
+PlayersCsvPath=Data\Players\players_[大会進行フレームワーク_最小].csv
+StagesCsvPath=Data\Stages\stages_[大会進行フレームワーク_最小].csv
+TournamentMatchRecordsCsvPath=Data\Matches\tournament_match_records_[大会進行フレームワーク_最小_STSAInput5_smoke].csv
+RuleFilePath=Data\RuleSets\tournament_rule_[大会進行フレームワーク_最小].trule
+#[EndSection]
+
+#[Section] Output
+OutputPath=Output\FinalRanking\tournament_framework_aggregate_final_ranking_[大会進行フレームワーク_最小_STSAInput5_smoke].csv
+#[EndSection]

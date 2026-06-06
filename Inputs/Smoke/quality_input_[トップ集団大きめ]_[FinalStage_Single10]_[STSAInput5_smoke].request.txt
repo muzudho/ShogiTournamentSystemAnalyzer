@@ -1,20 +1,20 @@
-# STSAInput/5 FinalStage smoke example
 #[Format] STSAInput/5
 
 #[Section] Meta
 AnalysisFlowSteps=QualityEvaluation
+ExecutionMode=Single
+FirstPlayerWinRatePercent=51
+SimulationCount=10
+TournamentQualityEvaluationReportGrouping=Off
+TournamentRuleSetMode=Neutral
 AdditionalApexPlacementMode=On
 BoundaryRescueMode=On
 VariableTop8Mode=On
 QualityInnovExpectedRankOffsetMode=On
-ExecutionMode=Single
-SimulationCount=10
-FirstPlayerWinRatePercent=51
-ExperimentalReportGrouping=Off
 #[EndSection]
 
 #[Section] RuleProfileAttributes
-SimulationShape=ScheduledMatches
+SimulationShape=FinalStageGrouped
 UsesFinalStageGrouping=On
 UsesAdditionalApexPlacement=On
 UsesBoundaryRescue=On
@@ -26,110 +26,112 @@ PairingSource=ScheduledMatches
 
 #[Section] PlayersCsv
 name,elo
-"圭",5110
-"杏",5090
-"と",5070
-"飛",5050
-"角",5030
-"玉",5010
-"金",4990
-"銀",4970
-"桂",4950
-"香",4930
-"歩",4910
-"きりん",4870
-"ぞう",4850
-"らいおん",4830
-"いぬ",4810
-"ねこ",4790
+圭,5110
+杏,5090
+と,5070
+飛,5050
+角,5030
+玉,5010
+金,4990
+銀,4970
+桂,4950
+香,4930
+歩,4910
+きりん,4870
+ぞう,4850
+らいおん,4830
+いぬ,4810
+ねこ,4790
 #[EndSection]
 
 #[Section] GroupMapCsv
 group,name
-Apex,"圭"
-Apex,"杏"
-Apex,"と"
-Apex,"飛"
-Apex,"角"
-Apex,"玉"
-Apex,"金"
-Apex,"銀"
-Innov,"桂"
-Innov,"香"
-Innov,"歩"
-Innov,"きりん"
-Innov,"ぞう"
-Innov,"らいおん"
-Innov,"いぬ"
-Innov,"ねこ"
-#[EndSection]
-
-#[Section] AdditionalApexPlayersCsv
+Apex,圭
+Apex,杏
+Apex,と
+Apex,飛
+Apex,角
+Apex,玉
+Apex,金
+Apex,銀
+Innov,桂
+Innov,香
+Innov,歩
+Innov,きりん
+Innov,ぞう
+Innov,らいおん
+Innov,いぬ
+Innov,ねこ
 #[EndSection]
 
 #[Section] MatchesInput
-Round
- , A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P
-A, -, -, -, -, -, -, -, -, 8, 7, 6, 5, 4, 3, 2, 1
-B, -, -, -, -, -, -, -, -, 7, 8, 5, 6, 3, 4, 1, 2
-C, -, -, -, -, -, -, -, -, 6, 5, 8, 7, 2, 1, 4, 3
-D, -, -, -, -, -, -, -, -, 5, 6, 7, 8, 1, 2, 3, 4
-E, -, -, -, -, -, -, -, -, 4, 3, 2, 1, 8, 7, 6, 5
-F, -, -, -, -, -, -, -, -, 3, 4, 1, 2, 7, 8, 5, 6
-G, -, -, -, -, -, -, -, -, 2, 1, 4, 3, 6, 5, 8, 7
-H, -, -, -, -, -, -, -, -, 1, 2, 3, 4, 5, 6, 7, 8
-I, 8, 7, 6, 5, 4, 3, 2, 1, -, -, -, -, -, -, -, -
-J, 7, 8, 5, 6, 3, 4, 1, 2, -, -, -, -, -, -, -, -
-K, 6, 5, 8, 7, 2, 1, 4, 3, -, -, -, -, -, -, -, -
-L, 5, 6, 7, 8, 1, 2, 3, 4, -, -, -, -, -, -, -, -
-M, 4, 3, 2, 1, 8, 7, 6, 5, -, -, -, -, -, -, -, -
-N, 3, 4, 1, 2, 7, 8, 5, 6, -, -, -, -, -, -, -, -
-O, 2, 1, 4, 3, 6, 5, 8, 7, -, -, -, -, -, -, -, -
-P, 1, 2, 3, 4, 5, 6, 7, 8, -, -, -, -, -, -, -, -
-
-First/Second
- , A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P
-A, -, -, -, -, -, -, -, -, s, s, s, s, s, s, s, s
-B, -, -, -, -, -, -, -, -, s, s, s, s, s, s, s, s
-C, -, -, -, -, -, -, -, -, s, s, s, s, s, s, s, s
-D, -, -, -, -, -, -, -, -, s, s, s, s, s, s, s, s
-E, -, -, -, -, -, -, -, -, s, s, s, s, s, s, s, s
-F, -, -, -, -, -, -, -, -, s, s, s, s, s, s, s, s
-G, -, -, -, -, -, -, -, -, s, s, s, s, s, s, s, s
-H, -, -, -, -, -, -, -, -, s, s, s, s, s, s, s, s
-I, f, f, f, f, f, f, f, f, -, -, -, -, -, -, -, -
-J, f, f, f, f, f, f, f, f, -, -, -, -, -, -, -, -
-K, f, f, f, f, f, f, f, f, -, -, -, -, -, -, -, -
-L, f, f, f, f, f, f, f, f, -, -, -, -, -, -, -, -
-M, f, f, f, f, f, f, f, f, -, -, -, -, -, -, -, -
-N, f, f, f, f, f, f, f, f, -, -, -, -, -, -, -, -
-O, f, f, f, f, f, f, f, f, -, -, -, -, -, -, -, -
-P, f, f, f, f, f, f, f, f, -, -, -, -, -, -, -, -
-
-PlayerSymbols
-A, "圭"
-B, "杏"
-C, "と"
-D, "飛"
-E, "角"
-F, "玉"
-G, "金"
-H, "銀"
-I, "桂"
-J, "香"
-K, "歩"
-L, "きりん"
-M, "ぞう"
-N, "らいおん"
-O, "いぬ"
-P, "ねこ"
-#[EndSection]
-
-#[Section] ReferenceMatchesInput
+first,second
+ねこ,圭
+いぬ,杏
+らいおん,と
+ぞう,飛
+きりん,角
+歩,玉
+香,金
+桂,銀
+いぬ,圭
+ねこ,杏
+ぞう,と
+らいおん,飛
+歩,角
+きりん,玉
+桂,金
+香,銀
+らいおん,圭
+ぞう,杏
+ねこ,と
+いぬ,飛
+香,角
+桂,玉
+きりん,金
+歩,銀
+ぞう,圭
+らいおん,杏
+いぬ,と
+ねこ,飛
+桂,角
+香,玉
+歩,金
+きりん,銀
+きりん,圭
+歩,杏
+香,と
+桂,飛
+ねこ,角
+いぬ,玉
+らいおん,金
+ぞう,銀
+歩,圭
+きりん,杏
+桂,と
+香,飛
+いぬ,角
+ねこ,玉
+ぞう,金
+らいおん,銀
+香,圭
+桂,杏
+きりん,と
+歩,飛
+らいおん,角
+ぞう,玉
+ねこ,金
+いぬ,銀
+桂,圭
+香,杏
+歩,と
+きりん,飛
+ぞう,角
+らいおん,玉
+いぬ,金
+ねこ,銀
 #[EndSection]
 
 #[Section] Output
-TournamentQualityEvaluationReportGrouping=Off
 SummaryOutputPath=Output\TournamentQualityEvaluator\TournamentQualityReport\Summary\[トップ集団大きめ]_[FinalStage_Single10_STSAInput5_smoke]_quality_summary.csv
 #[EndSection]
-
