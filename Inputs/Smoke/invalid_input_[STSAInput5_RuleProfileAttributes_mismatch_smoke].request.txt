@@ -1,0 +1,37 @@
+#[Format] STSAInput/5
+
+#[Section] Meta
+AnalysisFlowSteps=QualityEvaluation
+ExecutionMode=Single
+FirstPlayerWinRatePercent=51
+SimulationCount=10
+TournamentQualityEvaluationReportGrouping=Off
+TournamentRuleSetMode=Neutral
+QualityInnovExpectedRankOffsetMode=Off
+#[EndSection]
+
+#[Section] RuleProfileAttributes
+SimulationShape=ScheduledMatches
+UsesFinalStageGrouping=Off
+UsesAdditionalApexPlacement=On
+UsesBoundaryRescue=Off
+UsesVariableTop8=Off
+RankingRuleSetMode=Neutral
+HasReferenceMatches=Off
+PairingSource=ScheduledMatches
+#[EndSection]
+
+#[Section] PlayersCsv
+name,elo
+A,5050
+B,5030
+#[EndSection]
+
+#[Section] MatchesInput
+first,second
+A,B
+#[EndSection]
+
+#[Section] Output
+SummaryOutputPath=Output\SmokeGenerated\invalid_should_not_be_written.csv
+#[EndSection]

@@ -23,6 +23,7 @@ internal static class ApplicationWorkflow
         // （開発用の機能）
         // PowerShell reflection smoke の代わりに、通常の .NET 実行入口として使う。
         if (RequestWriterRoundTripSmoke.TryRun(args)) return;
+        if (RequestParseFailureSmoke.TryRun(args)) return;
 
         //┌───┴──┐
         //│大会利用者域│
