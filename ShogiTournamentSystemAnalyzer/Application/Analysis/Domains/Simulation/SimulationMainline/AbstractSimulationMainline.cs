@@ -46,7 +46,9 @@ internal abstract class AbstractSimulationMainline
 
     protected abstract void PrintSimulationResult(AbstractSimulationContext context, SimulationMainlineResult mainlineResult);
 
-    protected abstract void WriteSimulationOutputs(AbstractSimulationContext context, SimulationMainlineResult mainlineResult);
+    protected virtual void WriteSimulationOutputs(AbstractSimulationContext context, SimulationMainlineResult mainlineResult)
+    {
+    }
 
     protected static void PrintMatchesAndCount(AbstractSimulationContext context, string matchCountLabel)
     {

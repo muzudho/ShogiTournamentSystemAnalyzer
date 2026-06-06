@@ -3,14 +3,11 @@
  */
 namespace ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.SimulationMainline;
 
-using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.SimulationContext;
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.FinalRanking.UseCases;
-using ShogiTournamentSystemAnalyzer.Application.Analysis.Boundaries;
+using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.SimulationContext;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
-using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.FinalRanking;
-using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.Shared;
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 
 /// <summary>
@@ -23,25 +20,17 @@ using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 internal class FinalStageSimulationMainline
     : AbstractSimulationMainline
 {
-    string? outputPathOverride;
     int? simulationCountOverride;
 
-    internal SimulationMainlineResult Run(FinalStageModeSimulationContext context, string? outputPathOverride)
+    internal SimulationMainlineResult Run(FinalStageModeSimulationContext context, int? simulationCountOverride)
     {
-        return Run(context, outputPathOverride, simulationCountOverride: null);
-    }
-
-    internal SimulationMainlineResult Run(FinalStageModeSimulationContext context, string? outputPathOverride, int? simulationCountOverride)
-    {
-        this.outputPathOverride = outputPathOverride;
         this.simulationCountOverride = simulationCountOverride;
         try
         {
-            return Run(context);
+            return Run((AbstractSimulationContext)context);
         }
         finally
         {
-            this.outputPathOverride = null;
             this.simulationCountOverride = null;
         }
     }
@@ -69,20 +58,11 @@ internal class FinalStageSimulationMainline
         ConsoleResultPrinter.PrintFinalStageResult(mainlineResult.SimulationResult.TournamentFinalState, finalStageContext.FirstPlayerWinRatePercent, mainlineResult.FinalRankingResult.Rows);
     }
 
-    protected override void WriteSimulationOutputs(AbstractSimulationContext context, SimulationMainlineResult mainlineResult)
-    {
-        FinalRankingMarkdownFileWriter finalRankingDataFileWriter = new(new FinalRankingDataFileWriterSettings(RuleProfileMode.FinalStage));
-
-        var finalStageContext = (FinalStageModeSimulationContext)context;
-        WriteFinalRankingOutputsForFinalStageMode(finalRankingDataFileWriter, finalStageContext, mainlineResult);
-    }
-
     /// <summary>
     /// シミュレーションして、最終順位付け。
     /// </summary>
     /// <param name="context"></param>
-    /// <param name="standardResultRows"></param>
-    /// <param name="finalStageResultRows"></param>
+    /// <param name="requestedSimulationCount"></param>
     /// <returns></returns>
     static SimulationMainlineResult ExecuteTournamentFinalStateAndFinalRanking(FinalStageModeSimulationContext context, int? requestedSimulationCount)
     {
@@ -133,58 +113,4 @@ internal class FinalStageSimulationMainline
         Console.WriteLine();
         PrintReferenceMatchesIfAny(context.Players, context.ReferenceMatches);
     }
-
-    /// <summary>
-    /// 出力
-    /// </summary>
-    /// <param name="context"></param>
-    /// <param name="result"></param>
-    /// <param name="standardResultRows"></param>
-    /// <param name="finalStageResultRows"></param>
-    void WriteFinalRankingOutputsForFinalStageMode(
-        FinalRankingMarkdownFileWriter finalRankingDataFileWriter,
-        FinalStageModeSimulationContext context,
-        SimulationMainlineResult mainlineResult)
-    {
-        var (outputCsvPath, outputMarkdownPath, referenceMatchesCsvPath) = PrepareFinalStageOutputPaths(context);
-        var markdownReferenceMatchesCsvPath = mainlineResult.Presentation == SimulationMainlineResultPresentation.GroupedOverall
-            ? referenceMatchesCsvPath
-            : null;
-
-        FinalRankingDomain.WriteOutputs(
-            finalRankingDataFileWriter,
-            outputCsvPath,
-            outputMarkdownPath,
-            mainlineResult.SimulationResult.TournamentFinalState,
-            context.FirstPlayerWinRatePercent,
-            mainlineResult.FinalRankingResult.Rows,
-            referenceMatchesCsvPath: markdownReferenceMatchesCsvPath);
-        CompleteFinalStageOutputs(context, outputCsvPath, outputMarkdownPath, referenceMatchesCsvPath);
-    }
-
-    (string OutputCsvPath, string OutputMarkdownPath, string? ReferenceMatchesCsvPath) PrepareFinalStageOutputPaths(FinalStageModeSimulationContext context)
-    {
-        var (outputCsvPath, outputMarkdownPath) = FinalRankingDomain.ResolveOutputPaths(
-            $"final_stage_final_ranking_{DateTime.Now:yyyyMMdd_HHmmss}.csv",
-            outputPathOverride);
-        var referenceMatchesCsvPath = context.ReferenceMatches.Count > 0
-            ? ReportOutputPathBuilder.BuildTournamentFinalStateDefaultOutputPath($"reference_matches_{DateTime.Now:yyyyMMdd_HHmmss}.csv")
-            : null;
-        return (outputCsvPath, outputMarkdownPath, referenceMatchesCsvPath);
-    }
-
-    static void CompleteFinalStageOutputs(
-        FinalStageModeSimulationContext context,
-        string outputCsvPath,
-        string outputMarkdownPath,
-        string? referenceMatchesCsvPath)
-    {
-        FinalRankingDomain.PrintOutputCompleted(outputCsvPath, outputMarkdownPath);
-
-        if (context.ReferenceMatches.Count == 0) return;
-
-        CsvOutputHelpers.WriteReferenceMatchCsv(referenceMatchesCsvPath!, context.Players, context.ReferenceMatches);
-        Console.WriteLine($"参考対局CSVを出力しました: {referenceMatchesCsvPath}");
-    }
 }
-

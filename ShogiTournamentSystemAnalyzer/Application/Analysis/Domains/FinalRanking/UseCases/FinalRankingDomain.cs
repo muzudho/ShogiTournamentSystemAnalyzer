@@ -4,9 +4,11 @@
 namespace ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.FinalRanking.UseCases;
 
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Boundaries;
+using ShogiTournamentSystemAnalyzer.Domain.FinalRanking;
 using ShogiTournamentSystemAnalyzer.Domain.Ranking;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
+using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.FinalRanking;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.Shared;
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
@@ -61,6 +63,65 @@ internal static class FinalRankingDomain
     {
         Console.WriteLine($"結果CSVを出力しました: {outputCsvPath}");
         Console.WriteLine($"結果Markdownを出力しました: {outputMarkdownPath}");
+    }
+
+    internal static void WriteStandardSimulationOutputs(
+        CalculationResult tournamentFinalState,
+        double firstPlayerWinRatePercent,
+        FinalRankingResult finalRankingResult,
+        string? outputPathOverride)
+    {
+        var (outputCsvPath, outputMarkdownPath) = ResolveOutputPaths(
+            $"standard_final_ranking_{DateTime.Now:yyyyMMdd_HHmmss}.csv",
+            outputPathOverride);
+
+        FinalRankingMarkdownFileWriter finalRankingDataFileWriter = new(new FinalRankingDataFileWriterSettings(RuleProfileMode.Standard));
+        WriteOutputs(
+            finalRankingDataFileWriter,
+            outputCsvPath,
+            outputMarkdownPath,
+            tournamentFinalState,
+            firstPlayerWinRatePercent,
+            finalRankingResult.Rows);
+
+        PrintOutputCompleted(outputCsvPath, outputMarkdownPath);
+    }
+
+    internal static void WriteFinalStageSimulationOutputs(
+        CalculationResult tournamentFinalState,
+        double firstPlayerWinRatePercent,
+        FinalRankingResult finalRankingResult,
+        string? outputPathOverride,
+        IReadOnlyList<Player> players,
+        IReadOnlyList<Match> referenceMatches,
+        bool writeReferenceMatchesForMarkdown)
+    {
+        var (outputCsvPath, outputMarkdownPath) = ResolveOutputPaths(
+            $"final_stage_final_ranking_{DateTime.Now:yyyyMMdd_HHmmss}.csv",
+            outputPathOverride);
+        var referenceMatchesCsvPath = referenceMatches.Count > 0
+            ? ReportOutputPathBuilder.BuildTournamentFinalStateDefaultOutputPath($"reference_matches_{DateTime.Now:yyyyMMdd_HHmmss}.csv")
+            : null;
+        var markdownReferenceMatchesCsvPath = writeReferenceMatchesForMarkdown
+            ? referenceMatchesCsvPath
+            : null;
+
+        FinalRankingMarkdownFileWriter finalRankingDataFileWriter = new(new FinalRankingDataFileWriterSettings(RuleProfileMode.FinalStage));
+        WriteOutputs(
+            finalRankingDataFileWriter,
+            outputCsvPath,
+            outputMarkdownPath,
+            tournamentFinalState,
+            firstPlayerWinRatePercent,
+            finalRankingResult.Rows,
+            referenceMatchesCsvPath: markdownReferenceMatchesCsvPath);
+
+        PrintOutputCompleted(outputCsvPath, outputMarkdownPath);
+
+        if (referenceMatches.Count == 0) return;
+
+        CsvOutputHelpers.WriteReferenceMatchCsv(referenceMatchesCsvPath!, players, referenceMatches);
+        Console.WriteLine($"参考対局CSVを出力しました: {referenceMatchesCsvPath}");
     }
 
     internal static void WriteOutputFiles(

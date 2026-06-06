@@ -3,6 +3,7 @@
  */
 namespace ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.UseCases;
 
+using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.FinalRanking.UseCases;
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.Modes;
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.SimulationContext;
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.SimulationMainline;
@@ -56,7 +57,13 @@ internal static class SimulationDomain
             request.Matches);
 
         var mainline = new StandardSimulationMainline();
-        return CreateResult(mainline.Run(context, request.OutputPath, request.SimulationCount));
+        var mainlineResult = mainline.Run(context, request.SimulationCount);
+        FinalRankingDomain.WriteStandardSimulationOutputs(
+            mainlineResult.SimulationResult.TournamentFinalState,
+            context.FirstPlayerWinRatePercent,
+            mainlineResult.FinalRankingResult,
+            request.OutputPath);
+        return CreateResult(mainlineResult);
     }
 
     static SimulationDomainResult ExecuteFinalStageSimulation(FinalStageSimulationRequest request)
@@ -79,7 +86,16 @@ internal static class SimulationDomain
             request.ReferenceMatches);
 
         var mainline = new FinalStageSimulationMainline();
-        return CreateResult(mainline.Run(context, request.OutputPath, request.SimulationCount));
+        var mainlineResult = mainline.Run(context, request.SimulationCount);
+        FinalRankingDomain.WriteFinalStageSimulationOutputs(
+            mainlineResult.SimulationResult.TournamentFinalState,
+            context.FirstPlayerWinRatePercent,
+            mainlineResult.FinalRankingResult,
+            request.OutputPath,
+            context.Players,
+            context.ReferenceMatches,
+            writeReferenceMatchesForMarkdown: mainlineResult.Presentation == SimulationMainlineResultPresentation.GroupedOverall);
+        return CreateResult(mainlineResult);
     }
 
     static void ExecuteTournamentFrameworkSimulation(TournamentFrameworkSimulationRequest request)

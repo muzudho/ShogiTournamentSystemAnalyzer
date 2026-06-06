@@ -4,11 +4,7 @@
 namespace ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.SimulationMainline;
 
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.SimulationContext;
-using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.FinalRanking.UseCases;
-using ShogiTournamentSystemAnalyzer.Domain.FinalRanking;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
-using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
-using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.FinalRanking;
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 
 /// <summary>
@@ -21,20 +17,17 @@ using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 internal class StandardSimulationMainline
     : AbstractSimulationMainline
 {
-    string? outputPathOverride;
     int? requestedSimulationCount;
 
-    internal SimulationMainlineResult Run(StandardModeSimulationContext context, string? outputPathOverride, int? requestedSimulationCount = null)
+    internal SimulationMainlineResult Run(StandardModeSimulationContext context, int? requestedSimulationCount = null)
     {
-        this.outputPathOverride = outputPathOverride;
         this.requestedSimulationCount = requestedSimulationCount;
         try
         {
-            return Run(context);
+            return Run((AbstractSimulationContext)context);
         }
         finally
         {
-            this.outputPathOverride = null;
             this.requestedSimulationCount = null;
         }
     }
@@ -62,12 +55,6 @@ internal class StandardSimulationMainline
             mainlineResult.FinalRankingResult.Rows);
     }
 
-    protected override void WriteSimulationOutputs(AbstractSimulationContext context, SimulationMainlineResult mainlineResult)
-    {
-        var standardContext = (StandardModeSimulationContext)context;
-        WriteFinalRankingOutputsForStandardMode(standardContext, mainlineResult.SimulationResult.TournamentFinalState, mainlineResult.FinalRankingResult, outputPathOverride);
-    }
-
     CalculationResult ExecuteTournamentFinalState(StandardModeSimulationContext context)
     {
         return ExecuteStandardTournamentFinalState(
@@ -85,27 +72,5 @@ internal class StandardSimulationMainline
         }
 
         PrintCommonSimulationContext(context, "総対局数");
-    }
-
-    static void WriteFinalRankingOutputsForStandardMode(
-        StandardModeSimulationContext context,
-        CalculationResult tournamentFinalState,
-        FinalRankingResult finalRankingResult,
-        string? outputPathOverride)
-    {
-        var (outputCsvPath, outputMarkdownPath) = FinalRankingDomain.ResolveOutputPaths(
-            $"standard_final_ranking_{DateTime.Now:yyyyMMdd_HHmmss}.csv",
-            outputPathOverride);
-
-        FinalRankingMarkdownFileWriter finalRankingDataFileWriter = new(new FinalRankingDataFileWriterSettings(RuleProfileMode.Standard));
-        FinalRankingDomain.WriteOutputs(
-            finalRankingDataFileWriter,
-            outputCsvPath,
-            outputMarkdownPath,
-            tournamentFinalState,
-            context.FirstPlayerWinRatePercent,
-            finalRankingResult.Rows);
-
-        FinalRankingDomain.PrintOutputCompleted(outputCsvPath, outputMarkdownPath);
     }
 }
