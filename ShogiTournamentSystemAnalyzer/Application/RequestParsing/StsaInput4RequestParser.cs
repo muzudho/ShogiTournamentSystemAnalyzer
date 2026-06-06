@@ -331,7 +331,7 @@ internal static class StsaInput4RequestParser
             return new DeferredStandardQualityEvaluationRequest(
                 tournamentRuleSetMode,
                 deferredExecutionOptions,
-                ParseQualityEvaluationOutputOptions(meta, sections, deferredExecutionOptions.IsSweep, fullPath, RuleProfileMode.Standard));
+                ParseQualityEvaluationOutputOptions(meta, sections, deferredExecutionOptions.IsSweep, fullPath, TournamentQualityEvaluationOutputProfile.Standard));
         }
 
         var players = ParsePlayers(GetRequiredSectionLines(sections, "PlayersCsv", fullPath, FormatName), fullPath);
@@ -365,7 +365,7 @@ internal static class StsaInput4RequestParser
             TournamentQualityEvaluationInnovExpectedRankOffsetMode.Off,
             0);
         var executionOptions = ParseQualityEvaluationExecutionOptions(meta, fullPath);
-        var outputOptions = ParseQualityEvaluationOutputOptions(meta, sections, executionOptions.IsSweep, fullPath, RuleProfileMode.Standard);
+        var outputOptions = ParseQualityEvaluationOutputOptions(meta, sections, executionOptions.IsSweep, fullPath, TournamentQualityEvaluationOutputProfile.Standard);
 
         return new StandardQualityEvaluationRequest(
             ruleDefinition,
@@ -386,7 +386,7 @@ internal static class StsaInput4RequestParser
                 ParseVariableTop8Mode(GetRequiredMetaValue(meta, "VariableTop8Mode", fullPath, FormatName)),
                 ParseInnovExpectedRankOffsetMode(GetRequiredMetaValue(meta, "QualityInnovExpectedRankOffsetMode", fullPath, FormatName)),
                 deferredExecutionOptions,
-                ParseQualityEvaluationOutputOptions(meta, sections, deferredExecutionOptions.IsSweep, fullPath, RuleProfileMode.FinalStage));
+                ParseQualityEvaluationOutputOptions(meta, sections, deferredExecutionOptions.IsSweep, fullPath, TournamentQualityEvaluationOutputProfile.FinalStage));
         }
 
         var players = ParsePlayers(GetRequiredSectionLines(sections, "PlayersCsv", fullPath, FormatName), fullPath);
@@ -431,7 +431,7 @@ internal static class StsaInput4RequestParser
                 effectiveAdditionalApexCount,
                 innovExpectedRankOffsetMode));
         var executionOptions = ParseQualityEvaluationExecutionOptions(meta, fullPath);
-        var outputOptions = ParseQualityEvaluationOutputOptions(meta, sections, executionOptions.IsSweep, fullPath, RuleProfileMode.FinalStage);
+        var outputOptions = ParseQualityEvaluationOutputOptions(meta, sections, executionOptions.IsSweep, fullPath, TournamentQualityEvaluationOutputProfile.FinalStage);
 
         return new FinalStageQualityEvaluationRequest(
             ruleDefinition,
@@ -489,7 +489,7 @@ internal static class StsaInput4RequestParser
         Dictionary<string, List<string>> sections,
         bool isSweep,
         string fullPath,
-        RuleProfileMode ruleProfileMode)
+        TournamentQualityEvaluationOutputProfile outputProfile)
     {
         var output = ReadOutputKeyValues(sections, fullPath);
         var groupingOptions = ParseReportGroupingOptions(meta, output);
@@ -506,7 +506,7 @@ internal static class StsaInput4RequestParser
             outputPath,
             isSweep ? null : playerCsvPath,
             isSweep ? null : Path.ChangeExtension(outputPath, ".stsa.txt"),
-            ruleProfileMode);
+            outputProfile);
     }
 
     static TournamentQualityEvaluationReportGroupingOptions ParseReportGroupingOptions(

@@ -56,7 +56,7 @@ internal static class TournamentQualityEvaluationOutputCoordinator
             outputCsvPath,
             playerCsvPath,
             requestInputLogPath,
-            ResolveRuleProfileMode(ruleDefinition));
+            ResolveOutputProfile(ruleDefinition));
 
         return outputOptions;
     }
@@ -73,14 +73,17 @@ internal static class TournamentQualityEvaluationOutputCoordinator
         var outputCsvPath = CsvOutputHelpers.ResolveOutputCsvPath(ConsolePromptReaders.ReadTextWithDefault(
             $"\nn%スイープ結果CSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
             defaultOutputCsvPath));
-        return new TournamentQualityEvaluationOutputOptions(reportGroupingOptions, outputCsvPath, RuleProfileMode: ResolveRuleProfileMode(ruleDefinition));
+        return new TournamentQualityEvaluationOutputOptions(reportGroupingOptions, outputCsvPath, OutputProfile: ResolveOutputProfile(ruleDefinition));
     }
 
 
-    static RuleProfileMode ResolveRuleProfileMode(TournamentQualityEvaluationRuleDefinition ruleDefinition)
+    static TournamentQualityEvaluationOutputProfile ResolveOutputProfile(TournamentQualityEvaluationRuleDefinition ruleDefinition)
     {
-        return ruleDefinition.UsesFinalStageGrouping ? RuleProfileMode.FinalStage : RuleProfileMode.Standard;
+        return ruleDefinition.UsesFinalStageGrouping
+            ? TournamentQualityEvaluationOutputProfile.FinalStage
+            : TournamentQualityEvaluationOutputProfile.Standard;
     }
+
     internal static void WriteTournamentQualityReportOutputs(
         TournamentQualityReportData tournamentQualityReportData,
         TournamentQualityEvaluationOutputOptions outputOptions)
@@ -131,7 +134,7 @@ internal static class TournamentQualityEvaluationOutputCoordinator
             getLines: () => RequestInputLogFileWriter.CreateRequestInputLogLines(new
             {
                 analysis_flow_steps = "QualityEvaluation",
-                rule_profile_mode = outputOptions.RuleProfileMode.ToString(),
+                rule_profile_mode = outputOptions.GetCompatibilityRuleProfileMode().ToString(),
                 execution_mode = "Single",
                 tournament_rule_set_mode = (string?)null,
                 first_player_win_rate_percent = (double?)null,
