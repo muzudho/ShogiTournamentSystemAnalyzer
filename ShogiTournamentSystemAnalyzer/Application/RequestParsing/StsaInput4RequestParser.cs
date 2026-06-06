@@ -111,13 +111,17 @@ internal static class StsaInput4RequestParser
         if (step == AnalysisFlowMode.QualityEvaluation && ruleProfileMode == RuleProfileMode.Standard)
         {
             var standardQualityEvaluationRequest = ParseStandardQualityEvaluationRequest(meta, sections, fullPath);
-            return EnsureStandardQualityEvaluationSimulationCountIfNeeded(standardQualityEvaluationRequest);
+            return standardQualityEvaluationRequest is StandardQualityEvaluationRequest concreteRequest
+                ? EnsureStandardQualityEvaluationSimulationCountIfNeeded(concreteRequest)
+                : standardQualityEvaluationRequest;
         }
 
         if (step == AnalysisFlowMode.QualityEvaluation && ruleProfileMode == RuleProfileMode.FinalStage)
         {
             var finalStageQualityEvaluationRequest = ParseFinalStageQualityEvaluationRequest(meta, sections, fullPath);
-            return EnsureFinalStageQualityEvaluationSimulationCountIfNeeded(finalStageQualityEvaluationRequest);
+            return finalStageQualityEvaluationRequest is FinalStageQualityEvaluationRequest concreteRequest
+                ? EnsureFinalStageQualityEvaluationSimulationCountIfNeeded(concreteRequest)
+                : finalStageQualityEvaluationRequest;
         }
 
         return null;
@@ -319,12 +323,21 @@ internal static class StsaInput4RequestParser
         return new EmptySimulationRequest(outputPath);
     }
 
-    static StandardQualityEvaluationRequest ParseStandardQualityEvaluationRequest(
+    static AnalysisStepRequest ParseStandardQualityEvaluationRequest(
         Dictionary<string, string> meta,
         Dictionary<string, List<string>> sections,
         string fullPath)
     {
         var tournamentRuleSetMode = ParseTournamentRuleSetMode(GetRequiredMetaValue(meta, "TournamentRuleSetMode", fullPath, FormatName));
+        if (!HasAnySection(sections, "PlayersCsv", "MatchesInput"))
+        {
+            var deferredExecutionOptions = ParseQualityEvaluationExecutionOptions(meta, fullPath);
+            return new DeferredStandardQualityEvaluationRequest(
+                tournamentRuleSetMode,
+                deferredExecutionOptions,
+                ParseQualityEvaluationOutputOptions(meta, sections, deferredExecutionOptions.IsSweep, fullPath, RuleProfileMode.Standard));
+        }
+
         var players = ParsePlayers(GetRequiredSectionLines(sections, "PlayersCsv", fullPath, FormatName), fullPath);
         var matches = ParseMatches(GetRequiredSectionLines(sections, "MatchesInput", fullPath, FormatName), players, "MatchesInput", fullPath);
         var referenceMatches = ParseOptionalMatches(GetOptionalSectionLines(sections, "ReferenceMatchesInput"), players, "ReferenceMatchesInput", fullPath);
@@ -365,11 +378,21 @@ internal static class StsaInput4RequestParser
             outputOptions);
     }
 
-    static FinalStageQualityEvaluationRequest ParseFinalStageQualityEvaluationRequest(
+    static AnalysisStepRequest ParseFinalStageQualityEvaluationRequest(
         Dictionary<string, string> meta,
         Dictionary<string, List<string>> sections,
         string fullPath)
     {
+        if (!HasAnySection(sections, "PlayersCsv", "GroupMapCsv", "MatchesInput", "ReferenceMatchesInput", "AdditionalApexPlayersCsv"))
+        {
+            var deferredExecutionOptions = ParseQualityEvaluationExecutionOptions(meta, fullPath);
+            return new DeferredFinalStageQualityEvaluationRequest(
+                ParseVariableTop8Mode(GetRequiredMetaValue(meta, "VariableTop8Mode", fullPath, FormatName)),
+                ParseInnovExpectedRankOffsetMode(GetRequiredMetaValue(meta, "QualityInnovExpectedRankOffsetMode", fullPath, FormatName)),
+                deferredExecutionOptions,
+                ParseQualityEvaluationOutputOptions(meta, sections, deferredExecutionOptions.IsSweep, fullPath, RuleProfileMode.FinalStage));
+        }
+
         var players = ParsePlayers(GetRequiredSectionLines(sections, "PlayersCsv", fullPath, FormatName), fullPath);
         var groupMap = ParseFinalStageGroupMap(GetRequiredSectionLines(sections, "GroupMapCsv", fullPath, FormatName), fullPath);
         if (!FinalStageValidators.ValidateFinalStagePlayers(players, groupMap, out var playerErrorMessage))
@@ -421,6 +444,10 @@ internal static class StsaInput4RequestParser
             outputOptions);
     }
 
+    static bool HasAnySection(Dictionary<string, List<string>> sections, params string[] sectionNames)
+    {
+        return sectionNames.Any(sections.ContainsKey);
+    }
     static string? ReadSimulationOutputPath(
         Dictionary<string, string> meta,
         Dictionary<string, List<string>> sections,

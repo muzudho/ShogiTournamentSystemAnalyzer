@@ -113,6 +113,8 @@ QualityEvaluation.PlayersCsv -> PlayersCsv
 QualityEvaluation.MatchesInput -> MatchesInput
 ```
 
+品質評価ステップの入力セクションを丸ごと省略した場合は、直前のシミュレーション request から品質評価入力を組み立てます。この省略は `Simulation,QualityEvaluation` の直列実行用で、標準品質評価は直前が `Standard` シミュレーション、本戦品質評価は直前が `FinalStage` シミュレーションの場合だけ対応します。入力セクションを一部だけ書いた場合は、省略扱いにせず通常の必須セクションとして検証します。
+
 出力は衝突を避けるため、複数ステップ時はステップ名付きセクションを使います。
 
 - `Simulation.Output`

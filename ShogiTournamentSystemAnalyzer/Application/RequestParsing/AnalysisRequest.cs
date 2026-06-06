@@ -61,8 +61,19 @@ internal sealed record StandardQualityEvaluationRequest(
     TournamentQualityEvaluationExecutionOptions ExecutionOptions,
     TournamentQualityEvaluationOutputOptions OutputOptions) : AnalysisStepRequest;
 
+internal sealed record DeferredStandardQualityEvaluationRequest(
+    TournamentRuleSetMode TournamentRuleSetMode,
+    TournamentQualityEvaluationExecutionOptions ExecutionOptions,
+    TournamentQualityEvaluationOutputOptions OutputOptions) : AnalysisStepRequest;
+
 internal sealed record FinalStageQualityEvaluationRequest(
     TournamentQualityEvaluationRuleDefinition RuleDefinition,
     TournamentQualityEvaluationInput Input,
+    TournamentQualityEvaluationExecutionOptions ExecutionOptions,
+    TournamentQualityEvaluationOutputOptions OutputOptions) : AnalysisStepRequest;
+
+internal sealed record DeferredFinalStageQualityEvaluationRequest(
+    VariableTop8Mode VariableTop8Mode,
+    TournamentQualityEvaluationInnovExpectedRankOffsetMode InnovExpectedRankOffsetMode,
     TournamentQualityEvaluationExecutionOptions ExecutionOptions,
     TournamentQualityEvaluationOutputOptions OutputOptions) : AnalysisStepRequest;

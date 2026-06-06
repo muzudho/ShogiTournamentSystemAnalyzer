@@ -21,7 +21,7 @@ internal static class AnalysisRequestDispatcher
     {
         if (SimulationRequestDispatcher.TryExecute(step, out var simulationResult))
         {
-            context.SetSimulationResult(simulationResult);
+            context.SetSimulationResult(step, simulationResult);
             return;
         }
 
