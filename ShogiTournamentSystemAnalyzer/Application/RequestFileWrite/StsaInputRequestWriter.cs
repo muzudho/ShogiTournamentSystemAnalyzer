@@ -41,7 +41,7 @@ internal static class StsaInputRequestWriter
 
         if (!useAttributeFormat)
         {
-            lines.Add($"RuleProfileMode={request.Steps[0].GetCompatibilityRuleProfileMode()}");
+            lines.Add($"RuleProfileMode={request.Steps[0].GetRuleProfileAttributes().ToCompatibilityLabel()}");
         }
 
         AddMetaLines(lines, request.Steps[0]);
@@ -74,7 +74,7 @@ internal static class StsaInputRequestWriter
             lines.Add($"#[Section] Step.{stepName}");
             if (!useAttributeFormat)
             {
-                lines.Add($"RuleProfileMode={GetRuleProfileMode(step)}");
+                lines.Add($"RuleProfileMode={step.GetRuleProfileAttributes().ToCompatibilityLabel()}");
             }
 
             AddMetaLines(lines, step);
@@ -418,10 +418,6 @@ internal static class StsaInputRequestWriter
         if (!string.IsNullOrWhiteSpace(value)) lines.Add($"{key}={value}");
     }
 
-    static RuleProfileMode GetRuleProfileMode(AnalysisStepRequest step)
-    {
-        return step.GetCompatibilityRuleProfileMode();
-    }
 
     static string GetStepName(AnalysisStepRequest step)
     {

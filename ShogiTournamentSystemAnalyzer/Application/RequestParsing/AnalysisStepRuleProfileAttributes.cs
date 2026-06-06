@@ -34,10 +34,6 @@ internal static class AnalysisStepRuleProfileAttributes
         };
     }
 
-    internal static RuleProfileMode GetCompatibilityRuleProfileMode(this AnalysisStepRequest step)
-    {
-        return step.GetRuleProfileAttributes().ToCompatibilityLabel();
-    }
 
     static RuleProfileAttributes CreateAttributes(
         TournamentQualityEvaluationRuleDefinition ruleDefinition,

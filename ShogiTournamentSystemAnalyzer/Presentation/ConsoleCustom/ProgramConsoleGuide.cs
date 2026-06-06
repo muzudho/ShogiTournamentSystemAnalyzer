@@ -3,6 +3,7 @@
  */
 namespace ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 
+using ShogiTournamentSystemAnalyzer.Application.RequestParsing;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using System;
 using static ShogiTournamentSystemAnalyzer.Application.ApplicationTournamentUser;
@@ -19,14 +20,15 @@ internal static class ProgramConsoleGuide
 
     internal static void PrintSelectedMainline(TournamentUserDomainResult result)
     {
-        var compatibilityRuleProfileMode = result.AnalysisRequest?.GetCompatibilityRuleProfileMode() ?? result.RuleProfileMode;
-        var profileLabel = compatibilityRuleProfileMode switch
+        var ruleProfileAttributes = GetSelectedRuleProfileAttributes(result);
+        var profileLabel = ruleProfileAttributes.SimulationShape switch
         {
-            RuleProfileMode.Standard => "Standard",
-            RuleProfileMode.FinalStage => "FinalStage",
-            RuleProfileMode.TournamentFramework => "TournamentFramework",
-            RuleProfileMode.Empty => "Empty",
-            _ => compatibilityRuleProfileMode.ToString(),
+            RuleProfileSimulationShape.ScheduledMatches when ruleProfileAttributes.UsesFinalStageGrouping => "FinalStage",
+            RuleProfileSimulationShape.ScheduledMatches => "Standard",
+            RuleProfileSimulationShape.FinalStageGrouped => "FinalStage",
+            RuleProfileSimulationShape.TournamentFramework => "TournamentFramework",
+            RuleProfileSimulationShape.Empty => "Empty",
+            _ => ruleProfileAttributes.SimulationShape.ToString(),
         };
 
         var mainlineLabel = string.Join(" -> ", result.AnalysisFlowSelection.Steps.Select(step => step switch
@@ -37,5 +39,13 @@ internal static class ProgramConsoleGuide
         }));
 
         Console.WriteLine($"選択された主線: {profileLabel} / {result.AnalysisFlowSelection.ToPromptLabel()} / {mainlineLabel}\n");
+    }
+
+    static RuleProfileAttributes GetSelectedRuleProfileAttributes(TournamentUserDomainResult result)
+    {
+        if (result.AnalysisRequest is null) return result.RuleProfileAttributes;
+        if (result.AnalysisRequest.Steps.Count == 0) throw new InvalidOperationException("分析要求にステップがありません。");
+
+        return result.AnalysisRequest.Steps[0].GetRuleProfileAttributes();
     }
 }

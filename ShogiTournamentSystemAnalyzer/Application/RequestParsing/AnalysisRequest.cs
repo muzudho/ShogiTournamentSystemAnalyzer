@@ -13,18 +13,7 @@ internal sealed record AnalysisRequest(
     /// <summary>
     /// ［要求ファイル］から読んだ実行希望のリスト構造。
     /// </summary>
-    IReadOnlyList<AnalysisStepRequest> Steps)
-{
-    /// <summary>
-    /// STSAInput/4 と旧フロー表示のための互換ラベル。
-    /// </summary>
-    internal RuleProfileMode GetCompatibilityRuleProfileMode()
-    {
-        if (Steps.Count == 0) throw new InvalidOperationException("分析要求にステップがありません。");
-
-        return Steps[0].GetCompatibilityRuleProfileMode();
-    }
-}
+    IReadOnlyList<AnalysisStepRequest> Steps);
 
 internal abstract record AnalysisStepRequest;
 

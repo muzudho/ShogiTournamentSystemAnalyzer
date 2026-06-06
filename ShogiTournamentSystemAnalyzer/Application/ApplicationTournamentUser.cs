@@ -162,10 +162,7 @@ internal static class ApplicationTournamentUser
     internal sealed record TournamentUserDomainResult(
         AnalysisFlowSelection AnalysisFlowSelection,
         RuleProfileAttributes RuleProfileAttributes,
-        AnalysisRequest? AnalysisRequest)
-    {
-        internal RuleProfileMode RuleProfileMode => RuleProfileAttributes.ToCompatibilityLabel();
-    }
+        AnalysisRequest? AnalysisRequest);
 
     static bool TryConvertToLegacyInputText(RequestText? checkedRequestText, out string? requestText)
     {
