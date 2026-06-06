@@ -2,6 +2,7 @@ namespace ShogiTournamentSystemAnalyzer.Application;
 
 using ShogiTournamentSystemAnalyzer.Application.Analysis;
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.Modes;
+using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.TournamentQualityEvaluator.Modes;
 using ShogiTournamentSystemAnalyzer.Application.BeforeRequestFileCheck;
 using ShogiTournamentSystemAnalyzer.Application.RequestFileCheck;
 using ShogiTournamentSystemAnalyzer.Application.RequestFileWrite;
@@ -217,10 +218,9 @@ internal static class ApplicationWorkflow
     {
         analysisRequest = null;
         if (analysisFlowSelection.Steps.Count != 1) return false;
-        if (analysisFlowSelection.Steps[0] != AnalysisFlowMode.Simulation) return false;
 
         AnalysisStepRequest stepRequest;
-        if (ruleProfileMode == RuleProfileMode.Standard)
+        if (analysisFlowSelection.Steps[0] == AnalysisFlowMode.Simulation && ruleProfileMode == RuleProfileMode.Standard)
         {
             var context = SimulationModeInputReaders.ReadStandardModeContext();
             stepRequest = new StandardSimulationRequest(
@@ -232,7 +232,7 @@ internal static class ApplicationWorkflow
                 ReadSimulationCountIfNeeded(context.Matches.Count, "標準"),
                 null);
         }
-        else if (ruleProfileMode == RuleProfileMode.FinalStage)
+        else if (analysisFlowSelection.Steps[0] == AnalysisFlowMode.Simulation && ruleProfileMode == RuleProfileMode.FinalStage)
         {
             if (!SimulationModeInputReaders.TryReadFinalStageModeContext(out var context) || context is null) return false;
 
@@ -253,7 +253,7 @@ internal static class ApplicationWorkflow
                 ReadSimulationCountIfNeeded(context.Matches.Count, "本戦"),
                 null);
         }
-        else if (ruleProfileMode == RuleProfileMode.TournamentFramework)
+        else if (analysisFlowSelection.Steps[0] == AnalysisFlowMode.Simulation && ruleProfileMode == RuleProfileMode.TournamentFramework)
         {
             var context = SimulationModeInputReaders.ReadTournamentFrameworkModeContext();
             stepRequest = new TournamentFrameworkSimulationRequest(
@@ -267,10 +267,28 @@ internal static class ApplicationWorkflow
                 context.FirstPlayerWinRatePercent,
                 context.OutputPath);
         }
-        else if (ruleProfileMode == RuleProfileMode.Empty)
+        else if (analysisFlowSelection.Steps[0] == AnalysisFlowMode.Simulation && ruleProfileMode == RuleProfileMode.Empty)
         {
             var outputPath = ConsoleInputReaders.ReadOptionalFilePath("空ルール結果CSVの出力先パスまたはフォルダーパスを入力してください（省略可）: ");
             stepRequest = new EmptySimulationRequest(outputPath);
+        }
+        else if (analysisFlowSelection.Steps[0] == AnalysisFlowMode.QualityEvaluation
+            && (ruleProfileMode == RuleProfileMode.Standard || ruleProfileMode == RuleProfileMode.FinalStage))
+        {
+            var players = ConsoleInputReaders.ReadPlayersFromCsv();
+            Console.WriteLine();
+
+            if (!TournamentQualityEvaluationInputReader.TryReadQualityEvaluationRuleDefinition(players, ruleProfileMode, out var ruleDefinition)) return false;
+            if (!TournamentQualityEvaluationInputReader.TryReadQualityEvaluationInput(players, ruleDefinition, out var input)) return false;
+
+            var executionOptions = TournamentQualityEvaluationExecutor.ReadTournamentQualityEvaluationExecutionOptions(input, ruleDefinition);
+            var outputOptions = executionOptions.IsSweep
+                ? TournamentQualityEvaluationOutputCoordinator.ReadTournamentQualitySweepReportOutputOptions(ruleDefinition)
+                : TournamentQualityEvaluationOutputCoordinator.ReadTournamentQualityReportOutputOptions(ruleDefinition);
+
+            stepRequest = ruleProfileMode == RuleProfileMode.Standard
+                ? new StandardQualityEvaluationRequest(ruleDefinition, input, executionOptions, outputOptions)
+                : new FinalStageQualityEvaluationRequest(ruleDefinition, input, executionOptions, outputOptions);
         }
         else
         {
