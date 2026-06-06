@@ -42,7 +42,131 @@ AnalysisFlowSteps=Simulation,QualityEvaluation
 
 `Simulation + Standard` と `Simulation + FinalStage` は、20局以下、または20局超の近似計算に対応し、`AnalysisRequest` へ直接パースして実行します。`Simulation + TournamentFramework` と `Simulation + Empty` も、要求ファイルを `AnalysisRequest` へ直接パースして実行します。`QualityEvaluation + Standard` と `QualityEvaluation + FinalStage` も、20局以下、または20局超の近似計算に対応し、`AnalysisRequest` へ直接パースして実行します。20局超で `SimulationCount` が未指定の場合は、要求ファイル実行の既定試行回数として `200000` を採用します。
 
-`AnalysisFlowSteps=Simulation,QualityEvaluation` は形式として予約していますが、まだ要求ファイルからの自動変換には対応していません。複数ステップを1ファイルで実行するには、ステップ別入力セクションの仕様が必要です。
+`AnalysisFlowSteps=Simulation,QualityEvaluation` は形式として予約していますが、まだ要求ファイルからの自動変換には対応していません。複数ステップを1ファイルで実行するためのステップ別入力セクション仕様は、この文書の「複数ステップの入力セクション」で定義します。
+
+## 複数ステップの入力セクション
+
+複数ステップを1ファイルで実行する場合、`Meta` はフロー全体の宣言だけに使います。
+
+```plaintext
+#[Section] Meta
+AnalysisFlowSteps=Simulation,QualityEvaluation
+#[EndSection]
+```
+
+ステップ固有の設定は、パスカルケースのドットシンタックスで表します。
+
+- `Step.Simulation`
+- `Step.QualityEvaluation`
+
+例:
+
+```plaintext
+#[Section] Step.Simulation
+RuleProfileMode=Standard
+TournamentRuleSetMode=Neutral
+FirstPlayerWinRatePercent=51
+SimulationCount=200000
+#[EndSection]
+
+#[Section] Step.QualityEvaluation
+RuleProfileMode=Standard
+ExecutionMode=Single
+TournamentRuleSetMode=Neutral
+FirstPlayerWinRatePercent=51
+SimulationCount=200000
+QualityInnovExpectedRankOffsetMode=Off
+TournamentQualityEvaluationReportGrouping=Off
+#[EndSection]
+```
+
+`AnalysisFlowSteps` に含まれるステップの `Step.*` セクションは必須です。複数ステップ時は、`Meta` に `RuleProfileMode` や `ExecutionMode` などのステップ固有キーを書かず、各 `Step.*` セクションに書きます。
+
+入力データは、複数ステップで同じものを使う場合は共有セクションに書けます。
+
+```plaintext
+#[Section] PlayersCsv
+name,elo
+Alice,1500
+Bob,1480
+#[EndSection]
+
+#[Section] MatchesInput
+first,second
+Alice,Bob
+#[EndSection]
+```
+
+ステップごとに入力データを分ける場合は、ステップ名付きセクションを使います。
+
+- `Simulation.PlayersCsv`
+- `Simulation.MatchesInput`
+- `QualityEvaluation.PlayersCsv`
+- `QualityEvaluation.MatchesInput`
+
+読み取り時は、ステップ名付きセクションを優先し、なければ共有セクションを使います。
+
+```plaintext
+Simulation.PlayersCsv -> PlayersCsv
+Simulation.MatchesInput -> MatchesInput
+QualityEvaluation.PlayersCsv -> PlayersCsv
+QualityEvaluation.MatchesInput -> MatchesInput
+```
+
+出力は衝突を避けるため、複数ステップ時はステップ名付きセクションを使います。
+
+- `Simulation.Output`
+- `QualityEvaluation.Output`
+
+複数ステップ時に共有の `Output` だけが指定された場合は、どのステップの出力か曖昧になるためエラーとします。
+
+### 複数ステップの最小例
+
+```plaintext
+#[Format] STSAInput/4
+
+#[Section] Meta
+AnalysisFlowSteps=Simulation,QualityEvaluation
+#[EndSection]
+
+#[Section] Step.Simulation
+RuleProfileMode=Standard
+TournamentRuleSetMode=Neutral
+FirstPlayerWinRatePercent=51
+SimulationCount=200000
+#[EndSection]
+
+#[Section] Step.QualityEvaluation
+RuleProfileMode=Standard
+ExecutionMode=Single
+TournamentRuleSetMode=Neutral
+FirstPlayerWinRatePercent=51
+SimulationCount=200000
+QualityInnovExpectedRankOffsetMode=Off
+TournamentQualityEvaluationReportGrouping=Off
+#[EndSection]
+
+#[Section] PlayersCsv
+name,elo
+Alice,1500
+Bob,1480
+#[EndSection]
+
+#[Section] MatchesInput
+first,second
+Alice,Bob
+#[EndSection]
+
+#[Section] Simulation.Output
+SummaryOutputPath=Output\FinalRanking\sample_simulation_summary.csv
+#[EndSection]
+
+#[Section] QualityEvaluation.Output
+SummaryOutputPath=Output\TournamentQualityEvaluator\TournamentQualityReport\Summary\sample_quality_summary.csv
+#[EndSection]
+```
+
+実行順は `AnalysisFlowSteps` の順序に従います。まずは `Simulation,QualityEvaluation` の2ステップを対応対象とします。
 
 ## 互換性
 
