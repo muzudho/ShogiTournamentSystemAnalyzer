@@ -27,6 +27,39 @@ $text = $text -replace "`r?`n", "`r`n"
 
 新規または全文更新する場合も、`Set-Content` は BOM が付くことがあるため避け、`System.Text.UTF8Encoding($false)` で UTF-8 BOM なしを明示する。
 
+## 置換を安定させるコツ
+
+PowerShell で手動置換するとき、長いブロックの完全一致は改行コードや空白差分で失敗しやすい。
+次の順で書くと、挿入位置を取り損ねるやり直しを減らせる。
+
+1. 読み込み直後に改行を LF へ正規化する。
+2. 置換やアンカー文字列も LF 前提で書く。
+3. 書き込み直前に CRLF へ戻す。
+4. 長い既存ブロック全体ではなく、短く安定したアンカーを使う。
+5. 置換前にヒット数を数え、0 件や 2 件以上なら止める。
+
+例:
+
+```powershell
+$path = 'ShogiTournamentSystemAnalyzer/Application/ApplicationWorkflow.cs'
+$resolved = Resolve-Path -LiteralPath $path
+$text = [System.IO.File]::ReadAllText($resolved, [System.Text.Encoding]::UTF8)
+$text = $text -replace "`r?`n", "`n"
+
+$anchor = "        else`n        {`n            return false;`n        }`n"
+$matches = [regex]::Matches($text, [regex]::Escape($anchor))
+if ($matches.Count -ne 1) { throw "Anchor count was $($matches.Count)" }
+
+$insert = "        else if (条件)`n        {`n            // 追加処理`n        }`n"
+$text = $text.Replace($anchor, $insert + $anchor)
+$text = $text -replace "`n", "`r`n"
+$encoding = New-Object System.Text.UTF8Encoding($false)
+[System.IO.File]::WriteAllText($resolved, $text, $encoding)
+```
+
+長い `if` / `else` ブロックへ追加を続ける場合は、そもそも対象メソッドを小さく分ける。
+構造が小さくなればアンカーも安定し、手動置換の範囲も狭くなる。
+
 ## 作業後の確認
 
 編集後は次を確認する。
