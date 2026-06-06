@@ -103,12 +103,12 @@ internal class FinalRankingMarkdownFileWriter
         return lines;
     }
 
-    static TRow[] SelectTopRows<TRow>(
-        IEnumerable<TRow> rows,
-        Func<TRow, double> primaryDescending,
-        Func<TRow, double> secondaryAscending,
+    static GeneralSimulationResultRow[] SelectTopRows(
+        IEnumerable<GeneralSimulationResultRow> rows,
+        Func<GeneralSimulationResultRow, double> primaryDescending,
+        Func<GeneralSimulationResultRow, double> secondaryAscending,
         int takeCount,
-        Func<TRow, string> nameSelector)
+        Func<GeneralSimulationResultRow, string> nameSelector)
     {
         return rows
             .OrderByDescending(primaryDescending)
@@ -118,12 +118,12 @@ internal class FinalRankingMarkdownFileWriter
             .ToArray();
     }
 
-    static bool TrySelectBestRow<TRow>(
-        IEnumerable<TRow> rows,
-        Func<TRow, double> primaryDescending,
-        Func<TRow, double> secondaryAscending,
-        Func<TRow, string> nameSelector,
-        out TRow bestRow)
+    static bool TrySelectBestRow(
+        IEnumerable<GeneralSimulationResultRow> rows,
+        Func<GeneralSimulationResultRow, double> primaryDescending,
+        Func<GeneralSimulationResultRow, double> secondaryAscending,
+        Func<GeneralSimulationResultRow, string> nameSelector,
+        out GeneralSimulationResultRow bestRow)
     {
         using var enumerator = rows
             .OrderByDescending(primaryDescending)
@@ -141,13 +141,13 @@ internal class FinalRankingMarkdownFileWriter
         return true;
     }
 
-    static TRow[] SelectTopRowsByGroup<TRow>(
-        IEnumerable<TRow> rows,
-        Func<TRow, bool> predicate,
-        Func<TRow, double> primaryDescending,
-        Func<TRow, double> secondaryAscending,
+    static GeneralSimulationResultRow[] SelectTopRowsByGroup(
+        IEnumerable<GeneralSimulationResultRow> rows,
+        Func<GeneralSimulationResultRow, bool> predicate,
+        Func<GeneralSimulationResultRow, double> primaryDescending,
+        Func<GeneralSimulationResultRow, double> secondaryAscending,
         int takeCount,
-        Func<TRow, string> nameSelector)
+        Func<GeneralSimulationResultRow, string> nameSelector)
     {
         return SelectTopRows(rows.Where(predicate), primaryDescending, secondaryAscending, takeCount, nameSelector);
     }
@@ -177,7 +177,9 @@ internal class FinalRankingMarkdownFileWriter
 
         throw new InvalidOperationException($"シミュレーション結果行に必要な自由形式列がありません: {key}");
     }
-    static IEnumerable<string> BuildMarkdownTableRows<TRow>(IEnumerable<TRow> rows, Func<TRow, string> formatter)
+    static IEnumerable<string> BuildMarkdownTableRows(
+        IEnumerable<GeneralSimulationResultRow> rows,
+        Func<GeneralSimulationResultRow, string> formatter)
     {
         return rows.Select(formatter);
     }
@@ -404,144 +406,6 @@ internal class FinalRankingMarkdownFileWriter
         };
     }
 
-    /// <summary>
-    /// ［最終順位という境界］のマークダウンの［概要］セクション各行を組立
-    /// </summary>
-    /// <param name="outputMarkdownPath"></param>
-    /// <param name="outputCsvPath"></param>
-    /// <param name="mode"></param>
-    /// <param name="firstPlayerWinRatePercent"></param>
-    /// <param name="playerCount"></param>
-    /// <param name="editionLabel"></param>
-    /// <param name="overviewNote"></param>
-    /// <param name="representativeRankingMarkdownPath"></param>
-    /// <param name="referenceMatchesCsvPath"></param>
-    /// <returns></returns>
-    protected static List<string> BuildFinalRankingMarkdownOverviewLines(
-        string outputMarkdownPath,
-        string outputCsvPath,
-        string mode,
-        double firstPlayerWinRatePercent,
-        int playerCount,
-        string editionLabel,
-        string? overviewNote = null,
-        string? representativeRankingMarkdownPath = null,
-        string? referenceMatchesCsvPath = null)
-    {
-        var lines = new List<string>
-        {
-            "## 概要",
-            $"- 結果CSV: {MarkdownOutputHelpers.BuildMarkdownFileLink(outputMarkdownPath, outputCsvPath)}",
-            $"- 版: {editionLabel}",
-            $"- 計算モード: {mode}",
-            $"- 同Elo対局時の先手勝率: {firstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture)}%",
-            $"- 対象選手数: {playerCount}"
-        };
-
-        if (!string.IsNullOrWhiteSpace(representativeRankingMarkdownPath))
-        {
-            lines.Add($"- representative順位表: {MarkdownOutputHelpers.BuildMarkdownFileLink(outputMarkdownPath, representativeRankingMarkdownPath)}");
-        }
-
-        if (!string.IsNullOrWhiteSpace(referenceMatchesCsvPath))
-        {
-            lines.Add($"- 参考対局CSV: {MarkdownOutputHelpers.BuildMarkdownFileLink(outputMarkdownPath, referenceMatchesCsvPath)}");
-        }
-
-        if (!string.IsNullOrWhiteSpace(overviewNote))
-        {
-            lines.Add($"- 注記: {overviewNote}");
-        }
-
-        return lines;
-    }
-
-    /// <summary>
-    /// ［最終順位という境界］のマークダウン各行作成
-    /// </summary>
-    /// <param name="outputMarkdownPath"></param>
-    /// <param name="outputCsvPath"></param>
-    /// <param name="mode"></param>
-    /// <param name="firstPlayerWinRatePercent"></param>
-    /// <param name="playerCount"></param>
-    /// <param name="editionLabel"></param>
-    /// <param name="overviewNote"></param>
-    /// <param name="representativeRankingMarkdownPath"></param>
-    /// <param name="referenceMatchesCsvPath"></param>
-    /// <returns></returns>
-    static List<string> CreateFinalRankingMarkdownLines(
-        string outputMarkdownPath,
-        string outputCsvPath,
-        string mode,
-        double firstPlayerWinRatePercent,
-        int playerCount,
-        string editionLabel,
-        string? overviewNote = null,
-        string? representativeRankingMarkdownPath = null,
-        string? referenceMatchesCsvPath = null)
-    {
-        var lines = new List<string>
-        {
-            "# 最終順位結果レポート",
-            string.Empty
-        };
-
-        lines.AddRange(BuildFinalRankingMarkdownOverviewLines(
-            outputMarkdownPath,
-            outputCsvPath,
-            mode,
-            firstPlayerWinRatePercent,
-            playerCount,
-            editionLabel,
-            overviewNote,
-            representativeRankingMarkdownPath,
-            referenceMatchesCsvPath));
-
-        return lines;
-    }
-
-    /// <summary>
-    /// セクション追加
-    /// </summary>
-    /// <param name="lines"></param>
-    /// <param name="sections"></param>
-    static void AddMarkdownSection(List<string> lines, params IEnumerable<string>[] sections)
-    {
-        foreach (var section in sections)
-        {
-            lines.Add(string.Empty);
-            lines.AddRange(section);
-        }
-    }
-
-    /// <summary>
-    /// Mermaid のコード組立
-    /// </summary>
-    /// <param name="title"></param>
-    /// <param name="categories"></param>
-    /// <param name="yAxisLabel"></param>
-    /// <param name="yAxisRange"></param>
-    /// <param name="values"></param>
-    /// <returns></returns>
-    static IReadOnlyList<string> BuildMermaidXychartLines(
-        string title,
-        IEnumerable<string> categories,
-        string yAxisLabel,
-        string yAxisRange,
-        IEnumerable<string> values)
-    {
-        return
-        [
-            "```mermaid",
-            "xychart-beta",
-            $"    title \"{title}\"",
-            "    x-axis [" + MarkdownOutputHelpers.BuildMermaidCategoryList(categories) + "]",
-            $"    y-axis \"{yAxisLabel}\" {yAxisRange}",
-            "    bar [" + string.Join(", ", values) + "]",
-            "```"
-        ];
-    }
-
     readonly record struct FinalRankingMarkdownChartSpec(
         string Title,
         IEnumerable<string> Categories,
@@ -549,10 +413,10 @@ internal class FinalRankingMarkdownFileWriter
         string YAxisRange,
         IEnumerable<string> Values);
 
-    static FinalRankingMarkdownChartSpec[] BuildChartSpecs<TRow>(
-        IReadOnlyList<TRow> rows,
-        Func<TRow, string> categorySelector,
-        params (string Title, string YAxisLabel, string YAxisRange, Func<TRow, string> ValueSelector)[] chartDefinitions)
+    static FinalRankingMarkdownChartSpec[] BuildChartSpecs(
+        IReadOnlyList<GeneralSimulationResultRow> rows,
+        Func<GeneralSimulationResultRow, string> categorySelector,
+        params (string Title, string YAxisLabel, string YAxisRange, Func<GeneralSimulationResultRow, string> ValueSelector)[] chartDefinitions)
     {
         if (rows.Count == 0) return [];
 
@@ -565,63 +429,6 @@ internal class FinalRankingMarkdownFileWriter
                 rows.Select(chart.ValueSelector)))
             .ToArray();
     }
-    static void AddMarkdownChartsSection(List<string> lines, params FinalRankingMarkdownChartSpec[] charts)
-    {
-        if (charts.Length == 0) return;
-
-        lines.Add(string.Empty);
-        lines.Add("## Mermaid 図");
-
-        for (var index = 0; index < charts.Length; index++)
-        {
-            if (index > 0)
-            {
-                lines.Add(string.Empty);
-            }
-
-            var chart = charts[index];
-            lines.AddRange(BuildMermaidXychartLines(
-                chart.Title,
-                chart.Categories,
-                chart.YAxisLabel,
-                chart.YAxisRange,
-                chart.Values));
-        }
-    }
-
-    static IEnumerable<string> CreateFinalRankingMarkdownReport(
-        string outputMarkdownPath,
-        string outputCsvPath,
-        string mode,
-        double firstPlayerWinRatePercent,
-        int playerCount,
-        string editionLabel,
-        IEnumerable<string>[] primarySections,
-        IEnumerable<string> primaryTableRows,
-        IEnumerable<string>[] trailingSections,
-        FinalRankingMarkdownChartSpec[] charts,
-        string? overviewNote = null,
-        string? representativeRankingMarkdownPath = null,
-        string? referenceMatchesCsvPath = null)
-    {
-        var lines = CreateFinalRankingMarkdownLines(
-            outputMarkdownPath,
-            outputCsvPath,
-            mode,
-            firstPlayerWinRatePercent,
-            playerCount,
-            editionLabel,
-            overviewNote,
-            representativeRankingMarkdownPath,
-            referenceMatchesCsvPath);
-
-        AddMarkdownSection(lines, primarySections);
-        lines.AddRange(primaryTableRows);
-        AddMarkdownSection(lines, trailingSections);
-        AddMarkdownChartsSection(lines, charts);
-        return lines;
-    }
-
     #endregion
 
     #region ［順位］の［表型］
