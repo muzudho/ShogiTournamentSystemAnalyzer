@@ -1,0 +1,5 @@
+boundaryName,schemaName,rowType,tournamentRuleSetMode,playerName,points,rankBand,averagePlace,firstPlaceProbabilityPercent,note
+FinalRanking,representativeExecutionRank,data,Neutral（ニュートラル）,Carol,2,1,1.000,100.00,この順位表は代表実行 1 件の順位です。aggregate 結果の順位表そのものではありません。
+FinalRanking,representativeExecutionRank,data,Neutral（ニュートラル）,Alice,1,2,2.000,0.00,この順位表は代表実行 1 件の順位です。aggregate 結果の順位表そのものではありません。
+FinalRanking,representativeExecutionRank,data,Neutral（ニュートラル）,Bob,1,3,3.000,0.00,この順位表は代表実行 1 件の順位です。aggregate 結果の順位表そのものではありません。
+FinalRanking,representativeExecutionRank,data,Neutral（ニュートラル）,Dave,0,4,4.000,0.00,この順位表は代表実行 1 件の順位です。aggregate 結果の順位表そのものではありません。

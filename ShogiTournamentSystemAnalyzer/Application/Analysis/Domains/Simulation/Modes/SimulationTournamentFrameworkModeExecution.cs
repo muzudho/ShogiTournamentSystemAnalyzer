@@ -15,9 +15,6 @@ using ShogiTournamentSystemAnalyzer.Domain.TournamentFinalState;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.Request.TournamentRule;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
-using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.FinalRanking;
-using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.Shared;
-using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.TournamentFinalState;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.TournamentFramework;
 using ShogiTournamentSystemAnalyzer.Infrastructure.Parsing;
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
@@ -154,8 +151,9 @@ internal static partial class SimulationTournamentFrameworkMode
             Console.WriteLine($"シミュレーションは時間上限 {SimulationTimeBudget.SimulationTimeLimit.TotalMinutes:F0} 分で打ち切りました。\n");
         }
 
-        WriteFinalRankingAndTournamentFinalStateOutputsForTournamentFramework(
-            context,
+        FinalRankingDomain.WriteTournamentFrameworkSimulationOutputs(
+            context.OutputPath,
+            context.FirstPlayerWinRatePercent,
             tournamentRuleData,
             rankingSettingsData,
             tournamentFinalStateData,
@@ -164,95 +162,6 @@ internal static partial class SimulationTournamentFrameworkMode
             representativeExecutionRankRows,
             result,
             resultRows);
-    }
-
-    static void WriteFinalRankingAndTournamentFinalStateOutputsForTournamentFramework(
-        TournamentFrameworkModeContext context,
-        TournamentRuleData tournamentRuleData,
-        RankingSettingsData rankingSettingsData,
-        TournamentFinalStateData tournamentFinalStateData,
-        IReadOnlyList<StageEntry> stages,
-        IReadOnlyList<PlayerEntry> players,
-        IReadOnlyList<RepresentativeExecutionRankRow> representativeExecutionRankRows,
-        CalculationResult finalRankingCalculation,
-        IReadOnlyList<GeneralSimulationResultRow> finalRankingRows)
-    {
-        var settings = new FinalRankingDataFileWriterSettings(RuleProfileMode.TournamentFramework);
-        FinalRankingMarkdownFileWriter finalRankingDataFileWriter = new(settings);
-
-        var defaultOutputCsvPath = ReportOutputPathBuilder.BuildFinalRankingDefaultOutputPath($"tournament_framework_aggregate_final_ranking_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
-        var requestedOutputPath = string.IsNullOrWhiteSpace(context.OutputPath)
-            ? ConsolePromptReaders.ReadTextWithDefault($"\naggregate結果CSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ", defaultOutputCsvPath)
-            : context.OutputPath!;
-        var outputCsvPath = CsvOutputHelpers.ResolveOutputCsvPath(requestedOutputPath);
-        WriterHelper.WriteText(
-            outputPath: outputCsvPath,
-            getLines: () => new FinalRankingCsvFileWriter(settings).CreateResultCsvLines(
-                mode: finalRankingCalculation.Mode,
-                firstPlayerWinRatePercent: tournamentRuleData.FirstPlayerWinRatePercent ?? context.FirstPlayerWinRatePercent,
-                resultRows: finalRankingRows,
-                overviewNote: "この順位表は複数回試行の aggregate 結果です。大会最終状態CSVとは 1 対 1 には対応しません。"));
-
-        var outputMarkdownPath = CsvOutputHelpers.ChangeOutputExtension(outputCsvPath, ".md");
-        var representativeRankingCsvPath = ReportOutputPathBuilder.BuildFinalRankingDefaultOutputPath($"tournament_framework_representative_final_ranking_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
-        var representativeRankingMarkdownPath = CsvOutputHelpers.ChangeOutputExtension(representativeRankingCsvPath, ".md");
-        var tournamentMatchRecordsCsvPath = ReportOutputPathBuilder.BuildTournamentFinalStateDefaultOutputPath($"representative_tournament_final_state_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
-        var tournamentMatchRecordsMarkdownPath = CsvOutputHelpers.ChangeOutputExtension(tournamentMatchRecordsCsvPath, ".md");
-
-        WriterHelper.WriteText(
-            outputPath: outputMarkdownPath,
-            getLines: () => finalRankingDataFileWriter.CreateResultMarkdownCore(
-                outputMarkdownPath: outputMarkdownPath,
-                outputCsvPath: outputCsvPath,
-                mode: finalRankingCalculation.Mode,
-                firstPlayerWinRatePercent: tournamentRuleData.FirstPlayerWinRatePercent ?? context.FirstPlayerWinRatePercent,
-                resultRows: finalRankingRows,
-                overviewNote: "この順位表は複数回試行の aggregate 結果です。下記の大会最終状態テーブルとは 1 対 1 には対応しません。",
-                representativeRankingMarkdownPath: representativeRankingMarkdownPath));
-
-        WriterHelper.WriteText(
-            outputPath: representativeRankingCsvPath,
-            getLines: () => RepresentativeExecutionRankFileWriter.CreateCsv(
-                rankingSettingsData.TournamentRuleSetMode,
-                representativeExecutionRankRows,
-                overviewNote: "この順位表は代表実行 1 件の順位です。aggregate 結果の順位表そのものではありません。"));
-
-        WriterHelper.WriteText(
-            outputPath: representativeRankingMarkdownPath,
-            getLines: () => RepresentativeExecutionRankFileWriter.CreateMarkdown(
-                representativeRankingMarkdownPath,
-                representativeRankingCsvPath,
-                rankingSettingsData.TournamentRuleSetMode,
-                representativeExecutionRankRows,
-                overviewNote: "この順位表は代表実行 1 件の順位です。aggregate 結果の順位表そのものではありません。",
-                representativeMatchRecordsMarkdownPath: tournamentMatchRecordsMarkdownPath));
-
-        WriterHelper.WriteText(
-            outputPath: tournamentMatchRecordsCsvPath,
-            getLines: () => TournamentFinalStateDataFileWriter.CreateTournamentMatchRecordCsv(
-                stages,
-                players,
-                tournamentFinalStateData.MatchRecords,
-                overviewNote: "この大会最終状態テーブルは代表実行 1 件の対局記録です。順位表の aggregate 結果そのものではありません。"));
-
-        WriterHelper.WriteText(
-            outputPath: tournamentMatchRecordsMarkdownPath,
-            getLines: () => TournamentFinalStateDataFileWriter.CreateTournamentMatchRecordMarkdown(
-                tournamentMatchRecordsMarkdownPath,
-                tournamentMatchRecordsCsvPath,
-                stages,
-                players,
-                tournamentFinalStateData.MatchRecords,
-                overviewNote: "この大会最終状態テーブルは代表実行 1 件の対局記録です。順位表の aggregate 結果そのものではありません。",
-                aggregateResultMarkdownPath: outputMarkdownPath,
-                representativeRankingMarkdownPath: representativeRankingMarkdownPath));
-
-        Console.WriteLine($"aggregate結果CSVを出力しました: {outputCsvPath}");
-        Console.WriteLine($"aggregate結果Markdownを出力しました: {outputMarkdownPath}");
-        Console.WriteLine($"representative順位表CSVを出力しました: {representativeRankingCsvPath}");
-        Console.WriteLine($"representative順位表Markdownを出力しました: {representativeRankingMarkdownPath}");
-        Console.WriteLine($"representative大会最終状態CSVを出力しました: {tournamentMatchRecordsCsvPath}");
-        Console.WriteLine($"representative大会最終状態Markdownを出力しました: {tournamentMatchRecordsMarkdownPath}");
     }
 
     /// <summary>

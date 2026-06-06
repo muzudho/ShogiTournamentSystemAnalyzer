@@ -1,0 +1,5 @@
+boundaryName,schemaName,rowType,matchId,stageId,stageName,firstPlayerId,firstPlayerName,secondPlayerId,secondPlayerName,startTime,endTime,status,resultType,roundNo,note
+TournamentFinalState,tournamentMatchRecord,data,1,1,予選A組,1,Alice,2,Bob,0,1,Finished,FirstPlayerWin,1,この大会最終状態テーブルは代表実行 1 件の対局記録です。順位表の aggregate 結果そのものではありません。
+TournamentFinalState,tournamentMatchRecord,data,2,1,予選A組,3,Carol,4,Dave,0,1,Finished,FirstPlayerWin,1,この大会最終状態テーブルは代表実行 1 件の対局記録です。順位表の aggregate 結果そのものではありません。
+TournamentFinalState,tournamentMatchRecord,data,3,1,予選A組,1,Alice,3,Carol,2,3,Finished,SecondPlayerWin,2,この大会最終状態テーブルは代表実行 1 件の対局記録です。順位表の aggregate 結果そのものではありません。
+TournamentFinalState,tournamentMatchRecord,data,4,1,予選A組,2,Bob,4,Dave,2,3,Finished,FirstPlayerWin,2,この大会最終状態テーブルは代表実行 1 件の対局記録です。順位表の aggregate 結果そのものではありません。
