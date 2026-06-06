@@ -211,14 +211,14 @@ internal static partial class SimulationTournamentFrameworkMode
 
         WriterHelper.WriteText(
             outputPath: representativeRankingCsvPath,
-            getLines: () => FinalRankingMarkdownFileWriter.CreateRepresentativeExecutionRankCsv(
+            getLines: () => RepresentativeExecutionRankFileWriter.CreateCsv(
                 rankingSettingsData.TournamentRuleSetMode,
                 representativeExecutionRankRows,
                 overviewNote: "この順位表は代表実行 1 件の順位です。aggregate 結果の順位表そのものではありません。"));
 
         WriterHelper.WriteText(
             outputPath: representativeRankingMarkdownPath,
-            getLines: () => FinalRankingMarkdownFileWriter.CreateRepresentativeExecutionRankMarkdown(
+            getLines: () => RepresentativeExecutionRankFileWriter.CreateMarkdown(
                 representativeRankingMarkdownPath,
                 representativeRankingCsvPath,
                 rankingSettingsData.TournamentRuleSetMode,
