@@ -17,7 +17,6 @@ using ShogiTournamentSystemAnalyzer.Domain.Request.TournamentRule;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.TournamentFramework;
 using ShogiTournamentSystemAnalyzer.Infrastructure.Parsing;
-using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 
 /// <summary>
 /// ［シミュレーション　＞　大会フレームワークモード］の主フロー
@@ -134,15 +133,11 @@ internal static partial class SimulationTournamentFrameworkMode
             Console.WriteLine($"DSL OverallRanking: {dslDefinition.OverallRankingRuleName}\n");
         }
 
-        ConsoleResultPrinter.PrintMatchesCsv(finalRankingResult.StandardPlayers, finalRankingResult.StandardMatches, "大会進行フレームワークで読み込んだ対局CSV:");
-        Console.WriteLine("注記: これ以降の順位表は複数回試行の aggregate 結果です。");
-        Console.WriteLine("注記: あとで出力する大会最終状態CSV/Markdownは代表実行1件の対局記録です。\n");
-        ConsoleResultPrinter.PrintRepresentativeExecutionRanking(finalRankingResult.RepresentativeExecutionRankRows, rankingSettingsData.TournamentRuleSetMode);
-        ConsoleResultPrinter.PrintResult(finalRankingResult.StandardPlayers.Count, finalRankingResult.AggregateCalculationResult, tournamentRuleData.FirstPlayerWinRatePercent ?? context.FirstPlayerWinRatePercent, finalRankingResult.AggregateFinalRankingResult.Rows);
-        if (finalRankingResult.AggregateCalculationResult.Mode.Contains("時間切れ", StringComparison.Ordinal))
-        {
-            Console.WriteLine($"シミュレーションは時間上限 {SimulationTimeBudget.SimulationTimeLimit.TotalMinutes:F0} 分で打ち切りました。\n");
-        }
+        FinalRankingDomain.PrintTournamentFrameworkSimulationResults(
+            finalRankingResult,
+            tournamentRuleData,
+            rankingSettingsData,
+            context.FirstPlayerWinRatePercent);
 
         FinalRankingDomain.WriteTournamentFrameworkSimulationOutputs(
             context.OutputPath,
