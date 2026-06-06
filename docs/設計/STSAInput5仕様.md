@@ -47,6 +47,14 @@ PairingSource=ScheduledMatches
 
 `Off` / `On` は、それぞれ `1` / `2` でも入力できます。`SimulationShape` と `PairingSource` も parser は番号入力を受け付けますが、要求ファイルでは名前で書くほうが読みやすいです。
 
+属性の組み合わせは、parser が次の規則で検証します。
+
+- `SimulationShape=ScheduledMatches` では `PairingSource=ScheduledMatches` を指定します。
+- `UsesFinalStageGrouping=Off` の標準形式では、`UsesAdditionalApexPlacement` / `UsesBoundaryRescue` / `UsesVariableTop8` は `Off` にします。
+- `SimulationShape=FinalStageGrouped` では `UsesFinalStageGrouping=On` と `PairingSource=ScheduledMatches` を指定します。
+- `SimulationShape=TournamentFramework` では `PairingSource=TournamentFramework` を指定し、本戦用属性と `HasReferenceMatches` は `Off` にします。
+- `SimulationShape=Empty` では `PairingSource=None` を指定し、本戦用属性と `HasReferenceMatches` は `Off` にします。
+
 ## 代表的な属性
 
 標準形式の対局表を使う場合:

@@ -46,6 +46,82 @@ internal readonly record struct RuleProfileAttributes(
     internal bool IsEmptyProfile =>
         SimulationShape == RuleProfileSimulationShape.Empty;
 
+    internal bool TryValidate(out string errorMessage)
+    {
+        errorMessage = string.Empty;
+
+        if (SimulationShape == RuleProfileSimulationShape.ScheduledMatches)
+        {
+            if (PairingSource != RuleProfilePairingSource.ScheduledMatches)
+            {
+                errorMessage = "SimulationShape=ScheduledMatches では PairingSource=ScheduledMatches を指定してください。";
+                return false;
+            }
+
+            if (!UsesFinalStageGrouping && (UsesAdditionalApexPlacement || UsesBoundaryRescue || UsesVariableTop8))
+            {
+                errorMessage = "UsesFinalStageGrouping=Off では UsesAdditionalApexPlacement / UsesBoundaryRescue / UsesVariableTop8 は Off にしてください。";
+                return false;
+            }
+
+            return true;
+        }
+
+        if (SimulationShape == RuleProfileSimulationShape.FinalStageGrouped)
+        {
+            if (PairingSource != RuleProfilePairingSource.ScheduledMatches)
+            {
+                errorMessage = "SimulationShape=FinalStageGrouped では PairingSource=ScheduledMatches を指定してください。";
+                return false;
+            }
+
+            if (!UsesFinalStageGrouping)
+            {
+                errorMessage = "SimulationShape=FinalStageGrouped では UsesFinalStageGrouping=On を指定してください。";
+                return false;
+            }
+
+            return true;
+        }
+
+        if (SimulationShape == RuleProfileSimulationShape.TournamentFramework)
+        {
+            if (PairingSource != RuleProfilePairingSource.TournamentFramework)
+            {
+                errorMessage = "SimulationShape=TournamentFramework では PairingSource=TournamentFramework を指定してください。";
+                return false;
+            }
+
+            if (UsesFinalStageGrouping || UsesAdditionalApexPlacement || UsesBoundaryRescue || UsesVariableTop8 || HasReferenceMatches)
+            {
+                errorMessage = "SimulationShape=TournamentFramework では本戦用属性と HasReferenceMatches は Off にしてください。";
+                return false;
+            }
+
+            return true;
+        }
+
+        if (SimulationShape == RuleProfileSimulationShape.Empty)
+        {
+            if (PairingSource != RuleProfilePairingSource.None)
+            {
+                errorMessage = "SimulationShape=Empty では PairingSource=None を指定してください。";
+                return false;
+            }
+
+            if (UsesFinalStageGrouping || UsesAdditionalApexPlacement || UsesBoundaryRescue || UsesVariableTop8 || HasReferenceMatches)
+            {
+                errorMessage = "SimulationShape=Empty では本戦用属性と HasReferenceMatches は Off にしてください。";
+                return false;
+            }
+
+            return true;
+        }
+
+        errorMessage = $"未対応の SimulationShape です: {SimulationShape}";
+        return false;
+    }
+
     internal static RuleProfileAttributes CreateStandardScheduled(
         TournamentRuleSetMode rankingRuleSetMode = TournamentRuleSetMode.Neutral,
         bool hasReferenceMatches = false)
