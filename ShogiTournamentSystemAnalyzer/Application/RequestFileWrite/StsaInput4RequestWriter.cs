@@ -14,8 +14,13 @@ internal static class StsaInput4RequestWriter
 {
     internal static IReadOnlyList<string> BuildLines(AnalysisRequest request)
     {
-        if (request.Steps.Count != 1) throw new InvalidOperationException("STSAInput/4 の手入力保存は単一分析ステップだけ対応しています。");
+        return request.Steps.Count == 1
+            ? BuildSingleStepLines(request)
+            : BuildMultiStepLines(request);
+    }
 
+    static IReadOnlyList<string> BuildSingleStepLines(AnalysisRequest request)
+    {
         var lines = new List<string>
         {
             "#[Format] STSAInput/4",
@@ -29,6 +34,36 @@ internal static class StsaInput4RequestWriter
         lines.Add("#[EndSection]");
 
         AddBodySections(lines, request.Steps[0]);
+        return lines;
+    }
+
+    static IReadOnlyList<string> BuildMultiStepLines(AnalysisRequest request)
+    {
+        var lines = new List<string>
+        {
+            "#[Format] STSAInput/4",
+            string.Empty,
+            "#[Section] Meta",
+            $"AnalysisFlowSteps={request.FlowSelection.ToRequestFileValue()}",
+            "#[EndSection]",
+        };
+
+        foreach (var step in request.Steps)
+        {
+            var stepName = GetStepName(step);
+            lines.Add(string.Empty);
+            lines.Add($"#[Section] Step.{stepName}");
+            lines.Add($"RuleProfileMode={GetRuleProfileMode(step)}");
+            AddMetaLines(lines, step);
+            lines.Add("#[EndSection]");
+        }
+
+        foreach (var step in request.Steps)
+        {
+            var stepName = GetStepName(step);
+            AddBodySections(lines, step, $"{stepName}.", $"{stepName}.Output");
+        }
+
         return lines;
     }
 
@@ -118,62 +153,69 @@ internal static class StsaInput4RequestWriter
         }
     }
 
-    static void AddBodySections(List<string> lines, AnalysisStepRequest step)
+    static void AddBodySections(
+        List<string> lines,
+        AnalysisStepRequest step,
+        string sectionPrefix = "",
+        string outputSectionName = "Output")
     {
         switch (step)
         {
             case StandardSimulationRequest request:
-                AddPlayersSection(lines, "PlayersCsv", request.AllPlayers);
-                AddMatchesSection(lines, "MatchesInput", request.Players, request.Matches);
-                AddOutputSection(lines, summaryOutputPath: request.OutputPath);
+                AddPlayersSection(lines, $"{sectionPrefix}PlayersCsv", request.AllPlayers);
+                AddMatchesSection(lines, $"{sectionPrefix}MatchesInput", request.Players, request.Matches);
+                AddOutputSection(lines, outputSectionName, summaryOutputPath: request.OutputPath);
                 break;
 
             case FinalStageSimulationRequest request:
-                AddPlayersSection(lines, "PlayersCsv", request.Players);
-                AddGroupMapSection(lines, request.Players, request.GroupMap);
-                AddOptionalPlayersSection(lines, "AdditionalApexPlayersCsv", request.AdditionalApexPlayers);
-                AddMatchesSection(lines, "MatchesInput", request.Players, request.Matches);
-                AddOptionalMatchesSection(lines, "ReferenceMatchesInput", request.Players, request.ReferenceMatches);
-                AddOutputSection(lines, summaryOutputPath: request.OutputPath);
+                AddPlayersSection(lines, $"{sectionPrefix}PlayersCsv", request.Players);
+                AddGroupMapSection(lines, $"{sectionPrefix}GroupMapCsv", request.Players, request.GroupMap);
+                AddOptionalPlayersSection(lines, $"{sectionPrefix}AdditionalApexPlayersCsv", request.AdditionalApexPlayers);
+                AddMatchesSection(lines, $"{sectionPrefix}MatchesInput", request.Players, request.Matches);
+                AddOptionalMatchesSection(lines, $"{sectionPrefix}ReferenceMatchesInput", request.Players, request.ReferenceMatches);
+                AddOutputSection(lines, outputSectionName, summaryOutputPath: request.OutputPath);
                 break;
 
             case TournamentFrameworkSimulationRequest request:
-                AddInputsSection(lines, request);
-                AddOutputSection(lines, outputPath: request.OutputPath);
+                AddInputsSection(lines, $"{sectionPrefix}Inputs", request);
+                AddOutputSection(lines, outputSectionName, outputPath: request.OutputPath);
                 break;
 
             case EmptySimulationRequest request:
-                AddOutputSection(lines, outputPath: request.OutputPath);
+                AddOutputSection(lines, outputSectionName, outputPath: request.OutputPath);
                 break;
 
             case StandardQualityEvaluationRequest request:
-                AddQualityBodySections(lines, request.RuleDefinition, request.Input, request.ExecutionOptions, request.OutputOptions);
+                AddQualityBodySections(lines, sectionPrefix, outputSectionName, request.RuleDefinition, request.Input, request.ExecutionOptions, request.OutputOptions);
                 break;
 
             case FinalStageQualityEvaluationRequest request:
-                AddQualityBodySections(lines, request.RuleDefinition, request.Input, request.ExecutionOptions, request.OutputOptions);
+                AddQualityBodySections(lines, sectionPrefix, outputSectionName, request.RuleDefinition, request.Input, request.ExecutionOptions, request.OutputOptions);
                 break;
         }
     }
 
     static void AddQualityBodySections(
         List<string> lines,
+        string sectionPrefix,
+        string outputSectionName,
         TournamentQualityEvaluationRuleDefinition ruleDefinition,
         TournamentQualityEvaluationInput input,
         TournamentQualityEvaluationExecutionOptions executionOptions,
         TournamentQualityEvaluationOutputOptions outputOptions)
     {
-        AddPlayersSection(lines, "PlayersCsv", input.Players);
+        AddPlayersSection(lines, $"{sectionPrefix}PlayersCsv", input.Players);
         if (ruleDefinition.UsesFinalStageGrouping)
         {
-            AddGroupMapSection(lines, input.Players, ruleDefinition.GroupMap!);
-            AddOptionalPlayersSection(lines, "AdditionalApexPlayersCsv", ruleDefinition.AdditionalApexPlayers);
+            AddGroupMapSection(lines, $"{sectionPrefix}GroupMapCsv", input.Players, ruleDefinition.GroupMap!);
+            AddOptionalPlayersSection(lines, $"{sectionPrefix}AdditionalApexPlayersCsv", ruleDefinition.AdditionalApexPlayers);
         }
 
-        AddMatchesSection(lines, "MatchesInput", input.Players, input.Matches);
-        AddOptionalMatchesSection(lines, "ReferenceMatchesInput", input.Players, input.ReferenceMatches);
+        AddMatchesSection(lines, $"{sectionPrefix}MatchesInput", input.Players, input.Matches);
+        AddOptionalMatchesSection(lines, $"{sectionPrefix}ReferenceMatchesInput", input.Players, input.ReferenceMatches);
         AddOutputSection(
             lines,
+            outputSectionName,
             summaryOutputPath: executionOptions.IsSweep ? null : outputOptions.OutputCsvPath,
             sweepOutputPath: executionOptions.IsSweep ? outputOptions.OutputCsvPath : null,
             playerCsvPath: outputOptions.PlayerCsvPath);
@@ -189,7 +231,7 @@ internal static class StsaInput4RequestWriter
         if (players.Count > 0) AddPlayersSection(lines, sectionName, players);
     }
 
-    static void AddGroupMapSection(List<string> lines, IReadOnlyList<Player> players, IReadOnlyDictionary<string, FinalStageGroup> groupMap)
+    static void AddGroupMapSection(List<string> lines, string sectionName, IReadOnlyList<Player> players, IReadOnlyDictionary<string, FinalStageGroup> groupMap)
     {
         var emitted = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var body = new List<string> { "group,name" };
@@ -206,7 +248,7 @@ internal static class StsaInput4RequestWriter
             body.Add(string.Join(",", item.Value, EscapeCsv(item.Key)));
         }
 
-        AddSection(lines, "GroupMapCsv", body);
+        AddSection(lines, sectionName, body);
     }
 
     static void AddMatchesSection(List<string> lines, string sectionName, IReadOnlyList<Player> players, IReadOnlyList<Match> matches)
@@ -221,7 +263,7 @@ internal static class StsaInput4RequestWriter
         if (matches.Count > 0) AddMatchesSection(lines, sectionName, players, matches);
     }
 
-    static void AddInputsSection(List<string> lines, TournamentFrameworkSimulationRequest request)
+    static void AddInputsSection(List<string> lines, string sectionName, TournamentFrameworkSimulationRequest request)
     {
         var body = new List<string>
         {
@@ -230,11 +272,12 @@ internal static class StsaInput4RequestWriter
             $"TournamentMatchRecordsCsvPath={request.TournamentMatchRecordsCsvPath}",
         };
         AddOptionalString(body, "RuleFilePath", request.RuleFilePath);
-        AddSection(lines, "Inputs", body);
+        AddSection(lines, sectionName, body);
     }
 
     static void AddOutputSection(
         List<string> lines,
+        string sectionName,
         string? summaryOutputPath = null,
         string? sweepOutputPath = null,
         string? playerCsvPath = null,
@@ -245,7 +288,7 @@ internal static class StsaInput4RequestWriter
         AddOptionalString(body, "SweepOutputPath", sweepOutputPath);
         AddOptionalString(body, "PlayerCsvPath", playerCsvPath);
         AddOptionalString(body, "OutputPath", outputPath);
-        if (body.Count > 0) AddSection(lines, "Output", body);
+        if (body.Count > 0) AddSection(lines, sectionName, body);
     }
 
     static void AddSection(List<string> lines, string sectionName, IEnumerable<string> body)
@@ -264,6 +307,34 @@ internal static class StsaInput4RequestWriter
     static void AddOptionalString(List<string> lines, string key, string? value)
     {
         if (!string.IsNullOrWhiteSpace(value)) lines.Add($"{key}={value}");
+    }
+
+    static RuleProfileMode GetRuleProfileMode(AnalysisStepRequest step)
+    {
+        return step switch
+        {
+            StandardSimulationRequest => RuleProfileMode.Standard,
+            FinalStageSimulationRequest => RuleProfileMode.FinalStage,
+            TournamentFrameworkSimulationRequest => RuleProfileMode.TournamentFramework,
+            EmptySimulationRequest => RuleProfileMode.Empty,
+            StandardQualityEvaluationRequest => RuleProfileMode.Standard,
+            FinalStageQualityEvaluationRequest => RuleProfileMode.FinalStage,
+            _ => throw new InvalidOperationException($"未対応の分析要求です: {step.GetType().Name}"),
+        };
+    }
+
+    static string GetStepName(AnalysisStepRequest step)
+    {
+        return step switch
+        {
+            StandardSimulationRequest => "Simulation",
+            FinalStageSimulationRequest => "Simulation",
+            TournamentFrameworkSimulationRequest => "Simulation",
+            EmptySimulationRequest => "Simulation",
+            StandardQualityEvaluationRequest => "QualityEvaluation",
+            FinalStageQualityEvaluationRequest => "QualityEvaluation",
+            _ => throw new InvalidOperationException($"未対応の分析要求です: {step.GetType().Name}"),
+        };
     }
 
     static string FormatOnOff(bool value)

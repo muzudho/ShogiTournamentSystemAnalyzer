@@ -26,49 +26,146 @@ internal static class StsaInput4RequestParser
         var sections = ParseStsaInputSections(requestText.Lines, fullPath, FormatName);
         var meta = ParseSectionKeyValues(GetRequiredSectionLines(sections, "Meta", fullPath, FormatName), "Meta", fullPath, FormatName);
         var flowSelection = ReadFlowSelection(meta, fullPath);
-        var ruleProfileMode = ParseRuleProfileMode(GetRequiredMetaValue(meta, "RuleProfileMode", fullPath, FormatName), FormatName);
 
-        if (flowSelection.Steps.Count != 1) return false;
+        if (flowSelection.Steps.Count == 1)
+        {
+            var ruleProfileMode = ParseRuleProfileMode(GetRequiredMetaValue(meta, "RuleProfileMode", fullPath, FormatName), FormatName);
+            var stepRequest = ParseStepRequest(flowSelection.Steps[0], ruleProfileMode, meta, sections, fullPath);
+            if (stepRequest is null) return false;
 
-        AnalysisStepRequest stepRequest;
-        if (flowSelection.Steps[0] == AnalysisFlowMode.Simulation && ruleProfileMode == RuleProfileMode.Standard)
-        {
-            var standardSimulationRequest = ParseStandardSimulationRequest(meta, sections, fullPath);
-            stepRequest = EnsureStandardSimulationCountIfNeeded(standardSimulationRequest);
+            request = new AnalysisRequest(
+                flowSelection,
+                ruleProfileMode,
+                new[] { stepRequest });
+            return true;
         }
-        else if (flowSelection.Steps[0] == AnalysisFlowMode.Simulation && ruleProfileMode == RuleProfileMode.FinalStage)
+
+        return TryParseMultiStepRequest(flowSelection, sections, fullPath, out request);
+    }
+
+    static bool TryParseMultiStepRequest(
+        AnalysisFlowSelection flowSelection,
+        Dictionary<string, List<string>> sections,
+        string fullPath,
+        out AnalysisRequest? request)
+    {
+        request = null;
+        if (flowSelection.Steps.Count < 2) return false;
+
+        var stepRequests = new List<AnalysisStepRequest>();
+        var ruleProfileModes = new List<RuleProfileMode>();
+        foreach (var step in flowSelection.Steps)
         {
-            var finalStageSimulationRequest = ParseFinalStageSimulationRequest(meta, sections, fullPath);
-            stepRequest = EnsureFinalStageSimulationCountIfNeeded(finalStageSimulationRequest);
-        }
-        else if (flowSelection.Steps[0] == AnalysisFlowMode.Simulation && ruleProfileMode == RuleProfileMode.TournamentFramework)
-        {
-            stepRequest = ParseTournamentFrameworkSimulationRequest(meta, sections, fullPath);
-        }
-        else if (flowSelection.Steps[0] == AnalysisFlowMode.Simulation && ruleProfileMode == RuleProfileMode.Empty)
-        {
-            stepRequest = ParseEmptySimulationRequest(meta, sections, fullPath);
-        }
-        else if (flowSelection.Steps[0] == AnalysisFlowMode.QualityEvaluation && ruleProfileMode == RuleProfileMode.Standard)
-        {
-            var standardQualityEvaluationRequest = ParseStandardQualityEvaluationRequest(meta, sections, fullPath);
-            stepRequest = EnsureStandardQualityEvaluationSimulationCountIfNeeded(standardQualityEvaluationRequest);
-        }
-        else if (flowSelection.Steps[0] == AnalysisFlowMode.QualityEvaluation && ruleProfileMode == RuleProfileMode.FinalStage)
-        {
-            var finalStageQualityEvaluationRequest = ParseFinalStageQualityEvaluationRequest(meta, sections, fullPath);
-            stepRequest = EnsureFinalStageQualityEvaluationSimulationCountIfNeeded(finalStageQualityEvaluationRequest);
-        }
-        else
-        {
-            return false;
+            var stepName = FormatStepName(step);
+            var stepSectionName = $"Step.{stepName}";
+            var stepMeta = ParseSectionKeyValues(
+                GetRequiredSectionLines(sections, stepSectionName, fullPath, FormatName),
+                stepSectionName,
+                fullPath,
+                FormatName);
+            var ruleProfileMode = ParseRuleProfileMode(GetRequiredMetaValue(stepMeta, "RuleProfileMode", fullPath, FormatName), FormatName);
+            var stepSections = BuildStepSections(sections, stepName, fullPath);
+            var stepRequest = ParseStepRequest(step, ruleProfileMode, stepMeta, stepSections, fullPath);
+            if (stepRequest is null) return false;
+
+            stepRequests.Add(stepRequest);
+            ruleProfileModes.Add(ruleProfileMode);
         }
 
         request = new AnalysisRequest(
             flowSelection,
-            ruleProfileMode,
-            new[] { stepRequest });
+            ruleProfileModes[0],
+            stepRequests);
         return true;
+    }
+
+    static AnalysisStepRequest? ParseStepRequest(
+        AnalysisFlowMode step,
+        RuleProfileMode ruleProfileMode,
+        Dictionary<string, string> meta,
+        Dictionary<string, List<string>> sections,
+        string fullPath)
+    {
+        if (step == AnalysisFlowMode.Simulation && ruleProfileMode == RuleProfileMode.Standard)
+        {
+            var standardSimulationRequest = ParseStandardSimulationRequest(meta, sections, fullPath);
+            return EnsureStandardSimulationCountIfNeeded(standardSimulationRequest);
+        }
+
+        if (step == AnalysisFlowMode.Simulation && ruleProfileMode == RuleProfileMode.FinalStage)
+        {
+            var finalStageSimulationRequest = ParseFinalStageSimulationRequest(meta, sections, fullPath);
+            return EnsureFinalStageSimulationCountIfNeeded(finalStageSimulationRequest);
+        }
+
+        if (step == AnalysisFlowMode.Simulation && ruleProfileMode == RuleProfileMode.TournamentFramework)
+        {
+            return ParseTournamentFrameworkSimulationRequest(meta, sections, fullPath);
+        }
+
+        if (step == AnalysisFlowMode.Simulation && ruleProfileMode == RuleProfileMode.Empty)
+        {
+            return ParseEmptySimulationRequest(meta, sections, fullPath);
+        }
+
+        if (step == AnalysisFlowMode.QualityEvaluation && ruleProfileMode == RuleProfileMode.Standard)
+        {
+            var standardQualityEvaluationRequest = ParseStandardQualityEvaluationRequest(meta, sections, fullPath);
+            return EnsureStandardQualityEvaluationSimulationCountIfNeeded(standardQualityEvaluationRequest);
+        }
+
+        if (step == AnalysisFlowMode.QualityEvaluation && ruleProfileMode == RuleProfileMode.FinalStage)
+        {
+            var finalStageQualityEvaluationRequest = ParseFinalStageQualityEvaluationRequest(meta, sections, fullPath);
+            return EnsureFinalStageQualityEvaluationSimulationCountIfNeeded(finalStageQualityEvaluationRequest);
+        }
+
+        return null;
+    }
+
+    static Dictionary<string, List<string>> BuildStepSections(
+        Dictionary<string, List<string>> sections,
+        string stepName,
+        string fullPath)
+    {
+        var stepSections = new Dictionary<string, List<string>>(sections, StringComparer.OrdinalIgnoreCase);
+        foreach (var sectionName in new[]
+        {
+            "PlayersCsv",
+            "MatchesInput",
+            "ReferenceMatchesInput",
+            "GroupMapCsv",
+            "AdditionalApexPlayersCsv",
+            "Inputs",
+        })
+        {
+            var stepSectionName = $"{stepName}.{sectionName}";
+            if (sections.TryGetValue(stepSectionName, out var stepLines)) stepSections[sectionName] = stepLines;
+        }
+
+        var outputSectionName = $"{stepName}.Output";
+        if (sections.TryGetValue(outputSectionName, out var outputLines))
+        {
+            stepSections["Output"] = outputLines;
+        }
+        else
+        {
+            if (sections.ContainsKey("Output")) throw new OperationCanceledException($"{FormatName} の複数ステップ要求では共有 Output セクションを使えません。'{outputSectionName}' を指定してください: {fullPath}");
+
+            stepSections.Remove("Output");
+        }
+
+        return stepSections;
+    }
+
+    static string FormatStepName(AnalysisFlowMode step)
+    {
+        return step switch
+        {
+            AnalysisFlowMode.Simulation => "Simulation",
+            AnalysisFlowMode.QualityEvaluation => "QualityEvaluation",
+            _ => throw new OperationCanceledException($"{FormatName} の AnalysisFlowSteps に未対応のステップがあります: {step}"),
+        };
     }
 
     static StandardSimulationRequest EnsureStandardSimulationCountIfNeeded(StandardSimulationRequest request)
