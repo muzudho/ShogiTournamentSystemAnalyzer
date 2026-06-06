@@ -7,6 +7,9 @@ using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.Mode
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.UseCases;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 
+/// <summary>
+/// ［シミュレーション域］
+/// </summary>
 internal static class SimulationFlowDispatcher
 {
     internal static bool TryExecute(AnalysisFlowMode flowMode, RuleProfileMode ruleProfileMode)

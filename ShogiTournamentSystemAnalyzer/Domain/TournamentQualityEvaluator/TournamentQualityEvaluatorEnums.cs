@@ -39,6 +39,9 @@ internal sealed class AnalysisFlowSelection
         Steps = steps.ToArray();
     }
 
+    /// <summary>
+    /// TODO: リストにする必要あんの（＾～＾）？　［シミュレーション域］、［最終順位付け域］、［大会品質評価域］の３プロパティでいいんじゃない（＾～＾）？　あるいは、Dictionary 型がいいんじゃないか（＾～＾）？
+    /// </summary>
     internal IReadOnlyList<AnalysisFlowMode> Steps { get; }
 
     internal bool RunsSimulation => Steps.Contains(AnalysisFlowMode.Simulation);

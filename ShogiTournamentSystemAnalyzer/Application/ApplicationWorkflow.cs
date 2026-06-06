@@ -30,10 +30,23 @@ internal static class ApplicationWorkflow
         //┌───┴──┐
         //│分析　　　　│
         //└───┬──┘
-        RunAnalysisDomain(
-            tournamentUserDomainResult.AnalysisFlowSelection,
-            tournamentUserDomainResult.RuleProfileMode,
-            tournamentUserDomainResult.AnalysisRequest);
+        // メインライン選択のガイドを表示するぜ（＾▽＾）！
+        ProgramConsoleGuide.PrintSelectedMainline(tournamentUserDomainResult.AnalysisFlowSelection, tournamentUserDomainResult.RuleProfileMode);
+
+        Console.WriteLine("■［分析］"); // TODO: この出力、消していいかだぜ（＾～＾）？
+
+        // 本処理（選択フロー）
+        if (tournamentUserDomainResult.AnalysisRequest is not null)
+        {
+            AnalysisRequestDispatcher.Execute(tournamentUserDomainResult.AnalysisRequest);
+            return;
+        }
+
+        // TODO: ここ、［シミュレーション域］、［最終順位付け域］、［大会品質評価域］の３つを直列に並べるだけでいいんじゃないのか（＾～＾）？
+        foreach (var flowMode in tournamentUserDomainResult.AnalysisFlowSelection.Steps)
+        {
+            ExecuteSingle(flowMode, tournamentUserDomainResult.RuleProfileMode);
+        }
 
         // ●終了
         return;
@@ -56,43 +69,12 @@ internal static class ApplicationWorkflow
         ProgramConsoleGuide.PrintProgramIntroduction();
     }
 
-    /// <summary>
-    /// ［分析］
-    /// </summary>
-    private static void RunAnalysisDomain(
-        AnalysisFlowSelection analysisFlowSelection,
-        RuleProfileMode ruleProfileMode,
-        AnalysisRequest? analysisRequest)
+    static void ExecuteSingle(AnalysisFlowMode flowMode, RuleProfileMode ruleProfileMode)
     {
-        // メインライン選択のガイドを表示するぜ（＾▽＾）！
-        ProgramConsoleGuide.PrintSelectedMainline(analysisFlowSelection, ruleProfileMode);
+        // TODO: switch文じゃいかんの（＾～＾）？　もっと細かい分類をしてる（＾～＾）？
+        if (SimulationFlowDispatcher.TryExecute(flowMode, ruleProfileMode)) return;
+        if (QualityEvaluationFlowDispatcher.TryExecute(flowMode, ruleProfileMode)) return;
 
-        //      │
-        //      ↓
-        //      
-        Console.WriteLine("■［分析］");
-        //［シミュレーション域］
-        //　　｜
-        //　　｜　［大会最終状態という境界］      `TournamentFinalState`
-        //　　↓
-        //［最終順位付け域］                      `FinalRanking`
-        //　　｜
-        //　　｜　［最終順位という境界］          `FinalRanking`
-        //　　↓
-        //［大会品質評価フロー域］                `TournamentQualityEvaluator`
-        //　　｜
-        //　　｜　［大会品質レポートという境界］  `TournamentQualityReport`
-        //　　↓
-
-
-        // 本処理（選択フロー）
-        if (analysisRequest is not null)
-        {
-            AnalysisRequestDispatcher.Execute(analysisRequest);
-            return;
-        }
-
-        AnalysisFlowDispatcher.Execute(analysisFlowSelection, ruleProfileMode);
-
+        throw new InvalidOperationException("未対応のモードです。");
     }
 }
