@@ -30,6 +30,22 @@ internal readonly record struct RuleProfileAttributes(
     bool HasReferenceMatches,
     RuleProfilePairingSource PairingSource)
 {
+    internal bool IsStandardScheduledProfile =>
+        PairingSource == RuleProfilePairingSource.ScheduledMatches
+        && SimulationShape == RuleProfileSimulationShape.ScheduledMatches
+        && !UsesFinalStageGrouping;
+
+    internal bool IsFinalStageScheduledProfile =>
+        PairingSource == RuleProfilePairingSource.ScheduledMatches
+        && (SimulationShape == RuleProfileSimulationShape.FinalStageGrouped
+            || UsesFinalStageGrouping);
+
+    internal bool IsTournamentFrameworkProfile =>
+        SimulationShape == RuleProfileSimulationShape.TournamentFramework;
+
+    internal bool IsEmptyProfile =>
+        SimulationShape == RuleProfileSimulationShape.Empty;
+
     internal static RuleProfileAttributes CreateStandardScheduled(
         TournamentRuleSetMode rankingRuleSetMode = TournamentRuleSetMode.Neutral,
         bool hasReferenceMatches = false)

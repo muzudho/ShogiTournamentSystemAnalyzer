@@ -11,9 +11,8 @@ internal static class SimulationScenarioFactory
     {
         return ruleProfileAttributes.SimulationShape switch
         {
-            RuleProfileSimulationShape.ScheduledMatches when !ruleProfileAttributes.UsesFinalStageGrouping => StandardSimulationScenario.Instance,
-            RuleProfileSimulationShape.FinalStageGrouped => FinalStageSimulationScenario.Instance,
-            RuleProfileSimulationShape.ScheduledMatches when ruleProfileAttributes.UsesFinalStageGrouping => FinalStageSimulationScenario.Instance,
+            _ when ruleProfileAttributes.IsStandardScheduledProfile => StandardSimulationScenario.Instance,
+            _ when ruleProfileAttributes.IsFinalStageScheduledProfile => FinalStageSimulationScenario.Instance,
             _ => throw new InvalidOperationException($"Simulation 用の scenario が未対応です: {ruleProfileAttributes}")
         };
     }

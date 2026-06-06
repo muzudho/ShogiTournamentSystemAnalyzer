@@ -126,29 +126,29 @@ internal static class StsaInputRequestParser
         Dictionary<string, List<string>> sections,
         string fullPath)
     {
-        if (step == AnalysisFlowMode.Simulation && IsStandardScheduledProfile(ruleProfileAttributes))
+        if (step == AnalysisFlowMode.Simulation && ruleProfileAttributes.IsStandardScheduledProfile)
         {
             var standardSimulationRequest = ParseStandardSimulationRequest(meta, sections, fullPath);
             return EnsureStandardSimulationCountIfNeeded(standardSimulationRequest);
         }
 
-        if (step == AnalysisFlowMode.Simulation && IsFinalStageScheduledProfile(ruleProfileAttributes))
+        if (step == AnalysisFlowMode.Simulation && ruleProfileAttributes.IsFinalStageScheduledProfile)
         {
             var finalStageSimulationRequest = ParseFinalStageSimulationRequest(meta, sections, fullPath);
             return EnsureFinalStageSimulationCountIfNeeded(finalStageSimulationRequest);
         }
 
-        if (step == AnalysisFlowMode.Simulation && ruleProfileAttributes.SimulationShape == RuleProfileSimulationShape.TournamentFramework)
+        if (step == AnalysisFlowMode.Simulation && ruleProfileAttributes.IsTournamentFrameworkProfile)
         {
             return ParseTournamentFrameworkSimulationRequest(meta, sections, fullPath);
         }
 
-        if (step == AnalysisFlowMode.Simulation && ruleProfileAttributes.SimulationShape == RuleProfileSimulationShape.Empty)
+        if (step == AnalysisFlowMode.Simulation && ruleProfileAttributes.IsEmptyProfile)
         {
             return ParseEmptySimulationRequest(meta, sections, fullPath);
         }
 
-        if (step == AnalysisFlowMode.QualityEvaluation && IsStandardScheduledProfile(ruleProfileAttributes))
+        if (step == AnalysisFlowMode.QualityEvaluation && ruleProfileAttributes.IsStandardScheduledProfile)
         {
             var standardQualityEvaluationRequest = ParseStandardQualityEvaluationRequest(meta, sections, fullPath);
             return standardQualityEvaluationRequest is StandardQualityEvaluationRequest concreteRequest
@@ -156,7 +156,7 @@ internal static class StsaInputRequestParser
                 : standardQualityEvaluationRequest;
         }
 
-        if (step == AnalysisFlowMode.QualityEvaluation && IsFinalStageScheduledProfile(ruleProfileAttributes))
+        if (step == AnalysisFlowMode.QualityEvaluation && ruleProfileAttributes.IsFinalStageScheduledProfile)
         {
             var finalStageQualityEvaluationRequest = ParseFinalStageQualityEvaluationRequest(meta, sections, fullPath);
             return finalStageQualityEvaluationRequest is FinalStageQualityEvaluationRequest concreteRequest
@@ -167,19 +167,6 @@ internal static class StsaInputRequestParser
         return null;
     }
 
-    static bool IsStandardScheduledProfile(RuleProfileAttributes ruleProfileAttributes)
-    {
-        return ruleProfileAttributes.PairingSource == RuleProfilePairingSource.ScheduledMatches
-            && ruleProfileAttributes.SimulationShape == RuleProfileSimulationShape.ScheduledMatches
-            && !ruleProfileAttributes.UsesFinalStageGrouping;
-    }
-
-    static bool IsFinalStageScheduledProfile(RuleProfileAttributes ruleProfileAttributes)
-    {
-        return ruleProfileAttributes.PairingSource == RuleProfilePairingSource.ScheduledMatches
-            && (ruleProfileAttributes.SimulationShape == RuleProfileSimulationShape.FinalStageGrouped
-                || ruleProfileAttributes.UsesFinalStageGrouping);
-    }
 
     static Dictionary<string, List<string>> BuildStepSections(
         Dictionary<string, List<string>> sections,

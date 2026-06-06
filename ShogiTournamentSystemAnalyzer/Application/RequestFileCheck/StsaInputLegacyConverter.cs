@@ -46,20 +46,20 @@ internal static class StsaInputLegacyConverter
         var analysisFlowMode = flowSelection.Steps[0];
 
         if (analysisFlowMode == AnalysisFlowMode.Simulation
-            && (ruleProfileAttributes.SimulationShape == RuleProfileSimulationShape.TournamentFramework
+            && (ruleProfileAttributes.IsTournamentFrameworkProfile
                 || GetOptionalMetaValue(meta, "TournamentFrameworkMode") is not null)) return StsaSimulationLegacyConverter.ConvertTournamentFramework(meta, sections, fullPath, formatName, promptPrefixLines);
 
         if (analysisFlowMode == AnalysisFlowMode.Simulation
-            && ruleProfileAttributes.SimulationShape == RuleProfileSimulationShape.Empty) return StsaSimulationLegacyConverter.ConvertEmpty(meta, sections, fullPath, formatName, promptPrefixLines);
+            && ruleProfileAttributes.IsEmptyProfile) return StsaSimulationLegacyConverter.ConvertEmpty(meta, sections, fullPath, formatName, promptPrefixLines);
 
         if (analysisFlowMode == AnalysisFlowMode.Simulation)
         {
-            return IsFinalStageScheduledProfile(ruleProfileAttributes)
+            return ruleProfileAttributes.IsFinalStageScheduledProfile
                 ? StsaSimulationLegacyConverter.ConvertFinalStage(meta, sections, fullPath, formatName, promptPrefixLines)
                 : StsaSimulationLegacyConverter.ConvertStandard(meta, sections, fullPath, formatName, promptPrefixLines);
         }
 
-        return IsFinalStageScheduledProfile(ruleProfileAttributes)
+        return ruleProfileAttributes.IsFinalStageScheduledProfile
             ? StsaQualityEvaluationLegacyConverter.ConvertFinalStage(meta, sections, fullPath, formatName, promptPrefixLines)
             : StsaQualityEvaluationLegacyConverter.ConvertStandard(meta, sections, fullPath, formatName, promptPrefixLines);
     }
@@ -75,22 +75,9 @@ internal static class StsaInputLegacyConverter
 
     static bool CanRunQualityEvaluation(RuleProfileAttributes ruleProfileAttributes)
     {
-        return IsStandardScheduledProfile(ruleProfileAttributes) || IsFinalStageScheduledProfile(ruleProfileAttributes);
+        return ruleProfileAttributes.IsStandardScheduledProfile || ruleProfileAttributes.IsFinalStageScheduledProfile;
     }
 
-    static bool IsStandardScheduledProfile(RuleProfileAttributes ruleProfileAttributes)
-    {
-        return ruleProfileAttributes.PairingSource == RuleProfilePairingSource.ScheduledMatches
-            && ruleProfileAttributes.SimulationShape == RuleProfileSimulationShape.ScheduledMatches
-            && !ruleProfileAttributes.UsesFinalStageGrouping;
-    }
-
-    static bool IsFinalStageScheduledProfile(RuleProfileAttributes ruleProfileAttributes)
-    {
-        return ruleProfileAttributes.PairingSource == RuleProfilePairingSource.ScheduledMatches
-            && (ruleProfileAttributes.SimulationShape == RuleProfileSimulationShape.FinalStageGrouped
-                || ruleProfileAttributes.UsesFinalStageGrouping);
-    }
 
     static IReadOnlyList<string> BuildPromptPrefixLines(AnalysisFlowSelection flowSelection, RuleProfileAttributes ruleProfileAttributes)
     {
@@ -104,10 +91,10 @@ internal static class StsaInputLegacyConverter
 
     static string RuleProfileAttributesToPromptNumber(RuleProfileAttributes ruleProfileAttributes)
     {
-        if (ruleProfileAttributes.SimulationShape == RuleProfileSimulationShape.TournamentFramework) return "3";
-        if (ruleProfileAttributes.SimulationShape == RuleProfileSimulationShape.Empty) return "4";
-        if (IsFinalStageScheduledProfile(ruleProfileAttributes)) return "2";
-        if (IsStandardScheduledProfile(ruleProfileAttributes)) return "1";
+        if (ruleProfileAttributes.IsTournamentFrameworkProfile) return "3";
+        if (ruleProfileAttributes.IsEmptyProfile) return "4";
+        if (ruleProfileAttributes.IsFinalStageScheduledProfile) return "2";
+        if (ruleProfileAttributes.IsStandardScheduledProfile) return "1";
 
         throw new InvalidOperationException($"未対応のルールプロファイル属性です: {ruleProfileAttributes}");
     }

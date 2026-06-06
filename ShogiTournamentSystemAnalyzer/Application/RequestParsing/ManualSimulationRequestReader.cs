@@ -15,26 +15,24 @@ internal static partial class ManualAnalysisRequestReader
     {
         stepRequest = null!;
 
-        if (ruleProfileAttributes.SimulationShape == RuleProfileSimulationShape.ScheduledMatches
-            && !ruleProfileAttributes.UsesFinalStageGrouping)
+        if (ruleProfileAttributes.IsStandardScheduledProfile)
         {
             stepRequest = ReadStandardSimulationRequest();
             return true;
         }
 
-        if (ruleProfileAttributes.SimulationShape == RuleProfileSimulationShape.FinalStageGrouped
-            || ruleProfileAttributes.UsesFinalStageGrouping)
+        if (ruleProfileAttributes.IsFinalStageScheduledProfile)
         {
             return TryReadFinalStageSimulationRequest(out stepRequest);
         }
 
-        if (ruleProfileAttributes.SimulationShape == RuleProfileSimulationShape.TournamentFramework)
+        if (ruleProfileAttributes.IsTournamentFrameworkProfile)
         {
             stepRequest = ReadTournamentFrameworkSimulationRequest();
             return true;
         }
 
-        if (ruleProfileAttributes.SimulationShape == RuleProfileSimulationShape.Empty)
+        if (ruleProfileAttributes.IsEmptyProfile)
         {
             stepRequest = ReadEmptySimulationRequest();
             return true;
