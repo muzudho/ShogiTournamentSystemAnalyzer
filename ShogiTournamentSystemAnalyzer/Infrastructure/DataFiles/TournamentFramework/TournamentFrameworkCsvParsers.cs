@@ -8,6 +8,8 @@ using ShogiTournamentSystemAnalyzer.Infrastructure.Parsing;
 
 /// <summary>
 /// ［大会フレームワーク］のデータファイルを作成するクラスだぜ（＾▽＾）！
+/// 
+/// TODO: "TournamentFramework" は［４大域］のいずれかに含めてほしいぜ（＾～＾）
 /// </summary>
 internal static class TournamentFrameworkCsvParsers
 {

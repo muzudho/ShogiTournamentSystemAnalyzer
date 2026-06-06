@@ -88,6 +88,9 @@ internal static class ConsoleSamplePrinter
         Console.WriteLine("10. 結果CSVの出力先\n");
     }
 
+    /// <summary>
+    /// TODO: "TournamentFramework" は［４大域］のいずれかに含めてほしいぜ（＾～＾）
+    /// </summary>
     internal static void PrintSimulationTournamentFrameworkOverview()
     {
         Console.WriteLine("このモードでは次を順に入力します。");

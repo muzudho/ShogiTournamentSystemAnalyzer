@@ -5,6 +5,19 @@ namespace ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.
 
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 
+/// <summary>
+/// TODO: "TournamentFramework" は［４大域］のいずれかに含めてほしいぜ（＾～＾）
+/// </summary>
+/// <param name="PlayersCsvPath"></param>
+/// <param name="StagesCsvPath"></param>
+/// <param name="TournamentMatchRecordsCsvPath"></param>
+/// <param name="RuleFilePath"></param>
+/// <param name="RandomSeed"></param>
+/// <param name="SimulationCount"></param>
+/// <param name="TournamentRuleSetMode"></param>
+/// <param name="FirstPlayerWinRatePercent"></param>
+/// <param name="FirstPlayerWinRateRating"></param>
+/// <param name="OutputPath"></param>
 internal readonly record struct TournamentFrameworkModeContext(
     string PlayersCsvPath,
     string StagesCsvPath,

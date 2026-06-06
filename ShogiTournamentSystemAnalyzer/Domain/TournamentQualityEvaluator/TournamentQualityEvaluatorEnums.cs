@@ -91,6 +91,11 @@ enum RuleProfileMode
 {
     Standard,
     FinalStage,
+
+    /// <summary>
+    /// TODO: "TournamentFramework" は［４大域］のいずれかに含めてほしいぜ（＾～＾）
+    /// </summary>
     TournamentFramework,
+
     Empty,
 }

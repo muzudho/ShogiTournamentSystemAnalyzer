@@ -84,6 +84,15 @@ internal static class StsaSimulationLegacyConverter
         return string.Join(Environment.NewLine, legacyLines);
     }
 
+    /// <summary>
+    /// TODO: "TournamentFramework" は［４大域］のいずれかに含めてほしいぜ（＾～＾）
+    /// </summary>
+    /// <param name="meta"></param>
+    /// <param name="sections"></param>
+    /// <param name="fullPath"></param>
+    /// <param name="formatName"></param>
+    /// <param name="promptPrefixLines"></param>
+    /// <returns></returns>
     internal static string ConvertTournamentFramework(
         Dictionary<string, string> meta,
         Dictionary<string, List<string>> sections,

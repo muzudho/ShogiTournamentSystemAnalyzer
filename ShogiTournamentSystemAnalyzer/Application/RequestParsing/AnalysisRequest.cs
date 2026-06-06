@@ -41,6 +41,18 @@ internal sealed record FinalStageSimulationRequest(
     int? SimulationCount,
     string? OutputPath) : AnalysisStepRequest;
 
+/// <summary>
+/// TODO: "TournamentFramework" は［４大域］のいずれかに含めてほしいぜ（＾～＾）
+/// </summary>
+/// <param name="PlayersCsvPath"></param>
+/// <param name="StagesCsvPath"></param>
+/// <param name="TournamentMatchRecordsCsvPath"></param>
+/// <param name="RuleFilePath"></param>
+/// <param name="RandomSeed"></param>
+/// <param name="SimulationCount"></param>
+/// <param name="TournamentRuleSetMode"></param>
+/// <param name="FirstPlayerWinRatePercent"></param>
+/// <param name="OutputPath"></param>
 internal sealed record TournamentFrameworkSimulationRequest(
     string PlayersCsvPath,
     string StagesCsvPath,
