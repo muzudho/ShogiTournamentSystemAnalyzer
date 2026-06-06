@@ -22,10 +22,10 @@ internal static class ApplicationWorkflow
         Opening();
 
         // ［依頼という境界］
-        RequestBoundary requestBoundary = new();    // TODO: RequestBoundary と AnalysisRequest はどっちも RunAnalysisDomain メソッドに渡されるけど、１つにまとまらないのかだぜ（＾～＾）？
+        RequestBoundary requestBoundary = new();    // TODO: これは旧フローが残っている間の仮置き（＾～＾）この変数は育てず、 analysisRequest 変数に一本化していきたい（＾～＾）
         IReadOnlyList<string> recordedLines = Array.Empty<string>();
         string? requestFilePath = null;
-        AnalysisRequest? analysisRequest = null;    // TODO: RequestBoundary と AnalysisRequest はどっちも RunAnalysisDomain メソッドに渡されるけど、１つにまとまらないのかだぜ（＾～＾）？
+        AnalysisRequest? analysisRequest = null;    // TODO: これは現在の本命フローに合わせている（＾～＾）この変数を育てていき、将来的には requestBoundary 変数は解消したい（＾～＾）？
 
         //┌───┴──┐
         //│大会利用者域│
