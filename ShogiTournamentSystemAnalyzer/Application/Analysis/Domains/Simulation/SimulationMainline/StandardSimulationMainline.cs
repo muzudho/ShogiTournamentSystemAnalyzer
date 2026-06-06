@@ -58,7 +58,7 @@ internal class StandardSimulationMainline
         var standardExecutionResult = (SimulationMainlineExecutionResult<StandardResultRow>)executionResult;
         ConsoleResultPrinter.PrintResult(
             standardContext.Players.Count,
-            standardExecutionResult.TournamentFinalState,
+            standardExecutionResult.SimulationResult.TournamentFinalState,
             standardContext.FirstPlayerWinRatePercent,
             standardExecutionResult.FinalRankingResult.Rows);
     }
@@ -67,7 +67,7 @@ internal class StandardSimulationMainline
     {
         var standardContext = (StandardModeSimulationContext)context;
         var standardExecutionResult = (SimulationMainlineExecutionResult<StandardResultRow>)executionResult;
-        WriteFinalRankingOutputsForStandardMode(standardContext, standardExecutionResult.TournamentFinalState, standardExecutionResult.FinalRankingResult, outputPathOverride);
+        WriteFinalRankingOutputsForStandardMode(standardContext, standardExecutionResult.SimulationResult.TournamentFinalState, standardExecutionResult.FinalRankingResult, outputPathOverride);
     }
 
     CalculationResult ExecuteTournamentFinalState(StandardModeSimulationContext context)

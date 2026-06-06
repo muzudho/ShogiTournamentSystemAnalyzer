@@ -29,7 +29,7 @@ internal abstract class AbstractSimulationMainline
 
         AfterExecuteSimulationContext(context, executionResult);
         PrintSimulationResult(context, executionResult);
-        PrintTimeLimitIfNeeded(executionResult.TournamentFinalState);
+        PrintTimeLimitIfNeeded(executionResult.SimulationResult.TournamentFinalState);
         WriteSimulationOutputs(context, executionResult);
     }
 
@@ -106,18 +106,18 @@ internal abstract class AbstractSimulationMainline
 
 }
 
-internal abstract record SimulationMainlineExecutionResult(CalculationResult TournamentFinalState);
+internal abstract record SimulationMainlineExecutionResult(SimulationResult SimulationResult);
 
 internal sealed record SimulationMainlineExecutionResult<TRow>(
-    CalculationResult TournamentFinalState,
+    SimulationResult SimulationResult,
     FinalRankingResult<TRow> FinalRankingResult)
-    : SimulationMainlineExecutionResult(TournamentFinalState)
+    : SimulationMainlineExecutionResult(SimulationResult)
     where TRow : ISimulationResultRow
 {
     internal SimulationMainlineExecutionResult(
         CalculationResult tournamentFinalState,
         IReadOnlyList<TRow> resultRows)
-        : this(tournamentFinalState, new FinalRankingResult<TRow>(resultRows))
+        : this(new SimulationResult(tournamentFinalState), new FinalRankingResult<TRow>(resultRows))
     {
     }
 }
