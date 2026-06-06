@@ -12,17 +12,6 @@ using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 /// </summary>
 internal static class SimulationFlowDispatcher
 {
-    /// <summary>
-    /// シミュレーションフローを実行する。
-    /// </summary>
-    /// <param name="flowMode"></param>
-    /// <param name="ruleProfileMode"></param>
-    /// <returns></returns>
-    internal static bool TryExecute(AnalysisFlowMode flowMode, RuleProfileMode ruleProfileMode)
-    {
-        return TryExecute(flowMode, RuleProfileAttributes.FromCompatibilityLabel(ruleProfileMode));
-    }
-
     internal static bool TryExecute(AnalysisFlowMode flowMode, RuleProfileAttributes ruleProfileAttributes)
     {
         if (flowMode != AnalysisFlowMode.Simulation) return false;

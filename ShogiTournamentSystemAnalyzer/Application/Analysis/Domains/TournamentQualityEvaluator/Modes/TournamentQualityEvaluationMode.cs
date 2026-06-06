@@ -8,11 +8,6 @@ using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 
 internal static partial class TournamentQualityEvaluationMode
 {
-    internal static void Run(RuleProfileMode ruleProfileMode)
-    {
-        Run(RuleProfileAttributes.FromCompatibilityLabel(ruleProfileMode));
-    }
-
     internal static void Run(RuleProfileAttributes ruleProfileAttributes)
     {
         if (!ruleProfileAttributes.UsesFinalStageGrouping)

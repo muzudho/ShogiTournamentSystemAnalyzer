@@ -12,11 +12,6 @@ using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 /// </summary>
 internal static class TournamentQualityEvaluationMainline
 {
-    internal static void Run(RuleProfileMode ruleProfileMode)
-    {
-        Run(RuleProfileAttributes.FromCompatibilityLabel(ruleProfileMode));
-    }
-
     internal static void Run(RuleProfileAttributes ruleProfileAttributes)
     {
         // ［選手一覧］を読み取る

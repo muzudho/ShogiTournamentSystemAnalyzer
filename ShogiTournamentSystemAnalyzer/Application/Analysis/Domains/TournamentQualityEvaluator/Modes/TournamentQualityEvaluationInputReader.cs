@@ -13,17 +13,6 @@ internal static class TournamentQualityEvaluationInputReader
 {
     internal static bool TryReadQualityEvaluationRuleDefinition(
         IReadOnlyList<Player> players,
-        RuleProfileMode ruleProfileMode,
-        out TournamentQualityEvaluationRuleDefinition ruleDefinition)
-    {
-        return TryReadQualityEvaluationRuleDefinition(
-            players,
-            RuleProfileAttributes.FromCompatibilityLabel(ruleProfileMode),
-            out ruleDefinition);
-    }
-
-    internal static bool TryReadQualityEvaluationRuleDefinition(
-        IReadOnlyList<Player> players,
         RuleProfileAttributes ruleProfileAttributes,
         out TournamentQualityEvaluationRuleDefinition ruleDefinition)
     {
