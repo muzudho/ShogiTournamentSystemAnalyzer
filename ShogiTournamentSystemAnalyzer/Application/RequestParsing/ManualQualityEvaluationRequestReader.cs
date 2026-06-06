@@ -14,12 +14,10 @@ internal static partial class ManualAnalysisRequestReader
         out AnalysisStepRequest stepRequest)
     {
         stepRequest = null!;
-        var ruleProfileMode = ruleProfileAttributes.ToCompatibilityLabel();
-
         var players = ConsoleInputReaders.ReadPlayersFromCsv();
         Console.WriteLine();
 
-        if (!TournamentQualityEvaluationInputReader.TryReadQualityEvaluationRuleDefinition(players, ruleProfileMode, out var ruleDefinition)) return false;
+        if (!TournamentQualityEvaluationInputReader.TryReadQualityEvaluationRuleDefinition(players, ruleProfileAttributes, out var ruleDefinition)) return false;
         if (!TournamentQualityEvaluationInputReader.TryReadQualityEvaluationInput(players, ruleDefinition, out var input)) return false;
 
         var executionOptions = TournamentQualityEvaluationExecutor.ReadTournamentQualityEvaluationExecutionOptions(input, ruleDefinition);
@@ -27,7 +25,7 @@ internal static partial class ManualAnalysisRequestReader
             ? TournamentQualityEvaluationOutputCoordinator.ReadTournamentQualitySweepReportOutputOptions(ruleDefinition)
             : TournamentQualityEvaluationOutputCoordinator.ReadTournamentQualityReportOutputOptions(ruleDefinition);
 
-        stepRequest = ruleProfileMode == RuleProfileMode.Standard
+        stepRequest = !ruleProfileAttributes.UsesFinalStageGrouping
             ? new StandardQualityEvaluationRequest(ruleDefinition, input, executionOptions, outputOptions)
             : new FinalStageQualityEvaluationRequest(ruleDefinition, input, executionOptions, outputOptions);
         return true;

@@ -26,7 +26,7 @@ internal static partial class TournamentQualityEvaluationMode
             ConsoleSamplePrinter.PrintQualityEvaluationFinalStageOverview();
         }
 
-        TournamentQualityEvaluationMainline.Run(ruleProfileAttributes.ToCompatibilityLabel());
+        TournamentQualityEvaluationMainline.Run(ruleProfileAttributes);
     }
 
 }

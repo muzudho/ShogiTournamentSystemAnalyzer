@@ -16,13 +16,24 @@ internal static class TournamentQualityEvaluationInputReader
         RuleProfileMode ruleProfileMode,
         out TournamentQualityEvaluationRuleDefinition ruleDefinition)
     {
-        var groupingMode = ruleProfileMode == RuleProfileMode.FinalStage
+        return TryReadQualityEvaluationRuleDefinition(
+            players,
+            RuleProfileAttributes.FromCompatibilityLabel(ruleProfileMode),
+            out ruleDefinition);
+    }
+
+    internal static bool TryReadQualityEvaluationRuleDefinition(
+        IReadOnlyList<Player> players,
+        RuleProfileAttributes ruleProfileAttributes,
+        out TournamentQualityEvaluationRuleDefinition ruleDefinition)
+    {
+        var groupingMode = ruleProfileAttributes.UsesFinalStageGrouping
             ? FinalStageGroupingMode.On
             : FinalStageGroupingMode.Off;
-        var tournamentRuleSetMode = ruleProfileMode == RuleProfileMode.Standard
+        var tournamentRuleSetMode = !ruleProfileAttributes.UsesFinalStageGrouping
             ? ConsoleRuleReaders.ReadTournamentRuleSetMode()
             : TournamentRuleSetMode.Neutral;
-        var groupMap = ruleProfileMode == RuleProfileMode.FinalStage
+        var groupMap = ruleProfileAttributes.UsesFinalStageGrouping
             ? ModeSupportHelpers.ReadOptionalFinalStageGroupMap(groupingMode, players)
             : null;
 

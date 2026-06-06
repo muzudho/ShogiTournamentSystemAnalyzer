@@ -14,12 +14,17 @@ internal static class TournamentQualityEvaluationMainline
 {
     internal static void Run(RuleProfileMode ruleProfileMode)
     {
+        Run(RuleProfileAttributes.FromCompatibilityLabel(ruleProfileMode));
+    }
+
+    internal static void Run(RuleProfileAttributes ruleProfileAttributes)
+    {
         // ［選手一覧］を読み取る
         var players = ConsoleInputReaders.ReadPlayersFromCsv();
         Console.WriteLine();
 
         // ［大会品質評価ルール定義］を読み取る
-        if (!TournamentQualityEvaluationInputReader.TryReadQualityEvaluationRuleDefinition(players, ruleProfileMode, out var ruleDefinition)) return;
+        if (!TournamentQualityEvaluationInputReader.TryReadQualityEvaluationRuleDefinition(players, ruleProfileAttributes, out var ruleDefinition)) return;
 
         // ［大会品質評価入力］を読み取る
         if (!TournamentQualityEvaluationInputReader.TryReadQualityEvaluationInput(players, ruleDefinition, out var input)) return;
