@@ -48,6 +48,7 @@ internal static class ApplicationWorkflow
     private static void Opening()
     {
         // エンコーディングって大事だよな（＾▽＾）！　文字化けを防ぐぜ（＾▽＾）！
+        Console.InputEncoding = Encoding.UTF8;
         Console.OutputEncoding = Encoding.UTF8;
         InputFromSomewhere.UseConsole();
 
