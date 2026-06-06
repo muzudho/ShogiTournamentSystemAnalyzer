@@ -35,11 +35,9 @@ internal static class ApplicationWorkflow
             tournamentUserDomainResult.RuleProfileMode,
             tournamentUserDomainResult.AnalysisRequest);
 
-        InputFromSomewhere.PauseRecording();
         WriteRequestFile(
-            tournamentUserDomainResult.RecordedLines,
+            tournamentUserDomainResult.AnalysisRequest,
             tournamentUserDomainResult.RequestFilePath);   // TODO: ［要求ファイル］の書き込みは、［大会利用者域］の仕事だぜ（＾～＾）
-        InputFromSomewhere.StopRecording();
 
         // ●終了
         return;
@@ -77,7 +75,6 @@ internal static class ApplicationWorkflow
         //　　↓
 
         result = null!;
-        IReadOnlyList<string> recordedLines = Array.Empty<string>();
         string? requestFilePath = null;
         var analysisFlowSelection = AnalysisFlowSelection.FromSingle(AnalysisFlowMode.Simulation);
         var ruleProfileMode = new RuleProfileMode();
@@ -139,9 +136,6 @@ internal static class ApplicationWorkflow
             //  📍 TODO: ここで、大会ルールを入力するプログラムを作りたい。今は空っぽ。
             //
 
-            // 記録した手動入力行
-            recordedLines = InputFromSomewhere.StartRecording();
-
             // TODO: これも入力に含めたいぜ（＾～＾）
             analysisFlowSelection = ConsolePromptReaders.ReadAnalysisFlowSelection();
 
@@ -198,9 +192,7 @@ internal static class ApplicationWorkflow
                     Console.WriteLine("1 か 2 を入力してください。\n");
                 }
             }
-            InputFromSomewhere.PauseRecording();
             requestFilePath = InputRequestFilePath();
-            recordedLines = InputFromSomewhere.ResumeRecording(recordedLines);
         }
 
         if (requestText is not null)
@@ -211,7 +203,6 @@ internal static class ApplicationWorkflow
         }
 
         result = new TournamentUserDomainResult(
-            recordedLines,
             requestFilePath,
             analysisFlowSelection,
             ruleProfileMode,
@@ -227,29 +218,87 @@ internal static class ApplicationWorkflow
         analysisRequest = null;
         if (analysisFlowSelection.Steps.Count != 1) return false;
         if (analysisFlowSelection.Steps[0] != AnalysisFlowMode.Simulation) return false;
-        if (ruleProfileMode != RuleProfileMode.TournamentFramework) return false;
 
-        var context = SimulationModeInputReaders.ReadTournamentFrameworkModeContext();
+        AnalysisStepRequest stepRequest;
+        if (ruleProfileMode == RuleProfileMode.Standard)
+        {
+            var context = SimulationModeInputReaders.ReadStandardModeContext();
+            stepRequest = new StandardSimulationRequest(
+                context.TournamentRuleSetMode,
+                context.FirstPlayerWinRatePercent,
+                context.AllPlayers,
+                context.Players,
+                context.Matches,
+                ReadSimulationCountIfNeeded(context.Matches.Count, "標準"),
+                null);
+        }
+        else if (ruleProfileMode == RuleProfileMode.FinalStage)
+        {
+            if (!SimulationModeInputReaders.TryReadFinalStageModeContext(out var context) || context is null) return false;
+
+            stepRequest = new FinalStageSimulationRequest(
+                context.TournamentRuleSetMode,
+                context.FirstPlayerWinRatePercent,
+                context.Players,
+                context.GroupingMode,
+                context.GroupMap!,
+                context.AdditionalApexPlayers,
+                context.AdditionalApexPlacementMode,
+                context.EffectiveAdditionalApexCount,
+                context.BoundaryRescueMode,
+                context.ApexCount,
+                context.InnovCount,
+                context.Matches,
+                context.ReferenceMatches,
+                ReadSimulationCountIfNeeded(context.Matches.Count, "本戦"),
+                null);
+        }
+        else if (ruleProfileMode == RuleProfileMode.TournamentFramework)
+        {
+            var context = SimulationModeInputReaders.ReadTournamentFrameworkModeContext();
+            stepRequest = new TournamentFrameworkSimulationRequest(
+                context.PlayersCsvPath,
+                context.StagesCsvPath,
+                context.TournamentMatchRecordsCsvPath,
+                context.RuleFilePath,
+                context.RandomSeed,
+                context.SimulationCount,
+                context.TournamentRuleSetMode,
+                context.FirstPlayerWinRatePercent,
+                context.OutputPath);
+        }
+        else if (ruleProfileMode == RuleProfileMode.Empty)
+        {
+            var outputPath = ConsoleInputReaders.ReadOptionalFilePath("空ルール結果CSVの出力先パスまたはフォルダーパスを入力してください（省略可）: ");
+            stepRequest = new EmptySimulationRequest(outputPath);
+        }
+        else
+        {
+            return false;
+        }
+
         analysisRequest = new AnalysisRequest(
             analysisFlowSelection,
             ruleProfileMode,
-            new AnalysisStepRequest[]
-            {
-                new TournamentFrameworkSimulationRequest(
-                    context.PlayersCsvPath,
-                    context.StagesCsvPath,
-                    context.TournamentMatchRecordsCsvPath,
-                    context.RuleFilePath,
-                    context.RandomSeed,
-                    context.SimulationCount,
-                    context.TournamentRuleSetMode,
-                    context.FirstPlayerWinRatePercent,
-                    context.OutputPath),
-            });
+            new[] { stepRequest });
         return true;
     }
+
+    static int? ReadSimulationCountIfNeeded(int matchCount, string modeLabel)
+    {
+        if (matchCount <= 20) return null;
+
+        const int defaultSimulationCount = 200_000;
+        var simulationCount = ConsolePromptReaders.ReadIntWithDefault(
+            $"局数が多いため{modeLabel}シミュレーションで近似します。試行回数を入力してください [{defaultSimulationCount}]: ",
+            defaultSimulationCount,
+            min: 1);
+
+        Console.WriteLine();
+        return simulationCount;
+    }
+
     private sealed record TournamentUserDomainResult(
-        IReadOnlyList<string> RecordedLines,
         string? RequestFilePath,
         AnalysisFlowSelection AnalysisFlowSelection,
         RuleProfileMode RuleProfileMode,
@@ -290,17 +339,22 @@ internal static class ApplicationWorkflow
     /// ［要求ファイル］を書き出します。
     /// </summary>
     private static void WriteRequestFile(
-        IReadOnlyList<string> recordedLines,
+        AnalysisRequest? analysisRequest,
         string? requestFilePath)
     {
-        if (!string.IsNullOrWhiteSpace(requestFilePath) && recordedLines.Count > 0)
+        if (string.IsNullOrWhiteSpace(requestFilePath)) return;
+
+        if (analysisRequest is null)
         {
-            Console.WriteLine($"要求ファイルを書き出します: {requestFilePath}\n");
-            StsaFileIOHelper.Write(
-                label: "要求ファイル",
-                outputPath: requestFilePath,
-                lines: recordedLines);
+            Console.WriteLine("要求ファイル書出は、STSAInput/4 へ変換済みの手入力だけ対応しています。raw 手入力ログは保存しません。\n");
+            return;
         }
+
+        Console.WriteLine($"要求ファイルを書き出します: {requestFilePath}\n");
+        StsaFileIOHelper.Write(
+            label: "要求ファイル",
+            outputPath: requestFilePath,
+            lines: StsaInput4RequestWriter.BuildLines(analysisRequest));
     }
     /// <summary>
     /// ［分析］

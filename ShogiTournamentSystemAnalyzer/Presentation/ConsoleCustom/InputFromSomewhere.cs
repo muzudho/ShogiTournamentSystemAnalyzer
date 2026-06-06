@@ -9,7 +9,6 @@ namespace ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 internal static class InputFromSomewhere
 {
     static TextReader? textReader;
-    static List<string>? recordedLines;
 
     internal static void UseConsole()
     {
@@ -21,39 +20,10 @@ internal static class InputFromSomewhere
         textReader = new StringReader(inputText);
     }
 
-    internal static IReadOnlyList<string> StartRecording()
-    {
-        recordedLines = [];
-        return recordedLines;
-    }
-
-    internal static void StopRecording()
-    {
-        recordedLines = null;
-    }
-
-    internal static void PauseRecording()
-    {
-        recordedLines = null;
-    }
-
-    internal static IReadOnlyList<string> ResumeRecording(IReadOnlyList<string> lines)
-    {
-        recordedLines = lines as List<string> ?? [.. lines];
-        return recordedLines;
-    }
-
     internal static string? ReadLine()
     {
-        var line = textReader is null
+        return textReader is null
             ? Console.ReadLine()
             : textReader.ReadLine();
-
-        if (line is not null)
-        {
-            recordedLines?.Add(line);
-        }
-
-        return line;
     }
 }
