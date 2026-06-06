@@ -1,6 +1,7 @@
 namespace ShogiTournamentSystemAnalyzer.Application;
 
 using ShogiTournamentSystemAnalyzer.Application.Analysis;
+using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.Modes;
 using ShogiTournamentSystemAnalyzer.Application.BeforeRequestFileCheck;
 using ShogiTournamentSystemAnalyzer.Application.RequestFileCheck;
 using ShogiTournamentSystemAnalyzer.Application.RequestFileWrite;
@@ -147,6 +148,8 @@ internal static class ApplicationWorkflow
             // TODO: これも入力に含めたいぜ（＾～＾）
             ruleProfileMode = ConsolePromptReaders.ReadRuleProfileMode(analysisFlowSelection);
 
+            TryReadManualAnalysisRequest(analysisFlowSelection, ruleProfileMode, out analysisRequest);
+
             // ［◆節３：エラーが有ったか？］
 
             //// ［■辺６：はい、エラー有り］
@@ -216,6 +219,35 @@ internal static class ApplicationWorkflow
         return true;
     }
 
+    static bool TryReadManualAnalysisRequest(
+        AnalysisFlowSelection analysisFlowSelection,
+        RuleProfileMode ruleProfileMode,
+        out AnalysisRequest? analysisRequest)
+    {
+        analysisRequest = null;
+        if (analysisFlowSelection.Steps.Count != 1) return false;
+        if (analysisFlowSelection.Steps[0] != AnalysisFlowMode.Simulation) return false;
+        if (ruleProfileMode != RuleProfileMode.TournamentFramework) return false;
+
+        var context = SimulationModeInputReaders.ReadTournamentFrameworkModeContext();
+        analysisRequest = new AnalysisRequest(
+            analysisFlowSelection,
+            ruleProfileMode,
+            new AnalysisStepRequest[]
+            {
+                new TournamentFrameworkSimulationRequest(
+                    context.PlayersCsvPath,
+                    context.StagesCsvPath,
+                    context.TournamentMatchRecordsCsvPath,
+                    context.RuleFilePath,
+                    context.RandomSeed,
+                    context.SimulationCount,
+                    context.TournamentRuleSetMode,
+                    context.FirstPlayerWinRatePercent,
+                    context.OutputPath),
+            });
+        return true;
+    }
     private sealed record TournamentUserDomainResult(
         IReadOnlyList<string> RecordedLines,
         string? RequestFilePath,
