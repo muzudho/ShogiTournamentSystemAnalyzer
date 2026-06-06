@@ -4,8 +4,11 @@
 利用者向けの使い方や仕様説明は [docs/設計](../設計/README.md)、このフォルダーは実装予定・改修方針・調査メモを扱います。
 
 ## ファイル一覧
+- [プログラム4パート構成_第73ステップ実行計画.md](./プログラム4パート構成_第73ステップ実行計画.md)
+  - `ApplicationWorkflow` の `RequestBoundary` と `AnalysisRequest` の二重管理を整理する実装計画
 - [プログラム4パート構成_第72ステップ実行計画.md](./プログラム4パート構成_第72ステップ実行計画.md)
-  - `Simulation + Empty` / `Simulation + TournamentFramework` を `AnalysisRequest` 直通ルートへ移す実装計画- [プログラム4パート構成_第71ステップ実行計画.md](./プログラム4パート構成_第71ステップ実行計画.md)
+  - `Simulation + Empty` / `Simulation + TournamentFramework` を `AnalysisRequest` 直通ルートへ移す実装計画
+- [プログラム4パート構成_第71ステップ実行計画.md](./プログラム4パート構成_第71ステップ実行計画.md)
   - 20局超の `SimulationCount` 未指定要求を既定値付きで `AnalysisRequest` 直通ルートへ移す実装計画
 - [プログラム4パート構成_第70ステップ実行計画.md](./プログラム4パート構成_第70ステップ実行計画.md)
   - 20局超の標準シミュレーションを `SimulationCount` 付きで `AnalysisRequest` 直通ルートへ移す実装計画

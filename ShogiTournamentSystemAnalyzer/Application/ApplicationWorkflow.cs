@@ -5,7 +5,7 @@ using ShogiTournamentSystemAnalyzer.Application.BeforeRequestFileCheck;
 using ShogiTournamentSystemAnalyzer.Application.RequestFileCheck;
 using ShogiTournamentSystemAnalyzer.Application.RequestFileWrite;
 using ShogiTournamentSystemAnalyzer.Application.RequestParsing;
-using ShogiTournamentSystemAnalyzer.Domain.Request;
+using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles;
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 using System.Text;
@@ -21,27 +21,28 @@ internal static class ApplicationWorkflow
         //└───┬──┘
         Opening();
 
-        // ［依頼という境界］
-        RequestBoundary requestBoundary = new();    // TODO: これは旧フローが残っている間の仮置き（＾～＾）この変数は育てず、 analysisRequest 変数に一本化していきたい（＾～＾）
         IReadOnlyList<string> recordedLines = Array.Empty<string>();
         string? requestFilePath = null;
-        AnalysisRequest? analysisRequest = null;    // TODO: これは現在の本命フローに合わせている（＾～＾）この変数を育てていき、将来的には requestBoundary 変数は解消したい（＾～＾）？
+        AnalysisFlowSelection analysisFlowSelection = AnalysisFlowSelection.FromSingle(AnalysisFlowMode.Simulation);
+        RuleProfileMode ruleProfileMode = new();
+        AnalysisRequest? analysisRequest = null;    // TODO: これは現在の本命フローに合わせている（＾～＾）この変数を育てていき、将来的には旧フロー用の選択値は解消したい（＾～＾）？
 
         //┌───┴──┐
         //│大会利用者域│
         //└───┬──┘
         bool isSuccessful = RunTournamentUserDomain(
             args,
-            requestBoundary,
             ref recordedLines,
             ref requestFilePath,
+            ref analysisFlowSelection,
+            ref ruleProfileMode,
             ref analysisRequest);
         if (!isSuccessful) return;  // エラー終了
 
         //┌───┴──┐
         //│分析　　　　│
         //└───┬──┘
-        RunAnalysisDomain(requestBoundary, analysisRequest);
+        RunAnalysisDomain(analysisFlowSelection, ruleProfileMode, analysisRequest);
 
         InputFromSomewhere.PauseRecording();
         WriteRequestFile(recordedLines, requestFilePath);   // TODO: ［要求ファイル］の書き込みは、［大会利用者域］の仕事だぜ（＾～＾）
@@ -71,14 +72,14 @@ internal static class ApplicationWorkflow
     /// 
     /// </summary>
     /// <param name="args"></param>
-    /// <param name="requestBoundary"></param>
     /// <returns>成功か</returns>
     /// <exception cref="OperationCanceledException"></exception>
     private static bool RunTournamentUserDomain(
         string[] args,
-        RequestBoundary requestBoundary,
         ref IReadOnlyList<string> recordedLines,
         ref string? requestFilePath,
+        ref AnalysisFlowSelection analysisFlowSelection,
+        ref RuleProfileMode ruleProfileMode,
         ref AnalysisRequest? analysisRequest)
     {        //　　｜
         //　　｜　［大会ルールという境界］        `TournamentRule`
@@ -123,8 +124,8 @@ internal static class ApplicationWorkflow
             {
                 requestText = null;
                 analysisRequest = parsedAnalysisRequest;
-                requestBoundary.AnalysisFlowSelection = parsedAnalysisRequest.FlowSelection;
-                requestBoundary.RuleProfileMode = parsedAnalysisRequest.RuleProfileMode;
+                analysisFlowSelection = parsedAnalysisRequest.FlowSelection;
+                ruleProfileMode = parsedAnalysisRequest.RuleProfileMode;
             }
             else
             {
@@ -147,10 +148,10 @@ internal static class ApplicationWorkflow
             recordedLines = InputFromSomewhere.StartRecording();
 
             // TODO: これも入力に含めたいぜ（＾～＾）
-            requestBoundary.AnalysisFlowSelection = ConsolePromptReaders.ReadAnalysisFlowSelection();
+            analysisFlowSelection = ConsolePromptReaders.ReadAnalysisFlowSelection();
 
             // TODO: これも入力に含めたいぜ（＾～＾）
-            requestBoundary.RuleProfileMode = ConsolePromptReaders.ReadRuleProfileMode(requestBoundary.AnalysisFlowSelection);
+            ruleProfileMode = ConsolePromptReaders.ReadRuleProfileMode(analysisFlowSelection);
 
             // ［◆節３：エラーが有ったか？］
 
@@ -208,8 +209,8 @@ internal static class ApplicationWorkflow
         if (requestText is not null)
         {
             InputFromSomewhere.UseText(requestText);
-            requestBoundary.AnalysisFlowSelection = ConsolePromptReaders.ReadAnalysisFlowSelection();
-            requestBoundary.RuleProfileMode = ConsolePromptReaders.ReadRuleProfileMode(requestBoundary.AnalysisFlowSelection);
+            analysisFlowSelection = ConsolePromptReaders.ReadAnalysisFlowSelection();
+            ruleProfileMode = ConsolePromptReaders.ReadRuleProfileMode(analysisFlowSelection);
         }
 
         return true;
@@ -266,11 +267,12 @@ internal static class ApplicationWorkflow
     /// ［分析］
     /// </summary>
     private static void RunAnalysisDomain(
-        RequestBoundary requestBoundary,
+        AnalysisFlowSelection analysisFlowSelection,
+        RuleProfileMode ruleProfileMode,
         AnalysisRequest? analysisRequest)
     {
         // メインライン選択のガイドを表示するぜ（＾▽＾）！
-        ProgramConsoleGuide.PrintSelectedMainline(requestBoundary.AnalysisFlowSelection, requestBoundary.RuleProfileMode);
+        ProgramConsoleGuide.PrintSelectedMainline(analysisFlowSelection, ruleProfileMode);
 
         //      │
         //      ↓
@@ -299,7 +301,7 @@ internal static class ApplicationWorkflow
             return;
         }
 
-        AnalysisFlowDispatcher.Execute(requestBoundary.AnalysisFlowSelection, requestBoundary.RuleProfileMode);
+        AnalysisFlowDispatcher.Execute(analysisFlowSelection, ruleProfileMode);
 
     }
 }
