@@ -4,6 +4,8 @@
 利用者向けの使い方や仕様説明は [docs/設計](../設計/README.md)、このフォルダーは実装予定・改修方針・調査メモを扱います。
 
 ## ファイル一覧
+- [プログラム4パート構成_第96ステップ実行計画.md](./プログラム4パート構成_第96ステップ実行計画.md)
+  - SimulationDomain の戻り値を SimulationDomainResult に包み、SimulationRequestDispatcher に戻り値付き入口を追加する実行計画
 - [プログラム4パート構成_第95ステップ実行計画.md](./プログラム4パート構成_第95ステップ実行計画.md)
   - SimulationDomain が SimulationMainlineResult を受け取れる入口を追加する実行計画
 - [プログラム4パート構成_第94ステップ実行計画.md](./プログラム4パート構成_第94ステップ実行計画.md)

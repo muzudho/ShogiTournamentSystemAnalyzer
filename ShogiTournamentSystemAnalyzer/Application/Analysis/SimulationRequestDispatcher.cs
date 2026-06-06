@@ -10,6 +10,11 @@ internal static class SimulationRequestDispatcher
 {
     internal static bool TryExecute(AnalysisStepRequest step)
     {
-        return SimulationDomain.TryExecute(step);
+        return TryExecute(step, out _);
+    }
+
+    internal static bool TryExecute(AnalysisStepRequest step, out SimulationDomainResult? result)
+    {
+        return SimulationDomain.TryExecute(step, out result);
     }
 }
