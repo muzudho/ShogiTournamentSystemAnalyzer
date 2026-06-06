@@ -12,12 +12,19 @@ using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 /// </summary>
 internal static class SimulationFlowDispatcher
 {
+    /// <summary>
+    /// シミュレーションフローを実行する。
+    /// </summary>
+    /// <param name="flowMode"></param>
+    /// <param name="ruleProfileMode"></param>
+    /// <returns></returns>
     internal static bool TryExecute(AnalysisFlowMode flowMode, RuleProfileMode ruleProfileMode)
     {
         if (flowMode != AnalysisFlowMode.Simulation) return false;
 
         switch (ruleProfileMode)
         {
+            // TODO: ［標準ルール］とか、［本戦ルール］のような分類は、将来的にこのシステムから廃止したい（＾～＾）もっと細かいルールの違いを、ルールプロファイルの属性で表現したい（＾～＾）
             case RuleProfileMode.Standard:
             case RuleProfileMode.FinalStage:
                 SimulationScenarioRunner.Run(SimulationScenarioFactory.Create(ruleProfileMode));
