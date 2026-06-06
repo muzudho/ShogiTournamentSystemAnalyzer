@@ -25,27 +25,27 @@ internal abstract class AbstractSimulationMainline
         Console.WriteLine($"順位ルール: {TournamentRuleSetRule.GetLabel(context.TournamentRuleSetMode)}\n");
         BeforeExecuteSimulationContext(context);
 
-        var executionResult = ExecuteSimulation(context);
+        var mainlineResult = ExecuteSimulation(context);
 
-        AfterExecuteSimulationContext(context, executionResult);
-        PrintSimulationResult(context, executionResult);
-        PrintTimeLimitIfNeeded(executionResult.SimulationResult.TournamentFinalState);
-        WriteSimulationOutputs(context, executionResult);
+        AfterExecuteSimulationContext(context, mainlineResult);
+        PrintSimulationResult(context, mainlineResult);
+        PrintTimeLimitIfNeeded(mainlineResult.SimulationResult.TournamentFinalState);
+        WriteSimulationOutputs(context, mainlineResult);
     }
 
     protected virtual void BeforeExecuteSimulationContext(AbstractSimulationContext context)
     {
     }
 
-    protected virtual void AfterExecuteSimulationContext(AbstractSimulationContext context, SimulationMainlineExecutionResult executionResult)
+    protected virtual void AfterExecuteSimulationContext(AbstractSimulationContext context, SimulationMainlineResult mainlineResult)
     {
     }
 
-    protected abstract SimulationMainlineExecutionResult ExecuteSimulation(AbstractSimulationContext context);
+    protected abstract SimulationMainlineResult ExecuteSimulation(AbstractSimulationContext context);
 
-    protected abstract void PrintSimulationResult(AbstractSimulationContext context, SimulationMainlineExecutionResult executionResult);
+    protected abstract void PrintSimulationResult(AbstractSimulationContext context, SimulationMainlineResult mainlineResult);
 
-    protected abstract void WriteSimulationOutputs(AbstractSimulationContext context, SimulationMainlineExecutionResult executionResult);
+    protected abstract void WriteSimulationOutputs(AbstractSimulationContext context, SimulationMainlineResult mainlineResult);
 
     protected static void PrintMatchesAndCount(AbstractSimulationContext context, string matchCountLabel)
     {
@@ -106,15 +106,15 @@ internal abstract class AbstractSimulationMainline
 
 }
 
-internal abstract record SimulationMainlineExecutionResult(SimulationResult SimulationResult);
+internal abstract record SimulationMainlineResult(SimulationResult SimulationResult);
 
-internal sealed record SimulationMainlineExecutionResult<TRow>(
+internal sealed record SimulationMainlineResult<TRow>(
     SimulationResult SimulationResult,
     FinalRankingResult<TRow> FinalRankingResult)
-    : SimulationMainlineExecutionResult(SimulationResult)
+    : SimulationMainlineResult(SimulationResult)
     where TRow : ISimulationResultRow
 {
-    internal SimulationMainlineExecutionResult(
+    internal SimulationMainlineResult(
         CalculationResult tournamentFinalState,
         IReadOnlyList<TRow> resultRows)
         : this(new SimulationResult(tournamentFinalState), new FinalRankingResult<TRow>(resultRows))

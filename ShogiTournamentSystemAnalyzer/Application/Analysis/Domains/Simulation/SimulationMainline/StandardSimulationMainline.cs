@@ -44,30 +44,30 @@ internal class StandardSimulationMainline
         PrintStandardModeContext((StandardModeSimulationContext)context);
     }
 
-    protected override SimulationMainlineExecutionResult ExecuteSimulation(AbstractSimulationContext context)
+    protected override SimulationMainlineResult ExecuteSimulation(AbstractSimulationContext context)
     {
         var standardContext = (StandardModeSimulationContext)context;
         var tournamentFinalState = ExecuteTournamentFinalState(standardContext);
         var finalRankingRows = BuildStandardResultRows(standardContext, tournamentFinalState);
-        return new SimulationMainlineExecutionResult<StandardResultRow>(tournamentFinalState, finalRankingRows);
+        return new SimulationMainlineResult<StandardResultRow>(tournamentFinalState, finalRankingRows);
     }
 
-    protected override void PrintSimulationResult(AbstractSimulationContext context, SimulationMainlineExecutionResult executionResult)
+    protected override void PrintSimulationResult(AbstractSimulationContext context, SimulationMainlineResult mainlineResult)
     {
         var standardContext = (StandardModeSimulationContext)context;
-        var standardExecutionResult = (SimulationMainlineExecutionResult<StandardResultRow>)executionResult;
+        var standardMainlineResult = (SimulationMainlineResult<StandardResultRow>)mainlineResult;
         ConsoleResultPrinter.PrintResult(
             standardContext.Players.Count,
-            standardExecutionResult.SimulationResult.TournamentFinalState,
+            standardMainlineResult.SimulationResult.TournamentFinalState,
             standardContext.FirstPlayerWinRatePercent,
-            standardExecutionResult.FinalRankingResult.Rows);
+            standardMainlineResult.FinalRankingResult.Rows);
     }
 
-    protected override void WriteSimulationOutputs(AbstractSimulationContext context, SimulationMainlineExecutionResult executionResult)
+    protected override void WriteSimulationOutputs(AbstractSimulationContext context, SimulationMainlineResult mainlineResult)
     {
         var standardContext = (StandardModeSimulationContext)context;
-        var standardExecutionResult = (SimulationMainlineExecutionResult<StandardResultRow>)executionResult;
-        WriteFinalRankingOutputsForStandardMode(standardContext, standardExecutionResult.SimulationResult.TournamentFinalState, standardExecutionResult.FinalRankingResult, outputPathOverride);
+        var standardMainlineResult = (SimulationMainlineResult<StandardResultRow>)mainlineResult;
+        WriteFinalRankingOutputsForStandardMode(standardContext, standardMainlineResult.SimulationResult.TournamentFinalState, standardMainlineResult.FinalRankingResult, outputPathOverride);
     }
 
     CalculationResult ExecuteTournamentFinalState(StandardModeSimulationContext context)
