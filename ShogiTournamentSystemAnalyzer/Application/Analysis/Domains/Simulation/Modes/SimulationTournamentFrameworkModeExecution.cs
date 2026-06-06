@@ -4,13 +4,11 @@
 namespace ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.Modes;
 
 using ShogiTournamentSystemAnalyzer.Application;
-using ShogiTournamentSystemAnalyzer.Application.Analysis.Boundaries;
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.FinalRanking.UseCases;
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.TournamentFramework;
 using ShogiTournamentSystemAnalyzer.Domain.Ranking;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
-using ShogiTournamentSystemAnalyzer.Domain.Request.TournamentRule;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.TournamentFramework;
 using ShogiTournamentSystemAnalyzer.Infrastructure.Parsing;
@@ -51,8 +49,8 @@ internal static partial class SimulationTournamentFrameworkMode
             Console.WriteLine($"大会ルールDSLを読み込みました: {context.RuleFilePath}");
         }
 
-        // ［大会ルールデータ］
-        var tournamentRuleData = BoundaryDataBuilders.BuildTournamentRuleBoundaryData(context, dslDefinition);
+        // ［大会進行フレームワーク実行設定］
+        var executionSettings = TournamentFrameworkExecutionSettings.FromContext(context, dslDefinition);
 
         // ［順位設定データ］
 
@@ -60,7 +58,7 @@ internal static partial class SimulationTournamentFrameworkMode
         var initialState = new TournamentState(0, players, stages, matchRecords);
 
         // ［順位付けの設定］選択
-        IRankingRule rankingRule = tournamentRuleData.TournamentRuleSetMode switch
+        IRankingRule rankingRule = executionSettings.TournamentRuleSetMode switch
         {
             TournamentRuleSetMode.Twill => TwillTournamentRankingRule.Instance,
             TournamentRuleSetMode.TwillCommonOpponentWeighted => TwillTournamentRankingRule.CommonOpponentWeightedInstance,
@@ -72,13 +70,13 @@ internal static partial class SimulationTournamentFrameworkMode
             FixedMatchPairingRule.Instance,
             rankingRule,
             AllMatchesFinishedTerminationRule.Instance,
-            new StandardLikeMatchResultResolver(context.FirstPlayerWinRateRating));
+            new StandardLikeMatchResultResolver(executionSettings.FirstPlayerWinRateRating));
 
         // ［大会エンジン］
-        var engine = new TournamentEngine(ruleSet, tournamentRuleData.RandomSeed);
+        var engine = new TournamentEngine(ruleSet, executionSettings.RandomSeed);
 
         // ［集計結果］
-        var aggregateResult = ExecuteTournamentFrameworkModeCalculation(engine, initialState, players, tournamentRuleData.TournamentRuleSetMode ?? TournamentRuleSetMode.Neutral, context.FirstPlayerWinRateRating, context.SimulationCount);
+        var aggregateResult = ExecuteTournamentFrameworkModeCalculation(engine, initialState, players, executionSettings.TournamentRuleSetMode, executionSettings.FirstPlayerWinRateRating, context.SimulationCount);
 
         // ［実行結果］
         var executionResult = aggregateResult.RepresentativeExecutionResult;
@@ -96,7 +94,7 @@ internal static partial class SimulationTournamentFrameworkMode
             aggregateResult.CompletedSimulationCount,
             aggregateResult.IsExactCalculation,
             aggregateResult.TournamentRuleSetMode,
-            tournamentRuleData.FirstPlayerWinRatePercent ?? context.FirstPlayerWinRatePercent);
+            executionSettings.FirstPlayerWinRatePercent);
 
         Console.WriteLine($"順位ルール: {TournamentRuleSetRule.GetLabel(finalRankingResult.TournamentRuleSetMode)}");
 
@@ -117,10 +115,10 @@ internal static partial class SimulationTournamentFrameworkMode
         Console.WriteLine($"代表実行の自然終了: {(finalRankingResult.RepresentativeTournamentFinalState.CompletedNaturally ? "Yes" : "No")}");
         Console.WriteLine($"ステージ数: {finalRankingResult.RepresentativeStages.Count}");
         Console.WriteLine($"総対局数: {finalRankingResult.RepresentativeTournamentFinalState.MatchRecords.Count}\n");
-        if (dslDefinition is not null)
+        if (executionSettings.DslDefinition is not null)
         {
-            Console.WriteLine($"DSL TimeAxis: {dslDefinition.TimeAxis}");
-            Console.WriteLine($"DSL OverallRanking: {dslDefinition.OverallRankingRuleName}\n");
+            Console.WriteLine($"DSL TimeAxis: {executionSettings.DslDefinition.TimeAxis}");
+            Console.WriteLine($"DSL OverallRanking: {executionSettings.DslDefinition.OverallRankingRuleName}\n");
         }
 
         FinalRankingDomain.PrintTournamentFrameworkSimulationResults(finalRankingResult);
