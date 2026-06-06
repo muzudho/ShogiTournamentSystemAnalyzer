@@ -5,7 +5,6 @@ using ShogiTournamentSystemAnalyzer.Application.RequestFileCheck;
 using ShogiTournamentSystemAnalyzer.Application.RequestFileWrite;
 using ShogiTournamentSystemAnalyzer.Application.RequestParsing;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
-using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles;
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 
 internal static class ApplicationTournamentUser
@@ -26,9 +25,11 @@ internal static class ApplicationTournamentUser
         //　　↓
 
         result = null!;
-        var analysisFlowSelection = AnalysisFlowSelection.FromSingle(AnalysisFlowMode.Simulation);
-        var ruleProfileAttributes = RuleProfileAttributes.CreateStandardScheduled();
+        AnalysisFlowSelection? analysisFlowSelection = null;
+        RuleProfileAttributes? ruleProfileAttributes = null;
         AnalysisRequest? analysisRequest = null;    // TODO: これは現在の本命フローに合わせている（＾～＾）この変数を育てていき、将来的には旧フロー用の選択値は解消したい（＾～＾）？
+        var isManualInput = false;
+        string? manualRequestFilePath = null;
 
         #region ［◆節１：コマンドライン引数で要求ファイルを指定したか？
 
@@ -85,26 +86,9 @@ internal static class ApplicationTournamentUser
             //
             //  📍 TODO: ここで、大会ルールを入力するプログラムを作りたい。今は空っぽ。
             //
+            isManualInput = true;
 
-            // TODO: これも入力に含めたいぜ（＾～＾）
-            analysisFlowSelection = ConsolePromptReaders.ReadAnalysisFlowSelection();
-
-            ruleProfileAttributes = ConsolePromptReaders.ReadRuleProfileAttributes(analysisFlowSelection);
-
-            ManualAnalysisRequestReader.TryRead(analysisFlowSelection, ruleProfileAttributes, out analysisRequest);
-
-            // ［◆節３：エラーが有ったか？］
-
-            //// ［■辺６：はい、エラー有り］
-            //if (false)
-            //{
-            //    // ［●終了２］
-            //    return false;
-            //}
-
-            // ［■辺７：いいえ、エラー無し］
-
-            //  ［要求ファイル］の保存先パスを尋ねるだけ（＾～＾） まだ保存はしない。
+            // ［要求ファイル］の保存先パスを尋ねるだけ（＾～＾） まだ保存はしない。
             static string? InputRequestFilePath()
             {
                 // ［◆節４：今回の手入力を要求ファイルとして書き出しておきますか？］
@@ -141,8 +125,7 @@ internal static class ApplicationTournamentUser
                     Console.WriteLine("1 か 2 を入力してください。\n");
                 }
             }
-            var requestFilePath = InputRequestFilePath();
-            WriteRequestFile(analysisRequest, requestFilePath);
+            manualRequestFilePath = InputRequestFilePath();
         }
 
         if (requestText is not null)
@@ -155,14 +138,18 @@ internal static class ApplicationTournamentUser
         result = new TournamentUserDomainResult(
             analysisFlowSelection,
             ruleProfileAttributes,
-            analysisRequest);
+            analysisRequest,
+            isManualInput,
+            manualRequestFilePath);
         return true;
     }
 
     internal sealed record TournamentUserDomainResult(
-        AnalysisFlowSelection AnalysisFlowSelection,
-        RuleProfileAttributes RuleProfileAttributes,
-        AnalysisRequest? AnalysisRequest);
+        AnalysisFlowSelection? AnalysisFlowSelection,
+        RuleProfileAttributes? RuleProfileAttributes,
+        AnalysisRequest? AnalysisRequest,
+        bool IsManualInput,
+        string? ManualRequestFilePath);
 
     static bool TryConvertToLegacyInputText(RequestText? checkedRequestText, out string? requestText)
     {
@@ -195,26 +182,5 @@ internal static class ApplicationTournamentUser
             Console.WriteLine($"●エラー終了：　［要求ファイル］パース中エラー。 {ex.Message}");
             return false;
         }
-    }
-    /// <summary>
-    /// ［要求ファイル］を書き出します。
-    /// </summary>
-    private static void WriteRequestFile(
-        AnalysisRequest? analysisRequest,
-        string? requestFilePath)
-    {
-        if (string.IsNullOrWhiteSpace(requestFilePath)) return;
-
-        if (analysisRequest is null)
-        {
-            Console.WriteLine("要求ファイル書出は、STSAInput/4 へ変換済みの手入力だけ対応しています。raw 手入力ログは保存しません。\n");
-            return;
-        }
-
-        Console.WriteLine($"要求ファイルを書き出します: {requestFilePath}\n");
-        StsaFileIOHelper.Write(
-            label: "要求ファイル",
-            outputPath: requestFilePath,
-            lines: StsaInputRequestWriter.BuildAttributeLines(analysisRequest));
     }
 }

@@ -9,7 +9,7 @@ using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 
 internal static partial class ManualAnalysisRequestReader
 {
-    static bool TryReadQualityEvaluationRequest(
+    internal static bool TryReadQualityEvaluationRequest(
         RuleProfileAttributes ruleProfileAttributes,
         out AnalysisStepRequest stepRequest)
     {

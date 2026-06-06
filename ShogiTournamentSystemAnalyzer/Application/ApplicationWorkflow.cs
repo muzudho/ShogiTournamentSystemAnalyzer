@@ -2,7 +2,9 @@ namespace ShogiTournamentSystemAnalyzer.Application;
 
 using ShogiTournamentSystemAnalyzer.Application.Analysis;
 using ShogiTournamentSystemAnalyzer.Application.RequestFileWrite;
+using ShogiTournamentSystemAnalyzer.Application.RequestParsing;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
+using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles;
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 using System.Text;
 using static ShogiTournamentSystemAnalyzer.Application.ApplicationTournamentUser;
@@ -27,22 +29,30 @@ internal static class ApplicationWorkflow
         //└───┬──┘
         if (!ApplicationTournamentUser.TryRunTournamentUserDomain(args, out var tournamentUserDomainResult)) return;  // エラー終了
 
-        // メインライン選択のガイドを表示するぜ（＾▽＾）！
-        ProgramConsoleGuide.PrintSelectedMainline(tournamentUserDomainResult);
-
-        Console.WriteLine("■［分析］"); // TODO: この出力、消していいかだぜ（＾～＾）？
-
         // ［要求ファイル］から読んだ STSAInput/4 または STSAInput/5 直通要求は、要求側の Steps リスト構造で実行する。
         if (tournamentUserDomainResult.AnalysisRequest is not null)
         {
+            ProgramConsoleGuide.PrintSelectedMainline(tournamentUserDomainResult);
+            Console.WriteLine("■［分析］"); // TODO: この出力、消していいかだぜ（＾～＾）？
             AnalysisRequestDispatcher.Execute(tournamentUserDomainResult.AnalysisRequest);
             return;
+        }
+
+        var manualExecutionState = tournamentUserDomainResult.IsManualInput
+            ? new ManualAnalysisExecutionState(tournamentUserDomainResult.ManualRequestFilePath)
+            : null;
+
+        if (!tournamentUserDomainResult.IsManualInput)
+        {
+            // legacy 入力変換経路は、要求ファイルから復元した疑似コンソール入力を従来 dispatcher へ流す。
+            ProgramConsoleGuide.PrintSelectedMainline(tournamentUserDomainResult);
+            Console.WriteLine("■［分析］"); // TODO: この出力、消していいかだぜ（＾～＾）？
         }
 
         //┌───┴─────┐
         //│シミュレーション域│
         //└───┬─────┘
-        ExecuteSimulationDomain(tournamentUserDomainResult);
+        ExecuteSimulationDomain(tournamentUserDomainResult, manualExecutionState);
 
         //┌───┴─────┐
         //│最終順位付け域　　│
@@ -52,7 +62,9 @@ internal static class ApplicationWorkflow
         //┌───┴─────┐
         //│大会品質評価域　　│
         //└───┬─────┘
-        ExecuteQualityEvaluationDomain(tournamentUserDomainResult);
+        ExecuteQualityEvaluationDomain(tournamentUserDomainResult, manualExecutionState);
+
+        WriteManualRequestFile(manualExecutionState);
 
         // ローカル関数
 
@@ -81,12 +93,42 @@ internal static class ApplicationWorkflow
     /// ［シミュレーション域］実行
     /// </summary>
     /// <param name="result"></param>
+    /// <param name="manualExecutionState"></param>
     /// <exception cref="InvalidOperationException"></exception>
     private static void ExecuteSimulationDomain(
-        TournamentUserDomainResult result)
+        TournamentUserDomainResult result,
+        ManualAnalysisExecutionState? manualExecutionState)
     {
-        if (!result.AnalysisFlowSelection.RunsSimulation) return;
-        if (SimulationFlowDispatcher.TryExecute(AnalysisFlowMode.Simulation, result.RuleProfileAttributes)) return;
+        if (manualExecutionState is not null)
+        {
+            Console.WriteLine("■［シミュレーション域］");
+            var runsSimulation = ConsolePromptReaders.ReadYesNo(
+                "シミュレーションをしますか？",
+                defaultValue: true,
+                targetLabel: "シミュレーション実行選択");
+            if (!runsSimulation) return;
+
+            var flowSelection = AnalysisFlowSelection.FromSingle(AnalysisFlowMode.Simulation);
+            var manualRuleProfileAttributes = ConsolePromptReaders.ReadRuleProfileAttributes(flowSelection);
+            if (!ManualAnalysisRequestReader.TryReadSimulationRequest(manualRuleProfileAttributes, out var stepRequest))
+            {
+                throw new InvalidOperationException("未対応の手入力シミュレーション要求です。");
+            }
+
+            if (!SimulationRequestDispatcher.TryExecute(stepRequest, out var simulationResult))
+            {
+                throw new InvalidOperationException("未対応のシミュレーション域です。");
+            }
+
+            manualExecutionState.Context.SetSimulationResult(stepRequest, simulationResult);
+            manualExecutionState.AddStep(stepRequest);
+            return;
+        }
+
+        var analysisFlowSelection = result.AnalysisFlowSelection ?? throw new InvalidOperationException("分析フローが選択されていません。");
+        var ruleProfileAttributes = result.RuleProfileAttributes ?? throw new InvalidOperationException("ルールプロファイル属性が選択されていません。");
+        if (!analysisFlowSelection.RunsSimulation) return;
+        if (SimulationFlowDispatcher.TryExecute(AnalysisFlowMode.Simulation, ruleProfileAttributes)) return;
 
         throw new InvalidOperationException("未対応のシミュレーション域です。");
     }
@@ -104,13 +146,102 @@ internal static class ApplicationWorkflow
     /// ［大会品質評価域］実行
     /// </summary>
     /// <param name="result"></param>
+    /// <param name="manualExecutionState"></param>
     /// <exception cref="InvalidOperationException"></exception>
     private static void ExecuteQualityEvaluationDomain(
-        TournamentUserDomainResult result)
+        TournamentUserDomainResult result,
+        ManualAnalysisExecutionState? manualExecutionState)
     {
-        if (!result.AnalysisFlowSelection.RunsQualityEvaluation) return;
-        if (QualityEvaluationFlowDispatcher.TryExecute(AnalysisFlowMode.QualityEvaluation, result.RuleProfileAttributes)) return;
+        if (manualExecutionState is not null)
+        {
+            Console.WriteLine("■［大会品質評価域］");
+            var runsQualityEvaluation = ConsolePromptReaders.ReadYesNo(
+                "品質評価をしますか？",
+                defaultValue: false,
+                targetLabel: "品質評価実行選択");
+            if (!runsQualityEvaluation) return;
+
+            var flowSelection = AnalysisFlowSelection.FromSingle(AnalysisFlowMode.QualityEvaluation);
+            var manualRuleProfileAttributes = ConsolePromptReaders.ReadRuleProfileAttributes(flowSelection);
+            if (!ManualAnalysisRequestReader.TryReadQualityEvaluationRequest(manualRuleProfileAttributes, out var stepRequest))
+            {
+                throw new InvalidOperationException("未対応の手入力品質評価要求です。");
+            }
+
+            if (!QualityEvaluationRequestDispatcher.TryExecute(stepRequest, manualExecutionState.Context))
+            {
+                throw new InvalidOperationException("未対応の大会品質評価域です。");
+            }
+
+            manualExecutionState.AddStep(stepRequest);
+            return;
+        }
+
+        var analysisFlowSelection = result.AnalysisFlowSelection ?? throw new InvalidOperationException("分析フローが選択されていません。");
+        var ruleProfileAttributes = result.RuleProfileAttributes ?? throw new InvalidOperationException("ルールプロファイル属性が選択されていません。");
+        if (!analysisFlowSelection.RunsQualityEvaluation) return;
+        if (QualityEvaluationFlowDispatcher.TryExecute(AnalysisFlowMode.QualityEvaluation, ruleProfileAttributes)) return;
 
         throw new InvalidOperationException("未対応の大会品質評価域です。");
+    }
+
+    static void WriteManualRequestFile(ManualAnalysisExecutionState? manualExecutionState)
+    {
+        if (manualExecutionState is null) return;
+
+        if (manualExecutionState.Steps.Count == 0)
+        {
+            Console.WriteLine("実行する分析は選ばれませんでした。\n");
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(manualExecutionState.RequestFilePath)) return;
+
+        var request = new AnalysisRequest(
+            new AnalysisFlowSelection(manualExecutionState.Steps.Select(GetAnalysisFlowMode).ToArray()),
+            manualExecutionState.Steps.ToArray());
+
+        Console.WriteLine($"要求ファイルを書き出します: {manualExecutionState.RequestFilePath}\n");
+        StsaFileIOHelper.Write(
+            label: "要求ファイル",
+            outputPath: manualExecutionState.RequestFilePath,
+            lines: StsaInputRequestWriter.BuildAttributeLines(request));
+    }
+
+    static AnalysisFlowMode GetAnalysisFlowMode(AnalysisStepRequest step)
+    {
+        return step switch
+        {
+            StandardSimulationRequest => AnalysisFlowMode.Simulation,
+            FinalStageSimulationRequest => AnalysisFlowMode.Simulation,
+            TournamentFrameworkSimulationRequest => AnalysisFlowMode.Simulation,
+            EmptySimulationRequest => AnalysisFlowMode.Simulation,
+            StandardQualityEvaluationRequest => AnalysisFlowMode.QualityEvaluation,
+            DeferredStandardQualityEvaluationRequest => AnalysisFlowMode.QualityEvaluation,
+            FinalStageQualityEvaluationRequest => AnalysisFlowMode.QualityEvaluation,
+            DeferredFinalStageQualityEvaluationRequest => AnalysisFlowMode.QualityEvaluation,
+            _ => throw new InvalidOperationException($"未対応の分析要求です: {step.GetType().Name}"),
+        };
+    }
+
+    sealed class ManualAnalysisExecutionState
+    {
+        readonly List<AnalysisStepRequest> _steps = new();
+
+        internal ManualAnalysisExecutionState(string? requestFilePath)
+        {
+            RequestFilePath = requestFilePath;
+        }
+
+        internal string? RequestFilePath { get; }
+
+        internal AnalysisExecutionContext Context { get; } = new();
+
+        internal IReadOnlyList<AnalysisStepRequest> Steps => _steps;
+
+        internal void AddStep(AnalysisStepRequest step)
+        {
+            _steps.Add(step);
+        }
     }
 }
