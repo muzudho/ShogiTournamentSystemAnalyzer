@@ -4,6 +4,7 @@
 namespace ShogiTournamentSystemAnalyzer.Application.RequestFileCheck;
 
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
+using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 using static ShogiTournamentSystemAnalyzer.Application.RequestFileCheck.StsaInputSectionParser;
 using static ShogiTournamentSystemAnalyzer.Application.RequestFileCheck.StsaInputValueParser;
 
@@ -85,18 +86,60 @@ internal static class StsaInputLegacyConverter
         {
             flowSelection.RunsSimulation ? "2" : "1",
             flowSelection.RunsQualityEvaluation ? "2" : "1",
-            RuleProfileAttributesToPromptNumber(ruleProfileAttributes),
+        }.Concat(RuleProfileAttributesToPromptLines(ruleProfileAttributes)).ToArray();
+    }
+
+    static IReadOnlyList<string> RuleProfileAttributesToPromptLines(RuleProfileAttributes ruleProfileAttributes)
+    {
+        return new[]
+        {
+            RuleProfileSimulationShapeToPromptNumber(ruleProfileAttributes.SimulationShape),
+            BoolToPromptNumber(ruleProfileAttributes.UsesFinalStageGrouping),
+            BoolToPromptNumber(ruleProfileAttributes.UsesAdditionalApexPlacement),
+            BoolToPromptNumber(ruleProfileAttributes.UsesBoundaryRescue),
+            BoolToPromptNumber(ruleProfileAttributes.UsesVariableTop8),
+            TournamentRuleSetModeToPromptNumber(ruleProfileAttributes.RankingRuleSetMode),
+            BoolToPromptNumber(ruleProfileAttributes.HasReferenceMatches),
+            RuleProfilePairingSourceToPromptNumber(ruleProfileAttributes.PairingSource),
         };
     }
 
-    static string RuleProfileAttributesToPromptNumber(RuleProfileAttributes ruleProfileAttributes)
+    static string RuleProfileSimulationShapeToPromptNumber(RuleProfileSimulationShape simulationShape)
     {
-        if (ruleProfileAttributes.IsTournamentFrameworkProfile) return "3";
-        if (ruleProfileAttributes.IsEmptyProfile) return "4";
-        if (ruleProfileAttributes.IsFinalStageScheduledProfile) return "2";
-        if (ruleProfileAttributes.IsStandardScheduledProfile) return "1";
-
-        throw new InvalidOperationException($"未対応のルールプロファイル属性です: {ruleProfileAttributes}");
+        return simulationShape switch
+        {
+            RuleProfileSimulationShape.ScheduledMatches => "1",
+            RuleProfileSimulationShape.FinalStageGrouped => "2",
+            RuleProfileSimulationShape.TournamentFramework => "3",
+            RuleProfileSimulationShape.Empty => "4",
+            _ => throw new InvalidOperationException($"未対応の SimulationShape です: {simulationShape}"),
+        };
     }
 
+    static string RuleProfilePairingSourceToPromptNumber(RuleProfilePairingSource pairingSource)
+    {
+        return pairingSource switch
+        {
+            RuleProfilePairingSource.None => "1",
+            RuleProfilePairingSource.ScheduledMatches => "2",
+            RuleProfilePairingSource.TournamentFramework => "3",
+            _ => throw new InvalidOperationException($"未対応の PairingSource です: {pairingSource}"),
+        };
+    }
+
+    static string TournamentRuleSetModeToPromptNumber(TournamentRuleSetMode tournamentRuleSetMode)
+    {
+        return tournamentRuleSetMode switch
+        {
+            TournamentRuleSetMode.Neutral => "1",
+            TournamentRuleSetMode.Twill => "2",
+            TournamentRuleSetMode.TwillCommonOpponentWeighted => "3",
+            _ => throw new InvalidOperationException($"未対応の RankingRuleSetMode です: {tournamentRuleSetMode}"),
+        };
+    }
+
+    static string BoolToPromptNumber(bool value)
+    {
+        return value ? "2" : "1";
+    }
 }

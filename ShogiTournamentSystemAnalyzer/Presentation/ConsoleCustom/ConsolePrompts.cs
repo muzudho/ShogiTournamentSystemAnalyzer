@@ -5,6 +5,7 @@ namespace ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 
 using ShogiTournamentSystemAnalyzer.Application;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
+using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 using System;
 using System.Globalization;
 
@@ -84,55 +85,232 @@ internal static class ConsolePromptReaders
     internal static RuleProfileAttributes ReadRuleProfileAttributes(AnalysisFlowSelection flowSelection)
     {
         var flowLabel = flowSelection.ToPromptLabel();
-        Console.WriteLine($"{flowLabel} の対象ルールプロファイルを選んでください。");
-        Console.WriteLine("1. 通常ルール");
-        Console.WriteLine("2. 本戦ルール");
-        if (!flowSelection.RunsQualityEvaluation)
-        {
-            Console.WriteLine("3. 大会進行フレームワーク");
-            Console.WriteLine("4. 空ルール");
-        }
-
-        Console.WriteLine();
-
         var attempt = 0;
         while (true)
         {
             SimulationTimeBudget.ThrowIfApplicationTimeExpired("対象ルールプロファイル選択");
             attempt++;
-            Console.Write("番号を入力してください [1]: ");
-            var input = InputFromSomewhere.ReadLine()?.Trim();
-            if (string.IsNullOrEmpty(input) || input == "1")
+            Console.WriteLine($"{flowLabel} のルールプロファイル属性を入力してください。");
+
+            var simulationShape = ReadRuleProfileSimulationShape();
+            var defaultUsesFinalStageGrouping = simulationShape == RuleProfileSimulationShape.FinalStageGrouped;
+            var usesFinalStageGrouping = ReadOnOffBool(
+                "UsesFinalStageGrouping",
+                defaultUsesFinalStageGrouping,
+                "本戦グループを使うか");
+            var usesAdditionalApexPlacement = ReadOnOffBool(
+                "UsesAdditionalApexPlacement",
+                usesFinalStageGrouping,
+                "本戦不出場 Apex の配置を使うか");
+            var usesBoundaryRescue = ReadOnOffBool(
+                "UsesBoundaryRescue",
+                usesFinalStageGrouping,
+                "境界救済を使うか");
+            var usesVariableTop8 = ReadOnOffBool(
+                "UsesVariableTop8",
+                usesFinalStageGrouping,
+                "可変 Top8 を使うか");
+            var rankingRuleSetMode = ReadTournamentRuleSetModeAttribute();
+            var hasReferenceMatches = ReadOnOffBool(
+                "HasReferenceMatches",
+                usesFinalStageGrouping,
+                "参考対局を使うか");
+            var pairingSource = ReadRuleProfilePairingSource(simulationShape);
+
+            var attributes = new RuleProfileAttributes(
+                simulationShape,
+                usesFinalStageGrouping,
+                usesAdditionalApexPlacement,
+                usesBoundaryRescue,
+                usesVariableTop8,
+                rankingRuleSetMode,
+                hasReferenceMatches,
+                pairingSource);
+
+            if (!attributes.TryValidate(out var errorMessage))
             {
-                Console.WriteLine();
-                return RuleProfileAttributes.CreateStandardScheduled();
+                if (attempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("対象ルールプロファイル属性", errorMessage);
+
+                Console.WriteLine($"ルールプロファイル属性の組み合わせが不正です: {errorMessage}");
+                Console.WriteLine("もう一度入力してください。\n");
+                continue;
             }
 
-            if (input == "2")
+            if (flowSelection.RunsQualityEvaluation
+                && attributes.PairingSource != RuleProfilePairingSource.ScheduledMatches)
             {
-                Console.WriteLine();
-                return RuleProfileAttributes.CreateFinalStageGrouped();
+                const string qualityEvaluationError = "品質評価では PairingSource=ScheduledMatches を指定してください。";
+                if (attempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("対象ルールプロファイル属性", qualityEvaluationError);
+
+                Console.WriteLine(qualityEvaluationError);
+                Console.WriteLine("もう一度入力してください。\n");
+                continue;
             }
 
-            if (!flowSelection.RunsQualityEvaluation && input == "3")
-            {
-                Console.WriteLine();
-                return RuleProfileAttributes.CreateTournamentFramework();
-            }
-
-            if (!flowSelection.RunsQualityEvaluation && input == "4")
-            {
-                Console.WriteLine();
-                return RuleProfileAttributes.CreateEmpty();
-            }
-
-            if (attempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("対象ルールプロファイル選択", !flowSelection.RunsQualityEvaluation ? "1、2、3、4 のいずれでもありません" : "1 または 2 以外が入力されました");
-
-            Console.WriteLine(!flowSelection.RunsQualityEvaluation
-                ? "1、2、3、4 のいずれかを入力してください。\n"
-                : "1、2 のいずれかを入力してください。\n");
+            Console.WriteLine();
+            return attributes;
         }
     }
+
+    static RuleProfileSimulationShape ReadRuleProfileSimulationShape()
+    {
+        Console.WriteLine("SimulationShape を選んでください。");
+        Console.WriteLine("1. ScheduledMatches");
+        Console.WriteLine("2. FinalStageGrouped");
+        Console.WriteLine("3. TournamentFramework");
+        Console.WriteLine("4. Empty\n");
+
+        return ReadNumberSelection(
+            "SimulationShape",
+            defaultNumber: "1",
+            "1", RuleProfileSimulationShape.ScheduledMatches,
+            "2", RuleProfileSimulationShape.FinalStageGrouped,
+            "3", RuleProfileSimulationShape.TournamentFramework,
+            "4", RuleProfileSimulationShape.Empty);
+    }
+
+    static RuleProfilePairingSource ReadRuleProfilePairingSource(RuleProfileSimulationShape simulationShape)
+    {
+        var defaultNumber = simulationShape switch
+        {
+            RuleProfileSimulationShape.TournamentFramework => "3",
+            RuleProfileSimulationShape.Empty => "1",
+            _ => "2",
+        };
+
+        Console.WriteLine("PairingSource を選んでください。");
+        Console.WriteLine("1. None");
+        Console.WriteLine("2. ScheduledMatches");
+        Console.WriteLine("3. TournamentFramework\n");
+
+        return ReadNumberSelection(
+            "PairingSource",
+            defaultNumber,
+            "1", RuleProfilePairingSource.None,
+            "2", RuleProfilePairingSource.ScheduledMatches,
+            "3", RuleProfilePairingSource.TournamentFramework);
+    }
+
+    static TournamentRuleSetMode ReadTournamentRuleSetModeAttribute()
+    {
+        Console.WriteLine("RankingRuleSetMode を選んでください。");
+        Console.WriteLine("1. Neutral");
+        Console.WriteLine("2. Twill");
+        Console.WriteLine("3. TwillCommonOpponentWeighted\n");
+
+        return ReadNumberSelection(
+            "RankingRuleSetMode",
+            defaultNumber: "1",
+            "1", TournamentRuleSetMode.Neutral,
+            "2", TournamentRuleSetMode.Twill,
+            "3", TournamentRuleSetMode.TwillCommonOpponentWeighted);
+    }
+
+    static bool ReadOnOffBool(string keyName, bool defaultValue, string question)
+    {
+        Console.WriteLine($"{keyName}: {question}");
+        Console.WriteLine("1. Off");
+        Console.WriteLine("2. On\n");
+
+        return ReadNumberSelection(
+            keyName,
+            defaultValue ? "2" : "1",
+            "1", false,
+            "2", true);
+    }
+
+    static T ReadNumberSelection<T>(
+        string targetLabel,
+        string defaultNumber,
+        string number1,
+        T value1,
+        string number2,
+        T value2)
+    {
+        return ReadNumberSelection(
+            targetLabel,
+            defaultNumber,
+            new[]
+            {
+                (number1, value1),
+                (number2, value2),
+            });
+    }
+
+    static T ReadNumberSelection<T>(
+        string targetLabel,
+        string defaultNumber,
+        string number1,
+        T value1,
+        string number2,
+        T value2,
+        string number3,
+        T value3)
+    {
+        return ReadNumberSelection(
+            targetLabel,
+            defaultNumber,
+            new[]
+            {
+                (number1, value1),
+                (number2, value2),
+                (number3, value3),
+            });
+    }
+
+    static T ReadNumberSelection<T>(
+        string targetLabel,
+        string defaultNumber,
+        string number1,
+        T value1,
+        string number2,
+        T value2,
+        string number3,
+        T value3,
+        string number4,
+        T value4)
+    {
+        return ReadNumberSelection(
+            targetLabel,
+            defaultNumber,
+            new[]
+            {
+                (number1, value1),
+                (number2, value2),
+                (number3, value3),
+                (number4, value4),
+            });
+    }
+
+    static T ReadNumberSelection<T>(
+        string targetLabel,
+        string defaultNumber,
+        IReadOnlyList<(string Number, T Value)> selections)
+    {
+        var attempt = 0;
+        while (true)
+        {
+            SimulationTimeBudget.ThrowIfApplicationTimeExpired(targetLabel);
+            attempt++;
+            Console.Write($"番号を入力してください [{defaultNumber}]: ");
+            var input = InputFromSomewhere.ReadLine()?.Trim();
+            if (string.IsNullOrEmpty(input)) input = defaultNumber;
+
+            foreach (var selection in selections)
+            {
+                if (input == selection.Number)
+                {
+                    Console.WriteLine();
+                    return selection.Value;
+                }
+            }
+
+            if (attempt >= InputRetryLimit) ThrowInputRetryLimitExceeded(targetLabel, "選択肢にない番号が入力されました");
+
+            Console.WriteLine("選択肢の番号を入力してください。\n");
+        }
+    }
+
     internal static string ReadTextWithDefault(string prompt, string defaultValue)
     {
         if (!SimulationTimeBudget.HasApplicationTimeRemaining())
@@ -193,4 +371,3 @@ internal static class ConsolePromptReaders
         }
     }
 }
-
