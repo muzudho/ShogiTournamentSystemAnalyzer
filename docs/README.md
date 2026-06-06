@@ -14,6 +14,8 @@
   - [企画](./企画/)
 - 文書の置き方を確認したい
   - [運用](./運用/README.md)
+- Windows Defender に怪しまれにくい Codex 検証手順を確認したい
+  - [Windows Defender と Codex 実行メモ](./運用/WindowsDefenderとCodex実行メモ.md)
 - Codex 用スキルを個人用フォルダーへコピーしたい
   - [Codex skill のコピー手順](./運用/codex-skill運用.md#インストール)
 - 短い現況メモを見たい
