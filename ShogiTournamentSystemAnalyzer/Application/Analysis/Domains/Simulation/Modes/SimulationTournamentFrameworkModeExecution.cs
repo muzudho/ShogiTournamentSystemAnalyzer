@@ -7,7 +7,6 @@ using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.FinalRanking.Us
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.TournamentFramework;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
-using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.TournamentFramework;
 using ShogiTournamentSystemAnalyzer.Infrastructure.Parsing;
 
@@ -45,20 +44,10 @@ internal static partial class SimulationTournamentFrameworkMode
         // ［初回状態］
         var initialState = new TournamentState(0, players, stages, matchRecords);
 
-        // ［順位付けの設定］選択
-        IRankingRule rankingRule = executionSettings.TournamentRuleSetMode switch
-        {
-            TournamentRuleSetMode.Twill => TwillTournamentRankingRule.Instance,
-            TournamentRuleSetMode.TwillCommonOpponentWeighted => TwillTournamentRankingRule.CommonOpponentWeightedInstance,
-            _ => ByFinishedResultsRankingRule.Instance,
-        };
-
         // ［大会ルールセット］
-        var ruleSet = new TournamentFrameworkRuleSet(
-            FixedMatchPairingRule.Instance,
-            rankingRule,
-            AllMatchesFinishedTerminationRule.Instance,
-            new StandardLikeMatchResultResolver(executionSettings.FirstPlayerWinRateRating));
+        var ruleSet = TournamentFrameworkRuleSetFactory.Create(
+            executionSettings.TournamentRuleSetMode,
+            executionSettings.FirstPlayerWinRateRating);
 
         // ［大会エンジン］
         var engine = new TournamentEngine(ruleSet, executionSettings.RandomSeed);
@@ -84,30 +73,10 @@ internal static partial class SimulationTournamentFrameworkMode
             aggregateResult.TournamentRuleSetMode,
             executionSettings.FirstPlayerWinRatePercent);
 
-        Console.WriteLine($"順位ルール: {TournamentRuleSetRule.GetLabel(finalRankingResult.TournamentRuleSetMode)}");
-
-        if (aggregateResult.IsExactCalculation)
-        {
-            Console.WriteLine("計算種別: 厳密計算");
-            Console.WriteLine($"進行Tick数: {aggregateResult.AverageTickCount:F2}");
-            Console.WriteLine($"自然終了: {(aggregateResult.CompletedNaturallyCount > 0 ? "Yes" : "No")}");
-        }
-        else
-        {
-            Console.WriteLine($"集計試行回数: {aggregateResult.CompletedSimulationCount:N0}");
-            Console.WriteLine($"平均進行Tick数: {aggregateResult.AverageTickCount:F2}");
-            Console.WriteLine($"自然終了率: {aggregateResult.CompletedNaturallyCount:N0}/{aggregateResult.CompletedSimulationCount:N0}");
-        }
-
-        Console.WriteLine($"代表実行Tick数: {finalRankingResult.RepresentativeTournamentFinalState.TickCount}");
-        Console.WriteLine($"代表実行の自然終了: {(finalRankingResult.RepresentativeTournamentFinalState.CompletedNaturally ? "Yes" : "No")}");
-        Console.WriteLine($"ステージ数: {finalRankingResult.RepresentativeStages.Count}");
-        Console.WriteLine($"総対局数: {finalRankingResult.RepresentativeTournamentFinalState.MatchRecords.Count}\n");
-        if (executionSettings.DslDefinition is not null)
-        {
-            Console.WriteLine($"DSL TimeAxis: {executionSettings.DslDefinition.TimeAxis}");
-            Console.WriteLine($"DSL OverallRanking: {executionSettings.DslDefinition.OverallRankingRuleName}\n");
-        }
+        TournamentFrameworkExecutionSummaryPrinter.Print(
+            aggregateResult,
+            finalRankingResult,
+            executionSettings.DslDefinition);
 
         FinalRankingDomain.PrintTournamentFrameworkSimulationResults(finalRankingResult);
 
