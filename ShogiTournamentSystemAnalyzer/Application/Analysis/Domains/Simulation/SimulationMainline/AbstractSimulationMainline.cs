@@ -5,12 +5,11 @@ namespace ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.
 
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.SimulationContext;
 using ShogiTournamentSystemAnalyzer.Application;
-using ShogiTournamentSystemAnalyzer.Application.Analysis.Boundaries;
+using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.FinalRanking.UseCases;
 using ShogiTournamentSystemAnalyzer.Domain.Ranking;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.FinalRanking;
-using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.Shared;
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 
 /// <summary>
@@ -108,18 +107,12 @@ internal abstract class AbstractSimulationMainline
 
     protected static (string OutputCsvPath, string OutputMarkdownPath) ResolveFinalRankingOutputPaths(string defaultFileName)
     {
-        var defaultOutputCsvPath = ReportOutputPathBuilder.BuildFinalRankingDefaultOutputPath(defaultFileName);
-        var outputCsvPath = CsvOutputHelpers.ResolveOutputCsvPath(ConsolePromptReaders.ReadTextWithDefault(
-            $"\n結果CSVの出力先パスまたはフォルダーパスを入力してください [{defaultOutputCsvPath}]: ",
-            defaultOutputCsvPath));
-        var outputMarkdownPath = CsvOutputHelpers.ChangeOutputExtension(outputCsvPath, ".md");
-        return (outputCsvPath, outputMarkdownPath);
+        return FinalRankingDomain.ResolveOutputPaths(defaultFileName);
     }
 
     protected static void PrintFinalRankingOutputCompleted(string outputCsvPath, string outputMarkdownPath)
     {
-        Console.WriteLine($"結果CSVを出力しました: {outputCsvPath}");
-        Console.WriteLine($"結果Markdownを出力しました: {outputMarkdownPath}");
+        FinalRankingDomain.PrintOutputCompleted(outputCsvPath, outputMarkdownPath);
     }
 
     protected static void WriteOutputFiles(
@@ -128,13 +121,11 @@ internal abstract class AbstractSimulationMainline
         Func<IEnumerable<string>> createCsvLines,
         Func<IEnumerable<string>> createMarkdownLines)
     {
-        WriterHelper.WriteText(
-            outputPath: outputCsvPath,
-            getLines: createCsvLines);
-
-        WriterHelper.WriteText(
-            outputPath: outputMarkdownPath,
-            getLines: createMarkdownLines);
+        FinalRankingDomain.WriteOutputFiles(
+            outputCsvPath,
+            outputMarkdownPath,
+            createCsvLines,
+            createMarkdownLines);
     }
 
     protected static void WriteFinalRankingOutputs<TRow>(
@@ -146,11 +137,14 @@ internal abstract class AbstractSimulationMainline
         Func<string, string, double, IReadOnlyList<TRow>, IEnumerable<string>> createCsvLines,
         Func<string, string, string, double, IReadOnlyList<TRow>, IEnumerable<string>> createMarkdownLines)
     {
-        WriteOutputFiles(
+        FinalRankingDomain.WriteOutputs(
             outputCsvPath,
             outputMarkdownPath,
-            createCsvLines: () => createCsvLines(outputCsvPath, result.Mode, firstPlayerWinRatePercent, resultRows),
-            createMarkdownLines: () => createMarkdownLines(outputMarkdownPath, outputCsvPath, result.Mode, firstPlayerWinRatePercent, resultRows));
+            result,
+            firstPlayerWinRatePercent,
+            resultRows,
+            createCsvLines,
+            createMarkdownLines);
     }
 
     protected static void WriteFinalRankingOutputs<TRow>(
@@ -163,23 +157,14 @@ internal abstract class AbstractSimulationMainline
         string? referenceMatchesCsvPath = null)
         where TRow : ISimulationResultRow
     {
-        WriteFinalRankingOutputs(
+        FinalRankingDomain.WriteOutputs(
+            finalRankingDataFileWriter,
             outputCsvPath,
             outputMarkdownPath,
             result,
             firstPlayerWinRatePercent,
             resultRows,
-            createCsvLines: (outputCsvPath, mode, firstPlayerWinRatePercent, resultRows) => new FinalRankingCsvFileWriter(finalRankingDataFileWriter.Settings).CreateResultCsvLines(
-                mode,
-                firstPlayerWinRatePercent,
-                resultRows),
-            createMarkdownLines: (outputMarkdownPath, outputCsvPath, mode, firstPlayerWinRatePercent, resultRows) => finalRankingDataFileWriter.CreateResultMarkdownCore(
-                outputMarkdownPath,
-                outputCsvPath,
-                mode,
-                firstPlayerWinRatePercent,
-                resultRows,
-                referenceMatchesCsvPath: referenceMatchesCsvPath));
+            referenceMatchesCsvPath);
     }
 }
 

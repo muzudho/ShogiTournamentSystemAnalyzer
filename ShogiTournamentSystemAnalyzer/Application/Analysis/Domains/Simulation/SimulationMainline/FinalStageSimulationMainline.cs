@@ -4,6 +4,7 @@
 namespace ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.SimulationMainline;
 
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.SimulationContext;
+using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.FinalRanking.UseCases;
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Boundaries;
 using ShogiTournamentSystemAnalyzer.Domain.Ranking;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
@@ -190,9 +191,7 @@ internal class FinalStageSimulationMainline
 
     static (string OutputCsvPath, string OutputMarkdownPath) ResolveFinalRankingOutputPathsFromOverride(string outputPath)
     {
-        var outputCsvPath = CsvOutputHelpers.ResolveOutputCsvPath(outputPath);
-        var outputMarkdownPath = CsvOutputHelpers.ChangeOutputExtension(outputCsvPath, ".md");
-        return (outputCsvPath, outputMarkdownPath);
+        return FinalRankingDomain.ResolveOutputPathsFromOverride(outputPath);
     }
 
     static void CompleteFinalStageOutputs(
