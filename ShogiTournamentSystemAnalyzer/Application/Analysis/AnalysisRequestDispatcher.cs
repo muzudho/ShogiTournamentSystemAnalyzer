@@ -25,7 +25,7 @@ internal static class AnalysisRequestDispatcher
             return;
         }
 
-        if (QualityEvaluationRequestDispatcher.TryExecute(step)) return;
+        if (QualityEvaluationRequestDispatcher.TryExecute(step, context)) return;
 
         throw new InvalidOperationException($"未対応の分析要求です: {step.GetType().Name}");
     }

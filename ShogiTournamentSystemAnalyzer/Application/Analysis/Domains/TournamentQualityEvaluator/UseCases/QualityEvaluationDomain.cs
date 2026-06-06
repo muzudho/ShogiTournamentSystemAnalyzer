@@ -10,6 +10,13 @@ internal static class QualityEvaluationDomain
 {
     internal static bool TryExecute(AnalysisStepRequest step)
     {
+        return TryExecute(step, context: null);
+    }
+
+    internal static bool TryExecute(AnalysisStepRequest step, AnalysisExecutionContext? context)
+    {
+        _ = context;
+
         switch (step)
         {
             case StandardQualityEvaluationRequest standardQualityEvaluationRequest:
