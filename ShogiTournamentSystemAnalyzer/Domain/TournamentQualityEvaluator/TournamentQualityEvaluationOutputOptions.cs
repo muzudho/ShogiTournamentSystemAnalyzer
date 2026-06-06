@@ -16,18 +16,13 @@ internal readonly record struct TournamentQualityEvaluationOutputOptions(
     string? RequestInputLogPath = null,
     TournamentQualityEvaluationOutputProfile OutputProfile = TournamentQualityEvaluationOutputProfile.Standard)
 {
-    internal RuleProfileMode GetCompatibilityRuleProfileMode()
+    internal RuleProfileAttributes GetRuleProfileAttributes()
     {
         return OutputProfile switch
         {
-            TournamentQualityEvaluationOutputProfile.Standard => RuleProfileMode.Standard,
-            TournamentQualityEvaluationOutputProfile.FinalStage => RuleProfileMode.FinalStage,
+            TournamentQualityEvaluationOutputProfile.Standard => RuleProfileAttributes.CreateStandardScheduled(),
+            TournamentQualityEvaluationOutputProfile.FinalStage => RuleProfileAttributes.CreateFinalStageGrouped(),
             _ => throw new InvalidOperationException($"未対応の品質評価出力プロファイル: {OutputProfile}")
         };
-    }
-
-    internal RuleProfileAttributes GetRuleProfileAttributes()
-    {
-        return RuleProfileAttributes.FromCompatibilityLabel(GetCompatibilityRuleProfileMode());
     }
 }

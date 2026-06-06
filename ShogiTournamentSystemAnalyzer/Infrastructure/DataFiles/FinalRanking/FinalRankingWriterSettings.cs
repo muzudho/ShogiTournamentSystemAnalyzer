@@ -13,11 +13,6 @@ enum FinalRankingTableProfile
 /// </summary>
 internal sealed record class FinalRankingDataFileWriterSettings(FinalRankingTableProfile TableProfile)
 {
-    internal FinalRankingDataFileWriterSettings(RuleProfileMode ruleProfileMode)
-        : this(ToFinalRankingTableProfile(RuleProfileAttributes.FromCompatibilityLabel(ruleProfileMode)))
-    {
-    }
-
     internal FinalRankingDataFileWriterSettings(RuleProfileAttributes ruleProfileAttributes)
         : this(ToFinalRankingTableProfile(ruleProfileAttributes))
     {
