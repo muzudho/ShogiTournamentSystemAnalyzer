@@ -5,6 +5,7 @@ namespace ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.FinalRankin
 
 using ShogiTournamentSystemAnalyzer.Application;
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Boundaries;
+using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.TournamentFinalState.UseCases;
 using ShogiTournamentSystemAnalyzer.Domain.FinalRanking;
 using ShogiTournamentSystemAnalyzer.Domain.Ranking;
 using ShogiTournamentSystemAnalyzer.Domain.Request.PlayerList;
@@ -14,7 +15,6 @@ using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.FinalRanking;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.Shared;
-using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.TournamentFinalState;
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 
 internal static class FinalRankingDomain
@@ -302,8 +302,6 @@ internal static class FinalRankingDomain
         const string AggregateOverviewNoteForCsv = "この順位表は複数回試行の aggregate 結果です。大会最終状態CSVとは 1 対 1 には対応しません。";
         const string AggregateOverviewNoteForMarkdown = "この順位表は複数回試行の aggregate 結果です。下記の大会最終状態テーブルとは 1 対 1 には対応しません。";
         const string RepresentativeOverviewNote = "この順位表は代表実行 1 件の順位です。aggregate 結果の順位表そのものではありません。";
-        const string TournamentFinalStateOverviewNote = "この大会最終状態テーブルは代表実行 1 件の対局記録です。順位表の aggregate 結果そのものではありません。";
-
         var settings = new FinalRankingDataFileWriterSettings(RuleProfileMode.TournamentFramework);
         FinalRankingMarkdownFileWriter finalRankingDataFileWriter = new(settings);
 
@@ -315,8 +313,7 @@ internal static class FinalRankingDomain
         var outputMarkdownPath = CsvOutputHelpers.ChangeOutputExtension(outputCsvPath, ".md");
         var representativeRankingCsvPath = ReportOutputPathBuilder.BuildFinalRankingDefaultOutputPath($"tournament_framework_representative_final_ranking_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
         var representativeRankingMarkdownPath = CsvOutputHelpers.ChangeOutputExtension(representativeRankingCsvPath, ".md");
-        var tournamentMatchRecordsCsvPath = ReportOutputPathBuilder.BuildTournamentFinalStateDefaultOutputPath($"representative_tournament_final_state_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
-        var tournamentMatchRecordsMarkdownPath = CsvOutputHelpers.ChangeOutputExtension(tournamentMatchRecordsCsvPath, ".md");
+        var (tournamentMatchRecordsCsvPath, tournamentMatchRecordsMarkdownPath) = TournamentFinalStateDomain.BuildTournamentFrameworkRepresentativeOutputPaths();
 
         WriterHelper.WriteText(
             outputPath: outputCsvPath,
@@ -354,25 +351,14 @@ internal static class FinalRankingDomain
                 overviewNote: RepresentativeOverviewNote,
                 representativeMatchRecordsMarkdownPath: tournamentMatchRecordsMarkdownPath));
 
-        WriterHelper.WriteText(
-            outputPath: tournamentMatchRecordsCsvPath,
-            getLines: () => TournamentFinalStateDataFileWriter.CreateTournamentMatchRecordCsv(
-                finalRankingResult.RepresentativeStages,
-                finalRankingResult.RepresentativePlayers,
-                finalRankingResult.RepresentativeTournamentFinalState.MatchRecords,
-                overviewNote: TournamentFinalStateOverviewNote));
-
-        WriterHelper.WriteText(
-            outputPath: tournamentMatchRecordsMarkdownPath,
-            getLines: () => TournamentFinalStateDataFileWriter.CreateTournamentMatchRecordMarkdown(
-                tournamentMatchRecordsMarkdownPath,
-                tournamentMatchRecordsCsvPath,
-                finalRankingResult.RepresentativeStages,
-                finalRankingResult.RepresentativePlayers,
-                finalRankingResult.RepresentativeTournamentFinalState.MatchRecords,
-                overviewNote: TournamentFinalStateOverviewNote,
-                aggregateResultMarkdownPath: outputMarkdownPath,
-                representativeRankingMarkdownPath: representativeRankingMarkdownPath));
+        TournamentFinalStateDomain.WriteTournamentFrameworkRepresentativeOutputs(
+            finalRankingResult.RepresentativeStages,
+            finalRankingResult.RepresentativePlayers,
+            finalRankingResult.RepresentativeTournamentFinalState,
+            tournamentMatchRecordsCsvPath,
+            tournamentMatchRecordsMarkdownPath,
+            outputMarkdownPath,
+            representativeRankingMarkdownPath);
 
         Console.WriteLine($"aggregate結果CSVを出力しました: {outputCsvPath}");
         Console.WriteLine($"aggregate結果Markdownを出力しました: {outputMarkdownPath}");
@@ -380,6 +366,120 @@ internal static class FinalRankingDomain
         Console.WriteLine($"representative順位表Markdownを出力しました: {representativeRankingMarkdownPath}");
         Console.WriteLine($"representative大会最終状態CSVを出力しました: {tournamentMatchRecordsCsvPath}");
         Console.WriteLine($"representative大会最終状態Markdownを出力しました: {tournamentMatchRecordsMarkdownPath}");
+    }
+
+    internal static void AccumulateTournamentFrameworkPlaceProbabilities(
+        IReadOnlyList<PlayerEntry> players,
+        IReadOnlyDictionary<int, int> playerIndexById,
+        IReadOnlyList<TournamentMatchRecord> matchRecords,
+        double[,] placeProbabilities,
+        TournamentRuleSetMode tournamentRuleSetMode,
+        double weight = 1.0)
+    {
+        if (tournamentRuleSetMode is TournamentRuleSetMode.Twill or TournamentRuleSetMode.TwillCommonOpponentWeighted)
+        {
+            AccumulateTournamentFrameworkTwillPlaces(players, playerIndexById, matchRecords, placeProbabilities, tournamentRuleSetMode, weight);
+            return;
+        }
+
+        AccumulateTournamentFrameworkNeutralPlaces(players, playerIndexById, matchRecords, placeProbabilities, weight);
+    }
+
+    static void AccumulateTournamentFrameworkNeutralPlaces(
+        IReadOnlyList<PlayerEntry> players,
+        IReadOnlyDictionary<int, int> playerIndexById,
+        IReadOnlyList<TournamentMatchRecord> matchRecords,
+        double[,] placeProbabilities,
+        double weight)
+    {
+        var pointsByPlayerId = BuildTournamentFrameworkPointsByPlayerId(players, matchRecords);
+
+        var ranking = players
+            .Select(player => new PlayerScore(playerIndexById[player.PlayerId], pointsByPlayerId[player.PlayerId]))
+            .OrderByDescending(score => score.Wins)
+            .ThenBy(score => score.PlayerIndex)
+            .ToArray();
+
+        var currentPlace = 0;
+        while (currentPlace < ranking.Length)
+        {
+            var groupEnd = currentPlace + 1;
+            while (groupEnd < ranking.Length && ranking[groupEnd].Wins == ranking[currentPlace].Wins)
+            {
+                groupEnd++;
+            }
+
+            var groupSize = groupEnd - currentPlace;
+            var splitWeight = weight / groupSize;
+            for (var i = currentPlace; i < groupEnd; i++)
+            {
+                var playerIndex = ranking[i].PlayerIndex;
+                for (var place = currentPlace; place < groupEnd; place++)
+                {
+                    placeProbabilities[playerIndex, place] += splitWeight;
+                }
+            }
+
+            currentPlace = groupEnd;
+        }
+    }
+
+    static void AccumulateTournamentFrameworkTwillPlaces(
+        IReadOnlyList<PlayerEntry> players,
+        IReadOnlyDictionary<int, int> playerIndexById,
+        IReadOnlyList<TournamentMatchRecord> matchRecords,
+        double[,] placeProbabilities,
+        TournamentRuleSetMode tournamentRuleSetMode,
+        double weight)
+    {
+        var standardMatches = new Match[matchRecords.Count];
+        var blackWins = new bool[matchRecords.Count];
+
+        for (var matchIndex = 0; matchIndex < matchRecords.Count; matchIndex++)
+        {
+            var match = matchRecords[matchIndex];
+            standardMatches[matchIndex] = new Match(
+                playerIndexById[match.FirstPlayerId],
+                playerIndexById[match.SecondPlayerId]);
+
+            blackWins[matchIndex] = match.ResultType switch
+            {
+                MatchResultType.FirstPlayerWin or MatchResultType.FirstPlayerForfeitWin => true,
+                MatchResultType.SecondPlayerWin or MatchResultType.SecondPlayerForfeitWin => false,
+                _ => throw new OperationCanceledException($"Twill 系順位ルールでは未対応の対局結果です: {match.ResultType}"),
+            };
+        }
+
+        if (tournamentRuleSetMode == TournamentRuleSetMode.Twill)
+        {
+            TwillTournamentRule.AccumulatePlaceProbabilities(standardMatches, blackWins, weight, placeProbabilities);
+            return;
+        }
+
+        TwillTournamentRule.AccumulatePlaceProbabilitiesWithCommonOpponentWeight(standardMatches, blackWins, weight, placeProbabilities);
+    }
+
+    static Dictionary<int, int> BuildTournamentFrameworkPointsByPlayerId(
+        IReadOnlyList<PlayerEntry> players,
+        IReadOnlyList<TournamentMatchRecord> matchRecords)
+    {
+        var pointsByPlayerId = players.ToDictionary(player => player.PlayerId, _ => 0);
+        foreach (var match in matchRecords.Where(match => match.Status == MatchStatus.Finished))
+        {
+            switch (match.ResultType)
+            {
+                case MatchResultType.FirstPlayerWin:
+                case MatchResultType.FirstPlayerForfeitWin:
+                    pointsByPlayerId[match.FirstPlayerId]++;
+                    break;
+                case MatchResultType.SecondPlayerWin:
+                case MatchResultType.SecondPlayerForfeitWin:
+                    pointsByPlayerId[match.SecondPlayerId]++;
+                    break;
+            }
+        }
+
+        return pointsByPlayerId;
     }
 
     internal static void WriteOutputFiles(

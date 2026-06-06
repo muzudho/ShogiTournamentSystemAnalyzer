@@ -71,12 +71,11 @@ internal static class ApplicationWorkflow
         //      ↓
         //      
         Console.WriteLine("■［分析］");
-        //TournamentFinalStateBoundary tournamentFinalStateBoundary = new();
         //［シミュレーション域］
         //　　｜
         //　　｜　［大会最終状態という境界］      `TournamentFinalState`
         //　　↓
-        //［順位付け域］
+        //［最終順位付け域］                      `FinalRanking`
         //　　｜
         //　　｜　［最終順位という境界］          `FinalRanking`
         //　　↓

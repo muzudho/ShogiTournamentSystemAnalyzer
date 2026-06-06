@@ -6,7 +6,6 @@ namespace ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.
 using ShogiTournamentSystemAnalyzer.Application;
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.FinalRanking.UseCases;
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.TournamentFramework;
-using ShogiTournamentSystemAnalyzer.Domain.Ranking;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
@@ -165,7 +164,7 @@ internal static partial class SimulationTournamentFrameworkMode
             if (!SimulationTimeBudget.HasSimulationTimeRemaining()) break;
 
             var executionResult = engine.Run(initialState);
-            AccumulateTournamentFrameworkPlaceProbabilities(players, playerIndexById, executionResult.FinalState.MatchRecords, placeProbabilities, tournamentRuleSetMode);
+            FinalRankingDomain.AccumulateTournamentFrameworkPlaceProbabilities(players, playerIndexById, executionResult.FinalState.MatchRecords, placeProbabilities, tournamentRuleSetMode);
             representativeExecutionResult = executionResult;
             totalTickCount += executionResult.TickCount;
             if (executionResult.CompletedNaturally)
@@ -230,7 +229,7 @@ internal static partial class SimulationTournamentFrameworkMode
                         .Select(match => match with { Status = MatchStatus.Finished })
                         .ToArray(),
                 };
-                AccumulateTournamentFrameworkPlaceProbabilities(players, playerIndexById, finalState.MatchRecords, placeProbabilities, tournamentRuleSetMode, scenarioProbability);
+                FinalRankingDomain.AccumulateTournamentFrameworkPlaceProbabilities(players, playerIndexById, finalState.MatchRecords, placeProbabilities, tournamentRuleSetMode, scenarioProbability);
                 return;
             }
 
@@ -279,153 +278,6 @@ internal static partial class SimulationTournamentFrameworkMode
             representativeExecutionResult);
     }
 
-    /// <summary>
-    /// ［大会フレームワーク］の位置確率？を累計
-    /// </summary>
-    /// <param name="players"></param>
-    /// <param name="playerIndexById"></param>
-    /// <param name="matchRecords"></param>
-    /// <param name="placeProbabilities"></param>
-    /// <param name="tournamentRuleSetMode"></param>
-    /// <param name="weight"></param>
-    static void AccumulateTournamentFrameworkPlaceProbabilities(
-        IReadOnlyList<PlayerEntry> players,
-        IReadOnlyDictionary<int, int> playerIndexById,
-        IReadOnlyList<TournamentMatchRecord> matchRecords,
-        double[,] placeProbabilities,
-        TournamentRuleSetMode tournamentRuleSetMode,
-        double weight = 1.0)
-    {
-        if (tournamentRuleSetMode is TournamentRuleSetMode.Twill or TournamentRuleSetMode.TwillCommonOpponentWeighted)
-        {
-            AccumulateTournamentFrameworkTwillPlaces(players, playerIndexById, matchRecords, placeProbabilities, tournamentRuleSetMode, weight);
-            return;
-        }
-
-        AccumulateTournamentFrameworkNeutralPlaces(players, playerIndexById, matchRecords, placeProbabilities, weight);
-    }
-
-    /// <summary>
-    /// ［大会フレームワーク］の自然な位置？を累計
-    /// </summary>
-    /// <param name="players"></param>
-    /// <param name="playerIndexById"></param>
-    /// <param name="matchRecords"></param>
-    /// <param name="placeProbabilities"></param>
-    /// <param name="weight"></param>
-    static void AccumulateTournamentFrameworkNeutralPlaces(
-        IReadOnlyList<PlayerEntry> players,
-        IReadOnlyDictionary<int, int> playerIndexById,
-        IReadOnlyList<TournamentMatchRecord> matchRecords,
-        double[,] placeProbabilities,
-        double weight)
-    {
-        var pointsByPlayerId = BuildTournamentFrameworkPointsByPlayerId(players, matchRecords);
-
-        var ranking = players
-            .Select(player => new PlayerScore(playerIndexById[player.PlayerId], pointsByPlayerId[player.PlayerId]))
-            .OrderByDescending(score => score.Wins)
-            .ThenBy(score => score.PlayerIndex)
-            .ToArray();
-
-        var currentPlace = 0;
-        while (currentPlace < ranking.Length)
-        {
-            var groupEnd = currentPlace + 1;
-            while (groupEnd < ranking.Length && ranking[groupEnd].Wins == ranking[currentPlace].Wins)
-            {
-                groupEnd++;
-            }
-
-            var groupSize = groupEnd - currentPlace;
-            var splitWeight = weight / groupSize;
-            for (var i = currentPlace; i < groupEnd; i++)
-            {
-                var playerIndex = ranking[i].PlayerIndex;
-                for (var place = currentPlace; place < groupEnd; place++)
-                {
-                    placeProbabilities[playerIndex, place] += splitWeight;
-                }
-            }
-
-            currentPlace = groupEnd;
-        }
-    }
-
-    /// <summary>
-    /// ［大会フレームワーク］のツイル式の位置を累計
-    /// </summary>
-    /// <param name="players"></param>
-    /// <param name="playerIndexById"></param>
-    /// <param name="matchRecords"></param>
-    /// <param name="placeProbabilities"></param>
-    /// <param name="tournamentRuleSetMode"></param>
-    /// <param name="weight"></param>
-    /// <exception cref="OperationCanceledException"></exception>
-    static void AccumulateTournamentFrameworkTwillPlaces(
-        IReadOnlyList<PlayerEntry> players,
-        IReadOnlyDictionary<int, int> playerIndexById,
-        IReadOnlyList<TournamentMatchRecord> matchRecords,
-        double[,] placeProbabilities,
-        TournamentRuleSetMode tournamentRuleSetMode,
-        double weight)
-    {
-        var standardMatches = new Match[matchRecords.Count];
-        var blackWins = new bool[matchRecords.Count];
-
-        for (var matchIndex = 0; matchIndex < matchRecords.Count; matchIndex++)
-        {
-            var match = matchRecords[matchIndex];
-            standardMatches[matchIndex] = new Match(
-                playerIndexById[match.FirstPlayerId],
-                playerIndexById[match.SecondPlayerId]);
-
-            blackWins[matchIndex] = match.ResultType switch
-            {
-                MatchResultType.FirstPlayerWin or MatchResultType.FirstPlayerForfeitWin => true,
-                MatchResultType.SecondPlayerWin or MatchResultType.SecondPlayerForfeitWin => false,
-                _ => throw new OperationCanceledException($"Twill 系順位ルールでは未対応の対局結果です: {match.ResultType}"),
-            };
-        }
-
-        if (tournamentRuleSetMode == TournamentRuleSetMode.Twill)
-        {
-            TwillTournamentRule.AccumulatePlaceProbabilities(standardMatches, blackWins, weight, placeProbabilities);
-            return;
-        }
-
-        TwillTournamentRule.AccumulatePlaceProbabilitiesWithCommonOpponentWeight(standardMatches, blackWins, weight, placeProbabilities);
-    }
-
-
-    /// <summary>
-    /// ［プレイヤーＩｄ］毎のポイントの組立
-    /// </summary>
-    /// <param name="players"></param>
-    /// <param name="matchRecords"></param>
-    /// <returns></returns>
-    static Dictionary<int, int> BuildTournamentFrameworkPointsByPlayerId(
-        IReadOnlyList<PlayerEntry> players,
-        IReadOnlyList<TournamentMatchRecord> matchRecords)
-    {
-        var pointsByPlayerId = players.ToDictionary(player => player.PlayerId, _ => 0);
-        foreach (var match in matchRecords.Where(match => match.Status == MatchStatus.Finished))
-        {
-            switch (match.ResultType)
-            {
-                case MatchResultType.FirstPlayerWin:
-                case MatchResultType.FirstPlayerForfeitWin:
-                    pointsByPlayerId[match.FirstPlayerId]++;
-                    break;
-                case MatchResultType.SecondPlayerWin:
-                case MatchResultType.SecondPlayerForfeitWin:
-                    pointsByPlayerId[match.SecondPlayerId]++;
-                    break;
-            }
-        }
-
-        return pointsByPlayerId;
-    }
 
     /// <summary>
     /// 集計
