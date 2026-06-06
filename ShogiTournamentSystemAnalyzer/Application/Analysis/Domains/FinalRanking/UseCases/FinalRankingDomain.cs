@@ -242,9 +242,7 @@ internal static class FinalRankingDomain
         TournamentFinalStateData tournamentFinalStateData,
         IReadOnlyList<StageEntry> stages,
         IReadOnlyList<PlayerEntry> players,
-        IReadOnlyList<RepresentativeExecutionRankRow> representativeExecutionRankRows,
-        CalculationResult finalRankingCalculation,
-        IReadOnlyList<GeneralSimulationResultRow> finalRankingRows)
+        TournamentFrameworkFinalRankingResult finalRankingResult)
     {
         const string AggregateOverviewNoteForCsv = "この順位表は複数回試行の aggregate 結果です。大会最終状態CSVとは 1 対 1 には対応しません。";
         const string AggregateOverviewNoteForMarkdown = "この順位表は複数回試行の aggregate 結果です。下記の大会最終状態テーブルとは 1 対 1 には対応しません。";
@@ -269,9 +267,9 @@ internal static class FinalRankingDomain
         WriterHelper.WriteText(
             outputPath: outputCsvPath,
             getLines: () => new FinalRankingCsvFileWriter(settings).CreateResultCsvLines(
-                mode: finalRankingCalculation.Mode,
+                mode: finalRankingResult.AggregateCalculationResult.Mode,
                 firstPlayerWinRatePercent: firstPlayerWinRatePercent,
-                resultRows: finalRankingRows,
+                resultRows: finalRankingResult.AggregateFinalRankingResult.Rows,
                 overviewNote: AggregateOverviewNoteForCsv));
 
         WriterHelper.WriteText(
@@ -279,9 +277,9 @@ internal static class FinalRankingDomain
             getLines: () => finalRankingDataFileWriter.CreateResultMarkdownCore(
                 outputMarkdownPath: outputMarkdownPath,
                 outputCsvPath: outputCsvPath,
-                mode: finalRankingCalculation.Mode,
+                mode: finalRankingResult.AggregateCalculationResult.Mode,
                 firstPlayerWinRatePercent: firstPlayerWinRatePercent,
-                resultRows: finalRankingRows,
+                resultRows: finalRankingResult.AggregateFinalRankingResult.Rows,
                 overviewNote: AggregateOverviewNoteForMarkdown,
                 representativeRankingMarkdownPath: representativeRankingMarkdownPath));
 
@@ -289,7 +287,7 @@ internal static class FinalRankingDomain
             outputPath: representativeRankingCsvPath,
             getLines: () => RepresentativeExecutionRankFileWriter.CreateCsv(
                 rankingSettingsData.TournamentRuleSetMode,
-                representativeExecutionRankRows,
+                finalRankingResult.RepresentativeExecutionRankRows,
                 overviewNote: RepresentativeOverviewNote));
 
         WriterHelper.WriteText(
@@ -298,7 +296,7 @@ internal static class FinalRankingDomain
                 representativeRankingMarkdownPath,
                 representativeRankingCsvPath,
                 rankingSettingsData.TournamentRuleSetMode,
-                representativeExecutionRankRows,
+                finalRankingResult.RepresentativeExecutionRankRows,
                 overviewNote: RepresentativeOverviewNote,
                 representativeMatchRecordsMarkdownPath: tournamentMatchRecordsMarkdownPath));
 

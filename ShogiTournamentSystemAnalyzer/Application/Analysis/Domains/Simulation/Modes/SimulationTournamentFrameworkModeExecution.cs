@@ -152,9 +152,7 @@ internal static partial class SimulationTournamentFrameworkMode
             tournamentFinalStateData,
             stages,
             players,
-            finalRankingResult.RepresentativeExecutionRankRows,
-            finalRankingResult.AggregateCalculationResult,
-            finalRankingResult.AggregateFinalRankingResult.Rows);
+            finalRankingResult);
     }
 
     /// <summary>
