@@ -134,6 +134,11 @@ internal static class ConsolePromptReaders
         }
     }
 
+    internal static RuleProfileAttributes ReadRuleProfileAttributes(AnalysisFlowSelection flowSelection)
+    {
+        return RuleProfileAttributes.FromCompatibilityLabel(ReadRuleProfileMode(flowSelection));
+    }
+
     internal static string ReadTextWithDefault(string prompt, string defaultValue)
     {
         if (!SimulationTimeBudget.HasApplicationTimeRemaining())

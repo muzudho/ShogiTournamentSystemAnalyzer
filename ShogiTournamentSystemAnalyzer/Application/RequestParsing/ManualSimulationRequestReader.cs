@@ -10,29 +10,31 @@ using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 internal static partial class ManualAnalysisRequestReader
 {
     static bool TryReadSimulationRequest(
-        RuleProfileMode ruleProfileMode,
+        RuleProfileAttributes ruleProfileAttributes,
         out AnalysisStepRequest stepRequest)
     {
         stepRequest = null!;
 
-        if (ruleProfileMode == RuleProfileMode.Standard)
+        if (ruleProfileAttributes.SimulationShape == RuleProfileSimulationShape.ScheduledMatches
+            && !ruleProfileAttributes.UsesFinalStageGrouping)
         {
             stepRequest = ReadStandardSimulationRequest();
             return true;
         }
 
-        if (ruleProfileMode == RuleProfileMode.FinalStage)
+        if (ruleProfileAttributes.SimulationShape == RuleProfileSimulationShape.FinalStageGrouped
+            || ruleProfileAttributes.UsesFinalStageGrouping)
         {
             return TryReadFinalStageSimulationRequest(out stepRequest);
         }
 
-        if (ruleProfileMode == RuleProfileMode.TournamentFramework)
+        if (ruleProfileAttributes.SimulationShape == RuleProfileSimulationShape.TournamentFramework)
         {
             stepRequest = ReadTournamentFrameworkSimulationRequest();
             return true;
         }
 
-        if (ruleProfileMode == RuleProfileMode.Empty)
+        if (ruleProfileAttributes.SimulationShape == RuleProfileSimulationShape.Empty)
         {
             stepRequest = ReadEmptySimulationRequest();
             return true;

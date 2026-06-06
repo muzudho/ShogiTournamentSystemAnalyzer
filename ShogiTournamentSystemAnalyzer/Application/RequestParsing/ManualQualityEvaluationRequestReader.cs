@@ -10,10 +10,11 @@ using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 internal static partial class ManualAnalysisRequestReader
 {
     static bool TryReadQualityEvaluationRequest(
-        RuleProfileMode ruleProfileMode,
+        RuleProfileAttributes ruleProfileAttributes,
         out AnalysisStepRequest stepRequest)
     {
         stepRequest = null!;
+        var ruleProfileMode = ruleProfileAttributes.ToCompatibilityLabel();
 
         var players = ConsoleInputReaders.ReadPlayersFromCsv();
         Console.WriteLine();

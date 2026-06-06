@@ -27,7 +27,7 @@ internal static class ApplicationTournamentUser
 
         result = null!;
         var analysisFlowSelection = AnalysisFlowSelection.FromSingle(AnalysisFlowMode.Simulation);
-        var ruleProfileMode = new RuleProfileMode();
+        var ruleProfileAttributes = RuleProfileAttributes.FromCompatibilityLabel(RuleProfileMode.Standard);
         AnalysisRequest? analysisRequest = null;    // TODO: これは現在の本命フローに合わせている（＾～＾）この変数を育てていき、将来的には旧フロー用の選択値は解消したい（＾～＾）？
 
         #region ［◆節１：コマンドライン引数で要求ファイルを指定したか？
@@ -67,7 +67,7 @@ internal static class ApplicationTournamentUser
                 requestText = null;
                 analysisRequest = parsedAnalysisRequest;
                 analysisFlowSelection = parsedAnalysisRequest.FlowSelection;
-                ruleProfileMode = parsedAnalysisRequest.GetCompatibilityRuleProfileMode();
+                ruleProfileAttributes = RuleProfileAttributes.FromCompatibilityLabel(parsedAnalysisRequest.GetCompatibilityRuleProfileMode());
             }
             else
             {
@@ -89,10 +89,9 @@ internal static class ApplicationTournamentUser
             // TODO: これも入力に含めたいぜ（＾～＾）
             analysisFlowSelection = ConsolePromptReaders.ReadAnalysisFlowSelection();
 
-            // TODO: これも入力に含めたいぜ（＾～＾）
-            ruleProfileMode = ConsolePromptReaders.ReadRuleProfileMode(analysisFlowSelection);
+            ruleProfileAttributes = ConsolePromptReaders.ReadRuleProfileAttributes(analysisFlowSelection);
 
-            ManualAnalysisRequestReader.TryRead(analysisFlowSelection, ruleProfileMode, out analysisRequest);
+            ManualAnalysisRequestReader.TryRead(analysisFlowSelection, ruleProfileAttributes, out analysisRequest);
 
             // ［◆節３：エラーが有ったか？］
 
@@ -150,20 +149,23 @@ internal static class ApplicationTournamentUser
         {
             InputFromSomewhere.UseText(requestText);
             analysisFlowSelection = ConsolePromptReaders.ReadAnalysisFlowSelection();
-            ruleProfileMode = ConsolePromptReaders.ReadRuleProfileMode(analysisFlowSelection);
+            ruleProfileAttributes = ConsolePromptReaders.ReadRuleProfileAttributes(analysisFlowSelection);
         }
 
         result = new TournamentUserDomainResult(
             analysisFlowSelection,
-            ruleProfileMode,
+            ruleProfileAttributes,
             analysisRequest);
         return true;
     }
 
     internal sealed record TournamentUserDomainResult(
         AnalysisFlowSelection AnalysisFlowSelection,
-        RuleProfileMode RuleProfileMode,
-        AnalysisRequest? AnalysisRequest);
+        RuleProfileAttributes RuleProfileAttributes,
+        AnalysisRequest? AnalysisRequest)
+    {
+        internal RuleProfileMode RuleProfileMode => RuleProfileAttributes.ToCompatibilityLabel();
+    }
 
     static bool TryConvertToLegacyInputText(RequestText? checkedRequestText, out string? requestText)
     {

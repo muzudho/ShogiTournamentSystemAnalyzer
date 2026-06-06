@@ -13,9 +13,13 @@ internal static class QualityEvaluationFlowDispatcher
 {
     internal static bool TryExecute(AnalysisFlowMode flowMode, RuleProfileMode ruleProfileMode)
     {
+        return TryExecute(flowMode, RuleProfileAttributes.FromCompatibilityLabel(ruleProfileMode));
+    }
+
+    internal static bool TryExecute(AnalysisFlowMode flowMode, RuleProfileAttributes ruleProfileAttributes)
+    {
         if (flowMode != AnalysisFlowMode.QualityEvaluation) return false;
 
-        var ruleProfileAttributes = RuleProfileAttributes.FromCompatibilityLabel(ruleProfileMode);
         if (ruleProfileAttributes.PairingSource != RuleProfilePairingSource.ScheduledMatches) return false;
 
         TournamentQualityEvaluationMode.Run(ruleProfileAttributes);

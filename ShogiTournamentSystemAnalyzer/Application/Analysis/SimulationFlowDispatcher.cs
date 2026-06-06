@@ -20,9 +20,13 @@ internal static class SimulationFlowDispatcher
     /// <returns></returns>
     internal static bool TryExecute(AnalysisFlowMode flowMode, RuleProfileMode ruleProfileMode)
     {
+        return TryExecute(flowMode, RuleProfileAttributes.FromCompatibilityLabel(ruleProfileMode));
+    }
+
+    internal static bool TryExecute(AnalysisFlowMode flowMode, RuleProfileAttributes ruleProfileAttributes)
+    {
         if (flowMode != AnalysisFlowMode.Simulation) return false;
 
-        var ruleProfileAttributes = RuleProfileAttributes.FromCompatibilityLabel(ruleProfileMode);
         switch (ruleProfileAttributes.SimulationShape)
         {
             case RuleProfileSimulationShape.ScheduledMatches:

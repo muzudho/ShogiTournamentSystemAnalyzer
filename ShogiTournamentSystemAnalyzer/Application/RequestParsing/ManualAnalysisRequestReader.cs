@@ -9,7 +9,7 @@ internal static partial class ManualAnalysisRequestReader
 {
     internal static bool TryRead(
         AnalysisFlowSelection analysisFlowSelection,
-        RuleProfileMode ruleProfileMode,
+        RuleProfileAttributes ruleProfileAttributes,
         out AnalysisRequest? analysisRequest)
     {
         analysisRequest = null;
@@ -18,12 +18,12 @@ internal static partial class ManualAnalysisRequestReader
         AnalysisStepRequest stepRequest;
         if (analysisFlowSelection.Steps[0] == AnalysisFlowMode.Simulation)
         {
-            if (!TryReadSimulationRequest(ruleProfileMode, out stepRequest)) return false;
+            if (!TryReadSimulationRequest(ruleProfileAttributes, out stepRequest)) return false;
         }
         else if (analysisFlowSelection.Steps[0] == AnalysisFlowMode.QualityEvaluation
-            && (ruleProfileMode == RuleProfileMode.Standard || ruleProfileMode == RuleProfileMode.FinalStage))
+            && ruleProfileAttributes.PairingSource == RuleProfilePairingSource.ScheduledMatches)
         {
-            if (!TryReadQualityEvaluationRequest(ruleProfileMode, out stepRequest)) return false;
+            if (!TryReadQualityEvaluationRequest(ruleProfileAttributes, out stepRequest)) return false;
         }
         else
         {

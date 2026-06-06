@@ -86,7 +86,7 @@ internal static class ApplicationWorkflow
         TournamentUserDomainResult result)
     {
         if (!result.AnalysisFlowSelection.RunsSimulation) return;
-        if (SimulationFlowDispatcher.TryExecute(AnalysisFlowMode.Simulation, result.RuleProfileMode)) return;
+        if (SimulationFlowDispatcher.TryExecute(AnalysisFlowMode.Simulation, result.RuleProfileAttributes)) return;
 
         throw new InvalidOperationException("未対応のシミュレーション域です。");
     }
@@ -109,7 +109,7 @@ internal static class ApplicationWorkflow
         TournamentUserDomainResult result)
     {
         if (!result.AnalysisFlowSelection.RunsQualityEvaluation) return;
-        if (QualityEvaluationFlowDispatcher.TryExecute(AnalysisFlowMode.QualityEvaluation, result.RuleProfileMode)) return;
+        if (QualityEvaluationFlowDispatcher.TryExecute(AnalysisFlowMode.QualityEvaluation, result.RuleProfileAttributes)) return;
 
         throw new InvalidOperationException("未対応の大会品質評価域です。");
     }
