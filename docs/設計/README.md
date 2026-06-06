@@ -18,6 +18,8 @@
   - `--request-file`、`#[Prompt]`、`#[Enter]` の書き方を知りたいとき
 - [STSAInput/2 仕様](./STSAInput2仕様.md)
   - 仕様変更に強い次世代の入力ファイル方式案を知りたいとき
+- [STSAInput/5 仕様](./STSAInput5仕様.md)
+  - `RuleProfileMode` ではなく `RuleProfileAttributes` で要求ファイルを書く方法を知りたいとき
 - [プロジェクトの考え方](./プロジェクトの考え方.md)
   - 用語、背景の仮定、README から分けた考え方を知りたいとき
 - [品質評価](./品質評価.md)
@@ -65,6 +67,8 @@
   - `--request-file` の実行例
 - [STSAInput/2 仕様](./STSAInput2仕様.md)
   - `#[Format] STSAInput/2` と `#[Section]` を使う次世代方式案
+- [STSAInput/5 仕様](./STSAInput5仕様.md)
+  - `RuleProfileAttributes` セクションを使う要求ファイル方式
 
 ### 品質評価の見方を知る
 - [品質評価](./品質評価.md)
