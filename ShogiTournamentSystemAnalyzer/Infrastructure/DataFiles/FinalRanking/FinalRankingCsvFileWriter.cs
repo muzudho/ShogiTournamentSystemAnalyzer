@@ -74,39 +74,12 @@ internal class FinalRankingCsvFileWriter
     /// <summary>
     /// ［最終順位という境界］のCSV形式データを作成する。
     /// </summary>
-    /// <typeparam name="TRow"></typeparam>
     /// <param name="mode"></param>
     /// <param name="firstPlayerWinRatePercent"></param>
     /// <param name="resultRows"></param>
     /// <param name="overviewNote"></param>
     /// <returns></returns>
-    internal IEnumerable<string> CreateResultCsvLines<TRow>(
-        string mode,
-        double firstPlayerWinRatePercent,
-        IReadOnlyList<TRow> resultRows,
-        string? overviewNote = null)
-        where TRow : ISimulationResultRow
-    {
-        var generalResultRows = resultRows
-            .Select(row => row.ToGeneralResultRow())
-            .ToList();
-
-        return CreateGeneralResultCsvLines(
-            mode,
-            firstPlayerWinRatePercent,
-            generalResultRows,
-            overviewNote);
-    }
-
-    /// <summary>
-    /// ［最終順位という境界］のCSV形式データを、共通部分と自由形式部分に分けた行から作成する。
-    /// </summary>
-    /// <param name="mode"></param>
-    /// <param name="firstPlayerWinRatePercent"></param>
-    /// <param name="resultRows"></param>
-    /// <param name="overviewNote"></param>
-    /// <returns></returns>
-    internal IEnumerable<string> CreateGeneralResultCsvLines(
+    internal IEnumerable<string> CreateResultCsvLines(
         string mode,
         double firstPlayerWinRatePercent,
         IReadOnlyList<GeneralSimulationResultRow> resultRows,

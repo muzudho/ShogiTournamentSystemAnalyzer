@@ -90,7 +90,7 @@ internal class StandardSimulationMainline
     static void WriteFinalRankingOutputsForStandardMode(
         StandardModeSimulationContext context,
         CalculationResult tournamentFinalState,
-        FinalRankingResult<GeneralSimulationResultRow> finalRankingResult,
+        FinalRankingResult finalRankingResult,
         string? outputPathOverride)
     {
         var (outputCsvPath, outputMarkdownPath) = FinalRankingDomain.ResolveOutputPaths(

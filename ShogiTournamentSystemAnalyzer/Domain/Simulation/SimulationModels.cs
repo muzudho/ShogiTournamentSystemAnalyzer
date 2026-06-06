@@ -32,22 +32,6 @@ readonly record struct PlayerScore(int PlayerIndex, int Wins);
 /// <param name="SimulationCount"></param>
 readonly record struct CalculationResult(double[,] PlaceProbabilities, string Mode, int? SimulationCount);
 
-internal interface ISimulationResultRow
-{
-    string Name { get; }
-    double OriginalRating { get; }
-    double EffectiveRating { get; }
-    double RatingDelta { get; }
-    int FirstPlayerCount { get; }
-    int SecondPlayerCount { get; }
-    double? FirstPlayerWinRate { get; }
-    double? SecondPlayerWinRate { get; }
-    double[] PlaceProbabilities { get; }
-    double[]? PlaceCounts { get; }
-
-    GeneralSimulationResultRow ToGeneralResultRow();
-}
-
 /// <summary>
 /// ［シミュレーション］結果の行の共通データ
 /// </summary>
@@ -103,7 +87,6 @@ readonly record struct GeneralSimulationResultRow(
     SimulationResultRowCommonData CommonData,
     IReadOnlyList<SimulationResultFreeColumn> FreeColumns,
     IReadOnlyDictionary<string, SimulationResultMetric> Metrics)
-    : ISimulationResultRow
 {
     public string Name => CommonData.Name;
     public double OriginalRating => CommonData.OriginalRating;
@@ -115,8 +98,6 @@ readonly record struct GeneralSimulationResultRow(
     public double? SecondPlayerWinRate => CommonData.SecondPlayerWinRate;
     public double[] PlaceProbabilities => CommonData.PlaceProbabilities;
     public double[]? PlaceCounts => CommonData.PlaceCounts;
-
-    public GeneralSimulationResultRow ToGeneralResultRow() => this;
 }
 
 /// <summary>

@@ -56,14 +56,14 @@ internal static class FinalRankingDomain
             getLines: createMarkdownLines);
     }
 
-    internal static void WriteOutputs<TRow>(
+    internal static void WriteOutputs(
         string outputCsvPath,
         string outputMarkdownPath,
         CalculationResult result,
         double firstPlayerWinRatePercent,
-        IReadOnlyList<TRow> resultRows,
-        Func<string, string, double, IReadOnlyList<TRow>, IEnumerable<string>> createCsvLines,
-        Func<string, string, string, double, IReadOnlyList<TRow>, IEnumerable<string>> createMarkdownLines)
+        IReadOnlyList<GeneralSimulationResultRow> resultRows,
+        Func<string, string, double, IReadOnlyList<GeneralSimulationResultRow>, IEnumerable<string>> createCsvLines,
+        Func<string, string, string, double, IReadOnlyList<GeneralSimulationResultRow>, IEnumerable<string>> createMarkdownLines)
     {
         WriteOutputFiles(
             outputCsvPath,
@@ -72,15 +72,14 @@ internal static class FinalRankingDomain
             createMarkdownLines: () => createMarkdownLines(outputMarkdownPath, outputCsvPath, result.Mode, firstPlayerWinRatePercent, resultRows));
     }
 
-    internal static void WriteOutputs<TRow>(
+    internal static void WriteOutputs(
         FinalRankingMarkdownFileWriter finalRankingDataFileWriter,
         string outputCsvPath,
         string outputMarkdownPath,
         CalculationResult result,
         double firstPlayerWinRatePercent,
-        IReadOnlyList<TRow> resultRows,
+        IReadOnlyList<GeneralSimulationResultRow> resultRows,
         string? referenceMatchesCsvPath = null)
-        where TRow : ISimulationResultRow
     {
         WriteOutputs(
             outputCsvPath,

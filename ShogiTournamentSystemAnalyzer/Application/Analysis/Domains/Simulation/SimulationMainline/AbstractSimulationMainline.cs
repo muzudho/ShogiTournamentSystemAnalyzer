@@ -114,14 +114,14 @@ internal enum SimulationMainlineResultPresentation
 
 internal sealed record SimulationMainlineResult(
     SimulationResult SimulationResult,
-    FinalRankingResult<GeneralSimulationResultRow> FinalRankingResult,
+    FinalRankingResult FinalRankingResult,
     SimulationMainlineResultPresentation Presentation)
 {
     internal SimulationMainlineResult(
         CalculationResult tournamentFinalState,
         IReadOnlyList<GeneralSimulationResultRow> resultRows,
         SimulationMainlineResultPresentation presentation)
-        : this(new SimulationResult(tournamentFinalState), new FinalRankingResult<GeneralSimulationResultRow>(resultRows), presentation)
+        : this(new SimulationResult(tournamentFinalState), new FinalRankingResult(resultRows), presentation)
     {
     }
 }

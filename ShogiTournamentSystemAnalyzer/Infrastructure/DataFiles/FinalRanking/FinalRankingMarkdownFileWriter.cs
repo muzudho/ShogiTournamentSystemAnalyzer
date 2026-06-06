@@ -48,7 +48,6 @@ internal class FinalRankingMarkdownFileWriter
     /// <summary>
     /// ［最終順位という境界］のMarkdown形式データを作成する。
     /// </summary>
-    /// <typeparam name="TRow"></typeparam>
     /// <param name="outputMarkdownPath"></param>
     /// <param name="outputCsvPath"></param>
     /// <param name="mode"></param>
@@ -59,25 +58,22 @@ internal class FinalRankingMarkdownFileWriter
     /// <param name="referenceMatchesCsvPath"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    internal IEnumerable<string> CreateResultMarkdownCore<TRow>(
+    internal IEnumerable<string> CreateResultMarkdownCore(
         string outputMarkdownPath,
         string outputCsvPath,
         string mode,
         double firstPlayerWinRatePercent,
-        IReadOnlyList<TRow> resultRows,
+        IReadOnlyList<GeneralSimulationResultRow> resultRows,
         string? overviewNote = null,
         string? representativeRankingMarkdownPath = null,
         string? referenceMatchesCsvPath = null)
-        where TRow : ISimulationResultRow
     {
-        var generalRows = resultRows.Select(row => row.ToGeneralResultRow()).ToArray();
-
         return SplitMarkdownLines(RenderMarkdownTemplate(BuildGeneralMarkdownTemplateModel(
             outputMarkdownPath,
             outputCsvPath,
             mode,
             firstPlayerWinRatePercent,
-            generalRows,
+            resultRows,
             overviewNote,
             representativeRankingMarkdownPath,
             referenceMatchesCsvPath)));
