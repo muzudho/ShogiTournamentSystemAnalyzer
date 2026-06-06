@@ -6,6 +6,7 @@ namespace ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.FinalRankin
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Boundaries;
 using ShogiTournamentSystemAnalyzer.Domain.FinalRanking;
 using ShogiTournamentSystemAnalyzer.Domain.Ranking;
+using ShogiTournamentSystemAnalyzer.Domain.Request.PlayerList;
 using ShogiTournamentSystemAnalyzer.Domain.Request.RankingSettings;
 using ShogiTournamentSystemAnalyzer.Domain.Request.TournamentRule;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
@@ -70,6 +71,78 @@ internal static class FinalRankingDomain
             .ThenByDescending(row => row.Points)
             .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
             .ToList();
+    }
+
+    internal static TournamentFrameworkFinalRankingResult BuildTournamentFrameworkFinalRankingResult(
+        PlayerListData playerListData,
+        TournamentFinalStateData tournamentFinalStateData,
+        FinalRankingData finalRankingData,
+        double[,] placeProbabilities,
+        int requestedSimulationCount,
+        int completedSimulationCount,
+        bool isExactCalculation,
+        TournamentRuleSetMode tournamentRuleSetMode,
+        double firstPlayerWinRatePercent)
+    {
+        var standardPlayers = playerListData.Players
+            .OrderBy(player => player.PlayerId)
+            .Select(player => new Player(player.Name, player.Rating))
+            .ToArray();
+
+        var playerIndexById = playerListData.Players
+            .OrderBy(player => player.PlayerId)
+            .Select((player, index) => new { player.PlayerId, index })
+            .ToDictionary(x => x.PlayerId, x => x.index);
+        var standardMatches = tournamentFinalStateData.MatchRecords
+            .Select(match => new Match(playerIndexById[match.FirstPlayerId], playerIndexById[match.SecondPlayerId]))
+            .ToArray();
+
+        var representativeExecutionRankRows = BuildRepresentativeExecutionRankRows(playerListData.Players, finalRankingData);
+        var aggregateCalculationResult = BuildTournamentFrameworkCalculationResult(
+            placeProbabilities,
+            requestedSimulationCount,
+            completedSimulationCount,
+            isExactCalculation,
+            tournamentRuleSetMode);
+        var aggregateFinalRankingRows = BuildStandardResultRows(standardPlayers, standardMatches, aggregateCalculationResult, firstPlayerWinRatePercent);
+
+        return new TournamentFrameworkFinalRankingResult(
+            standardPlayers,
+            standardMatches,
+            representativeExecutionRankRows,
+            aggregateCalculationResult,
+            new FinalRankingResult(aggregateFinalRankingRows));
+    }
+
+    static CalculationResult BuildTournamentFrameworkCalculationResult(
+        double[,] placeProbabilities,
+        int requestedSimulationCount,
+        int completedSimulationCount,
+        bool isExactCalculation,
+        TournamentRuleSetMode tournamentRuleSetMode)
+    {
+        var ruleSetModeLabel = tournamentRuleSetMode switch
+        {
+            TournamentRuleSetMode.Twill => "Twill",
+            TournamentRuleSetMode.TwillCommonOpponentWeighted => "Twill+CommonOpp",
+            _ => "Neutral",
+        };
+        var modeCoreLabel = isExactCalculation
+            ? $"厳密計算 / 大会進行フレームワーク / FixedMatch / {ruleSetModeLabel}"
+            : $"大会進行フレームワーク / FixedMatch / {ruleSetModeLabel}";
+        if (isExactCalculation)
+        {
+            var exactModeLabel = completedSimulationCount < requestedSimulationCount
+                ? $"{modeCoreLabel} (途中打ち切り, 時間切れ)"
+                : modeCoreLabel;
+            return new CalculationResult(placeProbabilities, exactModeLabel, null);
+        }
+
+        var modeLabel = completedSimulationCount < requestedSimulationCount
+            ? $"{modeCoreLabel} ({completedSimulationCount:N0}/{requestedSimulationCount:N0}回, 時間切れ)"
+            : $"{modeCoreLabel} ({completedSimulationCount:N0}回)";
+
+        return new CalculationResult(placeProbabilities, modeLabel, completedSimulationCount);
     }
 
     internal static (string OutputCsvPath, string OutputMarkdownPath) ResolveOutputPaths(string defaultFileName)

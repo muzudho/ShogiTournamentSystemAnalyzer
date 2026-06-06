@@ -97,24 +97,17 @@ internal static partial class SimulationTournamentFrameworkMode
         // ［最終順位データ］
         var finalRankingData = BoundaryDataBuilders.BuildFinalRankingBoundaryData(executionResult);
 
-        // ［大会進行フレームワークで使用する標準的な選手・対局表］
-        var standardPlayers = playerListData.Players
-            .OrderBy(player => player.PlayerId)
-            .Select(player => new Player(player.Name, player.Rating))
-            .ToArray();
-
-        // 大会進行フレームワークの順位ルールで対局結果を反映させるための標準的な対局表を作成する。これをもとに順位ルールのロジックを適用して、代表実行の順位表と同じ形式の順位表を作成する。
-        var playerIndexById = playerListData.Players
-            .OrderBy(player => player.PlayerId)
-            .Select((player, index) => new { player.PlayerId, index })
-            .ToDictionary(x => x.PlayerId, x => x.index);
-        var standardMatches = tournamentFinalStateData.MatchRecords
-            .Select(match => new Match(playerIndexById[match.FirstPlayerId], playerIndexById[match.SecondPlayerId]))
-            .ToArray();
-        var representativeExecutionRankRows = FinalRankingDomain.BuildRepresentativeExecutionRankRows(playerListData.Players, finalRankingData);
-
-        var result = BuildTournamentFrameworkCalculationResult(aggregateResult);
-        var resultRows = FinalRankingDomain.BuildStandardResultRows(standardPlayers, standardMatches, result, tournamentRuleData.FirstPlayerWinRatePercent ?? context.FirstPlayerWinRatePercent);
+        // ［最終順位付け結果］
+        var finalRankingResult = FinalRankingDomain.BuildTournamentFrameworkFinalRankingResult(
+            playerListData,
+            tournamentFinalStateData,
+            finalRankingData,
+            aggregateResult.PlaceProbabilities,
+            aggregateResult.RequestedSimulationCount,
+            aggregateResult.CompletedSimulationCount,
+            aggregateResult.IsExactCalculation,
+            aggregateResult.TournamentRuleSetMode,
+            tournamentRuleData.FirstPlayerWinRatePercent ?? context.FirstPlayerWinRatePercent);
 
         Console.WriteLine($"順位ルール: {TournamentRuleSetRule.GetLabel(rankingSettingsData.TournamentRuleSetMode)}");
 
@@ -141,12 +134,12 @@ internal static partial class SimulationTournamentFrameworkMode
             Console.WriteLine($"DSL OverallRanking: {dslDefinition.OverallRankingRuleName}\n");
         }
 
-        ConsoleResultPrinter.PrintMatchesCsv(standardPlayers, standardMatches, "大会進行フレームワークで読み込んだ対局CSV:");
+        ConsoleResultPrinter.PrintMatchesCsv(finalRankingResult.StandardPlayers, finalRankingResult.StandardMatches, "大会進行フレームワークで読み込んだ対局CSV:");
         Console.WriteLine("注記: これ以降の順位表は複数回試行の aggregate 結果です。");
         Console.WriteLine("注記: あとで出力する大会最終状態CSV/Markdownは代表実行1件の対局記録です。\n");
-        ConsoleResultPrinter.PrintRepresentativeExecutionRanking(representativeExecutionRankRows, rankingSettingsData.TournamentRuleSetMode);
-        ConsoleResultPrinter.PrintResult(standardPlayers.Length, result, tournamentRuleData.FirstPlayerWinRatePercent ?? context.FirstPlayerWinRatePercent, resultRows);
-        if (result.Mode.Contains("時間切れ", StringComparison.Ordinal))
+        ConsoleResultPrinter.PrintRepresentativeExecutionRanking(finalRankingResult.RepresentativeExecutionRankRows, rankingSettingsData.TournamentRuleSetMode);
+        ConsoleResultPrinter.PrintResult(finalRankingResult.StandardPlayers.Count, finalRankingResult.AggregateCalculationResult, tournamentRuleData.FirstPlayerWinRatePercent ?? context.FirstPlayerWinRatePercent, finalRankingResult.AggregateFinalRankingResult.Rows);
+        if (finalRankingResult.AggregateCalculationResult.Mode.Contains("時間切れ", StringComparison.Ordinal))
         {
             Console.WriteLine($"シミュレーションは時間上限 {SimulationTimeBudget.SimulationTimeLimit.TotalMinutes:F0} 分で打ち切りました。\n");
         }
@@ -159,9 +152,9 @@ internal static partial class SimulationTournamentFrameworkMode
             tournamentFinalStateData,
             stages,
             players,
-            representativeExecutionRankRows,
-            result,
-            resultRows);
+            finalRankingResult.RepresentativeExecutionRankRows,
+            finalRankingResult.AggregateCalculationResult,
+            finalRankingResult.AggregateFinalRankingResult.Rows);
     }
 
     /// <summary>
@@ -461,37 +454,6 @@ internal static partial class SimulationTournamentFrameworkMode
         }
 
         return pointsByPlayerId;
-    }
-
-    /// <summary>
-    /// 計算結果を組立
-    /// </summary>
-    /// <param name="aggregateResult"></param>
-    /// <returns></returns>
-    static CalculationResult BuildTournamentFrameworkCalculationResult(TournamentFrameworkSimulationAggregate aggregateResult)
-    {
-        var ruleSetModeLabel = aggregateResult.TournamentRuleSetMode switch
-        {
-            TournamentRuleSetMode.Twill => "Twill",
-            TournamentRuleSetMode.TwillCommonOpponentWeighted => "Twill+CommonOpp",
-            _ => "Neutral",
-        };
-        var modeCoreLabel = aggregateResult.IsExactCalculation
-            ? $"厳密計算 / 大会進行フレームワーク / FixedMatch / {ruleSetModeLabel}"
-            : $"大会進行フレームワーク / FixedMatch / {ruleSetModeLabel}";
-        if (aggregateResult.IsExactCalculation)
-        {
-            var exactModeLabel = aggregateResult.CompletedSimulationCount < aggregateResult.RequestedSimulationCount
-                ? $"{modeCoreLabel} (途中打ち切り, 時間切れ)"
-                : modeCoreLabel;
-            return new CalculationResult(aggregateResult.PlaceProbabilities, exactModeLabel, null);
-        }
-
-        var modeLabel = aggregateResult.CompletedSimulationCount < aggregateResult.RequestedSimulationCount
-            ? $"{modeCoreLabel} ({aggregateResult.CompletedSimulationCount:N0}/{aggregateResult.RequestedSimulationCount:N0}回, 時間切れ)"
-            : $"{modeCoreLabel} ({aggregateResult.CompletedSimulationCount:N0}回)";
-
-        return new CalculationResult(aggregateResult.PlaceProbabilities, modeLabel, aggregateResult.CompletedSimulationCount);
     }
 
     /// <summary>
