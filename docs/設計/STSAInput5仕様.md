@@ -28,7 +28,7 @@ PairingSource=ScheduledMatches
 #[EndSection]
 ```
 
-現時点の実装では、読み取った属性を内部で `STSAInput/4` 相当へ正規化して既存 parser を再利用します。そのため、計算ロジック、入力 CSV、出力 CSV / Markdown の内容は `STSAInput/4` と同じです。
+`STSAInput/5` の parser は、読み取った属性を `RuleProfileAttributes` としてステップ要求の判定へ直接渡します。計算ロジック、入力 CSV、出力 CSV / Markdown の内容は `STSAInput/4` と同じです。
 
 ## RuleProfileAttributes
 
@@ -193,7 +193,7 @@ PairingSource=ScheduledMatches
 
 - `STSAInput/5` は要求ファイルの直通 parser 専用です。直通 parser に乗らない場合、legacy 入力へ fallback せず明示エラーになります。
 - Writer と依頼ログの既定出力は、現時点では `STSAInput/4` です。
-- `STSAInput/5` の属性は、現在の実装では互換ラベルへ正規化してから既存実行ルートへ渡されます。
+- `STSAInput/5` の属性は、互換 `RuleProfileMode` へ正規化せず parser 内部で直接持ち回ります。
 - `QualityEvaluation` は `ScheduledMatches` の標準形式または本戦形式に対応します。`TournamentFramework` / `Empty` の品質評価は未対応です。
 
 ## 関連

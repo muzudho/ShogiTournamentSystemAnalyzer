@@ -21,26 +21,26 @@ internal static class StsaInput4RequestParser
     internal static bool TryParse(RequestText requestText, out AnalysisRequest? request)
     {
         request = null;
-        if (requestText.FormatName.Equals(AttributeFormatName, StringComparison.OrdinalIgnoreCase))
-        {
-            requestText = NormalizeAttributeFormatToCompatibilityFormat(requestText);
-        }
-        else if (!requestText.FormatName.Equals(FormatName, StringComparison.OrdinalIgnoreCase))
+        var isAttributeFormat = requestText.FormatName.Equals(AttributeFormatName, StringComparison.OrdinalIgnoreCase);
+        if (!isAttributeFormat && !requestText.FormatName.Equals(FormatName, StringComparison.OrdinalIgnoreCase))
         {
             return false;
         }
 
+        var inputFormatName = isAttributeFormat ? AttributeFormatName : FormatName;
         var fullPath = requestText.SourcePath ?? "(要求テキスト)";
-        var sections = ParseStsaInputSections(requestText.Lines, fullPath, FormatName);
-        var meta = ParseSectionKeyValues(GetRequiredSectionLines(sections, "Meta", fullPath, FormatName), "Meta", fullPath, FormatName);
-        var flowSelection = ReadFlowSelection(meta, fullPath);
+        var sections = ParseStsaInputSections(requestText.Lines, fullPath, inputFormatName);
+        var meta = ParseSectionKeyValues(GetRequiredSectionLines(sections, "Meta", fullPath, inputFormatName), "Meta", fullPath, inputFormatName);
+        var flowSelection = ReadFlowSelection(meta, fullPath, inputFormatName);
 
         if (flowSelection.Steps.Count == 1)
         {
-            var ruleProfileMode = ParseRuleProfileMode(GetRequiredMetaValue(meta, "RuleProfileMode", fullPath, FormatName), FormatName);
+            var ruleProfileAttributes = isAttributeFormat
+                ? ParseRuleProfileAttributesSection(sections, "RuleProfileAttributes", fullPath)
+                : RuleProfileAttributes.FromCompatibilityLabel(ParseRuleProfileMode(GetRequiredMetaValue(meta, "RuleProfileMode", fullPath, FormatName), FormatName));
             var stepRequest = ParseStepRequest(
                 flowSelection.Steps[0],
-                RuleProfileAttributes.FromCompatibilityLabel(ruleProfileMode),
+                ruleProfileAttributes,
                 meta,
                 sections,
                 fullPath);
@@ -52,79 +52,7 @@ internal static class StsaInput4RequestParser
             return true;
         }
 
-        return TryParseMultiStepRequest(flowSelection, sections, fullPath, out request);
-    }
-
-    static RequestText NormalizeAttributeFormatToCompatibilityFormat(RequestText requestText)
-    {
-        var fullPath = requestText.SourcePath ?? "(要求テキスト)";
-        var sections = ParseStsaInputSections(requestText.Lines, fullPath, AttributeFormatName);
-        var meta = ParseSectionKeyValues(GetRequiredSectionLines(sections, "Meta", fullPath, AttributeFormatName), "Meta", fullPath, AttributeFormatName);
-        var flowSelection = ReadFlowSelection(meta, fullPath);
-        var ruleProfileModes = new Dictionary<string, RuleProfileMode>(StringComparer.OrdinalIgnoreCase);
-
-        if (flowSelection.Steps.Count == 1)
-        {
-            ruleProfileModes["Meta"] = ParseRuleProfileAttributesSection(sections, "RuleProfileAttributes", fullPath).ToCompatibilityLabel();
-        }
-        else
-        {
-            foreach (var step in flowSelection.Steps)
-            {
-                var stepName = FormatStepName(step);
-                var sectionName = $"Step.{stepName}.RuleProfileAttributes";
-                ruleProfileModes[$"Step.{stepName}"] = ParseRuleProfileAttributesSection(sections, sectionName, fullPath).ToCompatibilityLabel();
-            }
-        }
-
-        return new RequestText(
-            FormatName,
-            InsertCompatibilityRuleProfileModes(requestText.Lines, ruleProfileModes),
-            requestText.SourcePath);
-    }
-
-    static IReadOnlyList<string> InsertCompatibilityRuleProfileModes(
-        IReadOnlyList<string> rawLines,
-        IReadOnlyDictionary<string, RuleProfileMode> ruleProfileModes)
-    {
-        var lines = new List<string>();
-        string? currentSectionName = null;
-        var ruleProfileModeInserted = false;
-
-        foreach (var rawLine in rawLines)
-        {
-            var trimmed = rawLine.Trim();
-            if (trimmed.Equals($"#[Format] {AttributeFormatName}", StringComparison.OrdinalIgnoreCase))
-            {
-                lines.Add($"#[Format] {FormatName}");
-                continue;
-            }
-
-            if (trimmed.StartsWith("#[Section]", StringComparison.OrdinalIgnoreCase))
-            {
-                currentSectionName = trimmed[11..].Trim();
-                ruleProfileModeInserted = false;
-                lines.Add(rawLine);
-                continue;
-            }
-
-            if (currentSectionName is not null
-                && !ruleProfileModeInserted
-                && ruleProfileModes.TryGetValue(currentSectionName, out var ruleProfileMode))
-            {
-                lines.Add($"RuleProfileMode={ruleProfileMode}");
-                ruleProfileModeInserted = true;
-            }
-
-            if (trimmed.Equals("#[EndSection]", StringComparison.OrdinalIgnoreCase))
-            {
-                currentSectionName = null;
-            }
-
-            lines.Add(rawLine);
-        }
-
-        return lines;
+        return TryParseMultiStepRequest(flowSelection, sections, fullPath, isAttributeFormat, out request);
     }
 
     static RuleProfileAttributes ParseRuleProfileAttributesSection(
@@ -153,26 +81,30 @@ internal static class StsaInput4RequestParser
         AnalysisFlowSelection flowSelection,
         Dictionary<string, List<string>> sections,
         string fullPath,
+        bool isAttributeFormat,
         out AnalysisRequest? request)
     {
         request = null;
         if (flowSelection.Steps.Count < 2) return false;
 
+        var inputFormatName = isAttributeFormat ? AttributeFormatName : FormatName;
         var stepRequests = new List<AnalysisStepRequest>();
         foreach (var step in flowSelection.Steps)
         {
             var stepName = FormatStepName(step);
             var stepSectionName = $"Step.{stepName}";
             var stepMeta = ParseSectionKeyValues(
-                GetRequiredSectionLines(sections, stepSectionName, fullPath, FormatName),
+                GetRequiredSectionLines(sections, stepSectionName, fullPath, inputFormatName),
                 stepSectionName,
                 fullPath,
-                FormatName);
-            var ruleProfileMode = ParseRuleProfileMode(GetRequiredMetaValue(stepMeta, "RuleProfileMode", fullPath, FormatName), FormatName);
-            var stepSections = BuildStepSections(sections, stepName, fullPath);
+                inputFormatName);
+            var ruleProfileAttributes = isAttributeFormat
+                ? ParseRuleProfileAttributesSection(sections, $"Step.{stepName}.RuleProfileAttributes", fullPath)
+                : RuleProfileAttributes.FromCompatibilityLabel(ParseRuleProfileMode(GetRequiredMetaValue(stepMeta, "RuleProfileMode", fullPath, FormatName), FormatName));
+            var stepSections = BuildStepSections(sections, stepName, fullPath, inputFormatName);
             var stepRequest = ParseStepRequest(
                 step,
-                RuleProfileAttributes.FromCompatibilityLabel(ruleProfileMode),
+                ruleProfileAttributes,
                 stepMeta,
                 stepSections,
                 fullPath);
@@ -252,7 +184,8 @@ internal static class StsaInput4RequestParser
     static Dictionary<string, List<string>> BuildStepSections(
         Dictionary<string, List<string>> sections,
         string stepName,
-        string fullPath)
+        string fullPath,
+        string inputFormatName)
     {
         var stepSections = new Dictionary<string, List<string>>(sections, StringComparer.OrdinalIgnoreCase);
         foreach (var sectionName in new[]
@@ -276,7 +209,7 @@ internal static class StsaInput4RequestParser
         }
         else
         {
-            if (sections.ContainsKey("Output")) throw new OperationCanceledException($"{FormatName} の複数ステップ要求では共有 Output セクションを使えません。'{outputSectionName}' を指定してください: {fullPath}");
+            if (sections.ContainsKey("Output")) throw new OperationCanceledException($"{inputFormatName} の複数ステップ要求では共有 Output セクションを使えません。'{outputSectionName}' を指定してください: {fullPath}");
 
             stepSections.Remove("Output");
         }
@@ -670,11 +603,16 @@ internal static class StsaInput4RequestParser
 
     static AnalysisFlowSelection ReadFlowSelection(Dictionary<string, string> meta, string fullPath)
     {
-        var stepsValue = GetOptionalMetaValue(meta, "AnalysisFlowSteps");
-        if (!string.IsNullOrWhiteSpace(stepsValue)) return ParseAnalysisFlowSteps(stepsValue, FormatName);
+        return ReadFlowSelection(meta, fullPath, FormatName);
+    }
 
-        var modeValue = GetRequiredMetaValue(meta, "AnalysisFlowMode", fullPath, FormatName);
-        return AnalysisFlowSelection.FromSingle(ParseAnalysisFlowMode(modeValue, FormatName));
+    static AnalysisFlowSelection ReadFlowSelection(Dictionary<string, string> meta, string fullPath, string formatName)
+    {
+        var stepsValue = GetOptionalMetaValue(meta, "AnalysisFlowSteps");
+        if (!string.IsNullOrWhiteSpace(stepsValue)) return ParseAnalysisFlowSteps(stepsValue, formatName);
+
+        var modeValue = GetRequiredMetaValue(meta, "AnalysisFlowMode", fullPath, formatName);
+        return AnalysisFlowSelection.FromSingle(ParseAnalysisFlowMode(modeValue, formatName));
     }
 
     static TournamentRuleSetMode ParseTournamentRuleSetMode(string value)
