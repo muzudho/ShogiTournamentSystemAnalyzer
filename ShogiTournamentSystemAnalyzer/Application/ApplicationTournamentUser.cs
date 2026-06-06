@@ -218,6 +218,6 @@ internal static class ApplicationTournamentUser
         StsaFileIOHelper.Write(
             label: "要求ファイル",
             outputPath: requestFilePath,
-            lines: StsaInput4RequestWriter.BuildLines(analysisRequest));
+            lines: StsaInput4RequestWriter.BuildAttributeLines(analysisRequest));
     }
 }

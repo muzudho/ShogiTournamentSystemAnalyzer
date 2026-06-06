@@ -9,6 +9,7 @@ internal static class RequestWriterRoundTripSmoke
 {
     const string Option = "--smoke-request-writer-roundtrip";
     const string OutputDirectoryOption = "--output-dir";
+    const string FormatOption = "--format";
 
     internal static bool TryRun(IReadOnlyList<string> args)
     {
@@ -16,6 +17,7 @@ internal static class RequestWriterRoundTripSmoke
         if (optionIndex < 0) return false;
 
         var outputDirectory = "Output/SmokeGenerated";
+        var generatedFormatName = "STSAInput/4";
         var requestFilePaths = new List<string>();
 
         for (var index = optionIndex + 1; index < args.Count; index++)
@@ -29,6 +31,20 @@ internal static class RequestWriterRoundTripSmoke
                 continue;
             }
 
+            if (arg.Equals(FormatOption, StringComparison.OrdinalIgnoreCase))
+            {
+                if (index + 1 >= args.Count) throw new OperationCanceledException($"{FormatOption} の後ろに STSAInput/4 または STSAInput/5 を指定してください。");
+
+                generatedFormatName = args[++index];
+                if (!generatedFormatName.Equals("STSAInput/4", StringComparison.OrdinalIgnoreCase)
+                    && !generatedFormatName.Equals("STSAInput/5", StringComparison.OrdinalIgnoreCase))
+                {
+                    throw new OperationCanceledException($"{FormatOption} には STSAInput/4 または STSAInput/5 を指定してください: {generatedFormatName}");
+                }
+
+                continue;
+            }
+
             requestFilePaths.Add(arg);
         }
 
@@ -37,13 +53,13 @@ internal static class RequestWriterRoundTripSmoke
         Directory.CreateDirectory(outputDirectory);
         foreach (var requestFilePath in requestFilePaths)
         {
-            RunOne(requestFilePath, outputDirectory);
+            RunOne(requestFilePath, outputDirectory, generatedFormatName);
         }
 
         return true;
     }
 
-    static void RunOne(string requestFilePath, string outputDirectory)
+    static void RunOne(string requestFilePath, string outputDirectory, string generatedFormatName)
     {
         var fullPath = Path.GetFullPath(requestFilePath);
         var rawLines = File.ReadAllLines(fullPath);
@@ -53,18 +69,20 @@ internal static class RequestWriterRoundTripSmoke
             throw new OperationCanceledException($"STSAInput/4 として解析できません: {fullPath}");
         }
 
-        var generatedLines = StsaInput4RequestWriter.BuildLines(parsedRequest);
+        var generatedLines = generatedFormatName.Equals("STSAInput/5", StringComparison.OrdinalIgnoreCase)
+            ? StsaInput4RequestWriter.BuildAttributeLines(parsedRequest)
+            : StsaInput4RequestWriter.BuildLines(parsedRequest);
         var generatedPath = Path.Combine(outputDirectory, Path.GetFileName(requestFilePath));
         File.WriteAllLines(generatedPath, generatedLines);
 
         var generatedFullPath = Path.GetFullPath(generatedPath);
-        var generatedRequestText = new RequestText("STSAInput/4", File.ReadAllLines(generatedFullPath), generatedFullPath);
+        var generatedRequestText = new RequestText(generatedFormatName, File.ReadAllLines(generatedFullPath), generatedFullPath);
         if (!StsaInput4RequestParser.TryParse(generatedRequestText, out var roundTrippedRequest) || roundTrippedRequest is null)
         {
-            throw new OperationCanceledException($"Writer 出力を STSAInput/4 として再解析できません: {generatedFullPath}");
+            throw new OperationCanceledException($"Writer 出力を {generatedFormatName} として再解析できません: {generatedFullPath}");
         }
 
-        Console.WriteLine($"Writer round-trip smoke OK: {fullPath} -> {generatedFullPath} ({generatedLines.Count} lines)");
+        Console.WriteLine($"Writer round-trip smoke OK: {fullPath} -> {generatedFullPath} ({generatedFormatName}, {generatedLines.Count} lines)");
     }
 
     static int IndexOf(IReadOnlyList<string> args, string option)

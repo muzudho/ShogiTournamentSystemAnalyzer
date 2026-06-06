@@ -14,34 +14,53 @@ internal static class StsaInput4RequestWriter
 {
     internal static IReadOnlyList<string> BuildLines(AnalysisRequest request)
     {
-        return request.Steps.Count == 1
-            ? BuildSingleStepLines(request)
-            : BuildMultiStepLines(request);
+        return BuildLines(request, useAttributeFormat: false);
     }
 
-    static IReadOnlyList<string> BuildSingleStepLines(AnalysisRequest request)
+    internal static IReadOnlyList<string> BuildAttributeLines(AnalysisRequest request)
+    {
+        return BuildLines(request, useAttributeFormat: true);
+    }
+
+    static IReadOnlyList<string> BuildLines(AnalysisRequest request, bool useAttributeFormat)
+    {
+        return request.Steps.Count == 1
+            ? BuildSingleStepLines(request, useAttributeFormat)
+            : BuildMultiStepLines(request, useAttributeFormat);
+    }
+
+    static IReadOnlyList<string> BuildSingleStepLines(AnalysisRequest request, bool useAttributeFormat)
     {
         var lines = new List<string>
         {
-            "#[Format] STSAInput/4",
+            useAttributeFormat ? "#[Format] STSAInput/5" : "#[Format] STSAInput/4",
             string.Empty,
             "#[Section] Meta",
             $"AnalysisFlowSteps={request.FlowSelection.ToRequestFileValue()}",
-            $"RuleProfileMode={request.Steps[0].GetCompatibilityRuleProfileMode()}",
         };
+
+        if (!useAttributeFormat)
+        {
+            lines.Add($"RuleProfileMode={request.Steps[0].GetCompatibilityRuleProfileMode()}");
+        }
 
         AddMetaLines(lines, request.Steps[0]);
         lines.Add("#[EndSection]");
+
+        if (useAttributeFormat)
+        {
+            AddRuleProfileAttributesSection(lines, "RuleProfileAttributes", request.Steps[0].GetRuleProfileAttributes());
+        }
 
         AddBodySections(lines, request.Steps[0]);
         return lines;
     }
 
-    static IReadOnlyList<string> BuildMultiStepLines(AnalysisRequest request)
+    static IReadOnlyList<string> BuildMultiStepLines(AnalysisRequest request, bool useAttributeFormat)
     {
         var lines = new List<string>
         {
-            "#[Format] STSAInput/4",
+            useAttributeFormat ? "#[Format] STSAInput/5" : "#[Format] STSAInput/4",
             string.Empty,
             "#[Section] Meta",
             $"AnalysisFlowSteps={request.FlowSelection.ToRequestFileValue()}",
@@ -53,9 +72,18 @@ internal static class StsaInput4RequestWriter
             var stepName = GetStepName(step);
             lines.Add(string.Empty);
             lines.Add($"#[Section] Step.{stepName}");
-            lines.Add($"RuleProfileMode={GetRuleProfileMode(step)}");
+            if (!useAttributeFormat)
+            {
+                lines.Add($"RuleProfileMode={GetRuleProfileMode(step)}");
+            }
+
             AddMetaLines(lines, step);
             lines.Add("#[EndSection]");
+
+            if (useAttributeFormat)
+            {
+                AddRuleProfileAttributesSection(lines, $"Step.{stepName}.RuleProfileAttributes", step.GetRuleProfileAttributes());
+            }
         }
 
         foreach (var step in request.Steps)
@@ -65,6 +93,24 @@ internal static class StsaInput4RequestWriter
         }
 
         return lines;
+    }
+
+    static void AddRuleProfileAttributesSection(
+        List<string> lines,
+        string sectionName,
+        RuleProfileAttributes attributes)
+    {
+        lines.Add(string.Empty);
+        lines.Add($"#[Section] {sectionName}");
+        lines.Add($"SimulationShape={attributes.SimulationShape}");
+        lines.Add($"UsesFinalStageGrouping={FormatOnOff(attributes.UsesFinalStageGrouping)}");
+        lines.Add($"UsesAdditionalApexPlacement={FormatOnOff(attributes.UsesAdditionalApexPlacement)}");
+        lines.Add($"UsesBoundaryRescue={FormatOnOff(attributes.UsesBoundaryRescue)}");
+        lines.Add($"UsesVariableTop8={FormatOnOff(attributes.UsesVariableTop8)}");
+        lines.Add($"RankingRuleSetMode={attributes.RankingRuleSetMode}");
+        lines.Add($"HasReferenceMatches={FormatOnOff(attributes.HasReferenceMatches)}");
+        lines.Add($"PairingSource={attributes.PairingSource}");
+        lines.Add("#[EndSection]");
     }
 
     static void AddMetaLines(List<string> lines, AnalysisStepRequest step)
