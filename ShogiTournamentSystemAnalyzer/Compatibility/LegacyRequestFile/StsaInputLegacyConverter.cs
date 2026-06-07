@@ -3,6 +3,7 @@
  */
 namespace ShogiTournamentSystemAnalyzer.Compatibility.LegacyRequestFile;
 
+using ShogiTournamentSystemAnalyzer.Compatibility.LegacyRuleProfile;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 using static ShogiTournamentSystemAnalyzer.Application.RequestFileCheck.StsaInputSectionParser;
@@ -30,7 +31,7 @@ internal static class StsaInputLegacyConverter
         var sections = ParseStsaInputSections(rawLines, fullPath, formatName);
         var meta = ParseSectionKeyValues(GetRequiredSectionLines(sections, "Meta", fullPath, formatName), "Meta", fullPath, formatName);
         var flowSelection = ReadFlowSelection(meta, fullPath, formatName);
-        var ruleProfileAttributes = ParseRuleProfileAttributesFromCompatibilityLabel(GetRequiredMetaValue(meta, "RuleProfileMode", fullPath, formatName), formatName);
+        var ruleProfileAttributes = LegacyRuleProfileMapper.ParseAttributesFromLabel(GetRequiredMetaValue(meta, "RuleProfileMode", fullPath, formatName), formatName);
 
         if (flowSelection.Steps.Count != 1)
         {
@@ -40,7 +41,7 @@ internal static class StsaInputLegacyConverter
         if (flowSelection.RunsQualityEvaluation
             && !CanRunQualityEvaluation(ruleProfileAttributes))
         {
-            throw new OperationCanceledException($"{formatName} の QualityEvaluation では RuleProfileMode={ruleProfileAttributes.ToCompatibilityLabel()} は未対応です。");
+            throw new OperationCanceledException($"{formatName} の QualityEvaluation では RuleProfileMode={LegacyRuleProfileMapper.FormatLabel(ruleProfileAttributes)} は未対応です。");
         }
 
         var promptPrefixLines = BuildPromptPrefixLines(flowSelection, ruleProfileAttributes);

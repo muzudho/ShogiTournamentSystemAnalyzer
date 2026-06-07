@@ -83,23 +83,3 @@ internal sealed class AnalysisFlowSelection
         };
     }
 }
-
-/// <summary>
-///     <pre>
-/// ［大会ルール］の種類
-/// 
-///     - TODO: 最終的には、DSL / ルール設定ファイルへ外出ししたい（＾～＾）
-///     </pre>
-/// </summary>
-enum RuleProfileMode
-{
-    Standard,
-    FinalStage,
-
-    /// <summary>
-    /// シミュレーション域で大会進行フレームワークを使うルールプロファイル。
-    /// </summary>
-    TournamentFramework,
-
-    Empty,
-}

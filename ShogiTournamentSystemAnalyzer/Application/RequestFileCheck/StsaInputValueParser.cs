@@ -28,23 +28,6 @@ internal static class StsaInputValueParser
 
         return new AnalysisFlowSelection(steps);
     }
-    internal static RuleProfileAttributes ParseRuleProfileAttributesFromCompatibilityLabel(string value, string formatName)
-    {
-        return RuleProfileAttributes.FromCompatibilityLabel(ParseRuleProfileMode(value, formatName));
-    }
-
-    static RuleProfileMode ParseRuleProfileMode(string value, string formatName)
-    {
-        if (value.Equals("Empty", StringComparison.OrdinalIgnoreCase) || value == "4") return RuleProfileMode.Empty;
-
-        if (value.Equals("TournamentFramework", StringComparison.OrdinalIgnoreCase) || value == "3") return RuleProfileMode.TournamentFramework;
-
-        if (value.Equals("FinalStage", StringComparison.OrdinalIgnoreCase) || value == "2") return RuleProfileMode.FinalStage;
-
-        if (value.Equals("Standard", StringComparison.OrdinalIgnoreCase) || value == "1") return RuleProfileMode.Standard;
-
-        throw new OperationCanceledException($"{formatName} の RuleProfileMode の値が解釈できません: {value}");
-    }
 
     internal static RuleProfileSimulationShape ParseRuleProfileSimulationShape(string value, string formatName)
     {

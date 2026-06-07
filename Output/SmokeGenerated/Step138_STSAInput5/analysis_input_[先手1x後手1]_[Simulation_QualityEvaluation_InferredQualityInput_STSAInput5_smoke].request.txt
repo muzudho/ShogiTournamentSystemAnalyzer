@@ -1,0 +1,61 @@
+#[Format] STSAInput/5
+
+#[Section] Meta
+AnalysisFlowSteps=Simulation,QualityEvaluation
+#[EndSection]
+
+#[Section] Step.Simulation
+TournamentRuleSetMode=Neutral
+FirstPlayerWinRatePercent=51
+SimulationCount=10
+#[EndSection]
+
+#[Section] Step.Simulation.RuleProfileAttributes
+SimulationShape=ScheduledMatches
+UsesFinalStageGrouping=Off
+UsesAdditionalApexPlacement=Off
+UsesBoundaryRescue=Off
+UsesVariableTop8=Off
+RankingRuleSetMode=Neutral
+HasReferenceMatches=Off
+PairingSource=ScheduledMatches
+#[EndSection]
+
+#[Section] Step.QualityEvaluation
+ExecutionMode=Single
+FirstPlayerWinRatePercent=51
+SimulationCount=10
+TournamentQualityEvaluationReportGrouping=Off
+TournamentRuleSetMode=Neutral
+QualityInnovExpectedRankOffsetMode=Off
+#[EndSection]
+
+#[Section] Step.QualityEvaluation.RuleProfileAttributes
+SimulationShape=ScheduledMatches
+UsesFinalStageGrouping=Off
+UsesAdditionalApexPlacement=Off
+UsesBoundaryRescue=Off
+UsesVariableTop8=Off
+RankingRuleSetMode=Neutral
+HasReferenceMatches=Off
+PairingSource=ScheduledMatches
+#[EndSection]
+
+#[Section] Simulation.PlayersCsv
+name,elo
+Alice,1500
+Bob,1480
+#[EndSection]
+
+#[Section] Simulation.MatchesInput
+first,second
+Alice,Bob
+#[EndSection]
+
+#[Section] Simulation.Output
+SummaryOutputPath=Output\FinalRanking\analysis_input_[先手1x後手1]_[Simulation_QualityEvaluation_InferredQualityInput_STSAInput5_smoke].csv
+#[EndSection]
+
+#[Section] QualityEvaluation.Output
+SummaryOutputPath=Output\TournamentQualityEvaluator\TournamentQualityReport\Summary\[先手1x後手1]_[Simulation_QualityEvaluation_InferredQualityInput_STSAInput5_smoke]_quality_summary.csv
+#[EndSection]

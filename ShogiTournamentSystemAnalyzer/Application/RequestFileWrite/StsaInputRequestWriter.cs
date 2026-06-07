@@ -4,6 +4,7 @@
 namespace ShogiTournamentSystemAnalyzer.Application.RequestFileWrite;
 
 using ShogiTournamentSystemAnalyzer.Application.RequestParsing;
+using ShogiTournamentSystemAnalyzer.Compatibility.LegacyRuleProfile;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
@@ -41,7 +42,7 @@ internal static class StsaInputRequestWriter
 
         if (!useAttributeFormat)
         {
-            lines.Add($"RuleProfileMode={request.StepRequests[0].GetRuleProfileAttributes().ToCompatibilityLabel()}");
+            lines.Add($"RuleProfileMode={LegacyRuleProfileMapper.FormatLabel(request.StepRequests[0].GetRuleProfileAttributes())}");
         }
 
         AddMetaLines(lines, request.StepRequests[0]);
@@ -74,7 +75,7 @@ internal static class StsaInputRequestWriter
             lines.Add($"#[Section] Step.{stepName}");
             if (!useAttributeFormat)
             {
-                lines.Add($"RuleProfileMode={stepRequest.GetRuleProfileAttributes().ToCompatibilityLabel()}");
+                lines.Add($"RuleProfileMode={LegacyRuleProfileMapper.FormatLabel(stepRequest.GetRuleProfileAttributes())}");
             }
 
             AddMetaLines(lines, stepRequest);

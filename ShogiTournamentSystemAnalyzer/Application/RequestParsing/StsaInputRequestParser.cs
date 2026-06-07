@@ -4,6 +4,7 @@
 namespace ShogiTournamentSystemAnalyzer.Application.RequestParsing;
 
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Boundaries.Request;
+using ShogiTournamentSystemAnalyzer.Compatibility.LegacyRuleProfile;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
@@ -37,7 +38,7 @@ internal static class StsaInputRequestParser
         {
             var ruleProfileAttributes = isAttributeFormat
                 ? ParseRuleProfileAttributesSection(sections, "RuleProfileAttributes", fullPath)
-                : ParseRuleProfileAttributesFromCompatibilityLabel(GetRequiredMetaValue(meta, "RuleProfileMode", fullPath, FormatName), FormatName);
+                : LegacyRuleProfileMapper.ParseAttributesFromLabel(GetRequiredMetaValue(meta, "RuleProfileMode", fullPath, FormatName), FormatName);
             var stepRequest = ParseStepRequest(
                 flowSelection.Steps[0],
                 ruleProfileAttributes,
@@ -107,7 +108,7 @@ internal static class StsaInputRequestParser
                 inputFormatName);
             var ruleProfileAttributes = isAttributeFormat
                 ? ParseRuleProfileAttributesSection(sections, $"Step.{stepName}.RuleProfileAttributes", fullPath)
-                : ParseRuleProfileAttributesFromCompatibilityLabel(GetRequiredMetaValue(stepMeta, "RuleProfileMode", fullPath, FormatName), FormatName);
+                : LegacyRuleProfileMapper.ParseAttributesFromLabel(GetRequiredMetaValue(stepMeta, "RuleProfileMode", fullPath, FormatName), FormatName);
             var stepSections = BuildStepSections(sections, stepName, fullPath, inputFormatName);
             var stepRequest = ParseStepRequest(
                 step,

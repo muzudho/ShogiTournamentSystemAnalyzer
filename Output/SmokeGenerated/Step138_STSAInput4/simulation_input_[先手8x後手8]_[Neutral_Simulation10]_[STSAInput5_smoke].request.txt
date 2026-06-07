@@ -1,0 +1,50 @@
+#[Format] STSAInput/4
+
+#[Section] Meta
+AnalysisFlowSteps=Simulation
+RuleProfileMode=Standard
+TournamentRuleSetMode=Neutral
+FirstPlayerWinRatePercent=51
+SimulationCount=10
+#[EndSection]
+
+#[Section] PlayersCsv
+name,elo
+P01,1500
+P02,1480
+P03,1460
+P04,1440
+P05,1420
+P06,1400
+P07,1380
+P08,1360
+#[EndSection]
+
+#[Section] MatchesInput
+first,second
+P01,P02
+P01,P03
+P01,P04
+P01,P05
+P01,P06
+P01,P07
+P01,P08
+P02,P03
+P02,P04
+P02,P05
+P02,P06
+P02,P07
+P02,P08
+P03,P04
+P03,P05
+P03,P06
+P03,P07
+P03,P08
+P04,P05
+P04,P06
+P04,P07
+#[EndSection]
+
+#[Section] Output
+SummaryOutputPath=Output\FinalRanking\simulation_input_[先手8x後手8]_[Neutral_Simulation10]_[STSAInput5_smoke].csv
+#[EndSection]

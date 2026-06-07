@@ -183,30 +183,4 @@ internal readonly record struct RuleProfileAttributes(
             RuleProfilePairingSource.None);
     }
 
-    internal static RuleProfileAttributes FromCompatibilityLabel(
-        RuleProfileMode ruleProfileMode,
-        TournamentRuleSetMode rankingRuleSetMode = TournamentRuleSetMode.Neutral)
-    {
-        return ruleProfileMode switch
-        {
-            RuleProfileMode.Standard => CreateStandardScheduled(rankingRuleSetMode),
-            RuleProfileMode.FinalStage => CreateFinalStageGrouped(rankingRuleSetMode),
-            RuleProfileMode.TournamentFramework => CreateTournamentFramework(rankingRuleSetMode),
-            RuleProfileMode.Empty => CreateEmpty(rankingRuleSetMode),
-            _ => throw new InvalidOperationException($"未対応のルールプロファイルモード: {ruleProfileMode}"),
-        };
-    }
-
-    internal RuleProfileMode ToCompatibilityLabel()
-    {
-        return SimulationShape switch
-        {
-            RuleProfileSimulationShape.ScheduledMatches when UsesFinalStageGrouping => RuleProfileMode.FinalStage,
-            RuleProfileSimulationShape.ScheduledMatches => RuleProfileMode.Standard,
-            RuleProfileSimulationShape.FinalStageGrouped => RuleProfileMode.FinalStage,
-            RuleProfileSimulationShape.TournamentFramework => RuleProfileMode.TournamentFramework,
-            RuleProfileSimulationShape.Empty => RuleProfileMode.Empty,
-            _ => throw new InvalidOperationException($"互換ルールプロファイルモードへ変換できません: {this}"),
-        };
-    }
 }
