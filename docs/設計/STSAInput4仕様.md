@@ -54,7 +54,7 @@ AnalysisFlowSteps=Simulation,QualityEvaluation
 #[EndSection]
 ```
 
-ステップ固有の設定は、ステップ名に `Step` 接尾辞を付けたセクションで表します。旧 `Step.*` 形式は互換入力として読み取れます。
+ステップ固有の設定は、ステップ名に `Step` 接尾辞を付けたセクションで表します。
 
 - `SimulationStep`
 - `QualityEvaluationStep`

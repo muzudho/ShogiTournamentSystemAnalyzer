@@ -56,24 +56,14 @@ internal static class StsaInputRequestParser
         return TryParseMultiStepRequest(flowSelection, sections, fullPath, isAttributeFormat, out request);
     }
 
-    static RuleProfileAttributes ParseRuleProfileAttributesSection(
-        Dictionary<string, List<string>> sections,
-        string sectionName,
-        string fullPath)
-    {
-        return ParseRuleProfileAttributesSection(sections, sectionName, null, fullPath);
-    }
 
     static RuleProfileAttributes ParseRuleProfileAttributesSection(
         Dictionary<string, List<string>> sections,
         string sectionName,
-        string? legacySectionName,
         string fullPath)
     {
         var values = ParseSectionKeyValues(
-            legacySectionName is null
-                ? GetRequiredSectionLines(sections, sectionName, fullPath, AttributeFormatName)
-                : GetCompatibleRequiredSectionLines(sections, sectionName, legacySectionName, fullPath, AttributeFormatName),
+            GetRequiredSectionLines(sections, sectionName, fullPath, AttributeFormatName),
             sectionName,
             fullPath,
             AttributeFormatName);
@@ -96,11 +86,9 @@ internal static class StsaInputRequestParser
         var stepRequests = new List<AnalysisStepRequest>();
         foreach (var step in flowSelection.Steps)
         {
-            var stepName = FormatStepName(step);
             var stepSectionName = FormatStepSectionName(step);
-            var legacyStepSectionName = $"Step.{stepName}";
             var stepMeta = ParseSectionKeyValues(
-                GetCompatibleRequiredSectionLines(sections, stepSectionName, legacyStepSectionName, fullPath, inputFormatName),
+                GetRequiredSectionLines(sections, stepSectionName, fullPath, inputFormatName),
                 stepSectionName,
                 fullPath,
                 inputFormatName);
@@ -108,10 +96,9 @@ internal static class StsaInputRequestParser
                 ? ParseRuleProfileAttributesSection(
                     sections,
                     $"{stepSectionName}.RuleProfileAttributes",
-                    $"{legacyStepSectionName}.RuleProfileAttributes",
                     fullPath)
                 : LegacyRuleProfileMapper.ParseAttributesFromLabel(GetRequiredMetaValue(stepMeta, "RuleProfileMode", fullPath, FormatName), FormatName);
-            var stepSections = BuildStepSections(sections, stepSectionName, stepName, fullPath, inputFormatName);
+            var stepSections = BuildStepSections(sections, stepSectionName, fullPath, inputFormatName);
             var stepRequest = ParseStepRequest(
                 step,
                 ruleProfileAttributes,
@@ -178,7 +165,6 @@ internal static class StsaInputRequestParser
     static Dictionary<string, List<string>> BuildStepSections(
         Dictionary<string, List<string>> sections,
         string stepSectionName,
-        string legacyStepName,
         string fullPath,
         string inputFormatName)
     {
@@ -194,16 +180,14 @@ internal static class StsaInputRequestParser
         })
         {
             var primarySectionName = $"{stepSectionName}.{sectionName}";
-            var legacySectionName = $"{legacyStepName}.{sectionName}";
-            if (TryGetCompatibleSectionLines(sections, primarySectionName, legacySectionName, fullPath, inputFormatName, out var stepLines))
+            if (sections.TryGetValue(primarySectionName, out var stepLines))
             {
                 stepSections[sectionName] = stepLines;
             }
         }
 
         var outputSectionName = $"{stepSectionName}.Output";
-        var legacyOutputSectionName = $"{legacyStepName}.Output";
-        if (TryGetCompatibleSectionLines(sections, outputSectionName, legacyOutputSectionName, fullPath, inputFormatName, out var outputLines))
+        if (sections.TryGetValue(outputSectionName, out var outputLines))
         {
             stepSections["Output"] = outputLines;
         }
@@ -215,52 +199,6 @@ internal static class StsaInputRequestParser
         }
 
         return stepSections;
-    }
-
-    static IReadOnlyList<string> GetCompatibleRequiredSectionLines(
-        Dictionary<string, List<string>> sections,
-        string primarySectionName,
-        string legacySectionName,
-        string fullPath,
-        string inputFormatName)
-    {
-        if (TryGetCompatibleSectionLines(sections, primarySectionName, legacySectionName, fullPath, inputFormatName, out var lines))
-        {
-            return lines;
-        }
-
-        throw new OperationCanceledException($"{inputFormatName} の必須セクション '{primarySectionName}' がありません: {fullPath}");
-    }
-
-    static bool TryGetCompatibleSectionLines(
-        Dictionary<string, List<string>> sections,
-        string primarySectionName,
-        string legacySectionName,
-        string fullPath,
-        string inputFormatName,
-        out List<string> lines)
-    {
-        var hasPrimary = sections.TryGetValue(primarySectionName, out var primaryLines);
-        var hasLegacy = sections.TryGetValue(legacySectionName, out var legacyLines);
-        if (hasPrimary && hasLegacy)
-        {
-            throw new OperationCanceledException($"{inputFormatName} のセクション '{primarySectionName}' と互換セクション '{legacySectionName}' が同時に指定されています: {fullPath}");
-        }
-
-        if (hasPrimary)
-        {
-            lines = primaryLines!;
-            return true;
-        }
-
-        if (hasLegacy)
-        {
-            lines = legacyLines!;
-            return true;
-        }
-
-        lines = new List<string>();
-        return false;
     }
 
     static string FormatStepName(AnalysisFlowMode step)

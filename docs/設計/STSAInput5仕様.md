@@ -148,7 +148,7 @@ PairingSource=ScheduledMatches
 
 ## 複数ステップ
 
-複数ステップでは、`Meta` は実行順だけを書きます。ステップごとの設定は `SimulationStep` / `QualityEvaluationStep`、属性は `SimulationStep.RuleProfileAttributes` / `QualityEvaluationStep.RuleProfileAttributes` に分けます。旧 `Step.Simulation` / `Step.QualityEvaluation` 形式は互換入力として読み取れますが、writer は新形式を出力します。
+複数ステップでは、`Meta` は実行順だけを書きます。ステップごとの設定は `SimulationStep` / `QualityEvaluationStep`、属性は `SimulationStep.RuleProfileAttributes` / `QualityEvaluationStep.RuleProfileAttributes` に分けます。
 
 ```plaintext
 #[Format] STSAInput/5
