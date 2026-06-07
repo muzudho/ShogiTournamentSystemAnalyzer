@@ -39,3 +39,13 @@ Windows 向けに揃えてくれだぜ（＾～＾）
 
 `#[Section] Step["Simulation"].RuleProfileAttributes`
 ```
+
+```plaintext
+正規表現の記述が大変になりそうだな（＾～＾）
+じゃあ単純に、 `Step.A.B` を `AStep.B` にするような仕様変更だったらどうだぜ（＾～＾）？
+```
+
+```plaintext
+良い案だと思うぜ（＾～＾）！
+じゃあ、`Step.` 階層を `Step` を接尾辞に仕様変更する案で、まず実装計画を立ててくれだぜ（＾▽＾）！
+```
