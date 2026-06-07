@@ -213,14 +213,9 @@ internal static class ApplicationWorkflow
     {
         return stepRequest switch
         {
-            StandardSimulationRequest => AnalysisFlowMode.Simulation,
-            FinalStageSimulationRequest => AnalysisFlowMode.Simulation,
-            TournamentFrameworkSimulationRequest => AnalysisFlowMode.Simulation,
-            EmptySimulationRequest => AnalysisFlowMode.Simulation,
-            StandardQualityEvaluationRequest => AnalysisFlowMode.QualityEvaluation,
-            DeferredStandardQualityEvaluationRequest => AnalysisFlowMode.QualityEvaluation,
-            FinalStageQualityEvaluationRequest => AnalysisFlowMode.QualityEvaluation,
-            DeferredFinalStageQualityEvaluationRequest => AnalysisFlowMode.QualityEvaluation,
+            SimulationStepRequest => AnalysisFlowMode.Simulation,
+            QualityEvaluationStepRequest => AnalysisFlowMode.QualityEvaluation,
+            DeferredQualityEvaluationStepRequest => AnalysisFlowMode.QualityEvaluation,
             _ => throw new InvalidOperationException($"未対応の分析要求です: {stepRequest.GetType().Name}"),
         };
     }

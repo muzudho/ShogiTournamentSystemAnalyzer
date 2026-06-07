@@ -24,20 +24,12 @@ internal static class QualityEvaluationDomain
     {
         switch (step)
         {
-            case StandardQualityEvaluationRequest standardQualityEvaluationRequest:
-                ExecuteStandardQualityEvaluation(standardQualityEvaluationRequest);
+            case QualityEvaluationStepRequest request:
+                ExecuteQualityEvaluation(request);
                 return true;
 
-            case DeferredStandardQualityEvaluationRequest deferredStandardQualityEvaluationRequest:
-                ExecuteStandardQualityEvaluation(CreateStandardQualityEvaluationRequest(deferredStandardQualityEvaluationRequest, context));
-                return true;
-
-            case FinalStageQualityEvaluationRequest finalStageQualityEvaluationRequest:
-                ExecuteFinalStageQualityEvaluation(finalStageQualityEvaluationRequest);
-                return true;
-
-            case DeferredFinalStageQualityEvaluationRequest deferredFinalStageQualityEvaluationRequest:
-                ExecuteFinalStageQualityEvaluation(CreateFinalStageQualityEvaluationRequest(deferredFinalStageQualityEvaluationRequest, context));
+            case DeferredQualityEvaluationStepRequest request:
+                ExecuteQualityEvaluation(CreateQualityEvaluationRequest(request, context));
                 return true;
 
             default:
@@ -45,7 +37,7 @@ internal static class QualityEvaluationDomain
         }
     }
 
-    static void ExecuteStandardQualityEvaluation(StandardQualityEvaluationRequest request)
+    static void ExecuteQualityEvaluation(QualityEvaluationStepRequest request)
     {
         TournamentQualityEvaluationMainline.Run(
             request.Input,
@@ -54,27 +46,30 @@ internal static class QualityEvaluationDomain
             request.OutputOptions);
     }
 
-    static void ExecuteFinalStageQualityEvaluation(FinalStageQualityEvaluationRequest request)
-    {
-        TournamentQualityEvaluationMainline.Run(
-            request.Input,
-            request.RuleDefinition,
-            request.ExecutionOptions,
-            request.OutputOptions);
-    }
-
-    static StandardQualityEvaluationRequest CreateStandardQualityEvaluationRequest(
-        DeferredStandardQualityEvaluationRequest request,
+    static QualityEvaluationStepRequest CreateQualityEvaluationRequest(
+        DeferredQualityEvaluationStepRequest request,
         AnalysisExecutionContext? context)
     {
-        if (context?.LastSimulationRequest is not StandardSimulationRequest simulationRequest)
+        if (context?.LastSimulationRequest is not SimulationStepRequest simulationRequest)
         {
-            throw new OperationCanceledException("入力省略の標準品質評価は、直前に標準シミュレーションが実行されている場合だけ実行できます。");
+            throw new OperationCanceledException("入力省略の品質評価は、直前にシミュレーションが実行されている場合だけ実行できます。");
         }
 
+        var scheduledInput = simulationRequest.ScheduledMatchesInput
+            ?? throw new OperationCanceledException("入力省略の品質評価は、直前のシミュレーションに対局入力がある場合だけ実行できます。");
+
+        return request.RuleProfileAttributes.UsesFinalStageGrouping
+            ? CreateGroupedQualityEvaluationStepRequest(request, simulationRequest, scheduledInput)
+            : CreateUngroupedQualityEvaluationStepRequest(request, scheduledInput);
+    }
+
+    static QualityEvaluationStepRequest CreateUngroupedQualityEvaluationStepRequest(
+        DeferredQualityEvaluationStepRequest request,
+        ScheduledMatchesSimulationInput simulationInput)
+    {
         var ruleDefinition = new TournamentQualityEvaluationRuleDefinition(
             FinalStageGroupingMode.Off,
-            request.TournamentRuleSetMode,
+            simulationInput.TournamentRuleSetMode,
             null,
             Array.Empty<Player>(),
             AdditionalApexPlacementMode.Off,
@@ -83,48 +78,55 @@ internal static class QualityEvaluationDomain
             VariableTop8Mode.Off,
             0);
         var input = new TournamentQualityEvaluationInput(
-            simulationRequest.Players,
-            simulationRequest.Matches,
+            simulationInput.Players,
+            simulationInput.Matches,
             Array.Empty<Match>(),
             TournamentQualityEvaluationInnovExpectedRankOffsetMode.Off,
             0);
 
-        return new StandardQualityEvaluationRequest(
+        return new QualityEvaluationStepRequest(
+            request.RuleProfileAttributes,
             ruleDefinition,
             input,
             EnsureSimulationCountIfNeeded(request.ExecutionOptions, input.Matches.Count),
             request.OutputOptions);
     }
 
-    static FinalStageQualityEvaluationRequest CreateFinalStageQualityEvaluationRequest(
-        DeferredFinalStageQualityEvaluationRequest request,
-        AnalysisExecutionContext? context)
+    static QualityEvaluationStepRequest CreateGroupedQualityEvaluationStepRequest(
+        DeferredQualityEvaluationStepRequest request,
+        SimulationStepRequest simulationRequest,
+        ScheduledMatchesSimulationInput simulationInput)
     {
-        if (context?.LastSimulationRequest is not FinalStageSimulationRequest simulationRequest)
-        {
-            throw new OperationCanceledException("入力省略の本戦品質評価は、直前に本戦シミュレーションが実行されている場合だけ実行できます。");
-        }
+        var grouping = simulationRequest.FinalStageGrouping
+            ?? throw new OperationCanceledException("入力省略の本戦品質評価は、直前のシミュレーションにグループ入力がある場合だけ実行できます。");
+        var additionalApexPlacement = simulationRequest.AdditionalApexPlacement
+            ?? new AdditionalApexPlacementRequest(Array.Empty<Player>(), AdditionalApexPlacementMode.Off, 0);
+        var boundaryRescue = simulationRequest.BoundaryRescue
+            ?? new BoundaryRescueRequest(BoundaryRescueMode.Off);
 
+        var variableTop8Mode = request.DeferredOptions.VariableTop8Mode;
+        var innovExpectedRankOffsetMode = request.DeferredOptions.InnovExpectedRankOffsetMode;
         var ruleDefinition = new TournamentQualityEvaluationRuleDefinition(
-            FinalStageGroupingMode.On,
-            TournamentRuleSetMode.Neutral,
-            simulationRequest.GroupMap,
-            simulationRequest.AdditionalApexPlayers,
-            simulationRequest.AdditionalApexPlacementMode,
-            simulationRequest.EffectiveAdditionalApexCount,
-            simulationRequest.BoundaryRescueMode,
-            request.VariableTop8Mode,
-            VariableTop8Rule.GetPromotedInnovCount(request.VariableTop8Mode, simulationRequest.AdditionalApexPlayers.Count));
+            grouping.GroupingMode,
+            simulationInput.TournamentRuleSetMode,
+            grouping.GroupMap,
+            additionalApexPlacement.AdditionalApexPlayers,
+            additionalApexPlacement.AdditionalApexPlacementMode,
+            additionalApexPlacement.EffectiveAdditionalApexCount,
+            boundaryRescue.BoundaryRescueMode,
+            variableTop8Mode,
+            VariableTop8Rule.GetPromotedInnovCount(variableTop8Mode, additionalApexPlacement.AdditionalApexPlayers.Count));
         var input = new TournamentQualityEvaluationInput(
-            simulationRequest.Players,
-            simulationRequest.Matches,
-            simulationRequest.ReferenceMatches,
-            request.InnovExpectedRankOffsetMode,
+            simulationInput.Players,
+            simulationInput.Matches,
+            simulationInput.ReferenceMatches,
+            innovExpectedRankOffsetMode,
             TournamentQualityEvaluationInnovExpectedRankOffsetRule.GetComparisonRankOffset(
-                simulationRequest.EffectiveAdditionalApexCount,
-                request.InnovExpectedRankOffsetMode));
+                additionalApexPlacement.EffectiveAdditionalApexCount,
+                innovExpectedRankOffsetMode));
 
-        return new FinalStageQualityEvaluationRequest(
+        return new QualityEvaluationStepRequest(
+            request.RuleProfileAttributes,
             ruleDefinition,
             input,
             EnsureSimulationCountIfNeeded(request.ExecutionOptions, input.Matches.Count),

@@ -117,43 +117,16 @@ internal static class StsaInputRequestWriter
     {
         switch (stepRequest)
         {
-            case StandardSimulationRequest request:
-                lines.Add($"TournamentRuleSetMode={request.TournamentRuleSetMode}");
-                lines.Add($"FirstPlayerWinRatePercent={FormatNumber(request.FirstPlayerWinRatePercent)}");
-                AddOptionalInt(lines, "SimulationCount", request.SimulationCount);
+            case SimulationStepRequest request:
+                AddSimulationMetaLines(lines, request);
                 break;
 
-            case FinalStageSimulationRequest request:
-                lines.Add($"FirstPlayerWinRatePercent={FormatNumber(request.FirstPlayerWinRatePercent)}");
-                AddOptionalInt(lines, "SimulationCount", request.SimulationCount);
-                lines.Add($"AdditionalApexPlacementMode={request.AdditionalApexPlacementMode}");
-                lines.Add($"BoundaryRescueMode={request.BoundaryRescueMode}");
-                break;
-
-            case TournamentFrameworkSimulationRequest request:
-                lines.Add($"TournamentRuleSetMode={request.TournamentRuleSetMode}");
-                lines.Add($"FirstPlayerWinRatePercent={FormatNumber(request.FirstPlayerWinRatePercent)}");
-                AddOptionalInt(lines, "RandomSeed", request.RandomSeed);
-                AddOptionalInt(lines, "SimulationCount", request.SimulationCount);
-                break;
-
-            case EmptySimulationRequest:
-                break;
-
-            case StandardQualityEvaluationRequest request:
+            case QualityEvaluationStepRequest request:
                 AddQualityMetaLines(lines, request.RuleDefinition, request.Input, request.ExecutionOptions, request.OutputOptions);
                 break;
 
-            case DeferredStandardQualityEvaluationRequest request:
-                AddDeferredStandardQualityMetaLines(lines, request.TournamentRuleSetMode, request.ExecutionOptions, request.OutputOptions);
-                break;
-
-            case FinalStageQualityEvaluationRequest request:
-                AddQualityMetaLines(lines, request.RuleDefinition, request.Input, request.ExecutionOptions, request.OutputOptions);
-                break;
-
-            case DeferredFinalStageQualityEvaluationRequest request:
-                AddDeferredFinalStageQualityMetaLines(lines, request.VariableTop8Mode, request.InnovExpectedRankOffsetMode, request.ExecutionOptions, request.OutputOptions);
+            case DeferredQualityEvaluationStepRequest request:
+                AddDeferredQualityMetaLines(lines, request);
                 break;
 
             default:
@@ -161,32 +134,52 @@ internal static class StsaInputRequestWriter
         }
     }
 
-    static void AddDeferredStandardQualityMetaLines(
-        List<string> lines,
-        TournamentRuleSetMode tournamentRuleSetMode,
-        TournamentQualityEvaluationExecutionOptions executionOptions,
-        TournamentQualityEvaluationOutputOptions outputOptions)
+    static void AddSimulationMetaLines(List<string> lines, SimulationStepRequest request)
     {
-        AddQualityExecutionMetaLines(lines, executionOptions, outputOptions);
-        lines.Add($"TournamentRuleSetMode={tournamentRuleSetMode}");
-        lines.Add("QualityInnovExpectedRankOffsetMode=Off");
+        if (request.TournamentFrameworkInput is not null)
+        {
+            lines.Add($"TournamentRuleSetMode={request.TournamentFrameworkInput.TournamentRuleSetMode}");
+            lines.Add($"FirstPlayerWinRatePercent={FormatNumber(request.FirstPlayerWinRatePercent)}");
+            AddOptionalInt(lines, "RandomSeed", request.TournamentFrameworkInput.RandomSeed);
+            AddOptionalInt(lines, "SimulationCount", request.SimulationCount);
+            return;
+        }
+
+        if (request.RuleProfileAttributes.IsEmptyProfile) return;
+
+        if (request.ScheduledMatchesInput is not null && !request.RuleProfileAttributes.UsesFinalStageGrouping)
+        {
+            lines.Add($"TournamentRuleSetMode={request.ScheduledMatchesInput.TournamentRuleSetMode}");
+        }
+
+        lines.Add($"FirstPlayerWinRatePercent={FormatNumber(request.FirstPlayerWinRatePercent)}");
+        AddOptionalInt(lines, "SimulationCount", request.SimulationCount);
+
+        if (request.RuleProfileAttributes.UsesFinalStageGrouping)
+        {
+            lines.Add($"AdditionalApexPlacementMode={request.AdditionalApexPlacement?.AdditionalApexPlacementMode ?? AdditionalApexPlacementMode.Off}");
+            lines.Add($"BoundaryRescueMode={request.BoundaryRescue?.BoundaryRescueMode ?? BoundaryRescueMode.Off}");
+        }
     }
 
-    static void AddDeferredFinalStageQualityMetaLines(
+    static void AddDeferredQualityMetaLines(
         List<string> lines,
-        VariableTop8Mode variableTop8Mode,
-        TournamentQualityEvaluationInnovExpectedRankOffsetMode innovExpectedRankOffsetMode,
-        TournamentQualityEvaluationExecutionOptions executionOptions,
-        TournamentQualityEvaluationOutputOptions outputOptions)
+        DeferredQualityEvaluationStepRequest request)
     {
-        AddQualityExecutionMetaLines(lines, executionOptions, outputOptions);
-        lines.Add($"TournamentRuleSetMode={TournamentRuleSetMode.Neutral}");
-        lines.Add($"AdditionalApexPlacementMode={AdditionalApexPlacementMode.On}");
-        lines.Add($"BoundaryRescueMode={BoundaryRescueMode.On}");
-        lines.Add($"VariableTop8Mode={variableTop8Mode}");
-        lines.Add($"QualityInnovExpectedRankOffsetMode={innovExpectedRankOffsetMode}");
-    }
-    static void AddQualityMetaLines(
+        AddQualityExecutionMetaLines(lines, request.ExecutionOptions, request.OutputOptions);
+        lines.Add($"TournamentRuleSetMode={request.RuleProfileAttributes.RankingRuleSetMode}");
+        if (request.RuleProfileAttributes.UsesFinalStageGrouping)
+        {
+            lines.Add($"AdditionalApexPlacementMode={(request.RuleProfileAttributes.UsesAdditionalApexPlacement ? AdditionalApexPlacementMode.On : AdditionalApexPlacementMode.Off)}");
+            lines.Add($"BoundaryRescueMode={(request.RuleProfileAttributes.UsesBoundaryRescue ? BoundaryRescueMode.On : BoundaryRescueMode.Off)}");
+            lines.Add($"VariableTop8Mode={request.DeferredOptions.VariableTop8Mode}");
+            lines.Add($"QualityInnovExpectedRankOffsetMode={request.DeferredOptions.InnovExpectedRankOffsetMode}");
+        }
+        else
+        {
+            lines.Add("QualityInnovExpectedRankOffsetMode=Off");
+        }
+    }    static void AddQualityMetaLines(
         List<string> lines,
         TournamentQualityEvaluationRuleDefinition ruleDefinition,
         TournamentQualityEvaluationInput input,
@@ -249,49 +242,55 @@ internal static class StsaInputRequestWriter
     {
         switch (step)
         {
-            case StandardSimulationRequest request:
-                AddPlayersSection(lines, $"{sectionPrefix}PlayersCsv", request.AllPlayers);
-                AddMatchesSection(lines, $"{sectionPrefix}MatchesInput", request.Players, request.Matches);
-                AddOutputSection(lines, outputSectionName, summaryOutputPath: request.OutputPath);
+            case SimulationStepRequest request:
+                AddSimulationBodySections(lines, sectionPrefix, outputSectionName, request);
                 break;
 
-            case FinalStageSimulationRequest request:
-                AddPlayersSection(lines, $"{sectionPrefix}PlayersCsv", request.Players);
-                AddGroupMapSection(lines, $"{sectionPrefix}GroupMapCsv", request.Players, request.GroupMap);
-                AddOptionalPlayersSection(lines, $"{sectionPrefix}AdditionalApexPlayersCsv", request.AdditionalApexPlayers);
-                AddMatchesSection(lines, $"{sectionPrefix}MatchesInput", request.Players, request.Matches);
-                AddOptionalMatchesSection(lines, $"{sectionPrefix}ReferenceMatchesInput", request.Players, request.ReferenceMatches);
-                AddOutputSection(lines, outputSectionName, summaryOutputPath: request.OutputPath);
-                break;
-
-            case TournamentFrameworkSimulationRequest request:
-                AddInputsSection(lines, $"{sectionPrefix}Inputs", request);
-                AddOutputSection(lines, outputSectionName, outputPath: request.OutputPath);
-                break;
-
-            case EmptySimulationRequest request:
-                AddOutputSection(lines, outputSectionName, outputPath: request.OutputPath);
-                break;
-
-            case StandardQualityEvaluationRequest request:
+            case QualityEvaluationStepRequest request:
                 AddQualityBodySections(lines, sectionPrefix, outputSectionName, request.RuleDefinition, request.Input, request.ExecutionOptions, request.OutputOptions);
                 break;
 
-            case DeferredStandardQualityEvaluationRequest request:
-                AddDeferredQualityBodySections(lines, outputSectionName, request.ExecutionOptions, request.OutputOptions);
-                break;
-
-            case FinalStageQualityEvaluationRequest request:
-                AddQualityBodySections(lines, sectionPrefix, outputSectionName, request.RuleDefinition, request.Input, request.ExecutionOptions, request.OutputOptions);
-                break;
-
-            case DeferredFinalStageQualityEvaluationRequest request:
+            case DeferredQualityEvaluationStepRequest request:
                 AddDeferredQualityBodySections(lines, outputSectionName, request.ExecutionOptions, request.OutputOptions);
                 break;
         }
     }
 
-    static void AddDeferredQualityBodySections(
+    static void AddSimulationBodySections(
+        List<string> lines,
+        string sectionPrefix,
+        string outputSectionName,
+        SimulationStepRequest request)
+    {
+        if (request.TournamentFrameworkInput is not null)
+        {
+            AddInputsSection(lines, $"{sectionPrefix}Inputs", request.TournamentFrameworkInput);
+            AddOutputSection(lines, outputSectionName, outputPath: request.OutputPath);
+            return;
+        }
+
+        if (request.RuleProfileAttributes.IsEmptyProfile)
+        {
+            AddOutputSection(lines, outputSectionName, outputPath: request.OutputPath);
+            return;
+        }
+
+        var input = request.ScheduledMatchesInput
+            ?? throw new InvalidOperationException("シミュレーション要求の対局入力がありません。");
+
+        AddPlayersSection(lines, $"{sectionPrefix}PlayersCsv", input.AllPlayers);
+        if (request.RuleProfileAttributes.UsesFinalStageGrouping)
+        {
+            var grouping = request.FinalStageGrouping
+                ?? throw new InvalidOperationException("本戦シミュレーション要求のグループ入力がありません。");
+            AddGroupMapSection(lines, $"{sectionPrefix}GroupMapCsv", input.Players, grouping.GroupMap);
+            AddOptionalPlayersSection(lines, $"{sectionPrefix}AdditionalApexPlayersCsv", request.AdditionalApexPlacement?.AdditionalApexPlayers ?? Array.Empty<Player>());
+        }
+
+        AddMatchesSection(lines, $"{sectionPrefix}MatchesInput", input.Players, input.Matches);
+        AddOptionalMatchesSection(lines, $"{sectionPrefix}ReferenceMatchesInput", input.Players, input.ReferenceMatches);
+        AddOutputSection(lines, outputSectionName, summaryOutputPath: request.OutputPath);
+    }    static void AddDeferredQualityBodySections(
         List<string> lines,
         string outputSectionName,
         TournamentQualityEvaluationExecutionOptions executionOptions,
@@ -372,7 +371,7 @@ internal static class StsaInputRequestWriter
         if (matches.Count > 0) AddMatchesSection(lines, sectionName, players, matches);
     }
 
-    static void AddInputsSection(List<string> lines, string sectionName, TournamentFrameworkSimulationRequest request)
+    static void AddInputsSection(List<string> lines, string sectionName, TournamentFrameworkSimulationInput request)
     {
         var body = new List<string>
         {
@@ -423,14 +422,9 @@ internal static class StsaInputRequestWriter
     {
         return stepRequest switch
         {
-            StandardSimulationRequest => "Simulation",
-            FinalStageSimulationRequest => "Simulation",
-            TournamentFrameworkSimulationRequest => "Simulation",
-            EmptySimulationRequest => "Simulation",
-            StandardQualityEvaluationRequest => "QualityEvaluation",
-            DeferredStandardQualityEvaluationRequest => "QualityEvaluation",
-            FinalStageQualityEvaluationRequest => "QualityEvaluation",
-            DeferredFinalStageQualityEvaluationRequest => "QualityEvaluation",
+            SimulationStepRequest => "Simulation",
+            QualityEvaluationStepRequest => "QualityEvaluation",
+            DeferredQualityEvaluationStepRequest => "QualityEvaluation",
             _ => throw new InvalidOperationException($"未対応の分析要求です: {stepRequest.GetType().Name}"),
         };
     }

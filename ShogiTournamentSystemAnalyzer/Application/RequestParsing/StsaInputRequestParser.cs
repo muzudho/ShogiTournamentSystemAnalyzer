@@ -135,45 +135,42 @@ internal static class StsaInputRequestParser
     {
         if (step == AnalysisFlowMode.Simulation && ruleProfileAttributes.IsStandardScheduledProfile)
         {
-            var standardSimulationRequest = ParseStandardSimulationRequest(meta, sections, fullPath);
-            return EnsureStandardSimulationCountIfNeeded(standardSimulationRequest);
+            return EnsureSimulationCountIfNeeded(ParseScheduledMatchesSimulationRequest(ruleProfileAttributes, meta, sections, fullPath));
         }
 
         if (step == AnalysisFlowMode.Simulation && ruleProfileAttributes.IsFinalStageScheduledProfile)
         {
-            var finalStageSimulationRequest = ParseFinalStageSimulationRequest(meta, sections, fullPath);
-            return EnsureFinalStageSimulationCountIfNeeded(finalStageSimulationRequest);
+            return EnsureSimulationCountIfNeeded(ParseFinalStageGroupedSimulationRequest(ruleProfileAttributes, meta, sections, fullPath));
         }
 
         if (step == AnalysisFlowMode.Simulation && ruleProfileAttributes.IsTournamentFrameworkProfile)
         {
-            return ParseTournamentFrameworkSimulationRequest(meta, sections, fullPath);
+            return ParseTournamentFrameworkSimulationStepRequest(ruleProfileAttributes, meta, sections, fullPath);
         }
 
         if (step == AnalysisFlowMode.Simulation && ruleProfileAttributes.IsEmptyProfile)
         {
-            return ParseEmptySimulationRequest(meta, sections, fullPath);
+            return ParseEmptySimulationStepRequest(ruleProfileAttributes, meta, sections, fullPath);
         }
 
         if (step == AnalysisFlowMode.QualityEvaluation && ruleProfileAttributes.IsStandardScheduledProfile)
         {
-            var standardQualityEvaluationRequest = ParseStandardQualityEvaluationRequest(meta, sections, fullPath);
-            return standardQualityEvaluationRequest is StandardQualityEvaluationRequest concreteRequest
-                ? EnsureStandardQualityEvaluationSimulationCountIfNeeded(concreteRequest)
-                : standardQualityEvaluationRequest;
+            var request = ParseUngroupedQualityEvaluationStepRequest(ruleProfileAttributes, meta, sections, fullPath);
+            return request is QualityEvaluationStepRequest concreteRequest
+                ? EnsureQualityEvaluationSimulationCountIfNeeded(concreteRequest)
+                : request;
         }
 
         if (step == AnalysisFlowMode.QualityEvaluation && ruleProfileAttributes.IsFinalStageScheduledProfile)
         {
-            var finalStageQualityEvaluationRequest = ParseFinalStageQualityEvaluationRequest(meta, sections, fullPath);
-            return finalStageQualityEvaluationRequest is FinalStageQualityEvaluationRequest concreteRequest
-                ? EnsureFinalStageQualityEvaluationSimulationCountIfNeeded(concreteRequest)
-                : finalStageQualityEvaluationRequest;
+            var request = ParseGroupedQualityEvaluationStepRequest(ruleProfileAttributes, meta, sections, fullPath);
+            return request is QualityEvaluationStepRequest concreteRequest
+                ? EnsureQualityEvaluationSimulationCountIfNeeded(concreteRequest)
+                : request;
         }
 
         return null;
     }
-
 
     static Dictionary<string, List<string>> BuildStepSections(
         Dictionary<string, List<string>> sections,
@@ -221,21 +218,15 @@ internal static class StsaInputRequestParser
         };
     }
 
-    static StandardSimulationRequest EnsureStandardSimulationCountIfNeeded(StandardSimulationRequest request)
+    static SimulationStepRequest EnsureSimulationCountIfNeeded(SimulationStepRequest request)
     {
-        if (request.Matches.Count <= ExactCalculationMatchThreshold || request.SimulationCount.HasValue) return request;
+        var matchCount = request.ScheduledMatchesInput?.Matches.Count;
+        if (!matchCount.HasValue || matchCount.Value <= ExactCalculationMatchThreshold || request.SimulationCount.HasValue) return request;
 
         return request with { SimulationCount = DefaultApproximationSimulationCount };
     }
 
-    static FinalStageSimulationRequest EnsureFinalStageSimulationCountIfNeeded(FinalStageSimulationRequest request)
-    {
-        if (request.Matches.Count <= ExactCalculationMatchThreshold || request.SimulationCount.HasValue) return request;
-
-        return request with { SimulationCount = DefaultApproximationSimulationCount };
-    }
-
-    static StandardQualityEvaluationRequest EnsureStandardQualityEvaluationSimulationCountIfNeeded(StandardQualityEvaluationRequest request)
+    static QualityEvaluationStepRequest EnsureQualityEvaluationSimulationCountIfNeeded(QualityEvaluationStepRequest request)
     {
         if (request.Input.Matches.Count <= ExactCalculationMatchThreshold || request.ExecutionOptions.SimulationCount.HasValue) return request;
 
@@ -244,18 +235,8 @@ internal static class StsaInputRequestParser
             ExecutionOptions = request.ExecutionOptions with { SimulationCount = DefaultApproximationSimulationCount },
         };
     }
-
-    static FinalStageQualityEvaluationRequest EnsureFinalStageQualityEvaluationSimulationCountIfNeeded(FinalStageQualityEvaluationRequest request)
-    {
-        if (request.Input.Matches.Count <= ExactCalculationMatchThreshold || request.ExecutionOptions.SimulationCount.HasValue) return request;
-
-        return request with
-        {
-            ExecutionOptions = request.ExecutionOptions with { SimulationCount = DefaultApproximationSimulationCount },
-        };
-    }
-
-    static StandardSimulationRequest ParseStandardSimulationRequest(
+    static SimulationStepRequest ParseScheduledMatchesSimulationRequest(
+        RuleProfileAttributes ruleProfileAttributes,
         Dictionary<string, string> meta,
         Dictionary<string, List<string>> sections,
         string fullPath)
@@ -268,23 +249,27 @@ internal static class StsaInputRequestParser
         var allMatches = ParseMatches(matchesLines, allPlayers, "MatchesInput", fullPath);
         var (players, matches) = ModeSupportHelpers.FilterToScheduledPlayers(allPlayers, allMatches);
         var simulationCount = ParseOptionalInt(GetOptionalMetaValue(meta, "SimulationCount"), "SimulationCount");
-        var output = ReadOutputKeyValues(sections, fullPath);
-        var outputPath = GetOptionalMetaValue(output, "SummaryOutputPath")
-            ?? GetOptionalMetaValue(output, "OutputPath")
-            ?? GetOptionalMetaValue(meta, "SummaryOutputPath")
-            ?? GetOptionalMetaValue(meta, "OutputPath");
+        var outputPath = ReadSimulationOutputPath(meta, sections, fullPath);
 
-        return new StandardSimulationRequest(
-            tournamentRuleSetMode,
+        return new SimulationStepRequest(
+            ruleProfileAttributes,
             firstPlayerWinRatePercent,
-            allPlayers,
-            players,
-            matches,
+            new ScheduledMatchesSimulationInput(
+                tournamentRuleSetMode,
+                allPlayers,
+                players,
+                matches,
+                Array.Empty<Match>()),
+            null,
+            null,
+            null,
+            null,
             simulationCount,
             outputPath);
     }
 
-    static FinalStageSimulationRequest ParseFinalStageSimulationRequest(
+    static SimulationStepRequest ParseFinalStageGroupedSimulationRequest(
+        RuleProfileAttributes ruleProfileAttributes,
         Dictionary<string, string> meta,
         Dictionary<string, List<string>> sections,
         string fullPath)
@@ -313,27 +298,35 @@ internal static class StsaInputRequestParser
         var effectiveAdditionalApexCount = AdditionalApexPlacementRule.GetEffectiveAdditionalApexCount(additionalApexPlayers.Count, additionalApexPlacementMode);
         var apexCount = groupMap.Count(x => x.Value == FinalStageGroup.Apex);
         var innovCount = groupMap.Count - apexCount;
+        var referenceMatches = ParseOptionalMatches(GetOptionalSectionLines(sections, "ReferenceMatchesInput"), players, "ReferenceMatchesInput", fullPath);
         var outputPath = ReadSimulationOutputPath(meta, sections, fullPath);
 
-        return new FinalStageSimulationRequest(
-            TournamentRuleSetMode.Neutral,
+        return new SimulationStepRequest(
+            ruleProfileAttributes,
             firstPlayerWinRatePercent,
-            players,
-            FinalStageGroupingMode.On,
-            groupMap,
-            additionalApexPlayers,
-            additionalApexPlacementMode,
-            effectiveAdditionalApexCount,
-            ParseBoundaryRescueMode(GetRequiredMetaValue(meta, "BoundaryRescueMode", fullPath, FormatName)),
-            apexCount,
-            innovCount,
-            matches,
-            ParseOptionalMatches(GetOptionalSectionLines(sections, "ReferenceMatchesInput"), players, "ReferenceMatchesInput", fullPath),
+            new ScheduledMatchesSimulationInput(
+                TournamentRuleSetMode.Neutral,
+                players,
+                players,
+                matches,
+                referenceMatches),
+            new FinalStageGroupingRequest(
+                FinalStageGroupingMode.On,
+                groupMap,
+                apexCount,
+                innovCount),
+            new AdditionalApexPlacementRequest(
+                additionalApexPlayers,
+                additionalApexPlacementMode,
+                effectiveAdditionalApexCount),
+            new BoundaryRescueRequest(ParseBoundaryRescueMode(GetRequiredMetaValue(meta, "BoundaryRescueMode", fullPath, FormatName))),
+            null,
             ParseOptionalInt(GetOptionalMetaValue(meta, "SimulationCount"), "SimulationCount"),
             outputPath);
     }
 
-    static TournamentFrameworkSimulationRequest ParseTournamentFrameworkSimulationRequest(
+    static SimulationStepRequest ParseTournamentFrameworkSimulationStepRequest(
+        RuleProfileAttributes ruleProfileAttributes,
         Dictionary<string, string> meta,
         Dictionary<string, List<string>> sections,
         string fullPath)
@@ -348,19 +341,26 @@ internal static class StsaInputRequestParser
         var outputPath = GetOptionalMetaValue(output, "OutputPath")
             ?? GetOptionalMetaValue(meta, "OutputPath");
 
-        return new TournamentFrameworkSimulationRequest(
-            GetRequiredMetaValue(inputs, "PlayersCsvPath", fullPath, FormatName),
-            GetRequiredMetaValue(inputs, "StagesCsvPath", fullPath, FormatName),
-            GetRequiredMetaValue(inputs, "TournamentMatchRecordsCsvPath", fullPath, FormatName),
-            GetOptionalMetaValue(inputs, "RuleFilePath") ?? GetOptionalMetaValue(meta, "RuleFilePath"),
-            ParseOptionalAnyInt(GetOptionalMetaValue(meta, "RandomSeed"), "RandomSeed"),
-            ParseOptionalInt(GetOptionalMetaValue(meta, "SimulationCount"), "SimulationCount"),
-            tournamentRuleSetMode,
+        return new SimulationStepRequest(
+            ruleProfileAttributes,
             firstPlayerWinRatePercent,
+            null,
+            null,
+            null,
+            null,
+            new TournamentFrameworkSimulationInput(
+                GetRequiredMetaValue(inputs, "PlayersCsvPath", fullPath, FormatName),
+                GetRequiredMetaValue(inputs, "StagesCsvPath", fullPath, FormatName),
+                GetRequiredMetaValue(inputs, "TournamentMatchRecordsCsvPath", fullPath, FormatName),
+                GetOptionalMetaValue(inputs, "RuleFilePath") ?? GetOptionalMetaValue(meta, "RuleFilePath"),
+                ParseOptionalAnyInt(GetOptionalMetaValue(meta, "RandomSeed"), "RandomSeed"),
+                tournamentRuleSetMode),
+            ParseOptionalInt(GetOptionalMetaValue(meta, "SimulationCount"), "SimulationCount"),
             outputPath);
     }
 
-    static EmptySimulationRequest ParseEmptySimulationRequest(
+    static SimulationStepRequest ParseEmptySimulationStepRequest(
+        RuleProfileAttributes ruleProfileAttributes,
         Dictionary<string, string> meta,
         Dictionary<string, List<string>> sections,
         string fullPath)
@@ -369,10 +369,19 @@ internal static class StsaInputRequestParser
         var outputPath = GetOptionalMetaValue(output, "OutputPath")
             ?? GetOptionalMetaValue(meta, "OutputPath");
 
-        return new EmptySimulationRequest(outputPath);
+        return new SimulationStepRequest(
+            ruleProfileAttributes,
+            51.0,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            outputPath);
     }
-
-    static AnalysisStepRequest ParseStandardQualityEvaluationRequest(
+    static AnalysisStepRequest ParseUngroupedQualityEvaluationStepRequest(
+        RuleProfileAttributes ruleProfileAttributes,
         Dictionary<string, string> meta,
         Dictionary<string, List<string>> sections,
         string fullPath)
@@ -381,10 +390,13 @@ internal static class StsaInputRequestParser
         if (!HasAnySection(sections, "PlayersCsv", "MatchesInput"))
         {
             var deferredExecutionOptions = ParseQualityEvaluationExecutionOptions(meta, fullPath);
-            return new DeferredStandardQualityEvaluationRequest(
-                tournamentRuleSetMode,
+            return new DeferredQualityEvaluationStepRequest(
+                ruleProfileAttributes,
                 deferredExecutionOptions,
-                ParseQualityEvaluationOutputOptions(meta, sections, deferredExecutionOptions.IsSweep, fullPath, TournamentQualityEvaluationOutputProfile.Standard));
+                ParseQualityEvaluationOutputOptions(meta, sections, deferredExecutionOptions.IsSweep, fullPath, TournamentQualityEvaluationOutputProfile.Standard),
+                new DeferredQualityEvaluationOptions(
+                    VariableTop8Mode.Off,
+                    TournamentQualityEvaluationInnovExpectedRankOffsetMode.Off));
         }
 
         var players = ParsePlayers(GetRequiredSectionLines(sections, "PlayersCsv", fullPath, FormatName), fullPath);
@@ -420,14 +432,16 @@ internal static class StsaInputRequestParser
         var executionOptions = ParseQualityEvaluationExecutionOptions(meta, fullPath);
         var outputOptions = ParseQualityEvaluationOutputOptions(meta, sections, executionOptions.IsSweep, fullPath, TournamentQualityEvaluationOutputProfile.Standard);
 
-        return new StandardQualityEvaluationRequest(
+        return new QualityEvaluationStepRequest(
+            ruleProfileAttributes,
             ruleDefinition,
             input,
             executionOptions,
             outputOptions);
     }
 
-    static AnalysisStepRequest ParseFinalStageQualityEvaluationRequest(
+    static AnalysisStepRequest ParseGroupedQualityEvaluationStepRequest(
+        RuleProfileAttributes ruleProfileAttributes,
         Dictionary<string, string> meta,
         Dictionary<string, List<string>> sections,
         string fullPath)
@@ -435,11 +449,13 @@ internal static class StsaInputRequestParser
         if (!HasAnySection(sections, "PlayersCsv", "GroupMapCsv", "MatchesInput", "ReferenceMatchesInput", "AdditionalApexPlayersCsv"))
         {
             var deferredExecutionOptions = ParseQualityEvaluationExecutionOptions(meta, fullPath);
-            return new DeferredFinalStageQualityEvaluationRequest(
-                ParseVariableTop8Mode(GetRequiredMetaValue(meta, "VariableTop8Mode", fullPath, FormatName)),
-                ParseInnovExpectedRankOffsetMode(GetRequiredMetaValue(meta, "QualityInnovExpectedRankOffsetMode", fullPath, FormatName)),
+            return new DeferredQualityEvaluationStepRequest(
+                ruleProfileAttributes,
                 deferredExecutionOptions,
-                ParseQualityEvaluationOutputOptions(meta, sections, deferredExecutionOptions.IsSweep, fullPath, TournamentQualityEvaluationOutputProfile.FinalStage));
+                ParseQualityEvaluationOutputOptions(meta, sections, deferredExecutionOptions.IsSweep, fullPath, TournamentQualityEvaluationOutputProfile.FinalStage),
+                new DeferredQualityEvaluationOptions(
+                    ParseVariableTop8Mode(GetRequiredMetaValue(meta, "VariableTop8Mode", fullPath, FormatName)),
+                    ParseInnovExpectedRankOffsetMode(GetRequiredMetaValue(meta, "QualityInnovExpectedRankOffsetMode", fullPath, FormatName))));
         }
 
         var players = ParsePlayers(GetRequiredSectionLines(sections, "PlayersCsv", fullPath, FormatName), fullPath);
@@ -486,13 +502,13 @@ internal static class StsaInputRequestParser
         var executionOptions = ParseQualityEvaluationExecutionOptions(meta, fullPath);
         var outputOptions = ParseQualityEvaluationOutputOptions(meta, sections, executionOptions.IsSweep, fullPath, TournamentQualityEvaluationOutputProfile.FinalStage);
 
-        return new FinalStageQualityEvaluationRequest(
+        return new QualityEvaluationStepRequest(
+            ruleProfileAttributes,
             ruleDefinition,
             input,
             executionOptions,
             outputOptions);
     }
-
     static bool HasAnySection(Dictionary<string, List<string>> sections, params string[] sectionNames)
     {
         return sectionNames.Any(sections.ContainsKey);

@@ -6,6 +6,7 @@ namespace ShogiTournamentSystemAnalyzer.Application.RequestParsing;
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.Modes;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
+using Match = ShogiTournamentSystemAnalyzer.Domain.Simulation.Match;
 
 internal static partial class ManualAnalysisRequestReader
 {
@@ -17,86 +18,114 @@ internal static partial class ManualAnalysisRequestReader
 
         if (ruleProfileAttributes.IsStandardScheduledProfile)
         {
-            stepRequest = ReadStandardSimulationRequest();
+            stepRequest = ReadScheduledMatchesSimulationRequest(ruleProfileAttributes);
             return true;
         }
 
         if (ruleProfileAttributes.IsFinalStageScheduledProfile)
         {
-            return TryReadFinalStageSimulationRequest(out stepRequest);
+            return TryReadFinalStageGroupedSimulationRequest(ruleProfileAttributes, out stepRequest);
         }
 
         if (ruleProfileAttributes.IsTournamentFrameworkProfile)
         {
-            stepRequest = ReadTournamentFrameworkSimulationRequest();
+            stepRequest = ReadTournamentFrameworkSimulationStepRequest(ruleProfileAttributes);
             return true;
         }
 
         if (ruleProfileAttributes.IsEmptyProfile)
         {
-            stepRequest = ReadEmptySimulationRequest();
+            stepRequest = ReadEmptySimulationStepRequest(ruleProfileAttributes);
             return true;
         }
 
         return false;
     }
 
-    static StandardSimulationRequest ReadStandardSimulationRequest()
+    static SimulationStepRequest ReadScheduledMatchesSimulationRequest(RuleProfileAttributes ruleProfileAttributes)
     {
         var context = SimulationModeInputReaders.ReadStandardModeContext();
-        return new StandardSimulationRequest(
-            context.TournamentRuleSetMode,
+        return new SimulationStepRequest(
+            ruleProfileAttributes,
             context.FirstPlayerWinRatePercent,
-            context.AllPlayers,
-            context.Players,
-            context.Matches,
+            new ScheduledMatchesSimulationInput(
+                context.TournamentRuleSetMode,
+                context.AllPlayers,
+                context.Players,
+                context.Matches,
+                Array.Empty<Match>()),
+            null,
+            null,
+            null,
+            null,
             ReadSimulationCountIfNeeded(context.Matches.Count, "標準"),
             null);
     }
 
-    static bool TryReadFinalStageSimulationRequest(out AnalysisStepRequest stepRequest)
+    static bool TryReadFinalStageGroupedSimulationRequest(RuleProfileAttributes ruleProfileAttributes, out AnalysisStepRequest stepRequest)
     {
         stepRequest = null!;
         if (!SimulationModeInputReaders.TryReadFinalStageModeContext(out var context) || context is null) return false;
 
-        stepRequest = new FinalStageSimulationRequest(
-            context.TournamentRuleSetMode,
+        stepRequest = new SimulationStepRequest(
+            ruleProfileAttributes,
             context.FirstPlayerWinRatePercent,
-            context.Players,
-            context.GroupingMode,
-            context.GroupMap!,
-            context.AdditionalApexPlayers,
-            context.AdditionalApexPlacementMode,
-            context.EffectiveAdditionalApexCount,
-            context.BoundaryRescueMode,
-            context.ApexCount,
-            context.InnovCount,
-            context.Matches,
-            context.ReferenceMatches,
+            new ScheduledMatchesSimulationInput(
+                context.TournamentRuleSetMode,
+                context.Players,
+                context.Players,
+                context.Matches,
+                context.ReferenceMatches),
+            new FinalStageGroupingRequest(
+                context.GroupingMode,
+                context.GroupMap!,
+                context.ApexCount,
+                context.InnovCount),
+            new AdditionalApexPlacementRequest(
+                context.AdditionalApexPlayers,
+                context.AdditionalApexPlacementMode,
+                context.EffectiveAdditionalApexCount),
+            new BoundaryRescueRequest(context.BoundaryRescueMode),
+            null,
             ReadSimulationCountIfNeeded(context.Matches.Count, "本戦"),
             null);
         return true;
     }
 
-    static TournamentFrameworkSimulationRequest ReadTournamentFrameworkSimulationRequest()
+    static SimulationStepRequest ReadTournamentFrameworkSimulationStepRequest(RuleProfileAttributes ruleProfileAttributes)
     {
         var context = SimulationModeInputReaders.ReadTournamentFrameworkModeContext();
-        return new TournamentFrameworkSimulationRequest(
-            context.PlayersCsvPath,
-            context.StagesCsvPath,
-            context.TournamentMatchRecordsCsvPath,
-            context.RuleFilePath,
-            context.RandomSeed,
-            context.SimulationCount,
-            context.TournamentRuleSetMode,
+        return new SimulationStepRequest(
+            ruleProfileAttributes,
             context.FirstPlayerWinRatePercent,
+            null,
+            null,
+            null,
+            null,
+            new TournamentFrameworkSimulationInput(
+                context.PlayersCsvPath,
+                context.StagesCsvPath,
+                context.TournamentMatchRecordsCsvPath,
+                context.RuleFilePath,
+                context.RandomSeed,
+                context.TournamentRuleSetMode),
+            context.SimulationCount,
             context.OutputPath);
     }
 
-    static EmptySimulationRequest ReadEmptySimulationRequest()
+    static SimulationStepRequest ReadEmptySimulationStepRequest(RuleProfileAttributes ruleProfileAttributes)
     {
         var outputPath = ConsoleInputReaders.ReadOptionalFilePath("空ルール結果CSVの出力先パスまたはフォルダーパスを入力してください（省略可）: ");
-        return new EmptySimulationRequest(outputPath);
+        return new SimulationStepRequest(
+            ruleProfileAttributes,
+            51.0,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            outputPath);
     }
 
     static int? ReadSimulationCountIfNeeded(int matchCount, string modeLabel)

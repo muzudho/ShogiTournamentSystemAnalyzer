@@ -9,6 +9,8 @@ using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.Simu
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.SimulationMainline;
 using ShogiTournamentSystemAnalyzer.Application.RequestParsing;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
+using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
+using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 
 internal static class SimulationDomain
 {
@@ -19,42 +21,50 @@ internal static class SimulationDomain
 
     internal static bool TryExecute(AnalysisStepRequest step, out SimulationDomainResult? result)
     {
-        switch (step)
+        if (step is not SimulationStepRequest request)
         {
-            case StandardSimulationRequest standardSimulationRequest:
-                result = ExecuteStandardSimulation(standardSimulationRequest);
-                return true;
-
-            case FinalStageSimulationRequest finalStageSimulationRequest:
-                result = ExecuteFinalStageSimulation(finalStageSimulationRequest);
-                return true;
-
-            case TournamentFrameworkSimulationRequest tournamentFrameworkSimulationRequest:
-                ExecuteTournamentFrameworkSimulation(tournamentFrameworkSimulationRequest);
-                result = null;
-                return true;
-
-            case EmptySimulationRequest emptySimulationRequest:
-                ExecuteEmptySimulation(emptySimulationRequest);
-                result = null;
-                return true;
-
-            default:
-                result = null;
-                return false;
+            result = null;
+            return false;
         }
+
+        result = ExecuteSimulation(request);
+        return true;
     }
 
-    static SimulationDomainResult ExecuteStandardSimulation(StandardSimulationRequest request)
+    static SimulationDomainResult? ExecuteSimulation(SimulationStepRequest request)
     {
+        if (request.RuleProfileAttributes.IsTournamentFrameworkProfile)
+        {
+            ExecuteTournamentFrameworkSimulation(request);
+            return null;
+        }
+
+        if (request.RuleProfileAttributes.IsEmptyProfile)
+        {
+            SimulationEmptyMode.Run(request.OutputPath);
+            return null;
+        }
+
+        if (request.RuleProfileAttributes.UsesFinalStageGrouping)
+        {
+            return ExecuteFinalStageSimulation(request);
+        }
+
+        return ExecuteStandardSimulation(request);
+    }
+
+    static SimulationDomainResult ExecuteStandardSimulation(SimulationStepRequest request)
+    {
+        var input = request.ScheduledMatchesInput
+            ?? throw new OperationCanceledException("通常シミュレーションの対局入力がありません。");
         var firstPlayerWinRateRating = SimulationRatingMath.ConvertFirstPlayerWinRatePercentToRating(request.FirstPlayerWinRatePercent);
         var context = new StandardModeSimulationContext(
-            request.TournamentRuleSetMode,
+            input.TournamentRuleSetMode,
             request.FirstPlayerWinRatePercent,
             firstPlayerWinRateRating,
-            request.AllPlayers,
-            request.Players,
-            request.Matches);
+            input.AllPlayers,
+            input.Players,
+            input.Matches);
 
         var mainline = new StandardSimulationMainline();
         var mainlineResult = mainline.Run(context, request.SimulationCount);
@@ -66,24 +76,33 @@ internal static class SimulationDomain
         return CreateResult(mainlineResult);
     }
 
-    static SimulationDomainResult ExecuteFinalStageSimulation(FinalStageSimulationRequest request)
+    static SimulationDomainResult ExecuteFinalStageSimulation(SimulationStepRequest request)
     {
+        var input = request.ScheduledMatchesInput
+            ?? throw new OperationCanceledException("本戦シミュレーションの対局入力がありません。");
+        var grouping = request.FinalStageGrouping
+            ?? throw new OperationCanceledException("本戦シミュレーションのグループ入力がありません。");
+        var additionalApexPlacement = request.AdditionalApexPlacement
+            ?? new AdditionalApexPlacementRequest(Array.Empty<Player>(), AdditionalApexPlacementMode.Off, 0);
+        var boundaryRescue = request.BoundaryRescue
+            ?? new BoundaryRescueRequest(BoundaryRescueMode.Off);
+
         var firstPlayerWinRateRating = SimulationRatingMath.ConvertFirstPlayerWinRatePercentToRating(request.FirstPlayerWinRatePercent);
         var context = new FinalStageModeSimulationContext(
-            request.TournamentRuleSetMode,
+            input.TournamentRuleSetMode,
             request.FirstPlayerWinRatePercent,
             firstPlayerWinRateRating,
-            request.Players,
-            request.GroupingMode,
-            request.GroupMap,
-            request.AdditionalApexPlayers,
-            request.AdditionalApexPlacementMode,
-            request.EffectiveAdditionalApexCount,
-            request.BoundaryRescueMode,
-            request.ApexCount,
-            request.InnovCount,
-            request.Matches,
-            request.ReferenceMatches);
+            input.Players,
+            grouping.GroupingMode,
+            grouping.GroupMap,
+            additionalApexPlacement.AdditionalApexPlayers,
+            additionalApexPlacement.AdditionalApexPlacementMode,
+            additionalApexPlacement.EffectiveAdditionalApexCount,
+            boundaryRescue.BoundaryRescueMode,
+            grouping.ApexCount,
+            grouping.InnovCount,
+            input.Matches,
+            input.ReferenceMatches);
 
         var mainline = new FinalStageSimulationMainline();
         var mainlineResult = mainline.Run(context, request.SimulationCount);
@@ -98,27 +117,24 @@ internal static class SimulationDomain
         return CreateResult(mainlineResult);
     }
 
-    static void ExecuteTournamentFrameworkSimulation(TournamentFrameworkSimulationRequest request)
+    static void ExecuteTournamentFrameworkSimulation(SimulationStepRequest request)
     {
+        var input = request.TournamentFrameworkInput
+            ?? throw new OperationCanceledException("大会進行フレームワークの入力がありません。");
         var firstPlayerWinRateRating = SimulationRatingMath.ConvertFirstPlayerWinRatePercentToRating(request.FirstPlayerWinRatePercent);
         var context = new TournamentFrameworkModeContext(
-            request.PlayersCsvPath,
-            request.StagesCsvPath,
-            request.TournamentMatchRecordsCsvPath,
-            request.RuleFilePath,
-            request.RandomSeed,
+            input.PlayersCsvPath,
+            input.StagesCsvPath,
+            input.TournamentMatchRecordsCsvPath,
+            input.RuleFilePath,
+            input.RandomSeed,
             request.SimulationCount,
-            request.TournamentRuleSetMode,
+            input.TournamentRuleSetMode,
             request.FirstPlayerWinRatePercent,
             firstPlayerWinRateRating,
             request.OutputPath);
 
         SimulationTournamentFrameworkMode.Run(context);
-    }
-
-    static void ExecuteEmptySimulation(EmptySimulationRequest request)
-    {
-        SimulationEmptyMode.Run(request.OutputPath);
     }
 
     static SimulationDomainResult CreateResult(SimulationMainlineResult mainlineResult)

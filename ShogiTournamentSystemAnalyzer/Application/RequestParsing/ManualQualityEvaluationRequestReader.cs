@@ -25,9 +25,12 @@ internal static partial class ManualAnalysisRequestReader
             ? TournamentQualityEvaluationOutputCoordinator.ReadTournamentQualitySweepReportOutputOptions(ruleDefinition)
             : TournamentQualityEvaluationOutputCoordinator.ReadTournamentQualityReportOutputOptions(ruleDefinition);
 
-        stepRequest = !ruleProfileAttributes.UsesFinalStageGrouping
-            ? new StandardQualityEvaluationRequest(ruleDefinition, input, executionOptions, outputOptions)
-            : new FinalStageQualityEvaluationRequest(ruleDefinition, input, executionOptions, outputOptions);
+        stepRequest = new QualityEvaluationStepRequest(
+            ruleProfileAttributes,
+            ruleDefinition,
+            input,
+            executionOptions,
+            outputOptions);
         return true;
     }
 }
