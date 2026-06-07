@@ -67,22 +67,8 @@ internal static class StsaInputRequestParser
             fullPath,
             AttributeFormatName);
 
-        var attributes = new RuleProfileAttributes(
-            ParseRuleProfileSimulationShape(GetRequiredMetaValue(values, "SimulationShape", fullPath, AttributeFormatName), AttributeFormatName),
-            ParseOnOffBool(GetRequiredMetaValue(values, "UsesFinalStageGrouping", fullPath, AttributeFormatName), "UsesFinalStageGrouping", AttributeFormatName),
-            ParseOnOffBool(GetRequiredMetaValue(values, "UsesAdditionalApexPlacement", fullPath, AttributeFormatName), "UsesAdditionalApexPlacement", AttributeFormatName),
-            ParseOnOffBool(GetRequiredMetaValue(values, "UsesBoundaryRescue", fullPath, AttributeFormatName), "UsesBoundaryRescue", AttributeFormatName),
-            ParseOnOffBool(GetRequiredMetaValue(values, "UsesVariableTop8", fullPath, AttributeFormatName), "UsesVariableTop8", AttributeFormatName),
-            ParseTournamentRuleSetModeValue(GetRequiredMetaValue(values, "RankingRuleSetMode", fullPath, AttributeFormatName), AttributeFormatName),
-            ParseOnOffBool(GetRequiredMetaValue(values, "HasReferenceMatches", fullPath, AttributeFormatName), "HasReferenceMatches", AttributeFormatName),
-            ParseRuleProfilePairingSource(GetRequiredMetaValue(values, "PairingSource", fullPath, AttributeFormatName), AttributeFormatName));
+        return RuleProfileAttributesTextParser.Parse(values, fullPath, sectionName);
 
-        if (!attributes.TryValidate(out var errorMessage))
-        {
-            throw new OperationCanceledException($"{AttributeFormatName} の {sectionName} セクションの属性の組み合わせが不正です: {errorMessage} ({fullPath})");
-        }
-
-        return attributes;
     }
 
     static bool TryParseMultiStepRequest(

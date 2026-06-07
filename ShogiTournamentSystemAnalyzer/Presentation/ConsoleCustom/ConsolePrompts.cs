@@ -4,6 +4,7 @@
 namespace ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 
 using ShogiTournamentSystemAnalyzer.Application;
+using ShogiTournamentSystemAnalyzer.Application.RequestParsing;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 using System;
@@ -91,7 +92,45 @@ internal static class ConsolePromptReaders
             SimulationTimeBudget.ThrowIfApplicationTimeExpired("対象ルールプロファイル選択");
             attempt++;
             Console.WriteLine($"{flowLabel} のルールプロファイル属性を入力してください。");
+            Console.WriteLine("1. 属性を一つずつ入力する");
+            Console.WriteLine("2. RuleProfileAttributes を直接入力する");
+            Console.WriteLine("3. ルールプロファイルファイルから読む\n");
 
+            var inputMode = ReadNumberSelection(
+                "ルールプロファイル属性入力方法",
+                defaultNumber: "1",
+                "1", RuleProfileAttributesInputMode.Prompt,
+                "2", RuleProfileAttributesInputMode.Text,
+                "3", RuleProfileAttributesInputMode.File);
+
+            var attributes = inputMode switch
+            {
+                RuleProfileAttributesInputMode.Prompt => ReadRuleProfileAttributesFromPrompts(),
+                RuleProfileAttributesInputMode.Text => ReadRuleProfileAttributesFromText(flowLabel),
+                RuleProfileAttributesInputMode.File => ReadRuleProfileAttributesFromFile(),
+                _ => throw new InvalidOperationException($"未対応のルールプロファイル属性入力方法です: {inputMode}"),
+            };
+
+            if (!TryValidateRuleProfileAttributesForFlow(flowSelection, attributes, out var errorMessage))
+            {
+                if (attempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("対象ルールプロファイル属性", errorMessage);
+
+                Console.WriteLine(errorMessage);
+                Console.WriteLine("もう一度入力してください。\n");
+                continue;
+            }
+
+            Console.WriteLine();
+            return attributes;
+        }
+    }
+
+    static RuleProfileAttributes ReadRuleProfileAttributesFromPrompts()
+    {
+        var attempt = 0;
+        while (true)
+        {
+            attempt++;
             var simulationShape = ReadRuleProfileSimulationShape();
             var defaultUsesFinalStageGrouping = simulationShape == RuleProfileSimulationShape.FinalStageGrouped;
             var usesFinalStageGrouping = ReadOnOffBool(
@@ -127,31 +166,112 @@ internal static class ConsolePromptReaders
                 hasReferenceMatches,
                 pairingSource);
 
-            if (!attributes.TryValidate(out var errorMessage))
-            {
-                if (attempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("対象ルールプロファイル属性", errorMessage);
+            if (attributes.TryValidate(out var errorMessage)) return attributes;
 
-                Console.WriteLine($"ルールプロファイル属性の組み合わせが不正です: {errorMessage}");
-                Console.WriteLine("もう一度入力してください。\n");
-                continue;
-            }
+            if (attempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("対象ルールプロファイル属性", errorMessage);
 
-            if (flowSelection.RunsQualityEvaluation
-                && attributes.PairingSource != RuleProfilePairingSource.ScheduledMatches)
-            {
-                const string qualityEvaluationError = "品質評価では PairingSource=ScheduledMatches を指定してください。";
-                if (attempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("対象ルールプロファイル属性", qualityEvaluationError);
-
-                Console.WriteLine(qualityEvaluationError);
-                Console.WriteLine("もう一度入力してください。\n");
-                continue;
-            }
-
-            Console.WriteLine();
-            return attributes;
+            Console.WriteLine($"ルールプロファイル属性の組み合わせが不正です: {errorMessage}");
+            Console.WriteLine("もう一度入力してください。\n");
         }
     }
 
+    static RuleProfileAttributes ReadRuleProfileAttributesFromText(string flowLabel)
+    {
+        var attempt = 0;
+        while (true)
+        {
+            SimulationTimeBudget.ThrowIfApplicationTimeExpired("ルールプロファイル属性直接入力");
+            attempt++;
+            Console.WriteLine($"{flowLabel} の RuleProfileAttributes を key=value で貼り付けてください。入力終了は空行です。\n");
+            PrintRuleProfileAttributesTextExample();
+
+            var lines = new List<string>();
+            while (true)
+            {
+                var line = InputFromSomewhere.ReadLine();
+                if (line is null) throw new OperationCanceledException("ルールプロファイル属性入力中に入力ストリームが終了しました。");
+                if (string.IsNullOrWhiteSpace(line)) break;
+
+                lines.Add(line);
+            }
+
+            if (RuleProfileAttributesTextParser.TryParse(lines, "(手入力 RuleProfileAttributes)", out var attributes, out var errorMessage)) return attributes;
+
+            if (attempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("ルールプロファイル属性直接入力", errorMessage);
+
+            Console.WriteLine($"ルールプロファイル属性の読み取りに失敗しました: {errorMessage}");
+            Console.WriteLine("もう一度入力してください。\n");
+        }
+    }
+
+    static RuleProfileAttributes ReadRuleProfileAttributesFromFile()
+    {
+        var attempt = 0;
+        while (true)
+        {
+            SimulationTimeBudget.ThrowIfApplicationTimeExpired("ルールプロファイルファイル入力");
+            attempt++;
+            var path = ConsoleInputReaders.ReadRequiredFilePath("ルールプロファイルファイルのパスを入力してください: ");
+            var fullPath = Path.GetFullPath(path);
+
+            try
+            {
+                var lines = File.ReadAllLines(fullPath);
+                if (RuleProfileAttributesTextParser.TryParse(lines, fullPath, out var attributes, out var errorMessage)) return attributes;
+
+                if (attempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("ルールプロファイルファイル入力", errorMessage);
+                Console.WriteLine($"ルールプロファイルファイルの読み取りに失敗しました: {errorMessage}");
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or NotSupportedException or ArgumentException)
+            {
+                if (attempt >= InputRetryLimit) ThrowInputRetryLimitExceeded("ルールプロファイルファイル入力", ex.Message);
+                Console.WriteLine($"ルールプロファイルファイルを読めません: {ex.Message}");
+            }
+
+            Console.WriteLine("もう一度入力してください。\n");
+        }
+    }
+
+    static bool TryValidateRuleProfileAttributesForFlow(
+        AnalysisFlowSelection flowSelection,
+        RuleProfileAttributes attributes,
+        out string errorMessage)
+    {
+        if (!attributes.TryValidate(out errorMessage))
+        {
+            errorMessage = $"ルールプロファイル属性の組み合わせが不正です: {errorMessage}";
+            return false;
+        }
+
+        if (flowSelection.RunsQualityEvaluation
+            && attributes.PairingSource != RuleProfilePairingSource.ScheduledMatches)
+        {
+            errorMessage = "品質評価では PairingSource=ScheduledMatches を指定してください。";
+            return false;
+        }
+
+        errorMessage = string.Empty;
+        return true;
+    }
+
+    static void PrintRuleProfileAttributesTextExample()
+    {
+        Console.WriteLine("SimulationShape=ScheduledMatches");
+        Console.WriteLine("UsesFinalStageGrouping=Off");
+        Console.WriteLine("UsesAdditionalApexPlacement=Off");
+        Console.WriteLine("UsesBoundaryRescue=Off");
+        Console.WriteLine("UsesVariableTop8=Off");
+        Console.WriteLine("RankingRuleSetMode=Neutral");
+        Console.WriteLine("HasReferenceMatches=Off");
+        Console.WriteLine("PairingSource=ScheduledMatches\n");
+    }
+
+    enum RuleProfileAttributesInputMode
+    {
+        Prompt,
+        Text,
+        File,
+    }
     static RuleProfileSimulationShape ReadRuleProfileSimulationShape()
     {
         Console.WriteLine("SimulationShape を選んでください。");
