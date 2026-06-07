@@ -1,7 +1,7 @@
 /*
- * ［アプリケーション　＞　要求ファイルチェック　＞　STSA入力レガシー変換］
+ * ［互換性　＞　レガシー要求ファイル　＞　STSA入力レガシー変換］
  */
-namespace ShogiTournamentSystemAnalyzer.Application.RequestFileCheck;
+namespace ShogiTournamentSystemAnalyzer.Compatibility.LegacyRequestFile;
 
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;

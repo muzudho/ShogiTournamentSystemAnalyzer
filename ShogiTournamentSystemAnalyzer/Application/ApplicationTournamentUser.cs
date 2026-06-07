@@ -4,6 +4,7 @@ using ShogiTournamentSystemAnalyzer.Application.BeforeRequestFileCheck;
 using ShogiTournamentSystemAnalyzer.Application.RequestFileCheck;
 using ShogiTournamentSystemAnalyzer.Application.RequestFileWrite;
 using ShogiTournamentSystemAnalyzer.Application.RequestParsing;
+using ShogiTournamentSystemAnalyzer.Compatibility;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 
@@ -162,14 +163,7 @@ internal static class ApplicationTournamentUser
 
         try
         {
-            requestText = checkedRequestText.FormatName switch
-            {
-                "STSAInput/5" => throw new OperationCanceledException("STSAInput/5 は直通 parser 専用です。RuleProfileAttributes と実行ステップの組み合わせを確認してください。"),
-                "STSAInput/4" => StsaInputLegacyConverter.ConvertStsaInput4ToLegacyInput(checkedRequestText.Lines, checkedRequestText.SourcePath ?? "(要求テキスト)"),
-                "STSAInput/3" => StsaInputLegacyConverter.ConvertStsaInput3ToLegacyInput(checkedRequestText.Lines, checkedRequestText.SourcePath ?? "(要求テキスト)"),
-                "STSAInput/2" => StsaInputLegacyConverter.ConvertStsaInput2ToLegacyInput(checkedRequestText.Lines, checkedRequestText.SourcePath ?? "(要求テキスト)"),
-                _ => LegacyInputFileFilter.ConvertToFilteredInput(checkedRequestText.Lines),
-            };
+            requestText = RequestFileCompatibilityFacade.ConvertToLegacyInputText(checkedRequestText);
             return true;
         }
         catch (OperationCanceledException ex)

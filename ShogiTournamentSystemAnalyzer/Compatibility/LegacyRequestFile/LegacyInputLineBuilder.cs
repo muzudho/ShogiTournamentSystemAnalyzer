@@ -1,7 +1,7 @@
 /*
- * ［アプリケーション　＞　入力　＞　レガシー入力列ビルダー］
+ * ［互換性　＞　レガシー要求ファイル　＞　レガシー入力列ビルダー］
  */
-namespace ShogiTournamentSystemAnalyzer.Application.RequestFileCheck;
+namespace ShogiTournamentSystemAnalyzer.Compatibility.LegacyRequestFile;
 
 internal static class LegacyInputLineBuilder
 {

@@ -1,10 +1,10 @@
 /*
- * ［アプリケーション　＞　要求ファイルチェック　＞　STSAシミュレーションレガシー変換］
+ * ［互換性　＞　レガシー要求ファイル　＞　STSAシミュレーションレガシー変換］
  */
-namespace ShogiTournamentSystemAnalyzer.Application.RequestFileCheck;
+namespace ShogiTournamentSystemAnalyzer.Compatibility.LegacyRequestFile;
 
 using ShogiTournamentSystemAnalyzer.Infrastructure.Parsing;
-using static ShogiTournamentSystemAnalyzer.Application.RequestFileCheck.LegacyInputLineBuilder;
+using static ShogiTournamentSystemAnalyzer.Compatibility.LegacyRequestFile.LegacyInputLineBuilder;
 using static ShogiTournamentSystemAnalyzer.Application.RequestFileCheck.StsaInputSectionParser;
 using static ShogiTournamentSystemAnalyzer.Application.RequestFileCheck.StsaInputValueParser;
 
