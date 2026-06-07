@@ -30,7 +30,7 @@ internal static class ApplicationWorkflow
         //└───┬──┘
         if (!ApplicationTournamentUser.TryRunTournamentUserDomain(args, out var tournamentUserDomainResult)) return;  // エラー終了
 
-        // ［要求ファイル］から読んだ STSAInput/4 または STSAInput/5 直通要求は、要求側の Steps リスト構造で実行する。
+        // ［要求ファイル］から読んだ STSAInput/4 または STSAInput/5 直通要求は、要求側の StepRequests リスト構造で実行する。
         if (tournamentUserDomainResult.AnalysisRequest is not null)
         {
             ProgramConsoleGuide.PrintSelectedMainline(tournamentUserDomainResult);
@@ -122,7 +122,7 @@ internal static class ApplicationWorkflow
             }
 
             manualExecutionState.Context.SetSimulationResult(stepRequest, simulationResult);
-            manualExecutionState.AddStep(stepRequest);
+            manualExecutionState.AddStepRequest(stepRequest);
             return;
         }
 
@@ -174,7 +174,7 @@ internal static class ApplicationWorkflow
                 throw new InvalidOperationException("未対応の大会品質評価域です。");
             }
 
-            manualExecutionState.AddStep(stepRequest);
+            manualExecutionState.AddStepRequest(stepRequest);
             return;
         }
 
@@ -190,7 +190,7 @@ internal static class ApplicationWorkflow
     {
         if (manualExecutionState is null) return;
 
-        if (manualExecutionState.Steps.Count == 0)
+        if (manualExecutionState.StepRequests.Count == 0)
         {
             Console.WriteLine("実行する分析は選ばれませんでした。\n");
             return;
@@ -199,8 +199,8 @@ internal static class ApplicationWorkflow
         if (string.IsNullOrWhiteSpace(manualExecutionState.RequestFilePath)) return;
 
         var request = new AnalysisRequest(
-            new AnalysisFlowSelection(manualExecutionState.Steps.Select(GetAnalysisFlowMode).ToArray()),
-            manualExecutionState.Steps.ToArray());
+            new AnalysisFlowSelection(manualExecutionState.StepRequests.Select(GetAnalysisFlowMode).ToArray()),
+            manualExecutionState.StepRequests.ToArray());
 
         Console.WriteLine($"要求ファイルを書き出します: {manualExecutionState.RequestFilePath}\n");
         StsaFileIOHelper.Write(
@@ -209,9 +209,9 @@ internal static class ApplicationWorkflow
             lines: StsaInputRequestWriter.BuildAttributeLines(request));
     }
 
-    static AnalysisFlowMode GetAnalysisFlowMode(AnalysisStepRequest step)
+    static AnalysisFlowMode GetAnalysisFlowMode(AnalysisStepRequest stepRequest)
     {
-        return step switch
+        return stepRequest switch
         {
             StandardSimulationRequest => AnalysisFlowMode.Simulation,
             FinalStageSimulationRequest => AnalysisFlowMode.Simulation,
@@ -221,13 +221,13 @@ internal static class ApplicationWorkflow
             DeferredStandardQualityEvaluationRequest => AnalysisFlowMode.QualityEvaluation,
             FinalStageQualityEvaluationRequest => AnalysisFlowMode.QualityEvaluation,
             DeferredFinalStageQualityEvaluationRequest => AnalysisFlowMode.QualityEvaluation,
-            _ => throw new InvalidOperationException($"未対応の分析要求です: {step.GetType().Name}"),
+            _ => throw new InvalidOperationException($"未対応の分析要求です: {stepRequest.GetType().Name}"),
         };
     }
 
     sealed class ManualAnalysisExecutionState
     {
-        readonly List<AnalysisStepRequest> _steps = new();
+        readonly List<AnalysisStepRequest> _stepRequests = new();
 
         internal ManualAnalysisExecutionState(string? requestFilePath)
         {
@@ -238,11 +238,11 @@ internal static class ApplicationWorkflow
 
         internal AnalysisExecutionContext Context { get; } = new();
 
-        internal IReadOnlyList<AnalysisStepRequest> Steps => _steps;
+        internal IReadOnlyList<AnalysisStepRequest> StepRequests => _stepRequests;
 
-        internal void AddStep(AnalysisStepRequest step)
+        internal void AddStepRequest(AnalysisStepRequest stepRequest)
         {
-            _steps.Add(step);
+            _stepRequests.Add(stepRequest);
         }
     }
 }

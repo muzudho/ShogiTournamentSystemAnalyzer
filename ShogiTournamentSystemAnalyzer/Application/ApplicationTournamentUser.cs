@@ -69,7 +69,7 @@ internal static class ApplicationTournamentUser
                 requestText = null;
                 analysisRequest = parsedAnalysisRequest;
                 analysisFlowSelection = parsedAnalysisRequest.FlowSelection;
-                ruleProfileAttributes = parsedAnalysisRequest.Steps[0].GetRuleProfileAttributes();
+                ruleProfileAttributes = parsedAnalysisRequest.StepRequests[0].GetRuleProfileAttributes();
             }
             else
             {

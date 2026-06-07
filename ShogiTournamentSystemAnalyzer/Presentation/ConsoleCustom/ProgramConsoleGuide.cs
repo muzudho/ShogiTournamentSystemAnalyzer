@@ -46,8 +46,8 @@ internal static class ProgramConsoleGuide
     static RuleProfileAttributes GetSelectedRuleProfileAttributes(TournamentUserDomainResult result)
     {
         if (result.AnalysisRequest is null) return result.RuleProfileAttributes ?? throw new InvalidOperationException("ルールプロファイル属性が選択されていません。");
-        if (result.AnalysisRequest.Steps.Count == 0) throw new InvalidOperationException("分析要求にステップがありません。");
+        if (result.AnalysisRequest.StepRequests.Count == 0) throw new InvalidOperationException("分析要求にステップ要求がありません。");
 
-        return result.AnalysisRequest.Steps[0].GetRuleProfileAttributes();
+        return result.AnalysisRequest.StepRequests[0].GetRuleProfileAttributes();
     }
 }

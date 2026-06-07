@@ -8,9 +8,9 @@ using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 
 internal static class AnalysisStepRuleProfileAttributes
 {
-    internal static RuleProfileAttributes GetRuleProfileAttributes(this AnalysisStepRequest step)
+    internal static RuleProfileAttributes GetRuleProfileAttributes(this AnalysisStepRequest stepRequest)
     {
-        return step switch
+        return stepRequest switch
         {
             StandardSimulationRequest request => RuleProfileAttributes.CreateStandardScheduled(request.TournamentRuleSetMode),
             FinalStageSimulationRequest request => CreateFinalStageAttributes(
@@ -30,7 +30,7 @@ internal static class AnalysisStepRuleProfileAttributes
                 BoundaryRescueMode.On,
                 request.VariableTop8Mode == VariableTop8Mode.On,
                 HasReferenceMatches: true),
-            _ => throw new InvalidOperationException($"未対応の分析要求です: {step.GetType().Name}"),
+            _ => throw new InvalidOperationException($"未対応の分析要求です: {stepRequest.GetType().Name}"),
         };
     }
 

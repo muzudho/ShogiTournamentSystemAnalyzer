@@ -11,23 +11,23 @@ internal static class AnalysisRequestDispatcher
     {
         var context = new AnalysisExecutionContext();
 
-        // 要求ファイルから読んだ実行希望は、Steps のリスト構造として順に扱う。
-        foreach (var requestedStep in request.Steps)
+        // 要求ファイルから読んだ具体要求は、StepRequests のリスト構造として順に扱う。
+        foreach (var requestedStep in request.StepRequests)
         {
             ExecuteSingle(requestedStep, context);
         }
     }
 
-    static void ExecuteSingle(AnalysisStepRequest step, AnalysisExecutionContext context)
+    static void ExecuteSingle(AnalysisStepRequest stepRequest, AnalysisExecutionContext context)
     {
-        if (SimulationRequestDispatcher.TryExecute(step, out var simulationResult))
+        if (SimulationRequestDispatcher.TryExecute(stepRequest, out var simulationResult))
         {
-            context.SetSimulationResult(step, simulationResult);
+            context.SetSimulationResult(stepRequest, simulationResult);
             return;
         }
 
-        if (QualityEvaluationRequestDispatcher.TryExecute(step, context)) return;
+        if (QualityEvaluationRequestDispatcher.TryExecute(stepRequest, context)) return;
 
-        throw new InvalidOperationException($"未対応の分析要求です: {step.GetType().Name}");
+        throw new InvalidOperationException($"未対応の分析要求です: {stepRequest.GetType().Name}");
     }
 }

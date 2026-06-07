@@ -24,7 +24,7 @@ internal static class StsaInputRequestWriter
 
     static IReadOnlyList<string> BuildLines(AnalysisRequest request, bool useAttributeFormat)
     {
-        return request.Steps.Count == 1
+        return request.StepRequests.Count == 1
             ? BuildSingleStepLines(request, useAttributeFormat)
             : BuildMultiStepLines(request, useAttributeFormat);
     }
@@ -41,18 +41,18 @@ internal static class StsaInputRequestWriter
 
         if (!useAttributeFormat)
         {
-            lines.Add($"RuleProfileMode={request.Steps[0].GetRuleProfileAttributes().ToCompatibilityLabel()}");
+            lines.Add($"RuleProfileMode={request.StepRequests[0].GetRuleProfileAttributes().ToCompatibilityLabel()}");
         }
 
-        AddMetaLines(lines, request.Steps[0]);
+        AddMetaLines(lines, request.StepRequests[0]);
         lines.Add("#[EndSection]");
 
         if (useAttributeFormat)
         {
-            AddRuleProfileAttributesSection(lines, "RuleProfileAttributes", request.Steps[0].GetRuleProfileAttributes());
+            AddRuleProfileAttributesSection(lines, "RuleProfileAttributes", request.StepRequests[0].GetRuleProfileAttributes());
         }
 
-        AddBodySections(lines, request.Steps[0]);
+        AddBodySections(lines, request.StepRequests[0]);
         return lines;
     }
 
@@ -67,29 +67,29 @@ internal static class StsaInputRequestWriter
             "#[EndSection]",
         };
 
-        foreach (var step in request.Steps)
+        foreach (var stepRequest in request.StepRequests)
         {
-            var stepName = GetStepName(step);
+            var stepName = GetStepName(stepRequest);
             lines.Add(string.Empty);
             lines.Add($"#[Section] Step.{stepName}");
             if (!useAttributeFormat)
             {
-                lines.Add($"RuleProfileMode={step.GetRuleProfileAttributes().ToCompatibilityLabel()}");
+                lines.Add($"RuleProfileMode={stepRequest.GetRuleProfileAttributes().ToCompatibilityLabel()}");
             }
 
-            AddMetaLines(lines, step);
+            AddMetaLines(lines, stepRequest);
             lines.Add("#[EndSection]");
 
             if (useAttributeFormat)
             {
-                AddRuleProfileAttributesSection(lines, $"Step.{stepName}.RuleProfileAttributes", step.GetRuleProfileAttributes());
+                AddRuleProfileAttributesSection(lines, $"Step.{stepName}.RuleProfileAttributes", stepRequest.GetRuleProfileAttributes());
             }
         }
 
-        foreach (var step in request.Steps)
+        foreach (var stepRequest in request.StepRequests)
         {
-            var stepName = GetStepName(step);
-            AddBodySections(lines, step, $"{stepName}.", $"{stepName}.Output");
+            var stepName = GetStepName(stepRequest);
+            AddBodySections(lines, stepRequest, $"{stepName}.", $"{stepName}.Output");
         }
 
         return lines;
@@ -113,9 +113,9 @@ internal static class StsaInputRequestWriter
         lines.Add("#[EndSection]");
     }
 
-    static void AddMetaLines(List<string> lines, AnalysisStepRequest step)
+    static void AddMetaLines(List<string> lines, AnalysisStepRequest stepRequest)
     {
-        switch (step)
+        switch (stepRequest)
         {
             case StandardSimulationRequest request:
                 lines.Add($"TournamentRuleSetMode={request.TournamentRuleSetMode}");
@@ -157,7 +157,7 @@ internal static class StsaInputRequestWriter
                 break;
 
             default:
-                throw new InvalidOperationException($"未対応の分析要求です: {step.GetType().Name}");
+                throw new InvalidOperationException($"未対応の分析要求です: {stepRequest.GetType().Name}");
         }
     }
 
@@ -419,9 +419,9 @@ internal static class StsaInputRequestWriter
     }
 
 
-    static string GetStepName(AnalysisStepRequest step)
+    static string GetStepName(AnalysisStepRequest stepRequest)
     {
-        return step switch
+        return stepRequest switch
         {
             StandardSimulationRequest => "Simulation",
             FinalStageSimulationRequest => "Simulation",
@@ -431,7 +431,7 @@ internal static class StsaInputRequestWriter
             DeferredStandardQualityEvaluationRequest => "QualityEvaluation",
             FinalStageQualityEvaluationRequest => "QualityEvaluation",
             DeferredFinalStageQualityEvaluationRequest => "QualityEvaluation",
-            _ => throw new InvalidOperationException($"未対応の分析要求です: {step.GetType().Name}"),
+            _ => throw new InvalidOperationException($"未対応の分析要求です: {stepRequest.GetType().Name}"),
         };
     }
 
