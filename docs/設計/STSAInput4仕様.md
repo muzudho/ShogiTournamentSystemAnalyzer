@@ -54,22 +54,22 @@ AnalysisFlowSteps=Simulation,QualityEvaluation
 #[EndSection]
 ```
 
-ステップ固有の設定は、パスカルケースのドットシンタックスで表します。
+ステップ固有の設定は、ステップ名に `Step` 接尾辞を付けたセクションで表します。旧 `Step.*` 形式は互換入力として読み取れます。
 
-- `Step.Simulation`
-- `Step.QualityEvaluation`
+- `SimulationStep`
+- `QualityEvaluationStep`
 
 例:
 
 ```plaintext
-#[Section] Step.Simulation
+#[Section] SimulationStep
 RuleProfileMode=Standard
 TournamentRuleSetMode=Neutral
 FirstPlayerWinRatePercent=51
 SimulationCount=200000
 #[EndSection]
 
-#[Section] Step.QualityEvaluation
+#[Section] QualityEvaluationStep
 RuleProfileMode=Standard
 ExecutionMode=Single
 TournamentRuleSetMode=Neutral
@@ -80,7 +80,7 @@ TournamentQualityEvaluationReportGrouping=Off
 #[EndSection]
 ```
 
-`AnalysisFlowSteps` に含まれるステップの `Step.*` セクションは必須です。複数ステップ時は、`Meta` に `RuleProfileMode` や `ExecutionMode` などのステップ固有キーを書かず、各 `Step.*` セクションに書きます。
+`AnalysisFlowSteps` に含まれるステップの `*Step` セクションは必須です。複数ステップ時は、`Meta` に `RuleProfileMode` や `ExecutionMode` などのステップ固有キーを書かず、各 `*Step` セクションに書きます。
 
 入力データは、複数ステップで同じものを使う場合は共有セクションに書けます。
 
@@ -99,26 +99,26 @@ Alice,Bob
 
 ステップごとに入力データを分ける場合は、ステップ名付きセクションを使います。
 
-- `Simulation.PlayersCsv`
-- `Simulation.MatchesInput`
-- `QualityEvaluation.PlayersCsv`
-- `QualityEvaluation.MatchesInput`
+- `SimulationStep.PlayersCsv`
+- `SimulationStep.MatchesInput`
+- `QualityEvaluationStep.PlayersCsv`
+- `QualityEvaluationStep.MatchesInput`
 
 読み取り時は、ステップ名付きセクションを優先し、なければ共有セクションを使います。
 
 ```plaintext
-Simulation.PlayersCsv -> PlayersCsv
-Simulation.MatchesInput -> MatchesInput
-QualityEvaluation.PlayersCsv -> PlayersCsv
-QualityEvaluation.MatchesInput -> MatchesInput
+SimulationStep.PlayersCsv -> PlayersCsv
+SimulationStep.MatchesInput -> MatchesInput
+QualityEvaluationStep.PlayersCsv -> PlayersCsv
+QualityEvaluationStep.MatchesInput -> MatchesInput
 ```
 
 品質評価ステップの入力セクションを丸ごと省略した場合は、直前のシミュレーション request から品質評価入力を組み立てます。この省略は `Simulation,QualityEvaluation` の直列実行用で、標準品質評価は直前が `Standard` シミュレーション、本戦品質評価は直前が `FinalStage` シミュレーションの場合だけ対応します。入力セクションを一部だけ書いた場合は、省略扱いにせず通常の必須セクションとして検証します。
 
 出力は衝突を避けるため、複数ステップ時はステップ名付きセクションを使います。
 
-- `Simulation.Output`
-- `QualityEvaluation.Output`
+- `SimulationStep.Output`
+- `QualityEvaluationStep.Output`
 
 複数ステップ時に共有の `Output` だけが指定された場合は、どのステップの出力か曖昧になるためエラーとします。
 
@@ -131,14 +131,14 @@ QualityEvaluation.MatchesInput -> MatchesInput
 AnalysisFlowSteps=Simulation,QualityEvaluation
 #[EndSection]
 
-#[Section] Step.Simulation
+#[Section] SimulationStep
 RuleProfileMode=Standard
 TournamentRuleSetMode=Neutral
 FirstPlayerWinRatePercent=51
 SimulationCount=200000
 #[EndSection]
 
-#[Section] Step.QualityEvaluation
+#[Section] QualityEvaluationStep
 RuleProfileMode=Standard
 ExecutionMode=Single
 TournamentRuleSetMode=Neutral
@@ -159,11 +159,11 @@ first,second
 Alice,Bob
 #[EndSection]
 
-#[Section] Simulation.Output
+#[Section] SimulationStep.Output
 SummaryOutputPath=Output\FinalRanking\sample_simulation_summary.csv
 #[EndSection]
 
-#[Section] QualityEvaluation.Output
+#[Section] QualityEvaluationStep.Output
 SummaryOutputPath=Output\TournamentQualityEvaluator\TournamentQualityReport\Summary\sample_quality_summary.csv
 #[EndSection]
 ```

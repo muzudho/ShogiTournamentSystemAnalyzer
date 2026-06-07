@@ -61,8 +61,19 @@ internal static class StsaInputRequestParser
         string sectionName,
         string fullPath)
     {
+        return ParseRuleProfileAttributesSection(sections, sectionName, null, fullPath);
+    }
+
+    static RuleProfileAttributes ParseRuleProfileAttributesSection(
+        Dictionary<string, List<string>> sections,
+        string sectionName,
+        string? legacySectionName,
+        string fullPath)
+    {
         var values = ParseSectionKeyValues(
-            GetRequiredSectionLines(sections, sectionName, fullPath, AttributeFormatName),
+            legacySectionName is null
+                ? GetRequiredSectionLines(sections, sectionName, fullPath, AttributeFormatName)
+                : GetCompatibleRequiredSectionLines(sections, sectionName, legacySectionName, fullPath, AttributeFormatName),
             sectionName,
             fullPath,
             AttributeFormatName);
@@ -86,16 +97,21 @@ internal static class StsaInputRequestParser
         foreach (var step in flowSelection.Steps)
         {
             var stepName = FormatStepName(step);
-            var stepSectionName = $"Step.{stepName}";
+            var stepSectionName = FormatStepSectionName(step);
+            var legacyStepSectionName = $"Step.{stepName}";
             var stepMeta = ParseSectionKeyValues(
-                GetRequiredSectionLines(sections, stepSectionName, fullPath, inputFormatName),
+                GetCompatibleRequiredSectionLines(sections, stepSectionName, legacyStepSectionName, fullPath, inputFormatName),
                 stepSectionName,
                 fullPath,
                 inputFormatName);
             var ruleProfileAttributes = isAttributeFormat
-                ? ParseRuleProfileAttributesSection(sections, $"Step.{stepName}.RuleProfileAttributes", fullPath)
+                ? ParseRuleProfileAttributesSection(
+                    sections,
+                    $"{stepSectionName}.RuleProfileAttributes",
+                    $"{legacyStepSectionName}.RuleProfileAttributes",
+                    fullPath)
                 : LegacyRuleProfileMapper.ParseAttributesFromLabel(GetRequiredMetaValue(stepMeta, "RuleProfileMode", fullPath, FormatName), FormatName);
-            var stepSections = BuildStepSections(sections, stepName, fullPath, inputFormatName);
+            var stepSections = BuildStepSections(sections, stepSectionName, stepName, fullPath, inputFormatName);
             var stepRequest = ParseStepRequest(
                 step,
                 ruleProfileAttributes,
@@ -161,7 +177,8 @@ internal static class StsaInputRequestParser
 
     static Dictionary<string, List<string>> BuildStepSections(
         Dictionary<string, List<string>> sections,
-        string stepName,
+        string stepSectionName,
+        string legacyStepName,
         string fullPath,
         string inputFormatName)
     {
@@ -176,12 +193,17 @@ internal static class StsaInputRequestParser
             "Inputs",
         })
         {
-            var stepSectionName = $"{stepName}.{sectionName}";
-            if (sections.TryGetValue(stepSectionName, out var stepLines)) stepSections[sectionName] = stepLines;
+            var primarySectionName = $"{stepSectionName}.{sectionName}";
+            var legacySectionName = $"{legacyStepName}.{sectionName}";
+            if (TryGetCompatibleSectionLines(sections, primarySectionName, legacySectionName, fullPath, inputFormatName, out var stepLines))
+            {
+                stepSections[sectionName] = stepLines;
+            }
         }
 
-        var outputSectionName = $"{stepName}.Output";
-        if (sections.TryGetValue(outputSectionName, out var outputLines))
+        var outputSectionName = $"{stepSectionName}.Output";
+        var legacyOutputSectionName = $"{legacyStepName}.Output";
+        if (TryGetCompatibleSectionLines(sections, outputSectionName, legacyOutputSectionName, fullPath, inputFormatName, out var outputLines))
         {
             stepSections["Output"] = outputLines;
         }
@@ -195,6 +217,52 @@ internal static class StsaInputRequestParser
         return stepSections;
     }
 
+    static IReadOnlyList<string> GetCompatibleRequiredSectionLines(
+        Dictionary<string, List<string>> sections,
+        string primarySectionName,
+        string legacySectionName,
+        string fullPath,
+        string inputFormatName)
+    {
+        if (TryGetCompatibleSectionLines(sections, primarySectionName, legacySectionName, fullPath, inputFormatName, out var lines))
+        {
+            return lines;
+        }
+
+        throw new OperationCanceledException($"{inputFormatName} の必須セクション '{primarySectionName}' がありません: {fullPath}");
+    }
+
+    static bool TryGetCompatibleSectionLines(
+        Dictionary<string, List<string>> sections,
+        string primarySectionName,
+        string legacySectionName,
+        string fullPath,
+        string inputFormatName,
+        out List<string> lines)
+    {
+        var hasPrimary = sections.TryGetValue(primarySectionName, out var primaryLines);
+        var hasLegacy = sections.TryGetValue(legacySectionName, out var legacyLines);
+        if (hasPrimary && hasLegacy)
+        {
+            throw new OperationCanceledException($"{inputFormatName} のセクション '{primarySectionName}' と互換セクション '{legacySectionName}' が同時に指定されています: {fullPath}");
+        }
+
+        if (hasPrimary)
+        {
+            lines = primaryLines!;
+            return true;
+        }
+
+        if (hasLegacy)
+        {
+            lines = legacyLines!;
+            return true;
+        }
+
+        lines = new List<string>();
+        return false;
+    }
+
     static string FormatStepName(AnalysisFlowMode step)
     {
         return step switch
@@ -203,6 +271,11 @@ internal static class StsaInputRequestParser
             AnalysisFlowMode.QualityEvaluation => "QualityEvaluation",
             _ => throw new OperationCanceledException($"{FormatName} の AnalysisFlowSteps に未対応のステップがあります: {step}"),
         };
+    }
+
+    static string FormatStepSectionName(AnalysisFlowMode step)
+    {
+        return $"{FormatStepName(step)}Step";
     }
 
     static SimulationStepRequest EnsureSimulationCountIfNeeded(SimulationStepRequest request)

@@ -70,9 +70,9 @@ internal static class StsaInputRequestWriter
 
         foreach (var stepRequest in request.StepRequests)
         {
-            var stepName = GetStepName(stepRequest);
+            var stepSectionName = GetStepSectionName(stepRequest);
             lines.Add(string.Empty);
-            lines.Add($"#[Section] Step.{stepName}");
+            lines.Add($"#[Section] {stepSectionName}");
             if (!useAttributeFormat)
             {
                 lines.Add($"RuleProfileMode={LegacyRuleProfileMapper.FormatLabel(stepRequest.GetRuleProfileAttributes())}");
@@ -83,14 +83,14 @@ internal static class StsaInputRequestWriter
 
             if (useAttributeFormat)
             {
-                AddRuleProfileAttributesSection(lines, $"Step.{stepName}.RuleProfileAttributes", stepRequest.GetRuleProfileAttributes());
+                AddRuleProfileAttributesSection(lines, $"{stepSectionName}.RuleProfileAttributes", stepRequest.GetRuleProfileAttributes());
             }
         }
 
         foreach (var stepRequest in request.StepRequests)
         {
-            var stepName = GetStepName(stepRequest);
-            AddBodySections(lines, stepRequest, $"{stepName}.", $"{stepName}.Output");
+            var stepSectionName = GetStepSectionName(stepRequest);
+            AddBodySections(lines, stepRequest, $"{stepSectionName}.", $"{stepSectionName}.Output");
         }
 
         return lines;
@@ -418,6 +418,11 @@ internal static class StsaInputRequestWriter
         if (!string.IsNullOrWhiteSpace(value)) lines.Add($"{key}={value}");
     }
 
+
+    static string GetStepSectionName(AnalysisStepRequest stepRequest)
+    {
+        return $"{GetStepName(stepRequest)}Step";
+    }
 
     static string GetStepName(AnalysisStepRequest stepRequest)
     {

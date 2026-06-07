@@ -4,13 +4,13 @@
 AnalysisFlowSteps=Simulation,QualityEvaluation
 #[EndSection]
 
-#[Section] Step.Simulation
+#[Section] SimulationStep
 TournamentRuleSetMode=Neutral
 FirstPlayerWinRatePercent=51
 SimulationCount=10
 #[EndSection]
 
-#[Section] Step.Simulation.RuleProfileAttributes
+#[Section] SimulationStep.RuleProfileAttributes
 SimulationShape=ScheduledMatches
 UsesFinalStageGrouping=Off
 UsesAdditionalApexPlacement=Off
@@ -21,7 +21,7 @@ HasReferenceMatches=Off
 PairingSource=ScheduledMatches
 #[EndSection]
 
-#[Section] Step.QualityEvaluation
+#[Section] QualityEvaluationStep
 ExecutionMode=Single
 FirstPlayerWinRatePercent=51
 SimulationCount=10
@@ -30,7 +30,7 @@ TournamentRuleSetMode=Neutral
 QualityInnovExpectedRankOffsetMode=Off
 #[EndSection]
 
-#[Section] Step.QualityEvaluation.RuleProfileAttributes
+#[Section] QualityEvaluationStep.RuleProfileAttributes
 SimulationShape=ScheduledMatches
 UsesFinalStageGrouping=Off
 UsesAdditionalApexPlacement=Off
@@ -41,7 +41,7 @@ HasReferenceMatches=Off
 PairingSource=ScheduledMatches
 #[EndSection]
 
-#[Section] Simulation.PlayersCsv
+#[Section] SimulationStep.PlayersCsv
 name,elo
 飛,5050
 角,5030
@@ -61,7 +61,7 @@ name,elo
 ひよこ,4750
 #[EndSection]
 
-#[Section] Simulation.MatchesInput
+#[Section] SimulationStep.MatchesInput
 first,second
 ひよこ,飛
 いのしし,角
@@ -129,11 +129,11 @@ first,second
 ひよこ,歩
 #[EndSection]
 
-#[Section] Simulation.Output
+#[Section] SimulationStep.Output
 SummaryOutputPath=Output\FinalRanking\analysis_input_[先手8x後手8]_[Simulation_QualityEvaluation_STSAInput5_smoke].csv
 #[EndSection]
 
-#[Section] QualityEvaluation.PlayersCsv
+#[Section] QualityEvaluationStep.PlayersCsv
 name,elo
 飛,5050
 角,5030
@@ -153,7 +153,7 @@ name,elo
 ひよこ,4750
 #[EndSection]
 
-#[Section] QualityEvaluation.MatchesInput
+#[Section] QualityEvaluationStep.MatchesInput
 first,second
 ひよこ,飛
 いのしし,角
@@ -221,6 +221,6 @@ first,second
 ひよこ,歩
 #[EndSection]
 
-#[Section] QualityEvaluation.Output
+#[Section] QualityEvaluationStep.Output
 SummaryOutputPath=Output\TournamentQualityEvaluator\TournamentQualityReport\Summary\[先手8x後手8]_[Simulation_QualityEvaluation_STSAInput5_smoke]_quality_summary.csv
 #[EndSection]

@@ -2,7 +2,7 @@
 
 `STSAInput/5` は、`RuleProfileMode=Standard` / `FinalStage` のような大分類ラベルではなく、`RuleProfileAttributes` セクションでルールプロファイルの属性を指定する要求ファイル形式です。
 
-基本のセクション構造、`AnalysisFlowSteps`、入力 CSV、出力指定は [STSAInput/4 仕様](./STSAInput4仕様.md) と同じです。`STSAInput/5` では `RuleProfileMode` を書かず、単一ステップなら `RuleProfileAttributes`、複数ステップなら `Step.*.RuleProfileAttributes` を書きます。
+基本のセクション構造、`AnalysisFlowSteps`、入力 CSV、出力指定は [STSAInput/4 仕様](./STSAInput4仕様.md) と同じです。`STSAInput/5` では `RuleProfileMode` を書かず、単一ステップなら `RuleProfileAttributes`、複数ステップなら `*Step.RuleProfileAttributes` を書きます。
 
 ## 目的
 
@@ -148,7 +148,7 @@ PairingSource=ScheduledMatches
 
 ## 複数ステップ
 
-複数ステップでは、`Meta` は実行順だけを書きます。ステップごとの設定は `Step.Simulation` / `Step.QualityEvaluation`、属性は `Step.Simulation.RuleProfileAttributes` / `Step.QualityEvaluation.RuleProfileAttributes` に分けます。
+複数ステップでは、`Meta` は実行順だけを書きます。ステップごとの設定は `SimulationStep` / `QualityEvaluationStep`、属性は `SimulationStep.RuleProfileAttributes` / `QualityEvaluationStep.RuleProfileAttributes` に分けます。旧 `Step.Simulation` / `Step.QualityEvaluation` 形式は互換入力として読み取れますが、writer は新形式を出力します。
 
 ```plaintext
 #[Format] STSAInput/5
@@ -157,13 +157,13 @@ PairingSource=ScheduledMatches
 AnalysisFlowSteps=Simulation,QualityEvaluation
 #[EndSection]
 
-#[Section] Step.Simulation
+#[Section] SimulationStep
 TournamentRuleSetMode=Neutral
 FirstPlayerWinRatePercent=51
 SimulationCount=10
 #[EndSection]
 
-#[Section] Step.Simulation.RuleProfileAttributes
+#[Section] SimulationStep.RuleProfileAttributes
 SimulationShape=ScheduledMatches
 UsesFinalStageGrouping=Off
 UsesAdditionalApexPlacement=Off
@@ -174,7 +174,7 @@ HasReferenceMatches=Off
 PairingSource=ScheduledMatches
 #[EndSection]
 
-#[Section] Step.QualityEvaluation
+#[Section] QualityEvaluationStep
 TournamentRuleSetMode=Neutral
 ExecutionMode=Single
 FirstPlayerWinRatePercent=51
@@ -183,7 +183,7 @@ QualityInnovExpectedRankOffsetMode=Off
 TournamentQualityEvaluationReportGrouping=Off
 #[EndSection]
 
-#[Section] Step.QualityEvaluation.RuleProfileAttributes
+#[Section] QualityEvaluationStep.RuleProfileAttributes
 SimulationShape=ScheduledMatches
 UsesFinalStageGrouping=Off
 UsesAdditionalApexPlacement=Off
@@ -195,7 +195,7 @@ PairingSource=ScheduledMatches
 #[EndSection]
 ```
 
-入力データは共有セクションを使えます。出力は `Simulation.Output` / `QualityEvaluation.Output` に分けます。複数ステップ時に共有 `Output` だけを書くと、どのステップの出力先か曖昧になるためエラーになります。
+入力データは共有セクションを使えます。出力は `SimulationStep.Output` / `QualityEvaluationStep.Output` に分けます。複数ステップ時に共有 `Output` だけを書くと、どのステップの出力先か曖昧になるためエラーになります。
 
 ## 現在の制約
 
