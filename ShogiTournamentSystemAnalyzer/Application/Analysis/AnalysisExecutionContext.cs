@@ -22,6 +22,11 @@ internal sealed class AnalysisExecutionContext
         PendingFinalRanking = result?.PendingFinalRankingInput;
     }
 
+    internal void SetPendingFinalRanking(FinalRankingDomainInput input)
+    {
+        PendingFinalRanking = input;
+    }
+
     internal void ClearPendingFinalRanking()
     {
         PendingFinalRanking = null;

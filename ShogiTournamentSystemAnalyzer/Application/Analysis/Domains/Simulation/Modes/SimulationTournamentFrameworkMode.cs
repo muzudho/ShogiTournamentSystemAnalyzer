@@ -3,6 +3,7 @@
  */
 namespace ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.Modes;
 
+using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.FinalRanking.UseCases;
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 
 /// <summary>
@@ -10,22 +11,22 @@ using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 /// </summary>
 internal static partial class SimulationTournamentFrameworkMode
 {
-    internal static void Run()
+    internal static FinalRankingDomainInput Run()
     {
         Console.WriteLine("対局シミュレーション / 大会進行フレームワーク: 一般化した大会進行モデルで大会記録を実行します。\n");
         ConsoleSamplePrinter.PrintSimulationTournamentFrameworkOverview();
         var context = SimulationModeInputReaders.ReadTournamentFrameworkModeContext();
-        RunMainlineToTournamentFinalStateAndFinalRanking(context);
+        return RunMainlineToTournamentFinalStateAndFinalRanking(context);
     }
 
-    internal static void Run(TournamentFrameworkModeContext context)
+    internal static FinalRankingDomainInput Run(TournamentFrameworkModeContext context)
     {
         Console.WriteLine("対局シミュレーション / 大会進行フレームワーク: 一般化した大会進行モデルで大会記録を実行します。\n");
-        RunMainlineToTournamentFinalStateAndFinalRanking(context);
+        return RunMainlineToTournamentFinalStateAndFinalRanking(context);
     }
 
-    static void RunMainlineToTournamentFinalStateAndFinalRanking(TournamentFrameworkModeContext context)
+    static FinalRankingDomainInput RunMainlineToTournamentFinalStateAndFinalRanking(TournamentFrameworkModeContext context)
     {
-        ExecuteTournamentFrameworkMode(context);
+        return ExecuteTournamentFrameworkMode(context);
     }
 }

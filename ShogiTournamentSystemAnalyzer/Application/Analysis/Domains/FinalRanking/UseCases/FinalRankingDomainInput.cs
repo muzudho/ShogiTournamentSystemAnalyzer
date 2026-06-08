@@ -11,14 +11,20 @@ internal enum FinalRankingDomainInputKind
 {
     StandardSimulation,
     FinalStageSimulation,
+    TournamentFrameworkSimulation,
+    EmptySimulation,
 }
 
 internal sealed record FinalRankingDomainInput(
     FinalRankingDomainInputKind Kind,
-    CalculationResult TournamentFinalState,
+    CalculationResult? TournamentFinalState,
     double FirstPlayerWinRatePercent,
-    FinalRankingResult FinalRankingResult,
+    FinalRankingResult? FinalRankingResult,
     string? OutputPath,
     IReadOnlyList<Player> Players,
     IReadOnlyList<Match> ReferenceMatches,
-    bool WriteReferenceMatchesForMarkdown);
+    bool WriteReferenceMatchesForMarkdown,
+    TournamentFrameworkFinalRankingResult? TournamentFrameworkFinalRankingResult = null,
+    EmptyFinalRankingDomainInput? EmptyFinalRankingInput = null);
+
+internal sealed record EmptyFinalRankingDomainInput(string? OutputPath);

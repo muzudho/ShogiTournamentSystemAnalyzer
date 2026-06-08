@@ -8,6 +8,6 @@ using ShogiTournamentSystemAnalyzer.Domain.FinalRanking;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 
 internal sealed record class SimulationDomainResult(
-    SimulationResult SimulationResult,
-    FinalRankingResult FinalRankingResult,
+    SimulationResult? SimulationResult,
+    FinalRankingResult? FinalRankingResult,
     FinalRankingDomainInput? PendingFinalRankingInput);

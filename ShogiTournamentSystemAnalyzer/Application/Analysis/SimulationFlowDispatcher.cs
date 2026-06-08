@@ -3,6 +3,7 @@
  */
 namespace ShogiTournamentSystemAnalyzer.Application.Analysis;
 
+using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.FinalRanking.UseCases;
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.Modes;
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.UseCases;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
@@ -24,15 +25,25 @@ internal static class SimulationFlowDispatcher
                 return true;
 
             case RuleProfileSimulationShape.TournamentFramework:
-                SimulationTournamentFrameworkMode.Run();
+                ExecutePendingFinalRanking(SimulationTournamentFrameworkMode.Run());
                 return true;
 
             case RuleProfileSimulationShape.Empty:
-                SimulationEmptyMode.Run();
+                ExecutePendingFinalRanking(SimulationEmptyMode.Run());
                 return true;
 
             default:
                 return false;
+        }
+    }
+
+    static void ExecutePendingFinalRanking(FinalRankingDomainInput input)
+    {
+        var context = new AnalysisExecutionContext();
+        context.SetPendingFinalRanking(input);
+        if (!FinalRankingRequestDispatcher.TryExecute(context))
+        {
+            throw new InvalidOperationException("未対応の最終順位付け域です。");
         }
     }
 }

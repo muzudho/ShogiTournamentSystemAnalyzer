@@ -7,6 +7,7 @@ using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.FinalRanking.Us
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.TournamentFramework;
 using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
+using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 using ShogiTournamentSystemAnalyzer.Infrastructure.DataFiles.TournamentFramework;
 using ShogiTournamentSystemAnalyzer.Infrastructure.Parsing;
 
@@ -19,7 +20,7 @@ internal static partial class SimulationTournamentFrameworkMode
     /// ［大会フレームワーク・モード］実行
     /// </summary>
     /// <param name="context"></param>
-    static void ExecuteTournamentFrameworkMode(TournamentFrameworkModeContext context)
+    static FinalRankingDomainInput ExecuteTournamentFrameworkMode(TournamentFrameworkModeContext context)
     {
         // ［選手一覧データ］読込
         var players = TournamentFrameworkCsvParsers.ReadPlayerEntriesFromCsvPath(context.PlayersCsvPath);
@@ -80,8 +81,15 @@ internal static partial class SimulationTournamentFrameworkMode
 
         FinalRankingDomain.PrintTournamentFrameworkSimulationResults(finalRankingResult);
 
-        FinalRankingDomain.WriteTournamentFrameworkSimulationOutputs(
+        return new FinalRankingDomainInput(
+            FinalRankingDomainInputKind.TournamentFrameworkSimulation,
+            null,
+            executionSettings.FirstPlayerWinRatePercent,
+            null,
             context.OutputPath,
-            finalRankingResult);
+            Array.Empty<Player>(),
+            Array.Empty<Match>(),
+            WriteReferenceMatchesForMarkdown: false,
+            TournamentFrameworkFinalRankingResult: finalRankingResult);
     }
 }

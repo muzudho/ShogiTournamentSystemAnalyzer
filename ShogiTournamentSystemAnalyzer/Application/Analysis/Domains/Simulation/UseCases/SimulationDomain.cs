@@ -35,14 +35,12 @@ internal static class SimulationDomain
     {
         if (request.RuleProfileAttributes.IsTournamentFrameworkProfile)
         {
-            ExecuteTournamentFrameworkSimulation(request);
-            return null;
+            return CreatePendingOnlyResult(ExecuteTournamentFrameworkSimulation(request));
         }
 
         if (request.RuleProfileAttributes.IsEmptyProfile)
         {
-            SimulationEmptyMode.Run(request.OutputPath);
-            return null;
+            return CreatePendingOnlyResult(SimulationEmptyMode.Run(request.OutputPath));
         }
 
         if (request.RuleProfileAttributes.UsesFinalStageGrouping)
@@ -124,7 +122,7 @@ internal static class SimulationDomain
                 WriteReferenceMatchesForMarkdown: mainlineResult.Presentation == SimulationMainlineResultPresentation.GroupedOverall));
     }
 
-    static void ExecuteTournamentFrameworkSimulation(SimulationStepRequest request)
+    static FinalRankingDomainInput ExecuteTournamentFrameworkSimulation(SimulationStepRequest request)
     {
         var input = request.TournamentFrameworkInput
             ?? throw new OperationCanceledException("大会進行フレームワークの入力がありません。");
@@ -141,7 +139,15 @@ internal static class SimulationDomain
             firstPlayerWinRateRating,
             request.OutputPath);
 
-        SimulationTournamentFrameworkMode.Run(context);
+        return SimulationTournamentFrameworkMode.Run(context);
+    }
+
+    static SimulationDomainResult CreatePendingOnlyResult(FinalRankingDomainInput pendingFinalRankingInput)
+    {
+        return new SimulationDomainResult(
+            null,
+            null,
+            pendingFinalRankingInput);
     }
 
     static SimulationDomainResult CreateResult(
