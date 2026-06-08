@@ -20,6 +20,8 @@
   - [Codex skill のコピー手順](./運用/codex-skill運用.md#インストール)
 - 短い現況メモを見たい
   - [続きはここから.md](./続きはここから.md)
+- 古い現況メモの履歴を見たい
+  - [続きはここからOld](./続きはここからOld/)
 - 手書きのレポートや発表案を見たい
   - [Output/Reports](../Output/Reports/README.md)
 
