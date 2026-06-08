@@ -128,7 +128,7 @@ internal static class ApplicationWorkflow
 
         var analysisFlowSelection = result.AnalysisFlowSelection ?? throw new InvalidOperationException("分析フローが選択されていません。");
         var ruleProfileAttributes = result.RuleProfileAttributes ?? throw new InvalidOperationException("ルールプロファイル属性が選択されていません。");
-        if (!analysisFlowSelection.RunsSimulation) return;
+        if (!analysisFlowSelection.RunsSimulationDomain) return;
         if (SimulationFlowDispatcher.TryExecute(AnalysisFlowMode.Simulation, ruleProfileAttributes)) return;
 
         throw new InvalidOperationException("未対応のシミュレーション域です。");
@@ -180,7 +180,7 @@ internal static class ApplicationWorkflow
 
         var analysisFlowSelection = result.AnalysisFlowSelection ?? throw new InvalidOperationException("分析フローが選択されていません。");
         var ruleProfileAttributes = result.RuleProfileAttributes ?? throw new InvalidOperationException("ルールプロファイル属性が選択されていません。");
-        if (!analysisFlowSelection.RunsQualityEvaluation) return;
+        if (!analysisFlowSelection.RunsQualityEvaluationDomain) return;
         if (QualityEvaluationFlowDispatcher.TryExecute(AnalysisFlowMode.QualityEvaluation, ruleProfileAttributes)) return;
 
         throw new InvalidOperationException("未対応の大会品質評価域です。");

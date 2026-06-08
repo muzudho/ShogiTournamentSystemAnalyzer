@@ -39,7 +39,7 @@ internal static class StsaInputLegacyConverter
             throw new OperationCanceledException($"{formatName} の複数 AnalysisFlowSteps は、要求ファイルからの自動実行ではまだ未対応です。ステップ別入力セクションの仕様追加が必要です: {FormatAnalysisFlowSteps(flowModes)}");
         }
 
-        if (flowSelection.RunsQualityEvaluation
+        if (flowSelection.RunsQualityEvaluationDomain
             && !CanRunQualityEvaluation(ruleProfileAttributes))
         {
             throw new OperationCanceledException($"{formatName} の QualityEvaluation では RuleProfileMode={LegacyRuleProfileMapper.FormatLabel(ruleProfileAttributes)} は未対応です。");
@@ -98,8 +98,8 @@ internal static class StsaInputLegacyConverter
     {
         return new[]
         {
-            flowSelection.RunsSimulation ? "2" : "1",
-            flowSelection.RunsQualityEvaluation ? "2" : "1",
+            flowSelection.RunsSimulationDomain ? "2" : "1",
+            flowSelection.RunsQualityEvaluationDomain ? "2" : "1",
         }.Concat(RuleProfileAttributesToPromptLines(ruleProfileAttributes)).ToArray();
     }
 

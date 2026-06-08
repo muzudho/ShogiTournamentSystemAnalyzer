@@ -1,0 +1,41 @@
+#[Format] STSAInput/4
+
+#[Section] Meta
+AnalysisFlowSteps=Simulation,QualityEvaluation
+#[EndSection]
+
+#[Section] SimulationStep
+RuleProfileMode=Standard
+TournamentRuleSetMode=Neutral
+FirstPlayerWinRatePercent=51
+SimulationCount=10
+#[EndSection]
+
+#[Section] QualityEvaluationStep
+RuleProfileMode=Standard
+ExecutionMode=Single
+FirstPlayerWinRatePercent=51
+SimulationCount=10
+TournamentQualityEvaluationReportGrouping=Off
+TournamentRuleSetMode=Neutral
+QualityInnovExpectedRankOffsetMode=Off
+#[EndSection]
+
+#[Section] SimulationStep.PlayersCsv
+name,elo
+Alice,1500
+Bob,1480
+#[EndSection]
+
+#[Section] SimulationStep.MatchesInput
+first,second
+Alice,Bob
+#[EndSection]
+
+#[Section] SimulationStep.Output
+SummaryOutputPath=Output\FinalRanking\analysis_input_[先手1x後手1]_[Simulation_QualityEvaluation_InferredQualityInput_STSAInput4_smoke].csv
+#[EndSection]
+
+#[Section] QualityEvaluationStep.Output
+SummaryOutputPath=Output\TournamentQualityEvaluator\TournamentQualityReport\Summary\[先手1x後手1]_[Simulation_QualityEvaluation_InferredQualityInput_STSAInput4_smoke]_quality_summary.csv
+#[EndSection]

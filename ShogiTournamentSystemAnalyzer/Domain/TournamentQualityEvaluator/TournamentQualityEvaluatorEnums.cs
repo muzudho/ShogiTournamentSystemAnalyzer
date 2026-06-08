@@ -25,7 +25,7 @@ enum TournamentQualityEvaluationReportOutcome
 }
 
 /// <summary>
-/// TODO: ［４大域］は４つしかないのだから、配列ではなく、個別のプロパティにしてくれだぜ（＾～＾）こんなモード列挙型、要件に無いぜ（＾～＾）
+/// 要求ファイル境界で使う分析フロー名。
 /// </summary>
 enum AnalysisFlowMode
 {
@@ -55,10 +55,6 @@ internal sealed class AnalysisFlowSelection
     internal bool RunsFinalRankingDomain { get; }
 
     internal bool RunsQualityEvaluationDomain { get; }
-
-    internal bool RunsSimulation => RunsSimulationDomain;
-
-    internal bool RunsQualityEvaluation => RunsQualityEvaluationDomain;
 
     internal static AnalysisFlowSelection FromSingle(AnalysisFlowMode mode)
     {

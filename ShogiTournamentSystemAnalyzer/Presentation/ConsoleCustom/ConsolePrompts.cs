@@ -243,7 +243,7 @@ internal static class ConsolePromptReaders
             return false;
         }
 
-        if (flowSelection.RunsQualityEvaluation
+        if (flowSelection.RunsQualityEvaluationDomain
             && attributes.PairingSource != RuleProfilePairingSource.ScheduledMatches)
         {
             errorMessage = "品質評価では PairingSource=ScheduledMatches を指定してください。";
