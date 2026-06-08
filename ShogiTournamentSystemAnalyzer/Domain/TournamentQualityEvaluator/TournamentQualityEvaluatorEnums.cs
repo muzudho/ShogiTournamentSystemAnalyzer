@@ -35,54 +35,61 @@ enum AnalysisFlowMode
 
 internal sealed class AnalysisFlowSelection
 {
-    internal AnalysisFlowSelection(IReadOnlyList<AnalysisFlowMode> steps)
+    internal AnalysisFlowSelection(
+        bool runsSimulationDomain,
+        bool runsFinalRankingDomain,
+        bool runsQualityEvaluationDomain)
     {
-        if (steps.Count == 0) throw new ArgumentException("分析フローのステップが空です。", nameof(steps));
+        if (!runsSimulationDomain && !runsFinalRankingDomain && !runsQualityEvaluationDomain)
+        {
+            throw new ArgumentException("分析フローが空です。");
+        }
 
-        Steps = steps.ToArray();
+        RunsSimulationDomain = runsSimulationDomain;
+        RunsFinalRankingDomain = runsFinalRankingDomain;
+        RunsQualityEvaluationDomain = runsQualityEvaluationDomain;
     }
 
-    /// <summary>
-    /// ［要求ファイル］から読んだ実行希望のリスト構造。
-    /// アプリケーション直下の［３大域］固定順序は AnalysisDomainSequence が持つ。
-    /// </summary>
-    internal IReadOnlyList<AnalysisFlowMode> Steps { get; }
+    internal bool RunsSimulationDomain { get; }
 
-    internal bool RunsSimulation => Steps.Contains(AnalysisFlowMode.Simulation);
+    internal bool RunsFinalRankingDomain { get; }
 
-    internal bool RunsQualityEvaluation => Steps.Contains(AnalysisFlowMode.QualityEvaluation);
+    internal bool RunsQualityEvaluationDomain { get; }
+
+    internal bool RunsSimulation => RunsSimulationDomain;
+
+    internal bool RunsQualityEvaluation => RunsQualityEvaluationDomain;
 
     internal static AnalysisFlowSelection FromSingle(AnalysisFlowMode mode)
     {
-        return new AnalysisFlowSelection(new[] { mode });
+        return mode switch
+        {
+            AnalysisFlowMode.Simulation => new AnalysisFlowSelection(
+                runsSimulationDomain: true,
+                runsFinalRankingDomain: true,
+                runsQualityEvaluationDomain: false),
+            AnalysisFlowMode.QualityEvaluation => new AnalysisFlowSelection(
+                runsSimulationDomain: false,
+                runsFinalRankingDomain: false,
+                runsQualityEvaluationDomain: true),
+            _ => throw new ArgumentOutOfRangeException(nameof(mode), mode, null),
+        };
     }
 
     internal static AnalysisFlowSelection FromFlags(bool runsSimulation, bool runsQualityEvaluation)
     {
-        var steps = new List<AnalysisFlowMode>();
-        if (runsSimulation) steps.Add(AnalysisFlowMode.Simulation);
-        if (runsQualityEvaluation) steps.Add(AnalysisFlowMode.QualityEvaluation);
-
-        return new AnalysisFlowSelection(steps);
-    }
-
-    internal string ToRequestFileValue()
-    {
-        return string.Join(",", Steps.Select(FormatStep));
+        return new AnalysisFlowSelection(
+            runsSimulationDomain: runsSimulation,
+            runsFinalRankingDomain: runsSimulation,
+            runsQualityEvaluationDomain: runsQualityEvaluation);
     }
 
     internal string ToPromptLabel()
     {
-        return string.Join(" -> ", Steps.Select(FormatStep));
-    }
-
-    static string FormatStep(AnalysisFlowMode step)
-    {
-        return step switch
-        {
-            AnalysisFlowMode.Simulation => "Simulation",
-            AnalysisFlowMode.QualityEvaluation => "QualityEvaluation",
-            _ => step.ToString(),
-        };
+        var domains = new List<string>();
+        if (RunsSimulationDomain) domains.Add("SimulationDomain");
+        if (RunsFinalRankingDomain) domains.Add("FinalRankingDomain");
+        if (RunsQualityEvaluationDomain) domains.Add("QualityEvaluationDomain");
+        return string.Join(" -> ", domains);
     }
 }

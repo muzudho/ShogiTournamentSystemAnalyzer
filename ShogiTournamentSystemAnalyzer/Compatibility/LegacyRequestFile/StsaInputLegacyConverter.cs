@@ -30,12 +30,13 @@ internal static class StsaInputLegacyConverter
     {
         var sections = ParseStsaInputSections(rawLines, fullPath, formatName);
         var meta = ParseSectionKeyValues(GetRequiredSectionLines(sections, "Meta", fullPath, formatName), "Meta", fullPath, formatName);
-        var flowSelection = ReadFlowSelection(meta, fullPath, formatName);
+        var flowModes = ReadFlowStepList(meta, fullPath, formatName);
+        var flowSelection = BuildFlowSelection(flowModes);
         var ruleProfileAttributes = LegacyRuleProfileMapper.ParseAttributesFromLabel(GetRequiredMetaValue(meta, "RuleProfileMode", fullPath, formatName), formatName);
 
-        if (flowSelection.Steps.Count != 1)
+        if (flowModes.Length != 1)
         {
-            throw new OperationCanceledException($"{formatName} の複数 AnalysisFlowSteps は、要求ファイルからの自動実行ではまだ未対応です。ステップ別入力セクションの仕様追加が必要です: {flowSelection.ToRequestFileValue()}");
+            throw new OperationCanceledException($"{formatName} の複数 AnalysisFlowSteps は、要求ファイルからの自動実行ではまだ未対応です。ステップ別入力セクションの仕様追加が必要です: {FormatAnalysisFlowSteps(flowModes)}");
         }
 
         if (flowSelection.RunsQualityEvaluation
@@ -45,7 +46,7 @@ internal static class StsaInputLegacyConverter
         }
 
         var promptPrefixLines = BuildPromptPrefixLines(flowSelection, ruleProfileAttributes);
-        var analysisFlowMode = flowSelection.Steps[0];
+        var analysisFlowMode = flowModes[0];
 
         if (analysisFlowMode == AnalysisFlowMode.Simulation
             && (ruleProfileAttributes.IsTournamentFrameworkProfile
@@ -66,13 +67,25 @@ internal static class StsaInputLegacyConverter
             : StsaQualityEvaluationLegacyConverter.ConvertStandard(meta, sections, fullPath, formatName, promptPrefixLines);
     }
 
-    static AnalysisFlowSelection ReadFlowSelection(Dictionary<string, string> meta, string fullPath, string formatName)
+    static AnalysisFlowMode[] ReadFlowStepList(Dictionary<string, string> meta, string fullPath, string formatName)
     {
         var stepsValue = GetOptionalMetaValue(meta, "AnalysisFlowSteps");
-        if (!string.IsNullOrWhiteSpace(stepsValue)) return ParseAnalysisFlowSteps(stepsValue, formatName);
+        if (!string.IsNullOrWhiteSpace(stepsValue)) return ParseAnalysisFlowStepList(stepsValue, formatName);
 
         var modeValue = GetRequiredMetaValue(meta, "AnalysisFlowMode", fullPath, formatName);
-        return AnalysisFlowSelection.FromSingle(ParseAnalysisFlowMode(modeValue, formatName));
+        return new[] { ParseAnalysisFlowMode(modeValue, formatName) };
+    }
+
+    static AnalysisFlowSelection BuildFlowSelection(IReadOnlyList<AnalysisFlowMode> flowModes)
+    {
+        return AnalysisFlowSelection.FromFlags(
+            flowModes.Contains(AnalysisFlowMode.Simulation),
+            flowModes.Contains(AnalysisFlowMode.QualityEvaluation));
+    }
+
+    static string FormatAnalysisFlowSteps(IReadOnlyList<AnalysisFlowMode> flowModes)
+    {
+        return string.Join(",", flowModes.Select(step => step.ToString()));
     }
 
     static bool CanRunQualityEvaluation(RuleProfileAttributes ruleProfileAttributes)

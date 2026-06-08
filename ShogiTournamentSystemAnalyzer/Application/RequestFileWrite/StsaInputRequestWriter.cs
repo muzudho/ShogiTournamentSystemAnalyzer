@@ -37,7 +37,7 @@ internal static class StsaInputRequestWriter
             useAttributeFormat ? "#[Format] STSAInput/5" : "#[Format] STSAInput/4",
             string.Empty,
             "#[Section] Meta",
-            $"AnalysisFlowSteps={request.FlowSelection.ToRequestFileValue()}",
+            $"AnalysisFlowSteps={BuildAnalysisFlowStepsValue(request.StepRequests)}",
         };
 
         if (!useAttributeFormat)
@@ -64,7 +64,7 @@ internal static class StsaInputRequestWriter
             useAttributeFormat ? "#[Format] STSAInput/5" : "#[Format] STSAInput/4",
             string.Empty,
             "#[Section] Meta",
-            $"AnalysisFlowSteps={request.FlowSelection.ToRequestFileValue()}",
+            $"AnalysisFlowSteps={BuildAnalysisFlowStepsValue(request.StepRequests)}",
             "#[EndSection]",
         };
 
@@ -419,6 +419,10 @@ internal static class StsaInputRequestWriter
     }
 
 
+    static string BuildAnalysisFlowStepsValue(IReadOnlyList<AnalysisStepRequest> stepRequests)
+    {
+        return string.Join(",", stepRequests.Select(GetStepName));
+    }
     static string GetStepSectionName(AnalysisStepRequest stepRequest)
     {
         return $"{GetStepName(stepRequest)}Step";

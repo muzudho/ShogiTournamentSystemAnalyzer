@@ -13,14 +13,14 @@ internal static partial class ManualAnalysisRequestReader
         out AnalysisRequest? analysisRequest)
     {
         analysisRequest = null;
-        if (analysisFlowSelection.Steps.Count != 1) return false;
+        if (analysisFlowSelection.RunsSimulationDomain && analysisFlowSelection.RunsQualityEvaluationDomain) return false;
 
         AnalysisStepRequest stepRequest;
-        if (analysisFlowSelection.Steps[0] == AnalysisFlowMode.Simulation)
+        if (analysisFlowSelection.RunsSimulationDomain)
         {
             if (!TryReadSimulationRequest(ruleProfileAttributes, out stepRequest)) return false;
         }
-        else if (analysisFlowSelection.Steps[0] == AnalysisFlowMode.QualityEvaluation
+        else if (analysisFlowSelection.RunsQualityEvaluationDomain
             && ruleProfileAttributes.PairingSource == RuleProfilePairingSource.ScheduledMatches)
         {
             if (!TryReadQualityEvaluationRequest(ruleProfileAttributes, out stepRequest)) return false;

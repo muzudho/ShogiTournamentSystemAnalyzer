@@ -18,7 +18,7 @@ internal static class StsaInputValueParser
     }
 
 
-    internal static AnalysisFlowSelection ParseAnalysisFlowSteps(string value, string formatName)
+    internal static AnalysisFlowMode[] ParseAnalysisFlowStepList(string value, string formatName)
     {
         var steps = value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .Select(step => ParseAnalysisFlowMode(step, formatName))
@@ -26,7 +26,15 @@ internal static class StsaInputValueParser
 
         if (steps.Length == 0) throw new OperationCanceledException($"{formatName} の AnalysisFlowSteps が空です。");
 
-        return new AnalysisFlowSelection(steps);
+        return steps;
+    }
+
+    internal static AnalysisFlowSelection ParseAnalysisFlowSteps(string value, string formatName)
+    {
+        var steps = ParseAnalysisFlowStepList(value, formatName);
+        return AnalysisFlowSelection.FromFlags(
+            steps.Contains(AnalysisFlowMode.Simulation),
+            steps.Contains(AnalysisFlowMode.QualityEvaluation));
     }
 
     internal static RuleProfileSimulationShape ParseRuleProfileSimulationShape(string value, string formatName)

@@ -199,7 +199,7 @@ internal static class ApplicationWorkflow
         if (string.IsNullOrWhiteSpace(manualExecutionState.RequestFilePath)) return;
 
         var request = new AnalysisRequest(
-            new AnalysisFlowSelection(manualExecutionState.StepRequests.Select(GetAnalysisFlowMode).ToArray()),
+            BuildAnalysisFlowSelection(manualExecutionState.StepRequests),
             manualExecutionState.StepRequests.ToArray());
 
         Console.WriteLine($"要求ファイルを書き出します: {manualExecutionState.RequestFilePath}\n");
@@ -209,15 +209,11 @@ internal static class ApplicationWorkflow
             lines: StsaInputRequestWriter.BuildAttributeLines(request));
     }
 
-    static AnalysisFlowMode GetAnalysisFlowMode(AnalysisStepRequest stepRequest)
+    static AnalysisFlowSelection BuildAnalysisFlowSelection(IReadOnlyList<AnalysisStepRequest> stepRequests)
     {
-        return stepRequest switch
-        {
-            SimulationStepRequest => AnalysisFlowMode.Simulation,
-            QualityEvaluationStepRequest => AnalysisFlowMode.QualityEvaluation,
-            DeferredQualityEvaluationStepRequest => AnalysisFlowMode.QualityEvaluation,
-            _ => throw new InvalidOperationException($"未対応の分析要求です: {stepRequest.GetType().Name}"),
-        };
+        var runsSimulation = stepRequests.Any(stepRequest => stepRequest is SimulationStepRequest);
+        var runsQualityEvaluation = stepRequests.Any(stepRequest => stepRequest is QualityEvaluationStepRequest or DeferredQualityEvaluationStepRequest);
+        return AnalysisFlowSelection.FromFlags(runsSimulation, runsQualityEvaluation);
     }
 
     sealed class ManualAnalysisExecutionState

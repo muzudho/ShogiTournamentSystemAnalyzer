@@ -33,14 +33,13 @@ internal static class ProgramConsoleGuide
             _ => ruleProfileAttributes.SimulationShape.ToString(),
         };
 
-        var mainlineLabel = string.Join(" -> ", result.AnalysisFlowSelection.Steps.Select(step => step switch
-        {
-            AnalysisFlowMode.Simulation => "TournamentFinalState -> FinalRanking",
-            AnalysisFlowMode.QualityEvaluation => "TournamentQualityReport",
-            _ => step.ToString(),
-        }));
+        var mainlineParts = new List<string>();
+        if (result.AnalysisFlowSelection.RunsSimulationDomain) mainlineParts.Add("SimulationDomain");
+        if (result.AnalysisFlowSelection.RunsFinalRankingDomain) mainlineParts.Add("FinalRankingDomain");
+        if (result.AnalysisFlowSelection.RunsQualityEvaluationDomain) mainlineParts.Add("QualityEvaluationDomain");
+        var mainlineLabel = string.Join(" -> ", mainlineParts);
 
-        Console.WriteLine($"選択された主線: {profileLabel} / {result.AnalysisFlowSelection.ToPromptLabel()} / {mainlineLabel}\n");
+        Console.WriteLine($"選択された主線: {profileLabel} / {mainlineLabel}\n");
     }
 
     static RuleProfileAttributes GetSelectedRuleProfileAttributes(TournamentUserDomainResult result)
