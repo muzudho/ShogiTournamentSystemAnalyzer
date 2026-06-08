@@ -48,7 +48,7 @@ internal static class StsaInputRequestParser
                 fullPath);
             if (stepRequest is null) return false;
 
-            request = new AnalysisRequest(
+            request = AnalysisRequest.FromAnalysisSteps(
                 flowSelection,
                 new[] { stepRequest });
             return true;
@@ -112,7 +112,7 @@ internal static class StsaInputRequestParser
             stepRequests.Add(stepRequest);
         }
 
-        request = new AnalysisRequest(
+        request = AnalysisRequest.FromAnalysisSteps(
             flowSelection,
             stepRequests);
         return true;

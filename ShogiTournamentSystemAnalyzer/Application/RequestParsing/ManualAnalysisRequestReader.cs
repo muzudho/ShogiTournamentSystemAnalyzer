@@ -30,7 +30,7 @@ internal static partial class ManualAnalysisRequestReader
             return false;
         }
 
-        analysisRequest = new AnalysisRequest(
+        analysisRequest = AnalysisRequest.FromAnalysisSteps(
             analysisFlowSelection,
             new[] { stepRequest });
         return true;

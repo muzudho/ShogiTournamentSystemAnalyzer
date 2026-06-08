@@ -30,7 +30,7 @@ internal static class ApplicationWorkflow
         //└───┬──┘
         if (!ApplicationTournamentUser.TryRunTournamentUserDomain(args, out var tournamentUserDomainResult)) return;  // エラー終了
 
-        // ［要求ファイル］から読んだ STSAInput/4 または STSAInput/5 直通要求は、要求側の StepRequests リスト構造で実行する。
+        // ［要求ファイル］から読んだ STSAInput/4 または STSAInput/5 直通要求は、要求側の3大域プロパティ構造で実行する。
         if (tournamentUserDomainResult.AnalysisRequest is not null)
         {
             ProgramConsoleGuide.PrintSelectedMainline(tournamentUserDomainResult);
@@ -190,7 +190,7 @@ internal static class ApplicationWorkflow
     {
         if (manualExecutionState is null) return;
 
-        if (manualExecutionState.StepRequests.Count == 0)
+        if (manualExecutionState.RecordedAnalysisSteps.Count == 0)
         {
             Console.WriteLine("実行する分析は選ばれませんでした。\n");
             return;
@@ -198,9 +198,9 @@ internal static class ApplicationWorkflow
 
         if (string.IsNullOrWhiteSpace(manualExecutionState.RequestFilePath)) return;
 
-        var request = new AnalysisRequest(
-            BuildAnalysisFlowSelection(manualExecutionState.StepRequests),
-            manualExecutionState.StepRequests.ToArray());
+        var request = AnalysisRequest.FromAnalysisSteps(
+            BuildAnalysisFlowSelection(manualExecutionState.RecordedAnalysisSteps),
+            manualExecutionState.RecordedAnalysisSteps.ToArray());
 
         Console.WriteLine($"要求ファイルを書き出します: {manualExecutionState.RequestFilePath}\n");
         StsaFileIOHelper.Write(
@@ -229,7 +229,7 @@ internal static class ApplicationWorkflow
 
         internal AnalysisExecutionContext Context { get; } = new();
 
-        internal IReadOnlyList<AnalysisStepRequest> StepRequests => _stepRequests;
+        internal IReadOnlyList<AnalysisStepRequest> RecordedAnalysisSteps => _stepRequests;
 
         internal void AddStepRequest(AnalysisStepRequest stepRequest)
         {

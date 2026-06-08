@@ -11,8 +11,8 @@ internal static class AnalysisRequestDispatcher
     {
         var context = new AnalysisExecutionContext();
 
-        // 要求ファイルから読んだ具体要求は、StepRequests のリスト構造として順に扱う。
-        foreach (var requestedStep in request.StepRequests)
+        // 要求ファイルから読んだ具体要求は、3大域プロパティから実行順に復元して扱う。
+        foreach (var requestedStep in request.GetExecutableAnalysisSteps())
         {
             ExecuteSingle(requestedStep, context);
         }

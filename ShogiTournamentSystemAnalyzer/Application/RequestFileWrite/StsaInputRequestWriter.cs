@@ -25,50 +25,51 @@ internal static class StsaInputRequestWriter
 
     static IReadOnlyList<string> BuildLines(AnalysisRequest request, bool useAttributeFormat)
     {
-        return request.StepRequests.Count == 1
-            ? BuildSingleStepLines(request, useAttributeFormat)
-            : BuildMultiStepLines(request, useAttributeFormat);
+        var stepRequests = request.GetExecutableAnalysisSteps();
+        return stepRequests.Count == 1
+            ? BuildSingleStepLines(stepRequests, useAttributeFormat)
+            : BuildMultiStepLines(stepRequests, useAttributeFormat);
     }
 
-    static IReadOnlyList<string> BuildSingleStepLines(AnalysisRequest request, bool useAttributeFormat)
+    static IReadOnlyList<string> BuildSingleStepLines(IReadOnlyList<AnalysisStepRequest> stepRequests, bool useAttributeFormat)
     {
         var lines = new List<string>
         {
             useAttributeFormat ? "#[Format] STSAInput/5" : "#[Format] STSAInput/4",
             string.Empty,
             "#[Section] Meta",
-            $"AnalysisFlowSteps={BuildAnalysisFlowStepsValue(request.StepRequests)}",
+            $"AnalysisFlowSteps={BuildAnalysisFlowStepsValue(stepRequests)}",
         };
 
         if (!useAttributeFormat)
         {
-            lines.Add($"RuleProfileMode={LegacyRuleProfileMapper.FormatLabel(request.StepRequests[0].GetRuleProfileAttributes())}");
+            lines.Add($"RuleProfileMode={LegacyRuleProfileMapper.FormatLabel(stepRequests[0].GetRuleProfileAttributes())}");
         }
 
-        AddMetaLines(lines, request.StepRequests[0]);
+        AddMetaLines(lines, stepRequests[0]);
         lines.Add("#[EndSection]");
 
         if (useAttributeFormat)
         {
-            AddRuleProfileAttributesSection(lines, "RuleProfileAttributes", request.StepRequests[0].GetRuleProfileAttributes());
+            AddRuleProfileAttributesSection(lines, "RuleProfileAttributes", stepRequests[0].GetRuleProfileAttributes());
         }
 
-        AddBodySections(lines, request.StepRequests[0]);
+        AddBodySections(lines, stepRequests[0]);
         return lines;
     }
 
-    static IReadOnlyList<string> BuildMultiStepLines(AnalysisRequest request, bool useAttributeFormat)
+    static IReadOnlyList<string> BuildMultiStepLines(IReadOnlyList<AnalysisStepRequest> stepRequests, bool useAttributeFormat)
     {
         var lines = new List<string>
         {
             useAttributeFormat ? "#[Format] STSAInput/5" : "#[Format] STSAInput/4",
             string.Empty,
             "#[Section] Meta",
-            $"AnalysisFlowSteps={BuildAnalysisFlowStepsValue(request.StepRequests)}",
+            $"AnalysisFlowSteps={BuildAnalysisFlowStepsValue(stepRequests)}",
             "#[EndSection]",
         };
 
-        foreach (var stepRequest in request.StepRequests)
+        foreach (var stepRequest in stepRequests)
         {
             var stepSectionName = GetStepSectionName(stepRequest);
             lines.Add(string.Empty);
@@ -87,7 +88,7 @@ internal static class StsaInputRequestWriter
             }
         }
 
-        foreach (var stepRequest in request.StepRequests)
+        foreach (var stepRequest in stepRequests)
         {
             var stepSectionName = GetStepSectionName(stepRequest);
             AddBodySections(lines, stepRequest, $"{stepSectionName}.", $"{stepSectionName}.Output");
