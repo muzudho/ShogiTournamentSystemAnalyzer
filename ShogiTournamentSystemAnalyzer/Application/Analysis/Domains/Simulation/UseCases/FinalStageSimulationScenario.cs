@@ -48,14 +48,18 @@ internal sealed class FinalStageSimulationScenario : ISimulationScenario
             {
                 var mainline = new FinalStageSimulationMainline();
                 var mainlineResult = mainline.Run(finalStageContext);
-                FinalRankingDomain.WriteFinalStageSimulationOutputs(
-                    tournamentFinalState: mainlineResult.SimulationResult.TournamentFinalState,
-                    firstPlayerWinRatePercent: finalStageContext.FirstPlayerWinRatePercent,
-                    finalRankingResult: mainlineResult.FinalRankingResult,
-                    outputPathOverride: null,
-                    players: finalStageContext.Players,
-                    referenceMatches: finalStageContext.ReferenceMatches,
-                    writeReferenceMatchesForMarkdown: mainlineResult.Presentation == SimulationMainlineResultPresentation.GroupedOverall);
+                return new SimulationDomainResult(
+                    mainlineResult.SimulationResult,
+                    mainlineResult.FinalRankingResult,
+                    new FinalRankingDomainInput(
+                        FinalRankingDomainInputKind.FinalStageSimulation,
+                        mainlineResult.SimulationResult.TournamentFinalState,
+                        finalStageContext.FirstPlayerWinRatePercent,
+                        mainlineResult.FinalRankingResult,
+                        null,
+                        finalStageContext.Players,
+                        finalStageContext.ReferenceMatches,
+                        WriteReferenceMatchesForMarkdown: mainlineResult.Presentation == SimulationMainlineResultPresentation.GroupedOverall));
             });
 
         return true;

@@ -3,6 +3,7 @@
  */
 namespace ShogiTournamentSystemAnalyzer.Application.Analysis;
 
+using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.FinalRanking.UseCases;
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.UseCases;
 using ShogiTournamentSystemAnalyzer.Application.RequestParsing;
 
@@ -12,9 +13,17 @@ internal sealed class AnalysisExecutionContext
 
     internal SimulationDomainResult? LastSimulationResult { get; private set; }
 
-    internal void SetSimulationResult(AnalysisStepRequest request, SimulationDomainResult? result)
+    internal FinalRankingDomainInput? PendingFinalRanking { get; private set; }
+
+    internal void SetSimulationResult(AnalysisStepRequest? request, SimulationDomainResult? result)
     {
         LastSimulationRequest = request;
         LastSimulationResult = result;
+        PendingFinalRanking = result?.PendingFinalRankingInput;
+    }
+
+    internal void ClearPendingFinalRanking()
+    {
+        PendingFinalRanking = null;
     }
 }

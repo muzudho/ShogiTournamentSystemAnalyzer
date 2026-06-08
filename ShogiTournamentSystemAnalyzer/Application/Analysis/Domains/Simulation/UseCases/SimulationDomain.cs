@@ -68,12 +68,17 @@ internal static class SimulationDomain
 
         var mainline = new StandardSimulationMainline();
         var mainlineResult = mainline.Run(context, request.SimulationCount);
-        FinalRankingDomain.WriteStandardSimulationOutputs(
-            mainlineResult.SimulationResult.TournamentFinalState,
-            context.FirstPlayerWinRatePercent,
-            mainlineResult.FinalRankingResult,
-            request.OutputPath);
-        return CreateResult(mainlineResult);
+        return CreateResult(
+            mainlineResult,
+            new FinalRankingDomainInput(
+                FinalRankingDomainInputKind.StandardSimulation,
+                mainlineResult.SimulationResult.TournamentFinalState,
+                context.FirstPlayerWinRatePercent,
+                mainlineResult.FinalRankingResult,
+                request.OutputPath,
+                context.Players,
+                Array.Empty<Match>(),
+                WriteReferenceMatchesForMarkdown: false));
     }
 
     static SimulationDomainResult ExecuteFinalStageSimulation(SimulationStepRequest request)
@@ -106,15 +111,17 @@ internal static class SimulationDomain
 
         var mainline = new FinalStageSimulationMainline();
         var mainlineResult = mainline.Run(context, request.SimulationCount);
-        FinalRankingDomain.WriteFinalStageSimulationOutputs(
-            mainlineResult.SimulationResult.TournamentFinalState,
-            context.FirstPlayerWinRatePercent,
-            mainlineResult.FinalRankingResult,
-            request.OutputPath,
-            context.Players,
-            context.ReferenceMatches,
-            writeReferenceMatchesForMarkdown: mainlineResult.Presentation == SimulationMainlineResultPresentation.GroupedOverall);
-        return CreateResult(mainlineResult);
+        return CreateResult(
+            mainlineResult,
+            new FinalRankingDomainInput(
+                FinalRankingDomainInputKind.FinalStageSimulation,
+                mainlineResult.SimulationResult.TournamentFinalState,
+                context.FirstPlayerWinRatePercent,
+                mainlineResult.FinalRankingResult,
+                request.OutputPath,
+                context.Players,
+                context.ReferenceMatches,
+                WriteReferenceMatchesForMarkdown: mainlineResult.Presentation == SimulationMainlineResultPresentation.GroupedOverall));
     }
 
     static void ExecuteTournamentFrameworkSimulation(SimulationStepRequest request)
@@ -137,8 +144,13 @@ internal static class SimulationDomain
         SimulationTournamentFrameworkMode.Run(context);
     }
 
-    static SimulationDomainResult CreateResult(SimulationMainlineResult mainlineResult)
+    static SimulationDomainResult CreateResult(
+        SimulationMainlineResult mainlineResult,
+        FinalRankingDomainInput pendingFinalRankingInput)
     {
-        return new SimulationDomainResult(mainlineResult.SimulationResult, mainlineResult.FinalRankingResult);
+        return new SimulationDomainResult(
+            mainlineResult.SimulationResult,
+            mainlineResult.FinalRankingResult,
+            pendingFinalRankingInput);
     }
 }

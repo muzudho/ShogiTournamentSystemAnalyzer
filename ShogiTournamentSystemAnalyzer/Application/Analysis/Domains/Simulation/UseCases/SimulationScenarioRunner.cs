@@ -3,6 +3,8 @@
  */
 namespace ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.UseCases;
 
+using ShogiTournamentSystemAnalyzer.Application.Analysis;
+
 /// <summary>
 /// ［シミュレーション域　＞　シナリオランナー］
 /// </summary>
@@ -21,6 +23,11 @@ internal static class SimulationScenarioRunner
         if (!scenario.TryPrepareExecution(out var plan)) return;
 
         // 実行
-        plan.Execute();
+        var result = plan.Execute();
+        if (result is null) return;
+
+        var context = new AnalysisExecutionContext();
+        context.SetSimulationResult(request: null, result);
+        FinalRankingRequestDispatcher.TryExecute(context);
     }
 }

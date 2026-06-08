@@ -11,23 +11,44 @@ internal static class AnalysisRequestDispatcher
     {
         var context = new AnalysisExecutionContext();
 
-        // 要求ファイルから読んだ具体要求は、3大域プロパティから実行順に復元して扱う。
-        foreach (var requestedStep in request.GetExecutableAnalysisSteps())
+        if (request.SimulationDomainRequest is not null)
         {
-            ExecuteSingle(requestedStep, context);
+            ExecuteSimulationDomain(request.SimulationDomainRequest.StepRequest, context);
+        }
+
+        if (request.FinalRankingDomainRequest is not null)
+        {
+            ExecuteFinalRankingDomain(context);
+        }
+
+        if (request.QualityEvaluationDomainRequest is not null)
+        {
+            ExecuteQualityEvaluationDomain(request.QualityEvaluationDomainRequest.StepRequest, context);
         }
     }
 
-    static void ExecuteSingle(AnalysisStepRequest stepRequest, AnalysisExecutionContext context)
+    static void ExecuteSimulationDomain(AnalysisStepRequest stepRequest, AnalysisExecutionContext context)
     {
-        if (SimulationRequestDispatcher.TryExecute(stepRequest, out var simulationResult))
+        if (!SimulationRequestDispatcher.TryExecute(stepRequest, out var simulationResult))
         {
-            context.SetSimulationResult(stepRequest, simulationResult);
-            return;
+            throw new InvalidOperationException($"未対応のシミュレーション域要求です: {stepRequest.GetType().Name}");
         }
 
+        context.SetSimulationResult(stepRequest, simulationResult);
+    }
+
+    static void ExecuteFinalRankingDomain(AnalysisExecutionContext context)
+    {
+        if (!FinalRankingRequestDispatcher.TryExecute(context))
+        {
+            throw new InvalidOperationException("最終順位付け域へ渡すシミュレーション結果がありません。");
+        }
+    }
+
+    static void ExecuteQualityEvaluationDomain(AnalysisStepRequest stepRequest, AnalysisExecutionContext context)
+    {
         if (QualityEvaluationRequestDispatcher.TryExecute(stepRequest, context)) return;
 
-        throw new InvalidOperationException($"未対応の分析要求です: {stepRequest.GetType().Name}");
+        throw new InvalidOperationException($"未対応の大会品質評価域要求です: {stepRequest.GetType().Name}");
     }
 }

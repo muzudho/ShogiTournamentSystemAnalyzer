@@ -5,4 +5,4 @@ namespace ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.
 
 internal readonly record struct SimulationExecutionPlan(
     string ExecutionLabel,
-    Action Execute);
+    Func<SimulationDomainResult?> Execute);

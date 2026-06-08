@@ -58,7 +58,7 @@ internal static class ApplicationWorkflow
         //┌───┴─────┐
         //│最終順位付け域　　│
         //└───┬─────┘
-        ExecuteFinalRankingDomain();
+        ExecuteFinalRankingDomain(manualExecutionState);
 
         //┌───┴─────┐
         //│大会品質評価域　　│
@@ -137,10 +137,16 @@ internal static class ApplicationWorkflow
     /// <summary>
     /// ［最終順位付け域］実行
     /// </summary>
-    private static void ExecuteFinalRankingDomain()
+    private static void ExecuteFinalRankingDomain(ManualAnalysisExecutionState? manualExecutionState)
     {
-        // 現時点の手入力フローでは、最終順位付け域の処理はシミュレーション域の中から呼ばれる。
-        // アプリケーション直下の順序としてはここに置き、後続分離時の差し込み位置を固定する。
+        if (manualExecutionState is null) return;
+        if (manualExecutionState.Context.PendingFinalRanking is null) return;
+
+        Console.WriteLine("■［最終順位付け域］");
+        if (!FinalRankingRequestDispatcher.TryExecute(manualExecutionState.Context))
+        {
+            throw new InvalidOperationException("未対応の最終順位付け域です。");
+        }
     }
 
     /// <summary>

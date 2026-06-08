@@ -7,6 +7,7 @@ using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.FinalRanking.Us
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.Modes;
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.SimulationMainline;
 using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.TournamentQualityEvaluator.Modes;
+using ShogiTournamentSystemAnalyzer.Domain.Simulation;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentRuleCore;
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
@@ -42,11 +43,18 @@ internal sealed class StandardSimulationScenario : ISimulationScenario
             {
                 var mainline = new StandardSimulationMainline();
                 var mainlineResult = mainline.Run(context);
-                FinalRankingDomain.WriteStandardSimulationOutputs(
-                    mainlineResult.SimulationResult.TournamentFinalState,
-                    context.FirstPlayerWinRatePercent,
+                return new SimulationDomainResult(
+                    mainlineResult.SimulationResult,
                     mainlineResult.FinalRankingResult,
-                    outputPathOverride: null);
+                    new FinalRankingDomainInput(
+                        FinalRankingDomainInputKind.StandardSimulation,
+                        mainlineResult.SimulationResult.TournamentFinalState,
+                        context.FirstPlayerWinRatePercent,
+                        mainlineResult.FinalRankingResult,
+                        null,
+                        context.Players,
+                        Array.Empty<Match>(),
+                        WriteReferenceMatchesForMarkdown: false));
             });
         return true;
     }

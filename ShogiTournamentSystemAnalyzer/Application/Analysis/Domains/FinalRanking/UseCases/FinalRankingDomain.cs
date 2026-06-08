@@ -19,6 +19,33 @@ using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 
 internal static class FinalRankingDomain
 {
+    internal static bool TryExecute(FinalRankingDomainInput input)
+    {
+        switch (input.Kind)
+        {
+            case FinalRankingDomainInputKind.StandardSimulation:
+                WriteStandardSimulationOutputs(
+                    input.TournamentFinalState,
+                    input.FirstPlayerWinRatePercent,
+                    input.FinalRankingResult,
+                    input.OutputPath);
+                return true;
+
+            case FinalRankingDomainInputKind.FinalStageSimulation:
+                WriteFinalStageSimulationOutputs(
+                    input.TournamentFinalState,
+                    input.FirstPlayerWinRatePercent,
+                    input.FinalRankingResult,
+                    input.OutputPath,
+                    input.Players,
+                    input.ReferenceMatches,
+                    input.WriteReferenceMatchesForMarkdown);
+                return true;
+
+            default:
+                return false;
+        }
+    }
     internal static IReadOnlyList<GeneralSimulationResultRow> BuildStandardResultRows(
         IReadOnlyList<Player> players,
         IReadOnlyList<Match> matches,
