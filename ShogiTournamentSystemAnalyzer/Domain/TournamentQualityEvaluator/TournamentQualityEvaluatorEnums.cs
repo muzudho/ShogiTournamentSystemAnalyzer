@@ -24,6 +24,9 @@ enum TournamentQualityEvaluationReportOutcome
     Bad,
 }
 
+/// <summary>
+/// TODO: ［４大域］は４つしかないのだから、配列ではなく、個別のプロパティにしてくれだぜ（＾～＾）こんなモード列挙型、要件に無いぜ（＾～＾）
+/// </summary>
 enum AnalysisFlowMode
 {
     Simulation,
