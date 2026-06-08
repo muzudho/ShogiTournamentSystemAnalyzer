@@ -3,7 +3,7 @@
  */
 namespace ShogiTournamentSystemAnalyzer.Application.Analysis;
 
-using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.TournamentQualityEvaluator.UseCases;
+using ShogiTournamentSystemAnalyzer.Application.TournamentQualityEvaluator.UseCases;
 using ShogiTournamentSystemAnalyzer.Application.RequestParsing;
 
 internal static class QualityEvaluationRequestDispatcher

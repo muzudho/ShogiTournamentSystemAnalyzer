@@ -3,7 +3,7 @@
  */
 namespace ShogiTournamentSystemAnalyzer.Application.Analysis;
 
-using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.UseCases;
+using ShogiTournamentSystemAnalyzer.Application.Simulation.UseCases;
 using ShogiTournamentSystemAnalyzer.Application.RequestParsing;
 
 internal static class SimulationRequestDispatcher

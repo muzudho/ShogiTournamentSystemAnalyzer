@@ -3,7 +3,7 @@
  */
 namespace ShogiTournamentSystemAnalyzer.Application.RequestParsing;
 
-using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.Modes;
+using ShogiTournamentSystemAnalyzer.Application.Simulation.Modes;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 using ShogiTournamentSystemAnalyzer.Presentation.ConsoleCustom;
 using Match = ShogiTournamentSystemAnalyzer.Domain.Simulation.Match;

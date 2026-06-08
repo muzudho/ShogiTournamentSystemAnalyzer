@@ -3,7 +3,7 @@
  */
 namespace ShogiTournamentSystemAnalyzer.Application.Analysis;
 
-using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.FinalRanking.UseCases;
+using ShogiTournamentSystemAnalyzer.Application.FinalRanking.UseCases;
 
 internal static class FinalRankingRequestDispatcher
 {

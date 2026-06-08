@@ -3,9 +3,9 @@
  */
 namespace ShogiTournamentSystemAnalyzer.Application.Analysis;
 
-using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.FinalRanking.UseCases;
-using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.Modes;
-using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.UseCases;
+using ShogiTournamentSystemAnalyzer.Application.FinalRanking.UseCases;
+using ShogiTournamentSystemAnalyzer.Application.Simulation.Modes;
+using ShogiTournamentSystemAnalyzer.Application.Simulation.UseCases;
 using ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
 
 /// <summary>

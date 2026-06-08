@@ -3,8 +3,8 @@
  */
 namespace ShogiTournamentSystemAnalyzer.Application.Analysis;
 
-using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.FinalRanking.UseCases;
-using ShogiTournamentSystemAnalyzer.Application.Analysis.Domains.Simulation.UseCases;
+using ShogiTournamentSystemAnalyzer.Application.FinalRanking.UseCases;
+using ShogiTournamentSystemAnalyzer.Application.Simulation.UseCases;
 using ShogiTournamentSystemAnalyzer.Application.RequestParsing;
 
 internal sealed class AnalysisExecutionContext
