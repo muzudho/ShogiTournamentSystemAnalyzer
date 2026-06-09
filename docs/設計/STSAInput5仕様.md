@@ -199,6 +199,52 @@ PairingSource=ScheduledMatches
 
 入力データは共有セクションを使えます。出力は `SimulationStep.Output` / `QualityEvaluationStep.Output` に分けます。複数ステップ時に共有 `Output` だけを書くと、どのステップの出力先か曖昧になるためエラーになります。
 
+## QualityScoreRule
+
+`QualityEvaluation` では、品質評価総合点の計算ルールを `QualityScoreRule` セクションで指定できます。省略した場合は `Balanced` が使われます。
+
+単一ステップでは `QualityScoreRule`、複数ステップでは `QualityEvaluationStep.QualityScoreRule` を使います。
+
+```plaintext
+#[Section] QualityScoreRule
+Preset=Balanced
+ScoreMax=100000
+MeanRankErrorTolerance=4
+SpearmanWeight=40000
+MeanRankErrorWeight=25000
+Top8RetentionWeight=20000
+EloTop1WinWeight=15000
+#[EndSection]
+```
+
+| キー | 値 | 省略時 |
+| --- | --- | --- |
+| `Preset` | `Balanced` / `ChampionFocused` / `Top8Focused` | `Balanced` |
+| `ScoreMax` | 1 以上の整数 | プリセット値 |
+| `MeanRankErrorTolerance` | 0 より大きい数 | プリセット値 |
+| `SpearmanWeight` | 0 以上の整数 | プリセット値 |
+| `MeanRankErrorWeight` | 0 以上の整数 | プリセット値 |
+| `Top8RetentionWeight` | 0 以上の整数 | プリセット値 |
+| `EloTop1WinWeight` | 0 以上の整数 | プリセット値 |
+
+プリセットの既定値は次のとおりです。
+
+| プリセット | `ScoreMax` | `MeanRankErrorTolerance` | `SpearmanWeight` | `MeanRankErrorWeight` | `Top8RetentionWeight` | `EloTop1WinWeight` |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| `Balanced` | `100000` | `4.0` | `40000` | `25000` | `20000` | `15000` |
+| `ChampionFocused` | `100000` | `4.0` | `30000` | `20000` | `15000` | `35000` |
+| `Top8Focused` | `100000` | `4.0` | `30000` | `20000` | `35000` | `15000` |
+
+重みを個別指定する場合、`SpearmanWeight` / `MeanRankErrorWeight` / `Top8RetentionWeight` / `EloTop1WinWeight` の合計は `ScoreMax` と一致する必要があります。
+
+複数ステップで `QualityEvaluation` だけに指定する例:
+
+```plaintext
+#[Section] QualityEvaluationStep.QualityScoreRule
+Preset=Top8Focused
+#[EndSection]
+```
+
 ## 現在の制約
 
 - `STSAInput/5` は要求ファイルの直通 parser 専用です。直通 parser に乗らない場合、legacy 入力へ fallback せず明示エラーになります。
