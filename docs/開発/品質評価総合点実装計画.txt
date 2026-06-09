@@ -1,0 +1,359 @@
+【品質評価サマリーレポート 総合点】実装計画
+
+目的
+======
+品質評価サマリーレポートに、複数の品質指標をまとめた［総合点］を追加する。
+
+現在の品質評価は、Spearman 相関、平均順位ずれ、Elo 上位8名残留、Elo1位の総合1位確率などを個別に出している。
+これらは説明力が高い一方、ルール案同士を一目で比較するときには「結局どちらが良いか」が分かりにくい。
+
+総合点は、ビデオゲームのスコアのように「この大会ルールを高得点化する」目標を作るための指標とする。
+ただし、総合点は唯一の真理ではなく、評価目的ごとに重みを変えられる合成指標として扱う。
+
+
+基本方針
+========
+1. 100000点満点を基本にする
+   - 10000点でも運用できるが、比較時の細かい差を見やすくするため初期値は 100000 点満点とする。
+   - 要求ファイルで ScoreMax を指定できるようにする。
+
+2. 指標を 0.0 から 1.0 に正規化してから重みを掛ける
+   - 指標ごとに単位が違うため、直接足し合わせない。
+   - 正規化後のスコア内訳をレポートに出し、点数の理由を追えるようにする。
+
+3. 最初はプリセット + 重み指定にする
+   - 自由数式パーサーは実装コストと事故リスクが高いので後回し。
+   - MVP では Balanced / ChampionFocused / Top8Focused のプリセットを用意し、必要なら重みを上書きする。
+
+4. 総合点だけで判断させない
+   - Markdown と CSV に、総合点、満点、プリセット名、重み、各内訳点を出す。
+   - 既存の個別指標は残す。
+
+
+MVP の計算式
+============
+総合点は次の 4 指標から作る。
+
+- Spearman 相関
+- 平均順位ずれ
+- Elo 上位8名の総合上位8位残留人数
+- Elo1位の総合1位確率
+
+正規化案:
+
+- SpearmanScore = clamp((SpearmanCorrelation + 1.0) / 2.0, 0.0, 1.0)
+- MeanRankErrorScore = clamp(1.0 - MeanAbsoluteRankError / MeanRankErrorTolerance, 0.0, 1.0)
+- Top8RetentionScore = clamp(AverageTop8Retention / 8.0, 0.0, 1.0)
+- EloTop1WinScore = clamp(EloTop1OverallTop1Probability, 0.0, 1.0)
+
+総合点:
+
+TotalScore = round(
+    SpearmanScore * SpearmanWeight
+  + MeanRankErrorScore * MeanRankErrorWeight
+  + Top8RetentionScore * Top8RetentionWeight
+  + EloTop1WinScore * EloTop1WinWeight
+)
+
+重みの合計が ScoreMax と一致しない場合は、次のどちらかにする。
+
+MVP 推奨:
+- 起動時にエラーにする。
+- 理由: レポートの説明が単純で、要求ファイルの意図も明確になる。
+
+将来候補:
+- 重み合計を ScoreMax に自動正規化する。
+
+
+初期プリセット
+==============
+Balanced
+--------
+総合的なルール比較用の標準プリセット。
+
+- ScoreMax = 100000
+- MeanRankErrorTolerance = 4.0
+- SpearmanWeight = 40000
+- MeanRankErrorWeight = 25000
+- Top8RetentionWeight = 20000
+- EloTop1WinWeight = 15000
+
+ChampionFocused
+---------------
+最強者が総合1位になりやすいことを強く見るプリセット。
+
+- ScoreMax = 100000
+- MeanRankErrorTolerance = 4.0
+- SpearmanWeight = 30000
+- MeanRankErrorWeight = 20000
+- Top8RetentionWeight = 15000
+- EloTop1WinWeight = 35000
+
+Top8Focused
+-----------
+本戦進出者や上位8名の妥当性を強く見るプリセット。
+
+- ScoreMax = 100000
+- MeanRankErrorTolerance = 4.0
+- SpearmanWeight = 30000
+- MeanRankErrorWeight = 20000
+- Top8RetentionWeight = 35000
+- EloTop1WinWeight = 15000
+
+
+要求ファイル仕様案
+==================
+STSAInput/5 では、品質評価ステップに任意の QualityScoreRule セクションを追加する。
+単一ステップでは次の名前を使う。
+
+#[Section] QualityScoreRule
+Preset=Balanced
+ScoreMax=100000
+MeanRankErrorTolerance=4.0
+SpearmanWeight=40000
+MeanRankErrorWeight=25000
+Top8RetentionWeight=20000
+EloTop1WinWeight=15000
+#[EndSection]
+
+複数ステップでは、ステップ別セクションを使う。
+
+#[Section] QualityEvaluationStep.QualityScoreRule
+Preset=Balanced
+ScoreMax=100000
+MeanRankErrorTolerance=4.0
+SpearmanWeight=40000
+MeanRankErrorWeight=25000
+Top8RetentionWeight=20000
+EloTop1WinWeight=15000
+#[EndSection]
+
+省略時の扱い:
+- MVP では QualityScoreRule 省略時も Balanced を使い、総合点を出す。
+- ただし、将来「総合点を出さない」選択が必要なら Enabled=Off を追加する。
+
+入力検証:
+- Preset は Balanced / ChampionFocused / Top8Focused のいずれか。
+- ScoreMax は 1 以上の整数。
+- MeanRankErrorTolerance は 0 より大きい数。
+- 各 Weight は 0 以上の整数。
+- Weight 合計は ScoreMax と一致すること。
+- Preset と個別 Weight が両方ある場合は、個別 Weight が上書きする。
+
+
+データモデル案
+==============
+追加候補ファイル:
+- ShogiTournamentSystemAnalyzer/Domain/TournamentQualityEvaluator/TournamentQualityScoreModels.cs
+
+追加 record 案:
+
+- TournamentQualityScoreRule
+  - PresetName
+  - ScoreMax
+  - MeanRankErrorTolerance
+  - SpearmanWeight
+  - MeanRankErrorWeight
+  - Top8RetentionWeight
+  - EloTop1WinWeight
+
+- TournamentQualityScoreBreakdown
+  - TotalScore
+  - ScoreMax
+  - PresetName
+  - SpearmanScore
+  - SpearmanPoints
+  - MeanRankErrorScore
+  - MeanRankErrorPoints
+  - Top8RetentionScore
+  - Top8RetentionPoints
+  - EloTop1WinScore
+  - EloTop1WinPoints
+
+既存モデルの拡張:
+- TournamentQualityReportSummary に ScoreBreakdown を追加する案
+- または TournamentQualityReportRun / TournamentQualityReportData 側に ScoreBreakdown を追加する案
+
+推奨:
+- TournamentQualityReportSummary に含める。
+- 理由: 総合点はサマリー指標であり、CSV / Markdown / Sweep で同じ扱いにしやすい。
+
+
+実装対象ファイル
+================
+主な変更候補:
+
+1. 要求パース
+- ShogiTournamentSystemAnalyzer/Application/RequestParsing/StsaInputRequestParser.cs
+  - QualityScoreRule セクションを読む。
+  - 単一ステップと複数ステップの両方に対応する。
+  - QualityEvaluationStepRequest へスコアルールを渡す。
+
+- ShogiTournamentSystemAnalyzer/Application/RequestFileCheck/StsaInputSectionParser.cs
+  - 既存のセクション読み取りは流用できる見込み。
+
+2. 入力モデル
+- ShogiTournamentSystemAnalyzer/Application/RequestParsing/AnalysisRequest.cs
+  - QualityEvaluationStepRequest または OutputOptions / ExecutionOptions 周辺に TournamentQualityScoreRule を追加する。
+
+3. 品質評価ドメイン
+- ShogiTournamentSystemAnalyzer/Domain/TournamentQualityEvaluator/TournamentQualityEvaluatorModels.cs
+  - Summary / Run / SweepRow に総合点または内訳を追加する。
+
+- ShogiTournamentSystemAnalyzer/Domain/TournamentQualityEvaluator/TournamentQualityEvaluationReportBuilder.cs
+  - BuildTournamentQualityReportSummary の後段、または別 builder で総合点を計算する。
+
+追加候補:
+- ShogiTournamentSystemAnalyzer/Domain/TournamentQualityEvaluator/TournamentQualityScoreCalculator.cs
+  - 正規化、clamp、重み計算を分離する。
+
+4. 出力
+- ShogiTournamentSystemAnalyzer/Infrastructure/DataFiles/TournamentQualityReport/TournamentQualityReportDataFileWriter.cs
+  - Summary CSV に totalScore / scoreMax / scorePreset / 各内訳点を追加する。
+  - Markdown の「指標サマリー」前後に「総合点」セクションを追加する。
+  - Sweep CSV / Sweep Markdown に totalScore を追加し、最良点の判定候補にできるようにする。
+
+5. ドキュメント
+- docs/設計/品質評価.md
+  - 総合点の意味、計算式、注意点を追加する。
+
+- docs/設計/STSAInput5仕様.md
+  - QualityScoreRule セクションを追加する。
+
+- docs/設計/CSVと出力.md
+  - Summary CSV / Markdown の追加列を説明する。
+
+
+出力イメージ
+============
+Markdown:
+
+## 総合点
+- 総合点: 87342 / 100000
+- スコアルール: Balanced
+- 平均順位ずれ許容値: 4.0
+
+| 内訳 | 正規化値 | 点 | 最大点 |
+| --- | ---: | ---: | ---: |
+| Spearman 相関 | 0.998530 | 39941 | 40000 |
+| 平均順位ずれ | 0.760313 | 19008 | 25000 |
+| Elo上位8名残留 | 0.954271 | 19085 | 20000 |
+| Elo1位の総合1位確率 | 0.264881 | 3973 | 15000 |
+
+Summary CSV:
+
+- totalScore
+- scoreMax
+- scorePreset
+- scoreSpearmanNormalized
+- scoreSpearmanPoints
+- scoreMeanRankErrorNormalized
+- scoreMeanRankErrorPoints
+- scoreTop8RetentionNormalized
+- scoreTop8RetentionPoints
+- scoreEloTop1WinNormalized
+- scoreEloTop1WinPoints
+
+Sweep CSV:
+- firstPlayerWinRatePercent の行に totalScore を追加する。
+- 将来、n% スイープで「総合点が最大の先手勝率」を自動コメントに出す。
+
+
+段階的な実装順
+==============
+第1段階: ドメイン計算だけ追加
+------------------------------
+- TournamentQualityScoreRule を作る。
+- TournamentQualityScoreBreakdown を作る。
+- TournamentQualityScoreCalculator を作る。
+- 既存 Summary から総合点を計算できるようにする。
+
+第2段階: 既定 Balanced を固定で出力
+-----------------------------------
+- 要求ファイル指定はまだ読まず、全品質評価で Balanced を使う。
+- Markdown / CSV に総合点と内訳を出す。
+- ここで既存レポートの見た目と CSV 互換性を確認する。
+
+第3段階: STSAInput/5 の QualityScoreRule 対応
+---------------------------------------------
+- 単一ステップの QualityScoreRule を読む。
+- 複数ステップの QualityEvaluationStep.QualityScoreRule を読む。
+- Preset と個別重み上書きに対応する。
+
+第4段階: Sweep 対応
+-------------------
+- TournamentQualitySweepReportRow に TotalScore を追加する。
+- Sweep CSV / Markdown に総合点を追加する。
+- 「総合点が最大の点」を注目ポイントに追加する。
+
+第5段階: ドキュメントとサンプル
+-------------------------------
+- docs/設計/品質評価.md に総合点を追記する。
+- docs/設計/STSAInput5仕様.md に QualityScoreRule を追記する。
+- Inputs/Smoke に小さな要求ファイルを追加する。
+
+
+テスト観点
+==========
+単体に近い確認:
+- Spearman=1、MAE=0、Top8=8、Top1=1 なら満点になる。
+- Spearman=-1、MAE が許容値以上、Top8=0、Top1=0 なら 0 点になる。
+- MAE が許容値の半分なら MeanRankErrorScore が 0.5 になる。
+- Weight 合計が ScoreMax と違うとエラーになる。
+- Weight=0 の項目は総合点に影響しない。
+
+要求ファイル確認:
+- QualityScoreRule 省略時は Balanced になる。
+- Preset=ChampionFocused で EloTop1WinWeight が大きくなる。
+- 複数ステップでは QualityEvaluationStep.QualityScoreRule が優先される。
+- 不正な Preset、負の Weight、0 以下の MeanRankErrorTolerance は弾く。
+
+出力確認:
+- Summary CSV に totalScore と内訳が出る。
+- Markdown に総合点セクションが出る。
+- Sweep CSV に totalScore が出る。
+- 既存の Spearman / MAE / Top8 / Top1 指標は変わらない。
+
+退行確認:
+- dotnet build が通る。
+- 既存 Smoke の品質評価要求ファイルが通る。
+- 既存の Summary / Players CSV 出力が壊れない。
+
+
+注意点
+======
+1. 総合点の比較対象を明示する
+   - スコアルールが違う総合点同士は直接比較しない。
+   - Markdown に Preset と Weight を必ず出す。
+
+2. 高得点化が目的化しすぎないようにする
+   - 総合点は便利だが、内訳の確認を前提にする。
+   - 特に ChampionFocused は最強者重視に偏るため、上位8残留や平均順位ずれが悪化していないか確認する。
+
+3. 初期値は保守的にする
+   - Balanced を既定にする。
+   - MeanRankErrorTolerance=4.0 は仮置き。今後の実験で調整する。
+
+
+実装しないこと
+==============
+今回の実装計画では、次は対象外にする。
+
+- 自由数式パーサー
+- ユーザー定義の任意指標追加
+- GUI でのスコア調整
+- AI による自動重み最適化
+
+これらは、総合点の MVP が安定してから検討する。
+
+
+結論
+====
+品質評価サマリーレポートに［総合点］を追加する価値は高い。
+
+最初は、100000点満点、Balanced プリセット、4 指標の正規化加重和で始めるのがよい。
+要求ファイルでは QualityScoreRule セクションでスコアルールを指定できるようにし、レポートには総合点だけでなく内訳と重みも必ず出す。
+
+実装は、まず固定 Balanced の総合点出力から始め、次に要求ファイル指定、最後に Sweep 対応へ進めるのが安全。
+
+以上。
