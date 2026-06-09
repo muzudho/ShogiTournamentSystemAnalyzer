@@ -26,6 +26,7 @@
 - [rename-to-ShogiTournamentSystemAnalyzer.txt](./rename-to-ShogiTournamentSystemAnalyzer.txt)
 - [rename-to-ShogiTournamentPairingAnalyzer.txt](./rename-to-ShogiTournamentPairingAnalyzer.txt)
 - [品質評価モード実装計画.txt](./品質評価モード実装計画.txt)
+- [品質評価総合点_試行回数信頼区分実装計画.txt](./品質評価総合点_試行回数信頼区分実装計画.txt)
 - [実装タスク一覧_本戦専用モードと品質評価モード.txt](./実装タスク一覧_本戦専用モードと品質評価モード.txt)
 - [本戦専用モード実装計画.txt](./本戦専用モード実装計画.txt)
 

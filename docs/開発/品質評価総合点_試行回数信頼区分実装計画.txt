@@ -1,0 +1,248 @@
+【品質評価総合点 試行回数と信頼区分】実装計画
+
+目的
+====
+品質評価サマリーレポートの［総合点］に、必ず試行回数と信頼区分を添える。
+
+総合点は大会ルールの品質を比較しやすくする指標だが、シミュレーション試行回数が少ない場合は値が大きく揺れる。
+そのため、総合点そのものには試行回数を混ぜず、総合点の横に「この点数をどの程度の重みで見てよいか」を示す信頼区分を出す。
+
+
+基本方針
+========
+1. 総合点の計算式は変えない
+   - 試行回数を総合点へ直接加点・減点しない。
+   - 大会ルール品質と計算の確からしさを分けて表示する。
+
+2. 総合点には必ず試行回数を添える
+   - Markdown、Summary CSV、Sweep CSV、コンソール出力に SimulationCount を出す。
+   - 直列実行の品質評価でも、品質評価ステップで実際に使った SimulationCount を表示する。
+
+3. 試行回数が少ない総合点は参考記録として扱う
+   - 参考記録でも総合点は出す。
+   - ただし比較やランキングの主材料にすると危ないことをラベルで示す。
+
+4. 本評価は 20000 回以上にする
+   - 10000 回台でも比較には使えるが、丸めや確率指標のブレを考えると本評価の線引きは 20000 回以上が妥当。
+
+
+信頼区分
+========
+初期案:
+
+- 1 以上 199 以下
+  - ラベル: 参考記録
+  - 用途: smoke、動作確認、入力形式確認
+  - isReferenceRecord: true
+  - isOfficialEvaluation: false
+
+- 200 以上 1999 以下
+  - ラベル: 軽量確認
+  - 用途: ざっくり傾向を見る
+  - isReferenceRecord: false
+  - isOfficialEvaluation: false
+
+- 2000 以上 19999 以下
+  - ラベル: 比較用
+  - 用途: ルール案同士の比較、次に試す条件の選定
+  - isReferenceRecord: false
+  - isOfficialEvaluation: false
+
+- 20000 以上
+  - ラベル: 本評価
+  - 用途: レポート本文、結論、採用候補の判断
+  - isReferenceRecord: false
+  - isOfficialEvaluation: true
+
+SimulationCount が 0 以下または未解決の場合は、既存の入力検証で弾くか、信頼区分を Unknown にする。
+通常の品質評価では SimulationCount は必須または既定値補完済みなので、MVP では Unknown を出さない方針でよい。
+
+
+出力イメージ
+============
+Markdown:
+
+## 総合点
+- 総合点: 58044 / 100000
+- 試行回数: 10
+- 信頼区分: 参考記録
+- スコアルール: ChampionFocused
+- 平均順位ずれ許容値: 4.0
+
+コンソール:
+
+品質評価サマリー:
+- 総合点: 58044 / 100000 (ChampionFocused)
+- 試行回数: 10
+- 信頼区分: 参考記録
+
+Summary CSV 追加行:
+
+- simulationCount
+- scoreReliabilityLabel
+- isReferenceRecord
+- isOfficialEvaluation
+
+Sweep CSV 追加列:
+
+- simulationCount
+- scoreReliabilityLabel
+- isReferenceRecord
+- isOfficialEvaluation
+
+
+データモデル案
+==============
+追加候補:
+
+- TournamentQualityScoreReliability
+  - SimulationCount
+  - Label
+  - IsReferenceRecord
+  - IsOfficialEvaluation
+
+または、総合点専用モデルに含める:
+
+- TournamentQualityScoreBreakdown
+  - TotalScore
+  - ScoreMax
+  - PresetName
+  - SimulationCount
+  - ReliabilityLabel
+  - IsReferenceRecord
+  - IsOfficialEvaluation
+  - 各内訳点
+
+推奨:
+- 小さな record として TournamentQualityScoreReliability を作り、TournamentQualityScoreBreakdown に持たせる。
+- 理由: 将来、総合点以外の品質指標にも同じ信頼区分を添えられる。
+
+
+実装対象ファイル
+================
+主な変更候補:
+
+1. 信頼区分計算
+- ShogiTournamentSystemAnalyzer/Domain/TournamentQualityEvaluator/TournamentQualityScoreModels.cs
+  - TournamentQualityScoreReliability を追加する。
+
+- ShogiTournamentSystemAnalyzer/Domain/TournamentQualityEvaluator/TournamentQualityScoreCalculator.cs
+  - SimulationCount から信頼区分を作る。
+  - ScoreBreakdown に信頼区分を含める。
+
+2. 品質評価サマリー
+- ShogiTournamentSystemAnalyzer/Domain/TournamentQualityEvaluator/TournamentQualityEvaluatorModels.cs
+  - Summary または ScoreBreakdown に信頼区分を保持する。
+
+- ShogiTournamentSystemAnalyzer/Domain/TournamentQualityEvaluator/TournamentQualityEvaluationReportBuilder.cs
+  - 実際に使った SimulationCount を ScoreCalculator へ渡す。
+
+3. 出力
+- ShogiTournamentSystemAnalyzer/Infrastructure/DataFiles/TournamentQualityReport/TournamentQualityReportDataFileWriter.cs
+  - Markdown の総合点セクションに試行回数と信頼区分を出す。
+  - Summary CSV に simulationCount / scoreReliabilityLabel / isReferenceRecord / isOfficialEvaluation を出す。
+  - Sweep CSV / Markdown にも同じ情報を出す。
+
+4. コンソール表示
+- 品質評価サマリーの総合点表示直後に、試行回数と信頼区分を表示する。
+
+5. ドキュメント
+- docs/設計/品質評価.md
+  - 総合点は試行回数つきで読むこと、200回未満は参考記録、20000回以上を本評価とすることを追記する。
+
+- docs/設計/STSAInput5仕様.md
+  - QualityEvaluationStep の SimulationCount が総合点の信頼区分に使われることを追記する。
+
+- docs/設計/CSVと出力.md
+  - Summary CSV / Sweep CSV の追加項目を説明する。
+
+
+段階的な実装順
+==============
+第1段階: 信頼区分モデルを追加
+------------------------------
+- TournamentQualityScoreReliability を作る。
+- SimulationCount から 参考記録 / 軽量確認 / 比較用 / 本評価 を返す関数を作る。
+- 境界値 199 / 200 / 1999 / 2000 / 19999 / 20000 をテストする。
+
+第2段階: 単発品質評価の出力に追加
+---------------------------------
+- Summary Markdown に試行回数と信頼区分を出す。
+- Summary CSV に simulationCount / scoreReliabilityLabel / isReferenceRecord / isOfficialEvaluation を出す。
+- コンソールの品質評価サマリーにも出す。
+
+第3段階: Sweep 出力に追加
+-------------------------
+- Sweep CSV / Markdown に試行回数と信頼区分を出す。
+- 同じ Sweep 内では SimulationCount は同一のはずだが、行ごとに出して CSV 単体で読めるようにする。
+
+第4段階: ドキュメント更新
+-------------------------
+- docs/設計/品質評価.md に読み方を追加する。
+- docs/設計/CSVと出力.md に追加項目を追加する。
+- 必要なら smoke 要求ファイルのコメントや説明に、10回は参考記録であることを明記する。
+
+
+テスト観点
+==========
+単体に近い確認:
+- SimulationCount=1 は 参考記録。
+- SimulationCount=199 は 参考記録。
+- SimulationCount=200 は 軽量確認。
+- SimulationCount=1999 は 軽量確認。
+- SimulationCount=2000 は 比較用。
+- SimulationCount=19999 は 比較用。
+- SimulationCount=20000 は 本評価。
+
+出力確認:
+- Markdown の総合点セクションに試行回数と信頼区分が出る。
+- Summary CSV に simulationCount / scoreReliabilityLabel / isReferenceRecord / isOfficialEvaluation が出る。
+- Sweep CSV に同じ項目が出る。
+- SimulationCount=10 の smoke は 参考記録になる。
+- SimulationCount=20000 以上の要求は 本評価になる。
+
+退行確認:
+- dotnet build が通る。
+- 既存の品質評価 smoke が通る。
+- 総合点の数値自体は、信頼区分追加前後で変わらない。
+
+
+注意点
+======
+1. 信頼区分は総合点の一部ではない
+   - 58044 点の参考記録と 58044 点の本評価は、点数は同じでも信頼性が違う。
+   - 比較表では点数だけでなく信頼区分も必ず見る。
+
+2. 参考記録を隠さない
+   - smoke や小さな実験でも総合点は見たい。
+   - ただし、参考記録ラベルを付けて、結論に使いすぎないようにする。
+
+3. 閾値は将来調整可能にする余地を残す
+   - MVP では固定値でよい。
+   - 将来、要求ファイルで ReliabilityRule を指定する拡張はあり得る。
+   - ただし最初から可変にすると比較基準がぶれるので、まずは固定値を推奨する。
+
+
+実装しないこと
+==============
+今回の計画では、次は対象外にする。
+
+- 試行回数による総合点の補正
+- 信頼区分の要求ファイル指定
+- 信頼区分ごとの自動再実行
+- 乱数 seed 違いの分散推定
+- 信頼区間や標準誤差の計算
+
+これらは、試行回数表示と信頼区分ラベルが安定してから検討する。
+
+
+結論
+====
+総合点には必ず試行回数と信頼区分を添える。
+
+総合点は大会ルール品質、信頼区分は計算の確からしさとして分けて扱う。
+200回未満は参考記録、200回以上は軽量確認、2000回以上は比較用、20000回以上は本評価とする。
+
+この方針なら、SimulationCount=10 の smoke でも総合点を楽しく見られる一方で、結論に使う評価は 20000 回以上へ自然に誘導できる。
+
+以上。
