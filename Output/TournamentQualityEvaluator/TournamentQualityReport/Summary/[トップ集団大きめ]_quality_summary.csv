@@ -1,7 +1,25 @@
-metricName,metricValue,note
-spearmanCorrelation,1.000000,Elo順位と期待総合順位の相関
-meanAbsoluteRankError,1.399885,期待総合順位とElo順位のずれの絶対値平均
-averageTop8Retention,7.644672,Elo上位8名が総合上位8位に残る人数の期待値
-eloTop1OverallTop1Probability,22.184161,Elo1位が総合1位になる確率(%)
-mostPenalizedPlayerDelta,2.479066,圭
-mostAdvantagedPlayerDelta,-3.356923,ねこ
+boundaryName,schemaName,rowType,metricName,metricValue,note
+TournamentQualityReport,summaryMetrics,metric,totalScore,78744,品質評価総合点 / 100000
+TournamentQualityReport,summaryMetrics,metric,scoreMax,100000,品質評価総合点の満点
+TournamentQualityReport,summaryMetrics,meta,scorePreset,Balanced,品質評価総合点プリセット
+TournamentQualityReport,summaryMetrics,metric,simulationCount,20000,品質評価総合点に添える試行回数
+TournamentQualityReport,summaryMetrics,meta,scoreReliabilityLabel,本評価,品質評価総合点の信頼区分
+TournamentQualityReport,summaryMetrics,meta,isReferenceRecord,False,参考記録か
+TournamentQualityReport,summaryMetrics,meta,isOfficialEvaluation,True,本評価か
+TournamentQualityReport,summaryMetrics,metric,scoreSpearmanNormalized,1.000000,40000 / 40000
+TournamentQualityReport,summaryMetrics,metric,scoreMeanRankErrorNormalized,0.648954,16224 / 25000
+TournamentQualityReport,summaryMetrics,metric,scoreTop8RetentionNormalized,0.955793,19116 / 20000
+TournamentQualityReport,summaryMetrics,metric,scoreEloTop1WinNormalized,0.226951,3404 / 15000
+TournamentQualityReport,summaryMetrics,metric,spearmanCorrelation,1.000000,Elo順位と期待総合順位の相関
+TournamentQualityReport,summaryMetrics,metric,meanAbsoluteRankError,1.404183,期待総合順位とElo順位のずれの絶対値平均
+TournamentQualityReport,summaryMetrics,metric,averageTop8Retention,7.646343,Elo上位8名が総合上位8位に残る人数の期待値
+TournamentQualityReport,summaryMetrics,metric,eloTop1OverallTop1Probability,22.695077,Elo1位が総合1位になる確率(%)
+TournamentQualityReport,summaryMetrics,metric,mostPenalizedPlayerDelta,2.469875,圭
+TournamentQualityReport,summaryMetrics,metric,mostAdvantagedPlayerDelta,-3.380480,ねこ
+nextCycleSuggestionTitle,,次回の品質評価提案
+nextCycleSuggestedSetting,,同Elo対局時の先手勝率(%) = 51.00
+nextCycleSuggestedSetting,,ピンポイント比較候補(%) = 52.00
+nextCycleSuggestedSetting,,"シミュレーション試行回数 = 10,000"
+nextCycleSuggestedSetting,,"まず一点だけ見る試行回数 = 5,000"
+nextCycleSuggestedSetting,,軽量確認の見方 = 選手 16 人 / 対局 64 件では、先に 1 条件だけ再確認してから横比較
+nextCycleSuggestionReason,,今回の条件で回せました。選手数 16 人・対局数 64 件なので、現条件とピンポイント候補を並べて比較できます。

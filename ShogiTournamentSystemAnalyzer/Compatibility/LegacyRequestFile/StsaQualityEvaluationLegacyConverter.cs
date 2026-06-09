@@ -23,7 +23,7 @@ internal static class StsaQualityEvaluationLegacyConverter
         AppendDelimitedSection(legacyLines, GetOptionalSectionLines(sections, "AdditionalApexPlayersCsv"));
         legacyLines.Add(ParseOffOnSelection(GetRequiredMetaValue(meta, "AdditionalApexPlacementMode", fullPath, formatName), offNumber: "1", onNumber: "2", "AdditionalApexPlacementMode", formatName));
         legacyLines.Add(ParseOffOnSelection(GetRequiredMetaValue(meta, "BoundaryRescueMode", fullPath, formatName), offNumber: "1", onNumber: "2", "BoundaryRescueMode", formatName));
-        legacyLines.Add(ParseOffOnSelection(GetRequiredMetaValue(meta, "VariableTop8Mode", fullPath, formatName), offNumber: "1", onNumber: "2", "VariableTop8Mode", formatName));
+        legacyLines.Add(ParseOffOnSelection(GetOptionalMetaValue(meta, "VariableTop8Mode") ?? GetRequiredMetaValue(meta, "variable_top8Mode", fullPath, formatName), offNumber: "1", onNumber: "2", "VariableTop8Mode", formatName));
         AppendEndTerminatedSection(legacyLines, GetRequiredSectionLines(sections, "MatchesInput", fullPath, formatName));
         AppendEndTerminatedSection(legacyLines, GetOptionalSectionLines(sections, "ReferenceMatchesInput"));
         legacyLines.Add(ParseOffOnSelection(GetRequiredMetaValue(meta, "QualityInnovExpectedRankOffsetMode", fullPath, formatName), offNumber: "1", onNumber: "2", "QualityInnovExpectedRankOffsetMode", formatName));

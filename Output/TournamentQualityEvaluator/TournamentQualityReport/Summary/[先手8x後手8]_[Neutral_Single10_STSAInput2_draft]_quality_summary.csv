@@ -1,10 +1,21 @@
-metricName,metricValue,note
-spearmanCorrelation,0.926471,Elo順位と期待総合順位の相関
-meanAbsoluteRankError,1.531250,期待総合順位とElo順位のずれの絶対値平均
-averageTop8Retention,7.063333,Elo上位8名が総合上位8位に残る人数の期待値
-eloTop1OverallTop1Probability,22.500000,Elo1位が総合1位になる確率(%)
-mostPenalizedPlayerDelta,3.250000,飛
-mostAdvantagedPlayerDelta,-2.800000,ひよこ
+boundaryName,schemaName,rowType,metricName,metricValue,note
+TournamentQualityReport,summaryMetrics,metric,totalScore,76240,品質評価総合点 / 100000
+TournamentQualityReport,summaryMetrics,metric,scoreMax,100000,品質評価総合点の満点
+TournamentQualityReport,summaryMetrics,meta,scorePreset,Balanced,品質評価総合点プリセット
+TournamentQualityReport,summaryMetrics,metric,simulationCount,10,品質評価総合点に添える試行回数
+TournamentQualityReport,summaryMetrics,meta,scoreReliabilityLabel,参考記録,品質評価総合点の信頼区分
+TournamentQualityReport,summaryMetrics,meta,isReferenceRecord,True,参考記録か
+TournamentQualityReport,summaryMetrics,meta,isOfficialEvaluation,False,本評価か
+TournamentQualityReport,summaryMetrics,metric,scoreSpearmanNormalized,0.961765,38471 / 40000
+TournamentQualityReport,summaryMetrics,metric,scoreMeanRankErrorNormalized,0.664062,16602 / 25000
+TournamentQualityReport,summaryMetrics,metric,scoreTop8RetentionNormalized,0.883333,17667 / 20000
+TournamentQualityReport,summaryMetrics,metric,scoreEloTop1WinNormalized,0.233333,3500 / 15000
+TournamentQualityReport,summaryMetrics,metric,spearmanCorrelation,0.923529,Elo順位と期待総合順位の相関
+TournamentQualityReport,summaryMetrics,metric,meanAbsoluteRankError,1.343750,期待総合順位とElo順位のずれの絶対値平均
+TournamentQualityReport,summaryMetrics,metric,averageTop8Retention,7.066667,Elo上位8名が総合上位8位に残る人数の期待値
+TournamentQualityReport,summaryMetrics,metric,eloTop1OverallTop1Probability,23.333333,Elo1位が総合1位になる確率(%)
+TournamentQualityReport,summaryMetrics,metric,mostPenalizedPlayerDelta,2.450000,飛
+TournamentQualityReport,summaryMetrics,metric,mostAdvantagedPlayerDelta,-3.750000,いのしし
 nextCycleSuggestionTitle,,次回の品質評価提案
 nextCycleSuggestedSetting,,同Elo対局時の先手勝率(%) = 51.00
 nextCycleSuggestedSetting,,ピンポイント比較候補(%) = 52.00

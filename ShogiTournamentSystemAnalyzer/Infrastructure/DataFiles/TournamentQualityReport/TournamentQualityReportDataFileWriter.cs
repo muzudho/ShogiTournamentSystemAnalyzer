@@ -410,15 +410,7 @@ internal static class TournamentQualityReportDataFileWriter
 
     static string BuildTournamentQualityReportPlayerMarkdownRow(TournamentQualityReportPlayerRow row)
     {
-        return string.Join(" | ",
-            "|",
-            row.Name,
-            row.EloRank.ToString(CultureInfo.InvariantCulture),
-            row.ExpectedOverallPlace.ToString("F3", CultureInfo.InvariantCulture),
-            FormatSignedDelta(row.OverallPlaceDeltaFromEloRank),
-            ((row.OverallTop1Probability * 100).ToString("F2", CultureInfo.InvariantCulture) + "%"),
-            ((row.OverallTop8Probability * 100).ToString("F2", CultureInfo.InvariantCulture) + "%"),
-            string.Empty);
+        return $"| {row.Name} | {row.EloRank.ToString(CultureInfo.InvariantCulture)} | {row.ExpectedOverallPlace.ToString("F3", CultureInfo.InvariantCulture)} | {FormatSignedDelta(row.OverallPlaceDeltaFromEloRank)} | {(row.OverallTop1Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% | {(row.OverallTop8Probability * 100).ToString("F2", CultureInfo.InvariantCulture)}% |";
     }
 
     static string FormatSignedDelta(double value)

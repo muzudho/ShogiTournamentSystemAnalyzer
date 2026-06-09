@@ -1,0 +1,168 @@
+このプログラムは、２人用ゲーム大会（例えば将棋）の大会ルールをいくつか選び、コンピューター上で模擬戦し、その結果を比較して、より良いルール作りを目指すツールだぜ（＾▽＾）！
+■［要求ファイルチェック］
+要求ファイルチェック: エラー無し
+
+要求ファイルを使います: E:\github.com\muzudho\ShogiTournamentSystemAnalyzer\Inputs\Sweeps\quality_sweep_input_[先手8x後手8]_[Neutral_50to100]_[STSAInput2_draft].request.txt
+
+シミュレーションをしますか？
+1. いいえ
+2. はい
+
+番号を入力してください [2]: 
+品質評価をしますか？
+1. いいえ
+2. はい
+
+番号を入力してください [1]: 
+QualityEvaluationDomain のルールプロファイル属性を入力してください。
+1. 属性を一つずつ入力する
+2. RuleProfileAttributes を直接入力する
+3. ルールプロファイルファイルから読む
+
+番号を入力してください [1]: 
+SimulationShape を選んでください。
+1. ScheduledMatches
+2. FinalStageGrouped
+3. TournamentFramework
+4. Empty
+
+番号を入力してください [1]: 
+UsesFinalStageGrouping: 本戦グループを使うか
+1. Off
+2. On
+
+番号を入力してください [1]: 
+UsesAdditionalApexPlacement: 本戦不出場 Apex の配置を使うか
+1. Off
+2. On
+
+番号を入力してください [1]: 
+UsesBoundaryRescue: 境界救済を使うか
+1. Off
+2. On
+
+番号を入力してください [1]: 
+UsesVariableTop8: 可変 Top8 を使うか
+1. Off
+2. On
+
+番号を入力してください [1]: 
+RankingRuleSetMode を選んでください。
+1. Neutral
+2. Twill
+3. TwillCommonOpponentWeighted
+
+番号を入力してください [1]: 
+HasReferenceMatches: 参考対局を使うか
+1. Off
+2. On
+
+番号を入力してください [1]: 
+PairingSource を選んでください。
+1. None
+2. ScheduledMatches
+3. TournamentFramework
+
+番号を入力してください [2]: 
+
+選択された主線: Standard / QualityEvaluationDomain
+
+■［分析］
+品質評価 / 通常ルール: 総当たり戦向けルールの実力反映性を評価します。
+
+このモードでは次を順に入力します。
+1. 順位ルールセット
+2. 同Elo対局時の先手勝率 (%)
+3. 選手 / Player 一覧CSV
+4. 対局CSV または Round/FirstPlayer-SecondPlayer / PlayerSymbols
+5. 単発評価または n% スイープ実験
+6. 必要に応じて試行回数
+7. レポート出力先
+
+選手一覧CSVを貼り付けてください。入力終了は空行です。
+
+例:
+name,elo
+Alice,1500
+Bob,1480
+
+
+順位ルールを選んでください。
+通常ルールでは Neutral / Twill をここで切り替えます。
+1. Neutral: 勝ち数ベースのニュートラル順位
+2. Twill: 比較グラフと重箱表で順位を決める
+
+3. Twill+CommonOpp: 共通相手比較に信頼度を入れたツイル改良案
+
+ルール番号を入力してください [1]: 
+
+対局CSVまたは Round/FirstPlayer-SecondPlayer / PlayerSymbols を貼り付けてください。入力終了は END 行です。
+
+例:
+first,second
+Alice,Bob
+Carol,Alice
+END
+
+Round/First-Second / PlayerSymbols の例:
+Round
+ , A, B
+A, -, 1
+B, 1, -
+
+First/Second
+ , A, B
+A, -, f
+B, s, -
+
+PlayerSymbols
+A, "Alice"
+B, "Bob"
+END
+
+
+
+参考対局CSVまたは Round/FirstPlayer-SecondPlayer / PlayerSymbols を貼り付けてください。大会記録に含めない場合だけ使います。 入力終了は END 行です。空のまま END で省略できます。
+
+品質評価の実行方法を選んでください。
+単発評価は現在の条件だけを評価し、n% スイープ実験は先手勝率を範囲で振って比較します。
+1. 単発評価
+2. n% スイープ実験
+
+実行方法を入力してください [1]: 
+補足: 例として 50 → 55 を 1 刻みで指定すると、50, 51, 52, 53, 54, 55 を順に評価します。
+
+開始する先手勝率(%)を入力してください [50]: 終了する先手勝率(%)を入力してください [55]: 刻み幅(%)を入力してください [1]: 
+局数が多いため Neutral（ニュートラル） の品質評価用シミュレーションで近似します。試行回数を入力してください [200000]: 
+順位ルール: Neutral（ニュートラル）
+
+Apex / Innov の分け方: Off（ニュートラルに扱う）
+
+n%スイープ結果:
+先手勝率      総合点    試行回数   信頼区分       Spearman   平均順位ずれ   上位8残留   Elo1位総合1位
+   50.00%       78265      200000       本評価      1.0000         1.234       7.048          22.37%
+   60.00%       73733      200000       本評価      1.0000         1.509       5.945          21.99%
+   70.00%       50190      200000       本評価      0.7324         3.596       4.297          15.18%
+   80.00%       15971      200000       本評価     -0.5059         6.306       2.221           3.58%
+   90.00%       10840      200000       本評価     -0.5059         7.875       0.381           0.05%
+  100.00%        2646      200000       本評価     -0.8677         8.000       0.000           0.00%
+
+次回の n%スイープ提案:
+- 開始する先手勝率(%) = 53.00
+- 終了する先手勝率(%) = 83.00
+- 刻み幅(%) = 15.00
+- ベスト候補(%) = 50.00
+- 近傍候補(%) = 50.00 / 57.50
+- 再探索するなら範囲(%) = 50.00 ～ 65.00
+- 実測ベースの最良値 = 総合点 78265, Spearman 1.0000, 平均順位ずれ 1.234, Top8残留 7.048
+- 軽量確認の目安 = 選手 16 人 / 対局 64 件なので、まず 1 点または 3 点だけ確認
+- 理由: 今回の範囲は完走できました。実測で最も良かった 50.00% とその近傍を次の比較候補にできます。選手数 16 人・対局数 64 件なので、狭い範囲で再確認しやすいです。
+
+実験レポートの Good / Bad 分離を使いますか？
+1. Off: 分離しない
+2. On: Good / Bad フォルダーに分離する
+
+モード番号を入力してください [1]: 
+
+n%スイープ結果CSVの出力先パスまたはフォルダーパスを入力してください [E:\github.com\muzudho\ShogiTournamentSystemAnalyzer\Output\TournamentQualityEvaluator\TournamentQualityReport\Sweeps\neutral_quality_sweep_20260610_001016.csv]: n%スイープ結果CSVを出力しました: E:\github.com\muzudho\ShogiTournamentSystemAnalyzer\Output\TournamentQualityEvaluator\TournamentQualityReport\Sweeps\neutral_[先手8x後手8]_50to100_quality_sweep.csv
+n%スイープ結果Markdownを出力しました: E:\github.com\muzudho\ShogiTournamentSystemAnalyzer\Output\TournamentQualityEvaluator\TournamentQualityReport\Sweeps\neutral_[先手8x後手8]_50to100_quality_sweep.md

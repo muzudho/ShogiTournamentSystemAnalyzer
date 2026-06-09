@@ -1,0 +1,7 @@
+このプログラムは、２人用ゲーム大会（例えば将棋）の大会ルールをいくつか選び、コンピューター上で模擬戦し、その結果を比較して、より良いルール作りを目指すツールだぜ（＾▽＾）！
+■［要求ファイルチェック］
+要求ファイルチェック: エラー無し
+
+要求ファイルを使います: E:\github.com\muzudho\ShogiTournamentSystemAnalyzer\Inputs\Bench\quality_input_[トップ集団大きめ]_[STSAInput2_draft].request.txt
+
+●エラー終了：　［要求ファイル］パース中エラー。 STSAInput/2 の Meta セクションに必須キー 'VariableTop8Mode' がありません: E:\github.com\muzudho\ShogiTournamentSystemAnalyzer\Inputs\Bench\quality_input_[トップ集団大きめ]_[STSAInput2_draft].request.txt

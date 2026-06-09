@@ -1,0 +1,34 @@
+#[Format] STSAInput/5
+
+#[Section] Meta
+AnalysisFlowSteps=QualityEvaluation
+ExecutionMode=Single
+TournamentRuleSetMode=Neutral
+
+TournamentQualityEvaluationReportGrouping=Off
+#[EndSection]
+
+#[Section] RuleProfileAttributes
+SimulationShape=FinalStageGrouped
+UsesFinalStageGrouping=On
+UsesAdditionalApexPlacement=On
+UsesBoundaryRescue=On
+UsesVariableTop8=On
+RankingRuleSetMode=Neutral
+HasReferenceMatches=On
+PairingSource=ScheduledMatches
+#[EndSection]
+
+#[Section] PlayersCsv
+
+#[EndSection]
+
+#[Section] MatchesInput
+
+#[EndSection]
+
+#[Section] Output
+SummaryOutputPath=E:\github.com\muzudho\ShogiTournamentSystemAnalyzer\Output\TournamentQualityEvaluator\TournamentQualityReport\Summary\[トップ集団大きめ]_quality_summary.csv
+PlayerCsvPath=E:\github.com\muzudho\ShogiTournamentSystemAnalyzer\Output\TournamentQualityEvaluator\TournamentQualityReport\Players\[トップ集団大きめ]_quality_players.csv
+SummaryMarkdownPath=E:\github.com\muzudho\ShogiTournamentSystemAnalyzer\Output\TournamentQualityEvaluator\TournamentQualityReport\Summary\[トップ集団大きめ]_quality_summary.md
+#[EndSection]

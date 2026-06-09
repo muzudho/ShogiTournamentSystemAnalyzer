@@ -100,6 +100,7 @@ internal static class StsaInputLegacyConverter
         {
             flowSelection.RunsSimulationDomain ? "2" : "1",
             flowSelection.RunsQualityEvaluationDomain ? "2" : "1",
+            "1",
         }.Concat(RuleProfileAttributesToPromptLines(ruleProfileAttributes)).ToArray();
     }
 
