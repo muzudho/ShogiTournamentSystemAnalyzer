@@ -1,0 +1,17 @@
+boundaryName,schemaName,rowType,playerName,group,originalElo,eloRank,expectedOverallPlace,overallPlaceDeltaFromEloRank,overallTop1ProbabilityPercent,overallTop8ProbabilityPercent
+TournamentQualityReport,playerReport,data,Ryuichi,Neutral,2620,1,3.275,2.275,22.48,99.51
+TournamentQualityReport,playerReport,data,Meijin,Neutral,2585,2,3.182,1.182,24.92,99.50
+TournamentQualityReport,playerReport,data,Akatsuki,Neutral,2550,3,3.985,0.985,16.81,97.86
+TournamentQualityReport,playerReport,data,Hayate,Neutral,2515,4,4.295,0.295,13.52,97.10
+TournamentQualityReport,playerReport,data,Kogetsu,Neutral,2480,5,4.670,-0.330,9.55,95.24
+TournamentQualityReport,playerReport,data,Shiden,Neutral,2445,6,5.372,-0.628,5.19,91.87
+TournamentQualityReport,playerReport,data,Kensei,Neutral,2410,7,6.338,-0.662,3.66,83.90
+TournamentQualityReport,playerReport,data,Raiko,Neutral,2375,8,6.168,-1.832,3.77,87.11
+TournamentQualityReport,playerReport,data,Mizuki,Neutral,2340,9,10.385,1.385,0.10,19.73
+TournamentQualityReport,playerReport,data,Ibuki,Neutral,2305,10,10.947,0.947,0.00,11.14
+TournamentQualityReport,playerReport,data,Tsubasa,Neutral,2270,11,11.670,0.670,0.00,6.42
+TournamentQualityReport,playerReport,data,Renka,Neutral,2235,12,12.260,0.260,0.00,4.87
+TournamentQualityReport,playerReport,data,Souta,Neutral,2200,13,12.902,-0.098,0.00,2.25
+TournamentQualityReport,playerReport,data,Hinata,Neutral,2165,14,12.997,-1.003,0.00,1.83
+TournamentQualityReport,playerReport,data,Yukari,Neutral,2130,15,13.562,-1.438,0.00,1.00
+TournamentQualityReport,playerReport,data,Nozomi,Neutral,2095,16,13.990,-2.010,0.00,0.67

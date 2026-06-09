@@ -4,6 +4,8 @@
 
 基本のセクション構造、`AnalysisFlowSteps`、入力 CSV、出力指定は [STSAInput/4 仕様](./STSAInput4仕様.md) と同じです。`STSAInput/5` では `RuleProfileMode` を書かず、単一ステップなら `RuleProfileAttributes`、複数ステップなら `*Step.RuleProfileAttributes` を書きます。
 
+空行の扱いも `STSAInput/4` と同じです。通常の空行および連続する空行は読み飛ばし、CSV の空レコードやセクション終端としては扱いません。
+
 ## 目的
 
 `STSAInput/4` では、実行したいルールのまとまりを `RuleProfileMode` で指定します。

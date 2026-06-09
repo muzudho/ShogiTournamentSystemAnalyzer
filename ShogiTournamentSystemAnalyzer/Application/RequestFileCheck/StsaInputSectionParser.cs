@@ -17,7 +17,6 @@ internal static class StsaInputSectionParser
             var trimmed = rawLine.Trim();
             if (string.IsNullOrWhiteSpace(trimmed))
             {
-                currentLines?.Add(string.Empty);
                 continue;
             }
 

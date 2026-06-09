@@ -1,0 +1,114 @@
+#[Format] STSAInput/5
+
+# Trial Cup 2026
+# Regulation:
+# - 16 players.
+# - Fixed 7-round qualifying league.
+# - Players ranked 1-8 by Elo each play players ranked 9-16 once.
+# - Ranking rule: Neutral.
+# - First-player baseline win rate for equal Elo: 52%.
+
+#[Section] Meta
+AnalysisFlowSteps=QualityEvaluation
+ExecutionMode=Single
+FirstPlayerWinRatePercent=52
+SimulationCount=200
+TournamentQualityEvaluationReportGrouping=Off
+TournamentRuleSetMode=Neutral
+QualityInnovExpectedRankOffsetMode=Off
+#[EndSection]
+
+#[Section] RuleProfileAttributes
+SimulationShape=ScheduledMatches
+UsesFinalStageGrouping=Off
+UsesAdditionalApexPlacement=Off
+UsesBoundaryRescue=Off
+UsesVariableTop8=Off
+RankingRuleSetMode=Neutral
+HasReferenceMatches=Off
+PairingSource=ScheduledMatches
+#[EndSection]
+
+#[Section] PlayersCsv
+name,elo
+Ryuichi,2620
+Meijin,2585
+Akatsuki,2550
+Hayate,2515
+Kogetsu,2480
+Shiden,2445
+Kensei,2410
+Raiko,2375
+Mizuki,2340
+Ibuki,2305
+Tsubasa,2270
+Renka,2235
+Souta,2200
+Hinata,2165
+Yukari,2130
+Nozomi,2095
+#[EndSection]
+
+#[Section] MatchesInput
+first,second
+Nozomi,Ryuichi
+Yukari,Meijin
+Hinata,Akatsuki
+Souta,Hayate
+Renka,Kogetsu
+Tsubasa,Shiden
+Ibuki,Kensei
+Mizuki,Raiko
+Yukari,Ryuichi
+Nozomi,Meijin
+Souta,Akatsuki
+Hinata,Hayate
+Tsubasa,Kogetsu
+Renka,Shiden
+Mizuki,Kensei
+Ibuki,Raiko
+Hinata,Ryuichi
+Souta,Meijin
+Nozomi,Akatsuki
+Yukari,Hayate
+Ibuki,Kogetsu
+Mizuki,Shiden
+Renka,Kensei
+Tsubasa,Raiko
+Souta,Ryuichi
+Hinata,Meijin
+Yukari,Akatsuki
+Nozomi,Hayate
+Mizuki,Kogetsu
+Ibuki,Shiden
+Tsubasa,Kensei
+Renka,Raiko
+Renka,Ryuichi
+Tsubasa,Meijin
+Ibuki,Akatsuki
+Mizuki,Hayate
+Nozomi,Kogetsu
+Yukari,Shiden
+Hinata,Kensei
+Souta,Raiko
+Tsubasa,Ryuichi
+Renka,Meijin
+Mizuki,Akatsuki
+Ibuki,Hayate
+Yukari,Kogetsu
+Nozomi,Shiden
+Souta,Kensei
+Hinata,Raiko
+Ibuki,Ryuichi
+Mizuki,Meijin
+Renka,Akatsuki
+Tsubasa,Hayate
+Hinata,Kogetsu
+Souta,Shiden
+Nozomi,Kensei
+Yukari,Raiko
+#[EndSection]
+
+#[Section] Output
+SummaryOutputPath=Output\TournamentQualityEvaluator\TournamentQualityReport\Summary\trial_cup_2026_quality_neutral_single200_summary.csv
+#[EndSection]
