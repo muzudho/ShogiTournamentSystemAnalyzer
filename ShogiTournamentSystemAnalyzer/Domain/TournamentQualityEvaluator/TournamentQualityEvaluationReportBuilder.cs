@@ -68,7 +68,15 @@ internal static class TournamentQualityEvaluationReportBuilder
     {
         if (playerRows.Count == 0)
         {
-            return new TournamentQualityReportSummary(1.0, 0.0, 0.0, 0.0, "", 0.0, "", 0.0);
+            return BuildTournamentQualityReportSummary(
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                "",
+                0.0,
+                "",
+                0.0);
         }
 
         var spearmanCorrelation = CalculateTournamentQualityReportSpearmanCorrelation(playerRows);
@@ -81,7 +89,7 @@ internal static class TournamentQualityEvaluationReportBuilder
         var mostPenalizedPlayer = playerRows.OrderByDescending(x => x.OverallPlaceDeltaFromEloRank).First();
         var mostAdvantagedPlayer = playerRows.OrderBy(x => x.OverallPlaceDeltaFromEloRank).First();
 
-        return new TournamentQualityReportSummary(
+        return BuildTournamentQualityReportSummary(
             spearmanCorrelation,
             meanAbsoluteRankError,
             averageTop8Retention,
@@ -90,6 +98,30 @@ internal static class TournamentQualityEvaluationReportBuilder
             mostPenalizedPlayer.OverallPlaceDeltaFromEloRank,
             mostAdvantagedPlayer.Name,
             mostAdvantagedPlayer.OverallPlaceDeltaFromEloRank);
+    }
+
+    static TournamentQualityReportSummary BuildTournamentQualityReportSummary(
+        double spearmanCorrelation,
+        double meanAbsoluteRankError,
+        double averageTop8Retention,
+        double eloTop1OverallTop1Probability,
+        string mostPenalizedPlayerName,
+        double mostPenalizedDelta,
+        string mostAdvantagedPlayerName,
+        double mostAdvantagedDelta)
+    {
+        var summaryWithoutScore = new TournamentQualityReportSummary(
+            spearmanCorrelation,
+            meanAbsoluteRankError,
+            averageTop8Retention,
+            eloTop1OverallTop1Probability,
+            mostPenalizedPlayerName,
+            mostPenalizedDelta,
+            mostAdvantagedPlayerName,
+            mostAdvantagedDelta,
+            default);
+        var scoreBreakdown = TournamentQualityScoreCalculator.Calculate(summaryWithoutScore, TournamentQualityScoreRule.Balanced());
+        return summaryWithoutScore with { ScoreBreakdown = scoreBreakdown };
     }
 
     static double CalculateTournamentQualityReportSpearmanCorrelation(IReadOnlyList<TournamentQualityReportPlayerRow> playerRows)

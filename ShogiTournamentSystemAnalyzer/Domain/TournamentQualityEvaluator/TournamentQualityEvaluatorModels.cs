@@ -35,6 +35,7 @@ readonly record struct TournamentQualityReportPlayerRow(
 /// <param name="MostPenalizedDelta">最もペナルティを受けた選手の差分</param>
 /// <param name="MostAdvantagedPlayerName">最も有利になった選手名</param>
 /// <param name="MostAdvantagedDelta">最も有利になった選手の差分</param>
+/// <param name="ScoreBreakdown">総合点内訳</param>
 readonly record struct TournamentQualityReportSummary(
     double SpearmanCorrelation,
     double MeanAbsoluteRankError,
@@ -43,7 +44,8 @@ readonly record struct TournamentQualityReportSummary(
     string MostPenalizedPlayerName,
     double MostPenalizedDelta,
     string MostAdvantagedPlayerName,
-    double MostAdvantagedDelta);
+    double MostAdvantagedDelta,
+    TournamentQualityScoreBreakdown ScoreBreakdown);
 
 /// <summary>
 /// ［大会品質評価フロー域　＞　実行］だ。
@@ -82,6 +84,7 @@ readonly record struct TournamentQualitySweepOptions(
 /// <param name="MostPenalizedDelta">最もペナルティを受けた選手の差分</param>
 /// <param name="MostAdvantagedPlayerName">最も有利になった選手名</param>
 /// <param name="MostAdvantagedDelta">最も有利になった選手の差分</param>
+/// <param name="TotalScore">総合点</param>
 readonly record struct TournamentQualitySweepReportRow(
     double FirstPlayerWinRatePercent,
     double SpearmanCorrelation,
@@ -91,7 +94,8 @@ readonly record struct TournamentQualitySweepReportRow(
     string MostPenalizedPlayerName,
     double MostPenalizedDelta,
     string MostAdvantagedPlayerName,
-    double MostAdvantagedDelta);
+    double MostAdvantagedDelta,
+    int TotalScore);
 
 /// <summary>
 /// ［大会品質評価フロー域　＞　実験的レポートグルーピングオプション］だ。

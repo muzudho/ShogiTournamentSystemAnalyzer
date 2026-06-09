@@ -1,0 +1,50 @@
+/*
+ * ［大会品質評価フロー域　＞　総合点］で使われるモデル
+ */
+namespace ShogiTournamentSystemAnalyzer.Domain.TournamentQualityEvaluator;
+
+/// <summary>
+/// ［大会品質評価フロー域　＞　総合点ルール］だ。
+/// </summary>
+readonly record struct TournamentQualityScoreRule(
+    string PresetName,
+    int ScoreMax,
+    double MeanRankErrorTolerance,
+    int SpearmanWeight,
+    int MeanRankErrorWeight,
+    int Top8RetentionWeight,
+    int EloTop1WinWeight)
+{
+    internal static TournamentQualityScoreRule Balanced()
+    {
+        return new TournamentQualityScoreRule(
+            "Balanced",
+            100000,
+            4.0,
+            40000,
+            25000,
+            20000,
+            15000);
+    }
+}
+
+/// <summary>
+/// ［大会品質評価フロー域　＞　総合点内訳］だ。
+/// </summary>
+readonly record struct TournamentQualityScoreBreakdown(
+    int TotalScore,
+    int ScoreMax,
+    string PresetName,
+    double MeanRankErrorTolerance,
+    double SpearmanScore,
+    int SpearmanPoints,
+    int SpearmanMaxPoints,
+    double MeanRankErrorScore,
+    int MeanRankErrorPoints,
+    int MeanRankErrorMaxPoints,
+    double Top8RetentionScore,
+    int Top8RetentionPoints,
+    int Top8RetentionMaxPoints,
+    double EloTop1WinScore,
+    int EloTop1WinPoints,
+    int EloTop1WinMaxPoints);

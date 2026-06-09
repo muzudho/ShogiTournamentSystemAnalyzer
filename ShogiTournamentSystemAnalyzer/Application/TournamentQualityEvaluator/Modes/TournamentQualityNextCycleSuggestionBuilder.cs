@@ -76,7 +76,7 @@ internal static class TournamentQualityNextCycleSuggestionBuilder
 
         if (hasMeasuredBest)
         {
-            suggestedSettings.Add($"実測ベースの最良値 = Spearman {bestRow.SpearmanCorrelation:F4}, 平均順位ずれ {bestRow.MeanAbsoluteRankError:F3}, Top8残留 {bestRow.AverageTop8Retention:F3}");
+            suggestedSettings.Add($"実測ベースの最良値 = 総合点 {bestRow.TotalScore}, Spearman {bestRow.SpearmanCorrelation:F4}, 平均順位ずれ {bestRow.MeanAbsoluteRankError:F3}, Top8残留 {bestRow.AverageTop8Retention:F3}");
         }
 
         if (stoppedByTimeout)
@@ -171,11 +171,7 @@ internal static class TournamentQualityNextCycleSuggestionBuilder
 
     static double CalculateSweepRowScore(TournamentQualitySweepReportRow row)
     {
-        return row.SpearmanCorrelation * 1000.0
-            + row.AverageTop8Retention * 100.0
-            + row.EloTop1OverallTop1Probability * 100.0
-            - row.MeanAbsoluteRankError * 120.0
-            - Math.Max(0.0, row.MostPenalizedDelta) * 10.0;
+        return row.TotalScore;
     }
 
     static IReadOnlyList<double> BuildNeighborPercents(double centerPercent, double stepPercent, double minPercent, double maxPercent)

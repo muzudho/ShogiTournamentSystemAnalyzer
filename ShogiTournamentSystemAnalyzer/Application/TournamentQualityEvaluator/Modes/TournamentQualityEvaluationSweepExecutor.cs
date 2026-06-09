@@ -58,7 +58,8 @@ internal static class TournamentQualityEvaluationSweepExecutor
                 qualityEvaluationRun.Summary.MostPenalizedPlayerName,
                 qualityEvaluationRun.Summary.MostPenalizedDelta,
                 qualityEvaluationRun.Summary.MostAdvantagedPlayerName,
-                qualityEvaluationRun.Summary.MostAdvantagedDelta));
+                qualityEvaluationRun.Summary.MostAdvantagedDelta,
+                qualityEvaluationRun.Summary.ScoreBreakdown.TotalScore));
 
             if (qualityEvaluationRun.CalculationMode.Contains("時間切れ", StringComparison.Ordinal))
             {
