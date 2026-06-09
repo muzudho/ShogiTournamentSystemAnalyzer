@@ -57,6 +57,8 @@ internal static class ConsoleResultPrinter
     {
         Console.WriteLine("品質評価サマリー:");
         Console.WriteLine($"- 総合点: {summary.ScoreBreakdown.TotalScore.ToString(CultureInfo.InvariantCulture)} / {summary.ScoreBreakdown.ScoreMax.ToString(CultureInfo.InvariantCulture)} ({summary.ScoreBreakdown.PresetName})");
+        Console.WriteLine($"- 試行回数: {summary.ScoreBreakdown.Reliability.SimulationCount.ToString(CultureInfo.InvariantCulture)}");
+        Console.WriteLine($"- 信頼区分: {summary.ScoreBreakdown.Reliability.Label}");
         Console.WriteLine($"- Spearman 相関: {summary.SpearmanCorrelation.ToString("F4", CultureInfo.InvariantCulture)}");
         Console.WriteLine($"- 平均順位ずれ: {summary.MeanAbsoluteRankError.ToString("F3", CultureInfo.InvariantCulture)}");
         Console.WriteLine($"- Elo上位8名の総合上位8位残留人数（平均）: {summary.AverageTop8Retention.ToString("F3", CultureInfo.InvariantCulture)}");
@@ -135,7 +137,7 @@ internal static class ConsoleResultPrinter
             return;
         }
 
-        Console.WriteLine("先手勝率      総合点    Spearman   平均順位ずれ   上位8残留   Elo1位総合1位");
+        Console.WriteLine("先手勝率      総合点    試行回数   信頼区分       Spearman   平均順位ずれ   上位8残留   Elo1位総合1位");
 
         foreach (var row in sweepRows)
         {
@@ -143,6 +145,8 @@ internal static class ConsoleResultPrinter
                 row.FirstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture).PadLeft(8)
                 + "%"
                 + row.TotalScore.ToString(CultureInfo.InvariantCulture).PadLeft(12)
+                + row.SimulationCount.ToString(CultureInfo.InvariantCulture).PadLeft(12)
+                + row.ScoreReliabilityLabel.PadLeft(10)
                 + row.SpearmanCorrelation.ToString("F4", CultureInfo.InvariantCulture).PadLeft(12)
                 + row.MeanAbsoluteRankError.ToString("F3", CultureInfo.InvariantCulture).PadLeft(14)
                 + row.AverageTop8Retention.ToString("F3", CultureInfo.InvariantCulture).PadLeft(12)

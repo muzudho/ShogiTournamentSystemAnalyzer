@@ -7,7 +7,8 @@ internal static class TournamentQualityScoreCalculator
 {
     internal static TournamentQualityScoreBreakdown Calculate(
         TournamentQualityReportSummary summary,
-        TournamentQualityScoreRule rule)
+        TournamentQualityScoreRule rule,
+        int simulationCount)
     {
         Validate(rule);
 
@@ -26,6 +27,7 @@ internal static class TournamentQualityScoreCalculator
             totalScore,
             rule.ScoreMax,
             rule.PresetName,
+            TournamentQualityScoreReliability.FromSimulationCount(simulationCount),
             rule.MeanRankErrorTolerance,
             spearmanScore,
             spearmanPoints,

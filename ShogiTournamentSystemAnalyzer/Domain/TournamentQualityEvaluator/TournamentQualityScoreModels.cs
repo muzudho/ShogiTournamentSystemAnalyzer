@@ -62,12 +62,35 @@ readonly record struct TournamentQualityScoreRule(
 }
 
 /// <summary>
+/// ［大会品質評価フロー域　＞　総合点の信頼区分］だ。
+/// </summary>
+readonly record struct TournamentQualityScoreReliability(
+    int SimulationCount,
+    string Label,
+    bool IsReferenceRecord,
+    bool IsOfficialEvaluation)
+{
+    internal static TournamentQualityScoreReliability FromSimulationCount(int simulationCount)
+    {
+        return simulationCount switch
+        {
+            >= 20000 => new TournamentQualityScoreReliability(simulationCount, "本評価", false, true),
+            >= 2000 => new TournamentQualityScoreReliability(simulationCount, "比較用", false, false),
+            >= 200 => new TournamentQualityScoreReliability(simulationCount, "軽量確認", false, false),
+            >= 1 => new TournamentQualityScoreReliability(simulationCount, "参考記録", true, false),
+            _ => new TournamentQualityScoreReliability(simulationCount, "未解決", true, false),
+        };
+    }
+}
+
+/// <summary>
 /// ［大会品質評価フロー域　＞　総合点内訳］だ。
 /// </summary>
 readonly record struct TournamentQualityScoreBreakdown(
     int TotalScore,
     int ScoreMax,
     string PresetName,
+    TournamentQualityScoreReliability Reliability,
     double MeanRankErrorTolerance,
     double SpearmanScore,
     int SpearmanPoints,

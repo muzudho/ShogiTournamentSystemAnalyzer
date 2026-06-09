@@ -1,10 +1,10 @@
-boundaryName,schemaName,rowType,firstPlayerWinRatePercent,spearmanCorrelation,meanAbsoluteRankError,averageTop8Retention,eloTop1OverallTop1ProbabilityPercent,mostPenalizedPlayer,mostPenalizedDelta,mostAdvantagedPlayer,mostAdvantagedDelta
-TournamentQualityReport,sweepReport,data,50.00,0.932353,1.500000,7.000000,15.000000,飛,2.800000,ひよこ,-3.350000
-TournamentQualityReport,sweepReport,data,60.00,0.947059,1.468750,6.300000,25.000000,角,3.200000,ひよこ,-3.000000
-TournamentQualityReport,sweepReport,data,70.00,0.800000,2.825000,5.100000,20.000000,飛,5.200000,うさぎ,-4.950000
-TournamentQualityReport,sweepReport,data,80.00,-0.292862,5.525000,3.200000,0.000000,飛,9.200000,ねこ,-6.550000
-TournamentQualityReport,sweepReport,data,90.00,-0.554820,7.575000,0.700000,0.000000,飛,9.800000,ひよこ,-10.150000
-TournamentQualityReport,sweepReport,data,100.00,-0.867722,8.000000,0.000000,0.000000,飛,11.500000,ひよこ,-11.500000
+boundaryName,schemaName,rowType,firstPlayerWinRatePercent,totalScore,simulationCount,scoreReliabilityLabel,isReferenceRecord,isOfficialEvaluation,spearmanCorrelation,meanAbsoluteRankError,averageTop8Retention,eloTop1OverallTop1ProbabilityPercent,mostPenalizedPlayer,mostPenalizedDelta,mostAdvantagedPlayer,mostAdvantagedDelta
+TournamentQualityReport,sweepReport,data,50.00,75896,10,参考記録,True,False,0.887417,1.656250,7.000000,40.000000,きりん,2.750000,いのしし,-3.550000
+TournamentQualityReport,sweepReport,data,60.00,68730,10,参考記録,True,False,0.897059,1.593750,6.300000,0.000000,飛,3.550000,いのしし,-4.350000
+TournamentQualityReport,sweepReport,data,70.00,45146,10,参考記録,True,False,0.438558,3.900000,4.500000,30.000000,玉,6.200000,うさぎ,-7.000000
+TournamentQualityReport,sweepReport,data,80.00,25662,10,参考記録,True,False,-0.229412,5.425000,3.500000,10.000000,金,8.150000,ひよこ,-8.050000
+TournamentQualityReport,sweepReport,data,90.00,10059,10,参考記録,True,False,-0.547059,7.862500,0.400000,0.000000,飛,9.750000,うさぎ,-9.750000
+TournamentQualityReport,sweepReport,data,100.00,2646,10,参考記録,True,False,-0.867722,8.000000,0.000000,0.000000,飛,11.500000,ひよこ,-11.500000
 nextCycleSuggestionTitle,,次回の n%スイープ提案
 nextCycleSuggestedSetting,,開始する先手勝率(%) = 80.00
 nextCycleSuggestedSetting,,終了する先手勝率(%) = 100.00
@@ -12,5 +12,5 @@ nextCycleSuggestedSetting,,刻み幅(%) = 10.00
 nextCycleSuggestedSetting,,ベスト候補(%) = 50.00
 nextCycleSuggestedSetting,,近傍候補(%) = 50.00 / 55.00
 nextCycleSuggestedSetting,,再探索するなら範囲(%) = 50.00 ～ 60.00
-nextCycleSuggestedSetting,,"実測ベースの最良値 = Spearman 0.9324, 平均順位ずれ 1.500, Top8残留 7.000"
+nextCycleSuggestedSetting,,"実測ベースの最良値 = 総合点 75896, Spearman 0.8874, 平均順位ずれ 1.656, Top8残留 7.000"
 nextCycleSuggestionReason,,今回の範囲は完走できました。実測で最も良かった 50.00% とその近傍を次の比較候補にできます。選手数 16 人・対局数 64 件なので、狭い範囲で再確認しやすいです。

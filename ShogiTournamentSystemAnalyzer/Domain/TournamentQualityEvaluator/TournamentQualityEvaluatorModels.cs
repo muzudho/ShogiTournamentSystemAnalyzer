@@ -85,6 +85,10 @@ readonly record struct TournamentQualitySweepOptions(
 /// <param name="MostAdvantagedPlayerName">最も有利になった選手名</param>
 /// <param name="MostAdvantagedDelta">最も有利になった選手の差分</param>
 /// <param name="TotalScore">総合点</param>
+/// <param name="SimulationCount">総合点評価に使った試行回数</param>
+/// <param name="ScoreReliabilityLabel">総合点の信頼区分</param>
+/// <param name="IsReferenceRecord">参考記録か</param>
+/// <param name="IsOfficialEvaluation">本評価か</param>
 readonly record struct TournamentQualitySweepReportRow(
     double FirstPlayerWinRatePercent,
     double SpearmanCorrelation,
@@ -95,7 +99,11 @@ readonly record struct TournamentQualitySweepReportRow(
     double MostPenalizedDelta,
     string MostAdvantagedPlayerName,
     double MostAdvantagedDelta,
-    int TotalScore);
+    int TotalScore,
+    int SimulationCount,
+    string ScoreReliabilityLabel,
+    bool IsReferenceRecord,
+    bool IsOfficialEvaluation);
 
 /// <summary>
 /// ［大会品質評価フロー域　＞　実験的レポートグルーピングオプション］だ。

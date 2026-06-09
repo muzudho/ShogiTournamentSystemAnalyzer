@@ -28,7 +28,7 @@ internal static class TournamentQualityEvaluationSingleRunExecutor
             ruleDefinition.AdditionalApexPlacementMode,
             input.InnovExpectedRankOffsetMode,
             input.InnovExpectedRankOffsetCount);
-        var qualitySummary = TournamentQualityEvaluationReportBuilder.BuildTournamentQualityReportSummary(qualityPlayerRows, scoreRule);
+        var qualitySummary = TournamentQualityEvaluationReportBuilder.BuildTournamentQualityReportSummary(qualityPlayerRows, scoreRule, executionOptions.SimulationCount ?? 0);
         var calculationMode = qualityPlayerRows.Count == 0 && !tournamentFinalState.Mode.Contains("時間切れ", StringComparison.Ordinal)
             ? tournamentFinalState.Mode + " (0回)"
             : tournamentFinalState.Mode;

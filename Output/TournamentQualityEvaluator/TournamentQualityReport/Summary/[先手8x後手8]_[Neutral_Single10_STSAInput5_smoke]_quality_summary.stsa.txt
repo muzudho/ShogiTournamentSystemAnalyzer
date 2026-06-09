@@ -1,0 +1,33 @@
+#[Format] STSAInput/5
+
+#[Section] Meta
+AnalysisFlowSteps=QualityEvaluation
+ExecutionMode=Single
+TournamentRuleSetMode=Neutral
+
+TournamentQualityEvaluationReportGrouping=Off
+#[EndSection]
+
+#[Section] RuleProfileAttributes
+SimulationShape=ScheduledMatches
+UsesFinalStageGrouping=Off
+UsesAdditionalApexPlacement=Off
+UsesBoundaryRescue=Off
+UsesVariableTop8=Off
+RankingRuleSetMode=Neutral
+HasReferenceMatches=Off
+PairingSource=ScheduledMatches
+#[EndSection]
+
+#[Section] PlayersCsv
+
+#[EndSection]
+
+#[Section] MatchesInput
+
+#[EndSection]
+
+#[Section] Output
+SummaryOutputPath=Output\TournamentQualityEvaluator\TournamentQualityReport\Summary\[先手8x後手8]_[Neutral_Single10_STSAInput5_smoke]_quality_summary.csv
+SummaryMarkdownPath=Output\TournamentQualityEvaluator\TournamentQualityReport\Summary\[先手8x後手8]_[Neutral_Single10_STSAInput5_smoke]_quality_summary.md
+#[EndSection]

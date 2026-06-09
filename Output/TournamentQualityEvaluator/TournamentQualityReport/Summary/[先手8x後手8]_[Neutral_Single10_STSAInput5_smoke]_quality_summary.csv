@@ -1,0 +1,24 @@
+boundaryName,schemaName,rowType,metricName,metricValue,note
+TournamentQualityReport,summaryMetrics,metric,totalScore,76366,品質評価総合点 / 100000
+TournamentQualityReport,summaryMetrics,metric,scoreMax,100000,品質評価総合点の満点
+TournamentQualityReport,summaryMetrics,meta,scorePreset,Balanced,品質評価総合点プリセット
+TournamentQualityReport,summaryMetrics,metric,simulationCount,10,品質評価総合点に添える試行回数
+TournamentQualityReport,summaryMetrics,meta,scoreReliabilityLabel,参考記録,品質評価総合点の信頼区分
+TournamentQualityReport,summaryMetrics,meta,isReferenceRecord,True,参考記録か
+TournamentQualityReport,summaryMetrics,meta,isOfficialEvaluation,False,本評価か
+TournamentQualityReport,summaryMetrics,metric,scoreSpearmanNormalized,0.976085,39043 / 40000
+TournamentQualityReport,summaryMetrics,metric,scoreMeanRankErrorNormalized,0.656250,16406 / 25000
+TournamentQualityReport,summaryMetrics,metric,scoreTop8RetentionNormalized,0.889583,17792 / 20000
+TournamentQualityReport,summaryMetrics,metric,scoreEloTop1WinNormalized,0.208333,3125 / 15000
+TournamentQualityReport,summaryMetrics,metric,spearmanCorrelation,0.952171,Elo順位と期待総合順位の相関
+TournamentQualityReport,summaryMetrics,metric,meanAbsoluteRankError,1.375000,期待総合順位とElo順位のずれの絶対値平均
+TournamentQualityReport,summaryMetrics,metric,averageTop8Retention,7.116667,Elo上位8名が総合上位8位に残る人数の期待値
+TournamentQualityReport,summaryMetrics,metric,eloTop1OverallTop1Probability,20.833333,Elo1位が総合1位になる確率(%)
+TournamentQualityReport,summaryMetrics,metric,mostPenalizedPlayerDelta,2.250000,きりん
+TournamentQualityReport,summaryMetrics,metric,mostAdvantagedPlayerDelta,-3.800000,ひよこ
+nextCycleSuggestionTitle,,次回の品質評価提案
+nextCycleSuggestedSetting,,同Elo対局時の先手勝率(%) = 51.00
+nextCycleSuggestedSetting,,ピンポイント比較候補(%) = 52.00
+nextCycleSuggestedSetting,,"シミュレーション試行回数 = 1,000"
+nextCycleSuggestedSetting,,軽量確認の見方 = 選手 16 人 / 対局 64 件では、先に 1 条件だけ再確認してから横比較
+nextCycleSuggestionReason,,今回の条件で回せました。選手数 16 人・対局数 64 件なので、現条件とピンポイント候補を並べて比較できます。

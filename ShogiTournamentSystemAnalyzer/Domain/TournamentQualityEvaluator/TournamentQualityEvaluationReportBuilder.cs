@@ -66,7 +66,8 @@ internal static class TournamentQualityEvaluationReportBuilder
 
     internal static TournamentQualityReportSummary BuildTournamentQualityReportSummary(
         IReadOnlyList<TournamentQualityReportPlayerRow> playerRows,
-        TournamentQualityScoreRule scoreRule)
+        TournamentQualityScoreRule scoreRule,
+        int simulationCount)
     {
         if (playerRows.Count == 0)
         {
@@ -79,7 +80,8 @@ internal static class TournamentQualityEvaluationReportBuilder
                 0.0,
                 "",
                 0.0,
-                scoreRule);
+                scoreRule,
+                simulationCount);
         }
 
         var spearmanCorrelation = CalculateTournamentQualityReportSpearmanCorrelation(playerRows);
@@ -101,7 +103,8 @@ internal static class TournamentQualityEvaluationReportBuilder
             mostPenalizedPlayer.OverallPlaceDeltaFromEloRank,
             mostAdvantagedPlayer.Name,
             mostAdvantagedPlayer.OverallPlaceDeltaFromEloRank,
-            scoreRule);
+            scoreRule,
+            simulationCount);
     }
 
     static TournamentQualityReportSummary BuildTournamentQualityReportSummary(
@@ -113,7 +116,8 @@ internal static class TournamentQualityEvaluationReportBuilder
         double mostPenalizedDelta,
         string mostAdvantagedPlayerName,
         double mostAdvantagedDelta,
-        TournamentQualityScoreRule scoreRule)
+        TournamentQualityScoreRule scoreRule,
+        int simulationCount)
     {
         var summaryWithoutScore = new TournamentQualityReportSummary(
             spearmanCorrelation,
@@ -125,7 +129,7 @@ internal static class TournamentQualityEvaluationReportBuilder
             mostAdvantagedPlayerName,
             mostAdvantagedDelta,
             default);
-        var scoreBreakdown = TournamentQualityScoreCalculator.Calculate(summaryWithoutScore, scoreRule);
+        var scoreBreakdown = TournamentQualityScoreCalculator.Calculate(summaryWithoutScore, scoreRule, simulationCount);
         return summaryWithoutScore with { ScoreBreakdown = scoreBreakdown };
     }
 

@@ -83,6 +83,10 @@ internal static class TournamentQualityReportDataFileWriter
             string.Join(",", CsvSchemaCommonColumns.BuildRowColumns("TournamentQualityReport", "summaryMetrics", "metric", "totalScore", score.TotalScore.ToString(CultureInfo.InvariantCulture), $"品質評価総合点 / {score.ScoreMax.ToString(CultureInfo.InvariantCulture)}").Select(EscapeCsv)),
             string.Join(",", CsvSchemaCommonColumns.BuildRowColumns("TournamentQualityReport", "summaryMetrics", "metric", "scoreMax", score.ScoreMax.ToString(CultureInfo.InvariantCulture), "品質評価総合点の満点").Select(EscapeCsv)),
             string.Join(",", CsvSchemaCommonColumns.BuildRowColumns("TournamentQualityReport", "summaryMetrics", "meta", "scorePreset", score.PresetName, "品質評価総合点プリセット").Select(EscapeCsv)),
+            string.Join(",", CsvSchemaCommonColumns.BuildRowColumns("TournamentQualityReport", "summaryMetrics", "metric", "simulationCount", score.Reliability.SimulationCount.ToString(CultureInfo.InvariantCulture), "品質評価総合点に添える試行回数").Select(EscapeCsv)),
+            string.Join(",", CsvSchemaCommonColumns.BuildRowColumns("TournamentQualityReport", "summaryMetrics", "meta", "scoreReliabilityLabel", score.Reliability.Label, "品質評価総合点の信頼区分").Select(EscapeCsv)),
+            string.Join(",", CsvSchemaCommonColumns.BuildRowColumns("TournamentQualityReport", "summaryMetrics", "meta", "isReferenceRecord", score.Reliability.IsReferenceRecord.ToString(CultureInfo.InvariantCulture), "参考記録か").Select(EscapeCsv)),
+            string.Join(",", CsvSchemaCommonColumns.BuildRowColumns("TournamentQualityReport", "summaryMetrics", "meta", "isOfficialEvaluation", score.Reliability.IsOfficialEvaluation.ToString(CultureInfo.InvariantCulture), "本評価か").Select(EscapeCsv)),
             string.Join(",", CsvSchemaCommonColumns.BuildRowColumns("TournamentQualityReport", "summaryMetrics", "metric", "scoreSpearmanNormalized", score.SpearmanScore.ToString("F6", CultureInfo.InvariantCulture), score.SpearmanPoints.ToString(CultureInfo.InvariantCulture) + " / " + score.SpearmanMaxPoints.ToString(CultureInfo.InvariantCulture)).Select(EscapeCsv)),
             string.Join(",", CsvSchemaCommonColumns.BuildRowColumns("TournamentQualityReport", "summaryMetrics", "metric", "scoreMeanRankErrorNormalized", score.MeanRankErrorScore.ToString("F6", CultureInfo.InvariantCulture), score.MeanRankErrorPoints.ToString(CultureInfo.InvariantCulture) + " / " + score.MeanRankErrorMaxPoints.ToString(CultureInfo.InvariantCulture)).Select(EscapeCsv)),
             string.Join(",", CsvSchemaCommonColumns.BuildRowColumns("TournamentQualityReport", "summaryMetrics", "metric", "scoreTop8RetentionNormalized", score.Top8RetentionScore.ToString("F6", CultureInfo.InvariantCulture), score.Top8RetentionPoints.ToString(CultureInfo.InvariantCulture) + " / " + score.Top8RetentionMaxPoints.ToString(CultureInfo.InvariantCulture)).Select(EscapeCsv)),
@@ -162,12 +166,12 @@ internal static class TournamentQualityReportDataFileWriter
                 $"- 自動おすすめ帯: **{BuildRecommendedSweepBandText(recommendedRows, bestMaeRow.FirstPlayerWinRatePercent)}**",
                 string.Empty,
                 "## 一覧表",
-                "| 先手勝率 | 総合点 | Spearman 相関 | 平均順位ずれ | Elo上位8名残留 | Elo1位の総合1位確率 | 最大不利益 | 最大利益 |",
-                "| ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |"
+                "| 先手勝率 | 総合点 | 試行回数 | 信頼区分 | Spearman 相関 | 平均順位ずれ | Elo上位8名残留 | Elo1位の総合1位確率 | 最大不利益 | 最大利益 |",
+                "| ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: | --- | --- |"
             });
 
             lines.AddRange(sweepRows.Select(row =>
-                $"| {row.FirstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture)}% | {row.TotalScore.ToString(CultureInfo.InvariantCulture)} | {row.SpearmanCorrelation.ToString("F6", CultureInfo.InvariantCulture)} | {row.MeanAbsoluteRankError.ToString("F6", CultureInfo.InvariantCulture)} | {row.AverageTop8Retention.ToString("F6", CultureInfo.InvariantCulture)} | {(row.EloTop1OverallTop1Probability * 100).ToString("F6", CultureInfo.InvariantCulture)}% | {row.MostPenalizedPlayerName} ({FormatSignedDelta(row.MostPenalizedDelta)}) | {row.MostAdvantagedPlayerName} ({FormatSignedDelta(row.MostAdvantagedDelta)}) |"));
+                $"| {row.FirstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture)}% | {row.TotalScore.ToString(CultureInfo.InvariantCulture)} | {row.SimulationCount.ToString(CultureInfo.InvariantCulture)} | {row.ScoreReliabilityLabel} | {row.SpearmanCorrelation.ToString("F6", CultureInfo.InvariantCulture)} | {row.MeanAbsoluteRankError.ToString("F6", CultureInfo.InvariantCulture)} | {row.AverageTop8Retention.ToString("F6", CultureInfo.InvariantCulture)} | {(row.EloTop1OverallTop1Probability * 100).ToString("F6", CultureInfo.InvariantCulture)}% | {row.MostPenalizedPlayerName} ({FormatSignedDelta(row.MostPenalizedDelta)}) | {row.MostAdvantagedPlayerName} ({FormatSignedDelta(row.MostAdvantagedDelta)}) |"));
 
             lines.AddRange(new[]
             {
@@ -248,6 +252,8 @@ internal static class TournamentQualityReportDataFileWriter
             string.Empty,
             "## 総合点",
             $"- 総合点: {score.TotalScore.ToString(CultureInfo.InvariantCulture)} / {score.ScoreMax.ToString(CultureInfo.InvariantCulture)}",
+            $"- 試行回数: {score.Reliability.SimulationCount.ToString(CultureInfo.InvariantCulture)}",
+            $"- 信頼区分: {score.Reliability.Label}",
             $"- スコアルール: {score.PresetName}",
             $"- 平均順位ずれ許容値: {score.MeanRankErrorTolerance.ToString("F1", CultureInfo.InvariantCulture)}",
             string.Empty,
@@ -337,7 +343,7 @@ internal static class TournamentQualityReportDataFileWriter
     {
         var lines = new List<string>
         {
-            string.Join(",", CsvSchemaCommonColumns.BuildHeaderColumns(new[] { "firstPlayerWinRatePercent", "totalScore", "spearmanCorrelation", "meanAbsoluteRankError", "averageTop8Retention", "eloTop1OverallTop1ProbabilityPercent", "mostPenalizedPlayer", "mostPenalizedDelta", "mostAdvantagedPlayer", "mostAdvantagedDelta" }).Select(EscapeCsv))
+            string.Join(",", CsvSchemaCommonColumns.BuildHeaderColumns(new[] { "firstPlayerWinRatePercent", "totalScore", "simulationCount", "scoreReliabilityLabel", "isReferenceRecord", "isOfficialEvaluation", "spearmanCorrelation", "meanAbsoluteRankError", "averageTop8Retention", "eloTop1OverallTop1ProbabilityPercent", "mostPenalizedPlayer", "mostPenalizedDelta", "mostAdvantagedPlayer", "mostAdvantagedDelta" }).Select(EscapeCsv))
         };
 
         lines.AddRange(sweepRows.Select(row => string.Join(",", CsvSchemaCommonColumns.BuildRowColumns(
@@ -346,6 +352,10 @@ internal static class TournamentQualityReportDataFileWriter
             "data",
             row.FirstPlayerWinRatePercent.ToString("F2", CultureInfo.InvariantCulture),
             row.TotalScore.ToString(CultureInfo.InvariantCulture),
+            row.SimulationCount.ToString(CultureInfo.InvariantCulture),
+            row.ScoreReliabilityLabel,
+            row.IsReferenceRecord.ToString(CultureInfo.InvariantCulture),
+            row.IsOfficialEvaluation.ToString(CultureInfo.InvariantCulture),
             row.SpearmanCorrelation.ToString("F6", CultureInfo.InvariantCulture),
             row.MeanAbsoluteRankError.ToString("F6", CultureInfo.InvariantCulture),
             row.AverageTop8Retention.ToString("F6", CultureInfo.InvariantCulture),
@@ -357,7 +367,7 @@ internal static class TournamentQualityReportDataFileWriter
 
         if (!string.IsNullOrWhiteSpace(options.EvaluationMemo))
         {
-            lines.Add(string.Join(",", CsvSchemaCommonColumns.BuildRowColumns("TournamentQualityReport", "sweepReport", "meta", "evaluationMemo", string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, options.EvaluationMemo).Select(EscapeCsv)));
+            lines.Add(string.Join(",", CsvSchemaCommonColumns.BuildRowColumns("TournamentQualityReport", "sweepReport", "meta", "evaluationMemo", string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, options.EvaluationMemo).Select(EscapeCsv)));
         }
 
         lines.AddRange(BuildNextCycleSuggestionCsvLines(suggestion));

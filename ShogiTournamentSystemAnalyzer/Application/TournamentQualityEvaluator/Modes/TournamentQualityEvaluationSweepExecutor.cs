@@ -62,7 +62,11 @@ internal static class TournamentQualityEvaluationSweepExecutor
                 qualityEvaluationRun.Summary.MostPenalizedDelta,
                 qualityEvaluationRun.Summary.MostAdvantagedPlayerName,
                 qualityEvaluationRun.Summary.MostAdvantagedDelta,
-                qualityEvaluationRun.Summary.ScoreBreakdown.TotalScore));
+                qualityEvaluationRun.Summary.ScoreBreakdown.TotalScore,
+                qualityEvaluationRun.Summary.ScoreBreakdown.Reliability.SimulationCount,
+                qualityEvaluationRun.Summary.ScoreBreakdown.Reliability.Label,
+                qualityEvaluationRun.Summary.ScoreBreakdown.Reliability.IsReferenceRecord,
+                qualityEvaluationRun.Summary.ScoreBreakdown.Reliability.IsOfficialEvaluation));
 
             if (qualityEvaluationRun.CalculationMode.Contains("時間切れ", StringComparison.Ordinal))
             {
