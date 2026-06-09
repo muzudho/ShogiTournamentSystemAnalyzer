@@ -43,6 +43,19 @@ $hasBom = $bytes.Length -ge 3 -and $bytes[0] -eq 0xEF -and $bytes[1] -eq 0xBB -a
 
 `$hasBom` が `False` なら UTF-8 BOM なしです。
 
+## PowerShell のパス指定
+
+PowerShell では、ファイルパス中の `[` と `]` がワイルドカード文字として解釈されます。
+
+このリポジトリには `Inputs/Smoke/analysis_input_[先手8x後手8]_[Simulation_QualityEvaluation_STSAInput5_smoke].request.txt` のように角括弧を含むファイル名が多いため、`Get-Content`、`Test-Path`、`Remove-Item`、`Copy-Item` などで実在パスを指定するときは `-Path` ではなく `-LiteralPath` を優先します。
+
+```powershell
+Get-Content -Raw -LiteralPath "Inputs/Smoke/analysis_input_[先手8x後手8]_[Simulation_QualityEvaluation_STSAInput5_smoke].request.txt"
+Test-Path -LiteralPath "Output/TournamentQualityEvaluator/TournamentQualityReport/Summary/[先手8x後手8]_[Simulation_QualityEvaluation_STSAInput5_smoke]_quality_summary.csv"
+```
+
+`-Path` を使うのは、明示的にワイルドカード検索をしたいときだけにします。
+
 ## 最初に見る場所
 
 - `docs/README.md`

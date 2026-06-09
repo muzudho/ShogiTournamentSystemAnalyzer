@@ -1,0 +1,17 @@
+boundaryName,schemaName,rowType,playerName,group,originalElo,eloRank,expectedOverallPlace,overallPlaceDeltaFromEloRank,overallTop1ProbabilityPercent,overallTop8ProbabilityPercent
+TournamentQualityReport,playerReport,data,飛,Neutral,5050,1,4.200,3.200,13.33,90.00
+TournamentQualityReport,playerReport,data,角,Neutral,5030,2,5.700,3.700,10.00,78.33
+TournamentQualityReport,playerReport,data,玉,Neutral,5010,3,4.550,1.550,20.00,90.00
+TournamentQualityReport,playerReport,data,金,Neutral,4990,4,2.550,-1.450,38.33,100.00
+TournamentQualityReport,playerReport,data,銀,Neutral,4970,5,7.350,2.350,0.00,79.17
+TournamentQualityReport,playerReport,data,桂,Neutral,4950,6,3.500,-2.500,13.33,96.67
+TournamentQualityReport,playerReport,data,香,Neutral,4930,7,6.250,-0.750,0.00,78.33
+TournamentQualityReport,playerReport,data,歩,Neutral,4910,8,6.750,-1.250,0.00,82.50
+TournamentQualityReport,playerReport,data,きりん,Neutral,4890,9,9.800,0.800,0.00,30.00
+TournamentQualityReport,playerReport,data,ぞう,Neutral,4870,10,11.800,1.800,0.00,10.00
+TournamentQualityReport,playerReport,data,らいおん,Neutral,4850,11,10.200,-0.800,5.00,27.50
+TournamentQualityReport,playerReport,data,いぬ,Neutral,4830,12,11.900,-0.100,0.00,15.00
+TournamentQualityReport,playerReport,data,ねこ,Neutral,4810,13,11.950,-1.050,0.00,5.83
+TournamentQualityReport,playerReport,data,うさぎ,Neutral,4790,14,12.950,-1.050,0.00,5.00
+TournamentQualityReport,playerReport,data,いのしし,Neutral,4770,15,13.950,-1.050,0.00,3.33
+TournamentQualityReport,playerReport,data,ひよこ,Neutral,4750,16,12.600,-3.400,0.00,8.33
