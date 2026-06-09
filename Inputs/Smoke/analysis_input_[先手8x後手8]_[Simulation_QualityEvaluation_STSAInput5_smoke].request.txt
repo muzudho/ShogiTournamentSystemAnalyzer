@@ -224,3 +224,13 @@ first,second
 #[Section] QualityEvaluationStep.Output
 SummaryOutputPath=Output\TournamentQualityEvaluator\TournamentQualityReport\Summary\[先手8x後手8]_[Simulation_QualityEvaluation_STSAInput5_smoke]_quality_summary.csv
 #[EndSection]
+
+#[Section] QualityEvaluationStep.QualityScoreRule
+Preset=ChampionFocused
+ScoreMax=100000
+MeanRankErrorTolerance=4.0
+SpearmanWeight=30000
+MeanRankErrorWeight=20000
+Top8RetentionWeight=15000
+EloTop1WinWeight=35000
+#[EndSection]

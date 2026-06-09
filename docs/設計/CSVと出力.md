@@ -262,12 +262,20 @@ END
 - 先頭に共通部列 `boundaryName`, `schemaName`, `rowType` が付きます
 
 ### サマリーCSV
+- `totalScore`
+- `scoreMax`
+- `scorePreset`
+- `scoreSpearmanNormalized`
+- `scoreMeanRankErrorNormalized`
+- `scoreTop8RetentionNormalized`
+- `scoreEloTop1WinNormalized`
 - `spearmanCorrelation`
 - `meanAbsoluteRankError`
 - `averageTop8Retention`
 - `eloTop1OverallTop1Probability`
 - `mostPenalizedPlayerDelta`
 - `mostAdvantagedPlayerDelta`
+- スコア内訳行の `note` には、その内訳の点数と最大点が `点 / 最大点` の形で入ります
 - 必要に応じて `evaluationMemo`
 - 既定出力先は `Output/TournamentQualityEvaluator/TournamentQualityReport/Summary`
 - `schemaName` は `summaryMetrics` です
@@ -287,6 +295,7 @@ END
 
 ### スイープCSV
 - `firstPlayerWinRatePercent`
+- `totalScore`
 - `spearmanCorrelation`
 - `meanAbsoluteRankError`
 - `averageTop8Retention`
@@ -307,6 +316,8 @@ END
 - サマリーCSVと同じ場所に、同名の `.md` を出力します
 - 主に次をまとめます
   - 計算モード
+  - 総合点とスコアルール
+  - 総合点の内訳
   - 主要指標の表
   - 最大不利益 / 最大利益
   - ずれが大きい選手の一覧
