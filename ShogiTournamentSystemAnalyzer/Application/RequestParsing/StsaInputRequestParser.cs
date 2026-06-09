@@ -179,6 +179,7 @@ internal static class StsaInputRequestParser
             "GroupMapCsv",
             "AdditionalApexPlayersCsv",
             "Inputs",
+            "QualityScoreRule",
         })
         {
             var primarySectionName = $"{stepSectionName}.{sectionName}";
@@ -387,6 +388,7 @@ internal static class StsaInputRequestParser
         string fullPath)
     {
         var tournamentRuleSetMode = ParseTournamentRuleSetMode(GetRequiredMetaValue(meta, "TournamentRuleSetMode", fullPath, FormatName));
+        var scoreRule = ParseQualityScoreRule(sections, fullPath);
         if (!HasAnySection(sections, "PlayersCsv", "MatchesInput"))
         {
             var deferredExecutionOptions = ParseQualityEvaluationExecutionOptions(meta, fullPath);
@@ -396,7 +398,8 @@ internal static class StsaInputRequestParser
                 ParseQualityEvaluationOutputOptions(meta, sections, deferredExecutionOptions.IsSweep, fullPath, TournamentQualityEvaluationOutputProfile.Standard),
                 new DeferredQualityEvaluationOptions(
                     VariableTop8Mode.Off,
-                    TournamentQualityEvaluationInnovExpectedRankOffsetMode.Off));
+                    TournamentQualityEvaluationInnovExpectedRankOffsetMode.Off),
+                scoreRule);
         }
 
         var players = ParsePlayers(GetRequiredSectionLines(sections, "PlayersCsv", fullPath, FormatName), fullPath);
@@ -437,7 +440,8 @@ internal static class StsaInputRequestParser
             ruleDefinition,
             input,
             executionOptions,
-            outputOptions);
+            outputOptions,
+            scoreRule);
     }
 
     static AnalysisStepRequest ParseGroupedQualityEvaluationStepRequest(
@@ -446,6 +450,7 @@ internal static class StsaInputRequestParser
         Dictionary<string, List<string>> sections,
         string fullPath)
     {
+        var scoreRule = ParseQualityScoreRule(sections, fullPath);
         if (!HasAnySection(sections, "PlayersCsv", "GroupMapCsv", "MatchesInput", "ReferenceMatchesInput", "AdditionalApexPlayersCsv"))
         {
             var deferredExecutionOptions = ParseQualityEvaluationExecutionOptions(meta, fullPath);
@@ -455,7 +460,8 @@ internal static class StsaInputRequestParser
                 ParseQualityEvaluationOutputOptions(meta, sections, deferredExecutionOptions.IsSweep, fullPath, TournamentQualityEvaluationOutputProfile.FinalStage),
                 new DeferredQualityEvaluationOptions(
                     ParseVariableTop8Mode(GetRequiredMetaValue(meta, "VariableTop8Mode", fullPath, FormatName)),
-                    ParseInnovExpectedRankOffsetMode(GetRequiredMetaValue(meta, "QualityInnovExpectedRankOffsetMode", fullPath, FormatName))));
+                    ParseInnovExpectedRankOffsetMode(GetRequiredMetaValue(meta, "QualityInnovExpectedRankOffsetMode", fullPath, FormatName))),
+                scoreRule);
         }
 
         var players = ParsePlayers(GetRequiredSectionLines(sections, "PlayersCsv", fullPath, FormatName), fullPath);
@@ -507,7 +513,8 @@ internal static class StsaInputRequestParser
             ruleDefinition,
             input,
             executionOptions,
-            outputOptions);
+            outputOptions,
+            scoreRule);
     }
     static bool HasAnySection(Dictionary<string, List<string>> sections, params string[] sectionNames)
     {
@@ -525,6 +532,51 @@ internal static class StsaInputRequestParser
             ?? GetOptionalMetaValue(meta, "OutputPath");
     }
 
+    static TournamentQualityScoreRule ParseQualityScoreRule(
+        Dictionary<string, List<string>> sections,
+        string fullPath)
+    {
+        if (!sections.TryGetValue("QualityScoreRule", out var scoreRuleLines)) return TournamentQualityScoreRule.Balanced();
+
+        var values = ParseSectionKeyValues(scoreRuleLines, "QualityScoreRule", fullPath, AttributeFormatName);
+        var presetName = GetOptionalMetaValue(values, "Preset") ?? "Balanced";
+        var preset = TournamentQualityScoreRule.FromPresetName(presetName);
+        var scoreRule = preset with
+        {
+            ScoreMax = ParseOptionalPositiveInt(GetOptionalMetaValue(values, "ScoreMax"), "ScoreMax") ?? preset.ScoreMax,
+            MeanRankErrorTolerance = ParseOptionalPositiveDouble(GetOptionalMetaValue(values, "MeanRankErrorTolerance"), "MeanRankErrorTolerance") ?? preset.MeanRankErrorTolerance,
+            SpearmanWeight = ParseOptionalNonNegativeInt(GetOptionalMetaValue(values, "SpearmanWeight"), "SpearmanWeight") ?? preset.SpearmanWeight,
+            MeanRankErrorWeight = ParseOptionalNonNegativeInt(GetOptionalMetaValue(values, "MeanRankErrorWeight"), "MeanRankErrorWeight") ?? preset.MeanRankErrorWeight,
+            Top8RetentionWeight = ParseOptionalNonNegativeInt(GetOptionalMetaValue(values, "Top8RetentionWeight"), "Top8RetentionWeight") ?? preset.Top8RetentionWeight,
+            EloTop1WinWeight = ParseOptionalNonNegativeInt(GetOptionalMetaValue(values, "EloTop1WinWeight"), "EloTop1WinWeight") ?? preset.EloTop1WinWeight,
+        };
+        TournamentQualityScoreCalculator.Validate(scoreRule);
+        return scoreRule;
+    }
+
+    static int? ParseOptionalPositiveInt(string? value, string keyName)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return null;
+        if (int.TryParse(value, out var parsed) && parsed >= 1) return parsed;
+
+        throw new OperationCanceledException($"{AttributeFormatName} の {keyName} は 1 以上の整数で入力してください: {value}");
+    }
+
+    static int? ParseOptionalNonNegativeInt(string? value, string keyName)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return null;
+        if (int.TryParse(value, out var parsed) && parsed >= 0) return parsed;
+
+        throw new OperationCanceledException($"{AttributeFormatName} の {keyName} は 0 以上の整数で入力してください: {value}");
+    }
+
+    static double? ParseOptionalPositiveDouble(string? value, string keyName)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return null;
+        if (InputParsers.TryParseDouble(value, out var parsed) && parsed > 0.0) return parsed;
+
+        throw new OperationCanceledException($"{AttributeFormatName} の {keyName} は 0 より大きい数で入力してください: {value}");
+    }
     static TournamentQualityEvaluationExecutionOptions ParseQualityEvaluationExecutionOptions(
         Dictionary<string, string> meta,
         string fullPath)

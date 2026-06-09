@@ -30,7 +30,8 @@ internal static partial class ManualAnalysisRequestReader
             ruleDefinition,
             input,
             executionOptions,
-            outputOptions);
+            outputOptions,
+            TournamentQualityScoreRule.Balanced());
         return true;
     }
 }

@@ -54,7 +54,7 @@ internal static class StsaInputRequestWriter
             AddRuleProfileAttributesSection(lines, "RuleProfileAttributes", stepRequests[0].GetRuleProfileAttributes());
         }
 
-        AddBodySections(lines, stepRequests[0]);
+        AddBodySections(lines, stepRequests[0], includeQualityScoreRule: useAttributeFormat);
         return lines;
     }
 
@@ -91,7 +91,7 @@ internal static class StsaInputRequestWriter
         foreach (var stepRequest in stepRequests)
         {
             var stepSectionName = GetStepSectionName(stepRequest);
-            AddBodySections(lines, stepRequest, $"{stepSectionName}.", $"{stepSectionName}.Output");
+            AddBodySections(lines, stepRequest, $"{stepSectionName}.", $"{stepSectionName}.Output", includeQualityScoreRule: useAttributeFormat);
         }
 
         return lines;
@@ -240,7 +240,8 @@ internal static class StsaInputRequestWriter
         List<string> lines,
         AnalysisStepRequest step,
         string sectionPrefix = "",
-        string outputSectionName = "Output")
+        string outputSectionName = "Output",
+        bool includeQualityScoreRule = false)
     {
         switch (step)
         {
@@ -249,11 +250,11 @@ internal static class StsaInputRequestWriter
                 break;
 
             case QualityEvaluationStepRequest request:
-                AddQualityBodySections(lines, sectionPrefix, outputSectionName, request.RuleDefinition, request.Input, request.ExecutionOptions, request.OutputOptions);
+                AddQualityBodySections(lines, sectionPrefix, outputSectionName, request.RuleDefinition, request.Input, request.ExecutionOptions, request.OutputOptions, request.ScoreRule, includeQualityScoreRule);
                 break;
 
             case DeferredQualityEvaluationStepRequest request:
-                AddDeferredQualityBodySections(lines, outputSectionName, request.ExecutionOptions, request.OutputOptions);
+                AddDeferredQualityBodySections(lines, sectionPrefix, outputSectionName, request.ExecutionOptions, request.OutputOptions, request.ScoreRule, includeQualityScoreRule);
                 break;
         }
     }
@@ -294,9 +295,12 @@ internal static class StsaInputRequestWriter
         AddOutputSection(lines, outputSectionName, summaryOutputPath: request.OutputPath);
     }    static void AddDeferredQualityBodySections(
         List<string> lines,
+        string sectionPrefix,
         string outputSectionName,
         TournamentQualityEvaluationExecutionOptions executionOptions,
-        TournamentQualityEvaluationOutputOptions outputOptions)
+        TournamentQualityEvaluationOutputOptions outputOptions,
+        TournamentQualityScoreRule scoreRule,
+        bool includeQualityScoreRule)
     {
         AddOutputSection(
             lines,
@@ -304,6 +308,7 @@ internal static class StsaInputRequestWriter
             summaryOutputPath: executionOptions.IsSweep ? null : outputOptions.OutputCsvPath,
             sweepOutputPath: executionOptions.IsSweep ? outputOptions.OutputCsvPath : null,
             playerCsvPath: outputOptions.PlayerCsvPath);
+        if (includeQualityScoreRule) AddQualityScoreRuleSection(lines, $"{sectionPrefix}QualityScoreRule", scoreRule);
     }
     static void AddQualityBodySections(
         List<string> lines,
@@ -312,7 +317,9 @@ internal static class StsaInputRequestWriter
         TournamentQualityEvaluationRuleDefinition ruleDefinition,
         TournamentQualityEvaluationInput input,
         TournamentQualityEvaluationExecutionOptions executionOptions,
-        TournamentQualityEvaluationOutputOptions outputOptions)
+        TournamentQualityEvaluationOutputOptions outputOptions,
+        TournamentQualityScoreRule scoreRule,
+        bool includeQualityScoreRule)
     {
         AddPlayersSection(lines, $"{sectionPrefix}PlayersCsv", input.Players);
         if (ruleDefinition.UsesFinalStageGrouping)
@@ -329,6 +336,7 @@ internal static class StsaInputRequestWriter
             summaryOutputPath: executionOptions.IsSweep ? null : outputOptions.OutputCsvPath,
             sweepOutputPath: executionOptions.IsSweep ? outputOptions.OutputCsvPath : null,
             playerCsvPath: outputOptions.PlayerCsvPath);
+        if (includeQualityScoreRule) AddQualityScoreRuleSection(lines, $"{sectionPrefix}QualityScoreRule", scoreRule);
     }
 
     static void AddPlayersSection(List<string> lines, string sectionName, IReadOnlyList<Player> players)
@@ -385,6 +393,22 @@ internal static class StsaInputRequestWriter
         AddSection(lines, sectionName, body);
     }
 
+    static void AddQualityScoreRuleSection(
+        List<string> lines,
+        string sectionName,
+        TournamentQualityScoreRule scoreRule)
+    {
+        AddSection(lines, sectionName, new[]
+        {
+            $"Preset={scoreRule.PresetName}",
+            $"ScoreMax={scoreRule.ScoreMax.ToString(CultureInfo.InvariantCulture)}",
+            $"MeanRankErrorTolerance={FormatNumber(scoreRule.MeanRankErrorTolerance)}",
+            $"SpearmanWeight={scoreRule.SpearmanWeight.ToString(CultureInfo.InvariantCulture)}",
+            $"MeanRankErrorWeight={scoreRule.MeanRankErrorWeight.ToString(CultureInfo.InvariantCulture)}",
+            $"Top8RetentionWeight={scoreRule.Top8RetentionWeight.ToString(CultureInfo.InvariantCulture)}",
+            $"EloTop1WinWeight={scoreRule.EloTop1WinWeight.ToString(CultureInfo.InvariantCulture)}",
+        });
+    }
     static void AddOutputSection(
         List<string> lines,
         string sectionName,

@@ -14,9 +14,10 @@ internal static class TournamentQualityEvaluationSweepExecutor
     internal static void Run(
         TournamentQualityEvaluationInput input,
         TournamentQualityEvaluationRuleDefinition ruleDefinition,
-        TournamentQualityEvaluationExecutionOptions executionOptions)
+        TournamentQualityEvaluationExecutionOptions executionOptions,
+        TournamentQualityScoreRule scoreRule)
     {
-        var tournamentQualitySweepReportData = ExecuteSweepReport(input, ruleDefinition, executionOptions);
+        var tournamentQualitySweepReportData = ExecuteSweepReport(input, ruleDefinition, executionOptions, scoreRule);
 
         ConsoleResultPrinter.PrintTournamentQualitySweepReportRows(tournamentQualitySweepReportData);
         if (tournamentQualitySweepReportData.StoppedByTimeout)
@@ -31,7 +32,8 @@ internal static class TournamentQualityEvaluationSweepExecutor
     internal static TournamentQualitySweepReportData ExecuteSweepReport(
         TournamentQualityEvaluationInput input,
         TournamentQualityEvaluationRuleDefinition ruleDefinition,
-        TournamentQualityEvaluationExecutionOptions executionOptions)
+        TournamentQualityEvaluationExecutionOptions executionOptions,
+        TournamentQualityScoreRule scoreRule)
     {
         var sweepRows = new List<TournamentQualitySweepReportRow>();
         using var simulationBudget = executionOptions.SimulationCount.HasValue ? SimulationTimeBudget.BeginSimulationBudget() : default;
@@ -47,7 +49,8 @@ internal static class TournamentQualityEvaluationSweepExecutor
             var qualityEvaluationRun = TournamentQualityEvaluationSingleRunExecutor.ExecuteRun(
                 input,
                 ruleDefinition,
-                executionOptions with { FirstPlayerWinRatePercent = firstPlayerWinRatePercent });
+                executionOptions with { FirstPlayerWinRatePercent = firstPlayerWinRatePercent },
+                scoreRule);
 
             sweepRows.Add(new TournamentQualitySweepReportRow(
                 firstPlayerWinRatePercent,

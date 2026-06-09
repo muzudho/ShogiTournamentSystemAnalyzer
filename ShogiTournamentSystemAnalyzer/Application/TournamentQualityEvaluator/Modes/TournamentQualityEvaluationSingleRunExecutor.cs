@@ -15,7 +15,8 @@ internal static class TournamentQualityEvaluationSingleRunExecutor
     internal static TournamentQualityReportRun ExecuteRun(
         TournamentQualityEvaluationInput input,
         TournamentQualityEvaluationRuleDefinition ruleDefinition,
-        TournamentQualityEvaluationExecutionOptions executionOptions)
+        TournamentQualityEvaluationExecutionOptions executionOptions,
+        TournamentQualityScoreRule scoreRule)
     {
         var firstPlayerWinRatePercent = executionOptions.FirstPlayerWinRatePercent!.Value;
         var tournamentFinalState = ExecuteTournamentFinalState(input, ruleDefinition, executionOptions, firstPlayerWinRatePercent);
@@ -27,7 +28,7 @@ internal static class TournamentQualityEvaluationSingleRunExecutor
             ruleDefinition.AdditionalApexPlacementMode,
             input.InnovExpectedRankOffsetMode,
             input.InnovExpectedRankOffsetCount);
-        var qualitySummary = TournamentQualityEvaluationReportBuilder.BuildTournamentQualityReportSummary(qualityPlayerRows);
+        var qualitySummary = TournamentQualityEvaluationReportBuilder.BuildTournamentQualityReportSummary(qualityPlayerRows, scoreRule);
         var calculationMode = qualityPlayerRows.Count == 0 && !tournamentFinalState.Mode.Contains("時間切れ", StringComparison.Ordinal)
             ? tournamentFinalState.Mode + " (0回)"
             : tournamentFinalState.Mode;
@@ -38,9 +39,10 @@ internal static class TournamentQualityEvaluationSingleRunExecutor
     internal static TournamentQualityReportData ExecuteReport(
         TournamentQualityEvaluationInput input,
         TournamentQualityEvaluationRuleDefinition ruleDefinition,
-        TournamentQualityEvaluationExecutionOptions executionOptions)
+        TournamentQualityEvaluationExecutionOptions executionOptions,
+        TournamentQualityScoreRule scoreRule)
     {
-        var qualityEvaluationRun = ExecuteRun(input, ruleDefinition, executionOptions);
+        var qualityEvaluationRun = ExecuteRun(input, ruleDefinition, executionOptions, scoreRule);
         return BoundaryDataBuilders.BuildTournamentQualityReportBoundaryData(qualityEvaluationRun);
     }
 

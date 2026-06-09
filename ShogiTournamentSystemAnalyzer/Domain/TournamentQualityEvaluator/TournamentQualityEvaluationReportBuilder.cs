@@ -64,7 +64,9 @@ internal static class TournamentQualityEvaluationReportBuilder
         throw new InvalidOperationException($"品質評価レポート生成に必要な metric がありません: {key}");
     }
 
-    internal static TournamentQualityReportSummary BuildTournamentQualityReportSummary(IReadOnlyList<TournamentQualityReportPlayerRow> playerRows)
+    internal static TournamentQualityReportSummary BuildTournamentQualityReportSummary(
+        IReadOnlyList<TournamentQualityReportPlayerRow> playerRows,
+        TournamentQualityScoreRule scoreRule)
     {
         if (playerRows.Count == 0)
         {
@@ -76,7 +78,8 @@ internal static class TournamentQualityEvaluationReportBuilder
                 "",
                 0.0,
                 "",
-                0.0);
+                0.0,
+                scoreRule);
         }
 
         var spearmanCorrelation = CalculateTournamentQualityReportSpearmanCorrelation(playerRows);
@@ -97,7 +100,8 @@ internal static class TournamentQualityEvaluationReportBuilder
             mostPenalizedPlayer.Name,
             mostPenalizedPlayer.OverallPlaceDeltaFromEloRank,
             mostAdvantagedPlayer.Name,
-            mostAdvantagedPlayer.OverallPlaceDeltaFromEloRank);
+            mostAdvantagedPlayer.OverallPlaceDeltaFromEloRank,
+            scoreRule);
     }
 
     static TournamentQualityReportSummary BuildTournamentQualityReportSummary(
@@ -108,7 +112,8 @@ internal static class TournamentQualityEvaluationReportBuilder
         string mostPenalizedPlayerName,
         double mostPenalizedDelta,
         string mostAdvantagedPlayerName,
-        double mostAdvantagedDelta)
+        double mostAdvantagedDelta,
+        TournamentQualityScoreRule scoreRule)
     {
         var summaryWithoutScore = new TournamentQualityReportSummary(
             spearmanCorrelation,
@@ -120,7 +125,7 @@ internal static class TournamentQualityEvaluationReportBuilder
             mostAdvantagedPlayerName,
             mostAdvantagedDelta,
             default);
-        var scoreBreakdown = TournamentQualityScoreCalculator.Calculate(summaryWithoutScore, TournamentQualityScoreRule.Balanced());
+        var scoreBreakdown = TournamentQualityScoreCalculator.Calculate(summaryWithoutScore, scoreRule);
         return summaryWithoutScore with { ScoreBreakdown = scoreBreakdown };
     }
 

@@ -27,23 +27,25 @@ internal static class TournamentQualityEvaluationMainline
         // ［大会品質評価実行オプション］を読み取る
         var executionOptions = TournamentQualityEvaluationExecutor.ReadTournamentQualityEvaluationExecutionOptions(input, ruleDefinition);
 
-        RunAfterInput(input, ruleDefinition, executionOptions, outputOptions: null);
+        RunAfterInput(input, ruleDefinition, executionOptions, outputOptions: null, TournamentQualityScoreRule.Balanced());
     }
 
     internal static void Run(
         TournamentQualityEvaluationInput input,
         TournamentQualityEvaluationRuleDefinition ruleDefinition,
         TournamentQualityEvaluationExecutionOptions executionOptions,
-        TournamentQualityEvaluationOutputOptions outputOptions)
+        TournamentQualityEvaluationOutputOptions outputOptions,
+        TournamentQualityScoreRule scoreRule)
     {
-        RunAfterInput(input, ruleDefinition, executionOptions, outputOptions);
+        RunAfterInput(input, ruleDefinition, executionOptions, outputOptions, scoreRule);
     }
 
     static void RunAfterInput(
         TournamentQualityEvaluationInput input,
         TournamentQualityEvaluationRuleDefinition ruleDefinition,
         TournamentQualityEvaluationExecutionOptions executionOptions,
-        TournamentQualityEvaluationOutputOptions? outputOptions)
+        TournamentQualityEvaluationOutputOptions? outputOptions,
+        TournamentQualityScoreRule scoreRule)
     {
         // ［大会品質評価実行コンテキスト］を出力
         TournamentQualityEvaluationOutputCoordinator.PrintTournamentQualityEvaluationContext(input, ruleDefinition);
@@ -54,7 +56,8 @@ internal static class TournamentQualityEvaluationMainline
             var tournamentQualitySweepReportData = TournamentQualityEvaluationSweepExecutor.ExecuteSweepReport(
                 input,
                 ruleDefinition,
-                executionOptions);
+                executionOptions,
+                scoreRule);
 
             ConsoleResultPrinter.PrintTournamentQualitySweepReportRows(tournamentQualitySweepReportData);
             if (tournamentQualitySweepReportData.StoppedByTimeout)
@@ -71,7 +74,8 @@ internal static class TournamentQualityEvaluationMainline
         var tournamentQualityReportData = TournamentQualityEvaluationSingleRunExecutor.ExecuteReport(
             input,
             ruleDefinition,
-            executionOptions);
+            executionOptions,
+            scoreRule);
 
         // 品質評価レポートの要約を出力
         ConsoleResultPrinter.PrintTournamentQualityReportSummary(tournamentQualityReportData);

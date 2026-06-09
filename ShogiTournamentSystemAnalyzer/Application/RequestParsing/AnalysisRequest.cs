@@ -116,13 +116,15 @@ internal sealed record QualityEvaluationStepRequest(
     TournamentQualityEvaluationRuleDefinition RuleDefinition,
     TournamentQualityEvaluationInput Input,
     TournamentQualityEvaluationExecutionOptions ExecutionOptions,
-    TournamentQualityEvaluationOutputOptions OutputOptions) : AnalysisStepRequest;
+    TournamentQualityEvaluationOutputOptions OutputOptions,
+    TournamentQualityScoreRule ScoreRule) : AnalysisStepRequest;
 
 internal sealed record DeferredQualityEvaluationStepRequest(
     RuleProfileAttributes RuleProfileAttributes,
     TournamentQualityEvaluationExecutionOptions ExecutionOptions,
     TournamentQualityEvaluationOutputOptions OutputOptions,
-    DeferredQualityEvaluationOptions DeferredOptions) : AnalysisStepRequest;
+    DeferredQualityEvaluationOptions DeferredOptions,
+    TournamentQualityScoreRule ScoreRule) : AnalysisStepRequest;
 
 internal sealed record DeferredQualityEvaluationOptions(
     VariableTop8Mode VariableTop8Mode,

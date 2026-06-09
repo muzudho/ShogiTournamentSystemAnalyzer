@@ -41,20 +41,20 @@ internal static class TournamentQualityScoreCalculator
             rule.EloTop1WinWeight);
     }
 
-    static void Validate(TournamentQualityScoreRule rule)
+    internal static void Validate(TournamentQualityScoreRule rule)
     {
-        if (string.IsNullOrWhiteSpace(rule.PresetName)) throw new InvalidOperationException("品質評価総合点のプリセット名が空です。");
-        if (rule.ScoreMax < 1) throw new InvalidOperationException("品質評価総合点の満点は 1 以上にしてください。");
-        if (rule.MeanRankErrorTolerance <= 0.0) throw new InvalidOperationException("品質評価総合点の平均順位ずれ許容値は 0 より大きくしてください。");
+        if (string.IsNullOrWhiteSpace(rule.PresetName)) throw new OperationCanceledException("品質評価総合点のプリセット名が空です。");
+        if (rule.ScoreMax < 1) throw new OperationCanceledException("品質評価総合点の満点は 1 以上にしてください。");
+        if (rule.MeanRankErrorTolerance <= 0.0) throw new OperationCanceledException("品質評価総合点の平均順位ずれ許容値は 0 より大きくしてください。");
         if (rule.SpearmanWeight < 0 || rule.MeanRankErrorWeight < 0 || rule.Top8RetentionWeight < 0 || rule.EloTop1WinWeight < 0)
         {
-            throw new InvalidOperationException("品質評価総合点の重みは 0 以上にしてください。");
+            throw new OperationCanceledException("品質評価総合点の重みは 0 以上にしてください。");
         }
 
         var weightTotal = rule.SpearmanWeight + rule.MeanRankErrorWeight + rule.Top8RetentionWeight + rule.EloTop1WinWeight;
         if (weightTotal != rule.ScoreMax)
         {
-            throw new InvalidOperationException($"品質評価総合点の重み合計 {weightTotal} が満点 {rule.ScoreMax} と一致しません。");
+            throw new OperationCanceledException($"品質評価総合点の重み合計 {weightTotal} が満点 {rule.ScoreMax} と一致しません。");
         }
     }
 

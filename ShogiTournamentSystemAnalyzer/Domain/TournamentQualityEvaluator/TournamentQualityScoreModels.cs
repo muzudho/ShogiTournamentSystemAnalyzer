@@ -26,6 +26,39 @@ readonly record struct TournamentQualityScoreRule(
             20000,
             15000);
     }
+
+    internal static TournamentQualityScoreRule ChampionFocused()
+    {
+        return new TournamentQualityScoreRule(
+            "ChampionFocused",
+            100000,
+            4.0,
+            30000,
+            20000,
+            15000,
+            35000);
+    }
+
+    internal static TournamentQualityScoreRule Top8Focused()
+    {
+        return new TournamentQualityScoreRule(
+            "Top8Focused",
+            100000,
+            4.0,
+            30000,
+            20000,
+            35000,
+            15000);
+    }
+
+    internal static TournamentQualityScoreRule FromPresetName(string presetName)
+    {
+        if (presetName.Equals("Balanced", StringComparison.OrdinalIgnoreCase)) return Balanced();
+        if (presetName.Equals("ChampionFocused", StringComparison.OrdinalIgnoreCase)) return ChampionFocused();
+        if (presetName.Equals("Top8Focused", StringComparison.OrdinalIgnoreCase)) return Top8Focused();
+
+        throw new OperationCanceledException($"品質評価総合点の Preset は Balanced / ChampionFocused / Top8Focused のいずれかで入力してください: {presetName}");
+    }
 }
 
 /// <summary>

@@ -44,7 +44,8 @@ internal static class QualityEvaluationDomain
             request.Input,
             request.RuleDefinition,
             request.ExecutionOptions,
-            request.OutputOptions);
+            request.OutputOptions,
+            request.ScoreRule);
     }
 
     static QualityEvaluationStepRequest CreateQualityEvaluationRequest(
@@ -90,7 +91,8 @@ internal static class QualityEvaluationDomain
             ruleDefinition,
             input,
             EnsureSimulationCountIfNeeded(request.ExecutionOptions, input.Matches.Count),
-            request.OutputOptions);
+            request.OutputOptions,
+            request.ScoreRule);
     }
 
     static QualityEvaluationStepRequest CreateGroupedQualityEvaluationStepRequest(
@@ -131,7 +133,8 @@ internal static class QualityEvaluationDomain
             ruleDefinition,
             input,
             EnsureSimulationCountIfNeeded(request.ExecutionOptions, input.Matches.Count),
-            request.OutputOptions);
+            request.OutputOptions,
+            request.ScoreRule);
     }
 
     static TournamentQualityEvaluationExecutionOptions EnsureSimulationCountIfNeeded(
